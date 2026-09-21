@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import PlatformLayout from "@/pages/platform/PlatformLayout";
 
@@ -8,6 +8,7 @@ export const Route = createFileRoute("/app")({
   component: AppArea,
 });
 
+// PlatformLayout renders the nested pages through its own <Outlet />.
 function AppArea() {
   return (
     <ProtectedRoute>
@@ -15,6 +16,3 @@ function AppArea() {
     </ProtectedRoute>
   );
 }
-
-// PlatformLayout renders its own <Outlet /> for the nested pages.
-export { Outlet };

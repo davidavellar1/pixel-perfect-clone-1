@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as DeveloperSignupRouteImport } from './routes/developer-signup'
 import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as EcosystemRouteImport } from './routes/ecosystem'
@@ -48,6 +49,11 @@ import { Route as AppProjectsSlugRouteImport } from './routes/app.projects.$slug
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DeveloperSignupRoute = DeveloperSignupRouteImport.update({
@@ -121,89 +127,89 @@ const SubmitProjectRoute = SubmitProjectRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/app/',
-  path: '/app/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppAccessRequestsRoute = AppAccessRequestsRouteImport.update({
-  id: '/app/access-requests',
-  path: '/app/access-requests',
-  getParentRoute: () => rootRouteImport,
+  id: '/access-requests',
+  path: '/access-requests',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppAdvisorsRoute = AppAdvisorsRouteImport.update({
-  id: '/app/advisors',
-  path: '/app/advisors',
-  getParentRoute: () => rootRouteImport,
+  id: '/advisors',
+  path: '/advisors',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppBundleBuilderRoute = AppBundleBuilderRouteImport.update({
-  id: '/app/bundle-builder',
-  path: '/app/bundle-builder',
-  getParentRoute: () => rootRouteImport,
+  id: '/bundle-builder',
+  path: '/bundle-builder',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppDataRoomRequestsRoute = AppDataRoomRequestsRouteImport.update({
-  id: '/app/data-room-requests',
-  path: '/app/data-room-requests',
-  getParentRoute: () => rootRouteImport,
+  id: '/data-room-requests',
+  path: '/data-room-requests',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppDeveloperRoute = AppDeveloperRouteImport.update({
-  id: '/app/developer',
-  path: '/app/developer',
-  getParentRoute: () => rootRouteImport,
+  id: '/developer',
+  path: '/developer',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppEcosystemRoute = AppEcosystemRouteImport.update({
-  id: '/app/ecosystem',
-  path: '/app/ecosystem',
-  getParentRoute: () => rootRouteImport,
+  id: '/ecosystem',
+  path: '/ecosystem',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppFeedbackRoute = AppFeedbackRouteImport.update({
-  id: '/app/feedback',
-  path: '/app/feedback',
-  getParentRoute: () => rootRouteImport,
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppInvestorRoute = AppInvestorRouteImport.update({
-  id: '/app/investor',
-  path: '/app/investor',
-  getParentRoute: () => rootRouteImport,
+  id: '/investor',
+  path: '/investor',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppMyListingsRoute = AppMyListingsRouteImport.update({
-  id: '/app/my-listings',
-  path: '/app/my-listings',
-  getParentRoute: () => rootRouteImport,
+  id: '/my-listings',
+  path: '/my-listings',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppMyPortfolioRoute = AppMyPortfolioRouteImport.update({
-  id: '/app/my-portfolio',
-  path: '/app/my-portfolio',
-  getParentRoute: () => rootRouteImport,
+  id: '/my-portfolio',
+  path: '/my-portfolio',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppOpportunitiesRoute = AppOpportunitiesRouteImport.update({
-  id: '/app/opportunities',
-  path: '/app/opportunities',
-  getParentRoute: () => rootRouteImport,
+  id: '/opportunities',
+  path: '/opportunities',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppPortfolioRoute = AppPortfolioRouteImport.update({
-  id: '/app/portfolio',
-  path: '/app/portfolio',
-  getParentRoute: () => rootRouteImport,
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppPublicFundingRoute = AppPublicFundingRouteImport.update({
-  id: '/app/public-funding',
-  path: '/app/public-funding',
-  getParentRoute: () => rootRouteImport,
+  id: '/public-funding',
+  path: '/public-funding',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppSubmitProjectRoute = AppSubmitProjectRouteImport.update({
-  id: '/app/submit-project',
-  path: '/app/submit-project',
-  getParentRoute: () => rootRouteImport,
+  id: '/submit-project',
+  path: '/submit-project',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppSupportRoute = AppSupportRouteImport.update({
-  id: '/app/support',
-  path: '/app/support',
-  getParentRoute: () => rootRouteImport,
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppWatchlistRoute = AppWatchlistRouteImport.update({
-  id: '/app/watchlist',
-  path: '/app/watchlist',
-  getParentRoute: () => rootRouteImport,
+  id: '/watchlist',
+  path: '/watchlist',
+  getParentRoute: () => AppRoute,
 } as any)
 const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   id: '/projects/',
@@ -216,13 +222,14 @@ const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppProjectsSlugRoute = AppProjectsSlugRouteImport.update({
-  id: '/app/projects/$slug',
-  path: '/app/projects/$slug',
-  getParentRoute: () => rootRouteImport,
+  id: '/projects/$slug',
+  path: '/projects/$slug',
+  getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
   '/developer-signup': typeof DeveloperSignupRoute
   '/developers': typeof DevelopersRoute
   '/ecosystem': typeof EcosystemRoute
@@ -298,6 +305,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
   '/developer-signup': typeof DeveloperSignupRoute
   '/developers': typeof DevelopersRoute
   '/ecosystem': typeof EcosystemRoute
@@ -337,6 +345,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/app'
     | '/developer-signup'
     | '/developers'
     | '/ecosystem'
@@ -411,6 +420,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/app'
     | '/developer-signup'
     | '/developers'
     | '/ecosystem'
@@ -449,6 +459,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
   DeveloperSignupRoute: typeof DeveloperSignupRoute
   DevelopersRoute: typeof DevelopersRoute
   EcosystemRoute: typeof EcosystemRoute
@@ -463,26 +474,8 @@ export interface RootRouteChildren {
   SigninRoute: typeof SigninRoute
   SignupRoute: typeof SignupRoute
   SubmitProjectRoute: typeof SubmitProjectRoute
-  AppAccessRequestsRoute: typeof AppAccessRequestsRoute
-  AppAdvisorsRoute: typeof AppAdvisorsRoute
-  AppBundleBuilderRoute: typeof AppBundleBuilderRoute
-  AppDataRoomRequestsRoute: typeof AppDataRoomRequestsRoute
-  AppDeveloperRoute: typeof AppDeveloperRoute
-  AppEcosystemRoute: typeof AppEcosystemRoute
-  AppFeedbackRoute: typeof AppFeedbackRoute
-  AppInvestorRoute: typeof AppInvestorRoute
-  AppMyListingsRoute: typeof AppMyListingsRoute
-  AppMyPortfolioRoute: typeof AppMyPortfolioRoute
-  AppOpportunitiesRoute: typeof AppOpportunitiesRoute
-  AppPortfolioRoute: typeof AppPortfolioRoute
-  AppPublicFundingRoute: typeof AppPublicFundingRoute
-  AppSubmitProjectRoute: typeof AppSubmitProjectRoute
-  AppSupportRoute: typeof AppSupportRoute
-  AppWatchlistRoute: typeof AppWatchlistRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
-  AppIndexRoute: typeof AppIndexRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
-  AppProjectsSlugRoute: typeof AppProjectsSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -492,6 +485,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/developer-signup': {
@@ -594,122 +594,122 @@ declare module '@tanstack/react-router' {
     }
     '/app/': {
       id: '/app/'
-      path: '/app'
+      path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/access-requests': {
       id: '/app/access-requests'
-      path: '/app/access-requests'
+      path: '/access-requests'
       fullPath: '/app/access-requests'
       preLoaderRoute: typeof AppAccessRequestsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/advisors': {
       id: '/app/advisors'
-      path: '/app/advisors'
+      path: '/advisors'
       fullPath: '/app/advisors'
       preLoaderRoute: typeof AppAdvisorsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/bundle-builder': {
       id: '/app/bundle-builder'
-      path: '/app/bundle-builder'
+      path: '/bundle-builder'
       fullPath: '/app/bundle-builder'
       preLoaderRoute: typeof AppBundleBuilderRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/data-room-requests': {
       id: '/app/data-room-requests'
-      path: '/app/data-room-requests'
+      path: '/data-room-requests'
       fullPath: '/app/data-room-requests'
       preLoaderRoute: typeof AppDataRoomRequestsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/developer': {
       id: '/app/developer'
-      path: '/app/developer'
+      path: '/developer'
       fullPath: '/app/developer'
       preLoaderRoute: typeof AppDeveloperRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/ecosystem': {
       id: '/app/ecosystem'
-      path: '/app/ecosystem'
+      path: '/ecosystem'
       fullPath: '/app/ecosystem'
       preLoaderRoute: typeof AppEcosystemRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/feedback': {
       id: '/app/feedback'
-      path: '/app/feedback'
+      path: '/feedback'
       fullPath: '/app/feedback'
       preLoaderRoute: typeof AppFeedbackRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/investor': {
       id: '/app/investor'
-      path: '/app/investor'
+      path: '/investor'
       fullPath: '/app/investor'
       preLoaderRoute: typeof AppInvestorRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/my-listings': {
       id: '/app/my-listings'
-      path: '/app/my-listings'
+      path: '/my-listings'
       fullPath: '/app/my-listings'
       preLoaderRoute: typeof AppMyListingsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/my-portfolio': {
       id: '/app/my-portfolio'
-      path: '/app/my-portfolio'
+      path: '/my-portfolio'
       fullPath: '/app/my-portfolio'
       preLoaderRoute: typeof AppMyPortfolioRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/opportunities': {
       id: '/app/opportunities'
-      path: '/app/opportunities'
+      path: '/opportunities'
       fullPath: '/app/opportunities'
       preLoaderRoute: typeof AppOpportunitiesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/portfolio': {
       id: '/app/portfolio'
-      path: '/app/portfolio'
+      path: '/portfolio'
       fullPath: '/app/portfolio'
       preLoaderRoute: typeof AppPortfolioRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/public-funding': {
       id: '/app/public-funding'
-      path: '/app/public-funding'
+      path: '/public-funding'
       fullPath: '/app/public-funding'
       preLoaderRoute: typeof AppPublicFundingRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/submit-project': {
       id: '/app/submit-project'
-      path: '/app/submit-project'
+      path: '/submit-project'
       fullPath: '/app/submit-project'
       preLoaderRoute: typeof AppSubmitProjectRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/support': {
       id: '/app/support'
-      path: '/app/support'
+      path: '/support'
       fullPath: '/app/support'
       preLoaderRoute: typeof AppSupportRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/watchlist': {
       id: '/app/watchlist'
-      path: '/app/watchlist'
+      path: '/watchlist'
       fullPath: '/app/watchlist'
       preLoaderRoute: typeof AppWatchlistRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/projects/': {
       id: '/projects/'
@@ -727,30 +727,36 @@ declare module '@tanstack/react-router' {
     }
     '/app/projects/$slug': {
       id: '/app/projects/$slug'
-      path: '/app/projects/$slug'
+      path: '/projects/$slug'
       fullPath: '/app/projects/$slug'
       preLoaderRoute: typeof AppProjectsSlugRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  DeveloperSignupRoute: DeveloperSignupRoute,
-  DevelopersRoute: DevelopersRoute,
-  EcosystemRoute: EcosystemRoute,
-  ForDevelopersRoute: ForDevelopersRoute,
-  ForInvestorsRoute: ForInvestorsRoute,
-  HowItWorksRoute: HowItWorksRoute,
-  InvestorSignupRoute: InvestorSignupRoute,
-  InvestorsRoute: InvestorsRoute,
-  PublicFundingRoute: PublicFundingRoute,
-  SignInRoute: SignInRoute,
-  SignUpRoute: SignUpRoute,
-  SigninRoute: SigninRoute,
-  SignupRoute: SignupRoute,
-  SubmitProjectRoute: SubmitProjectRoute,
+interface AppRouteChildren {
+  AppAccessRequestsRoute: typeof AppAccessRequestsRoute
+  AppAdvisorsRoute: typeof AppAdvisorsRoute
+  AppBundleBuilderRoute: typeof AppBundleBuilderRoute
+  AppDataRoomRequestsRoute: typeof AppDataRoomRequestsRoute
+  AppDeveloperRoute: typeof AppDeveloperRoute
+  AppEcosystemRoute: typeof AppEcosystemRoute
+  AppFeedbackRoute: typeof AppFeedbackRoute
+  AppInvestorRoute: typeof AppInvestorRoute
+  AppMyListingsRoute: typeof AppMyListingsRoute
+  AppMyPortfolioRoute: typeof AppMyPortfolioRoute
+  AppOpportunitiesRoute: typeof AppOpportunitiesRoute
+  AppPortfolioRoute: typeof AppPortfolioRoute
+  AppPublicFundingRoute: typeof AppPublicFundingRoute
+  AppSubmitProjectRoute: typeof AppSubmitProjectRoute
+  AppSupportRoute: typeof AppSupportRoute
+  AppWatchlistRoute: typeof AppWatchlistRoute
+  AppIndexRoute: typeof AppIndexRoute
+  AppProjectsSlugRoute: typeof AppProjectsSlugRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
   AppAccessRequestsRoute: AppAccessRequestsRoute,
   AppAdvisorsRoute: AppAdvisorsRoute,
   AppBundleBuilderRoute: AppBundleBuilderRoute,
@@ -767,10 +773,31 @@ const rootRouteChildren: RootRouteChildren = {
   AppSubmitProjectRoute: AppSubmitProjectRoute,
   AppSupportRoute: AppSupportRoute,
   AppWatchlistRoute: AppWatchlistRoute,
-  ProjectsSlugRoute: ProjectsSlugRoute,
   AppIndexRoute: AppIndexRoute,
-  ProjectsIndexRoute: ProjectsIndexRoute,
   AppProjectsSlugRoute: AppProjectsSlugRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  DeveloperSignupRoute: DeveloperSignupRoute,
+  DevelopersRoute: DevelopersRoute,
+  EcosystemRoute: EcosystemRoute,
+  ForDevelopersRoute: ForDevelopersRoute,
+  ForInvestorsRoute: ForInvestorsRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  InvestorSignupRoute: InvestorSignupRoute,
+  InvestorsRoute: InvestorsRoute,
+  PublicFundingRoute: PublicFundingRoute,
+  SignInRoute: SignInRoute,
+  SignUpRoute: SignUpRoute,
+  SigninRoute: SigninRoute,
+  SignupRoute: SignupRoute,
+  SubmitProjectRoute: SubmitProjectRoute,
+  ProjectsSlugRoute: ProjectsSlugRoute,
+  ProjectsIndexRoute: ProjectsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
