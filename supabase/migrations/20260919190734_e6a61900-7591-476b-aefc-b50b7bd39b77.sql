@@ -1,1 +1,0 @@
-CREATE POLICY "grant_owner_insert" ON public.document_access_grant FOR INSERT TO authenticated WITH CHECK (public.owns_document(auth.uid(), document_id));
