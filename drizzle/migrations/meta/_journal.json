@@ -15,6 +15,13 @@
       "when": 1790028610043,
       "tag": "0001_dhc_core_marketplace_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790028647341,
+      "tag": "0002_dhc_interest_grants_and_document_sync",
+      "breakpoints": true
     }
   ]
 }

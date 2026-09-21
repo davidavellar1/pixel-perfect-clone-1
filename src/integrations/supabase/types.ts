@@ -542,6 +542,44 @@ export type Database = {
           },
         ]
       }
+      project_interest: {
+        Row: {
+          id: string
+          indicated_commitment: number | null
+          introduced_at: string
+          investor_user_id: string
+          project_id: string
+          stage: Database["public"]["Enums"]["deal_stage"]
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          indicated_commitment?: number | null
+          introduced_at?: string
+          investor_user_id: string
+          project_id: string
+          stage?: Database["public"]["Enums"]["deal_stage"]
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          indicated_commitment?: number | null
+          introduced_at?: string
+          investor_user_id?: string
+          project_id?: string
+          stage?: Database["public"]["Enums"]["deal_stage"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_interest_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_funding: {
         Row: {
           amount: number | null
@@ -867,6 +905,12 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "developer" | "investor" | "advisor"
+      deal_stage:
+        | "interest_logged"
+        | "data_room"
+        | "due_diligence"
+        | "term_sheet"
+        | "financial_close"
       developer_type:
         | "utility"
         | "municipality"
@@ -1046,6 +1090,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "developer", "investor", "advisor"],
+      deal_stage: [
+        "interest_logged",
+        "data_room",
+        "due_diligence",
+        "term_sheet",
+        "financial_close",
+      ],
       developer_type: [
         "utility",
         "municipality",
