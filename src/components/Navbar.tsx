@@ -85,21 +85,14 @@ const Navbar = ({ isHome: isHomeProp }: NavbarProps = {}) => {
             </DropdownMenu>
           ) : (
             <>
-              <a href="/signin">
-                <Button
-                  size="default"
-                  variant="outline"
-                  className="px-6 bg-transparent text-primary-foreground border-primary-foreground/20 hover:bg-primary-foreground/10 font-semibold rounded-md"
-                >
-                  Sign In
-                </Button>
-              </a>
-              <Button
-                size="default"
-                className="px-6 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold rounded-md"
-                  onClick={() => navigate("/sign-up")}
+              <a
+                href="/sign-in"
+                className="px-3 py-2 text-[14.5px] font-medium text-white transition-colors hover:text-accent"
               >
-                Get Started
+                Sign in
+              </a>
+              <Button variant="hero" onClick={() => navigate("/sign-up")}>
+                Get started
               </Button>
             </>
           )}
