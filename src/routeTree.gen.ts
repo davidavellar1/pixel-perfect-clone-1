@@ -19,12 +19,14 @@ import { Route as ForInvestorsRouteImport } from './routes/for-investors'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as InvestorSignupRouteImport } from './routes/investor-signup'
 import { Route as InvestorsRouteImport } from './routes/investors'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PublicFundingRouteImport } from './routes/public-funding'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SubmitProjectRouteImport } from './routes/submit-project'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAccessRequestsRouteImport } from './routes/app.access-requests'
 import { Route as AppAdvisorsRouteImport } from './routes/app.advisors'
@@ -44,6 +46,7 @@ import { Route as AppSupportRouteImport } from './routes/app.support'
 import { Route as AppWatchlistRouteImport } from './routes/app.watchlist'
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AppProjectsSlugRouteImport } from './routes/app.projects.$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -96,6 +99,11 @@ const InvestorsRoute = InvestorsRouteImport.update({
   path: '/investors',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicFundingRoute = PublicFundingRouteImport.update({
   id: '/public-funding',
   path: '/public-funding',
@@ -126,6 +134,12 @@ const SubmitProjectRoute = SubmitProjectRouteImport.update({
   path: '/submit-project',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -221,6 +235,11 @@ const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
   path: '/projects/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppProjectsSlugRoute = AppProjectsSlugRouteImport.update({
   id: '/projects/$slug',
   path: '/projects/$slug',
@@ -238,12 +257,14 @@ export interface FileRoutesByFullPath {
   '/how-it-works': typeof HowItWorksRoute
   '/investor-signup': typeof InvestorSignupRoute
   '/investors': typeof InvestorsRoute
+  '/mcp': typeof McpRoute
   '/public-funding': typeof PublicFundingRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/submit-project': typeof SubmitProjectRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/app/access-requests': typeof AppAccessRequestsRoute
   '/app/advisors': typeof AppAdvisorsRoute
   '/app/bundle-builder': typeof AppBundleBuilderRoute
@@ -263,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/projects/$slug': typeof ProjectsSlugRoute
   '/app/': typeof AppIndexRoute
   '/projects/': typeof ProjectsIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
 }
 export interface FileRoutesByTo {
@@ -275,12 +297,14 @@ export interface FileRoutesByTo {
   '/how-it-works': typeof HowItWorksRoute
   '/investor-signup': typeof InvestorSignupRoute
   '/investors': typeof InvestorsRoute
+  '/mcp': typeof McpRoute
   '/public-funding': typeof PublicFundingRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/submit-project': typeof SubmitProjectRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/app/access-requests': typeof AppAccessRequestsRoute
   '/app/advisors': typeof AppAdvisorsRoute
   '/app/bundle-builder': typeof AppBundleBuilderRoute
@@ -300,6 +324,7 @@ export interface FileRoutesByTo {
   '/projects/$slug': typeof ProjectsSlugRoute
   '/app': typeof AppIndexRoute
   '/projects': typeof ProjectsIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
 }
 export interface FileRoutesById {
@@ -314,12 +339,14 @@ export interface FileRoutesById {
   '/how-it-works': typeof HowItWorksRoute
   '/investor-signup': typeof InvestorSignupRoute
   '/investors': typeof InvestorsRoute
+  '/mcp': typeof McpRoute
   '/public-funding': typeof PublicFundingRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
   '/submit-project': typeof SubmitProjectRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/app/access-requests': typeof AppAccessRequestsRoute
   '/app/advisors': typeof AppAdvisorsRoute
   '/app/bundle-builder': typeof AppBundleBuilderRoute
@@ -339,6 +366,7 @@ export interface FileRoutesById {
   '/projects/$slug': typeof ProjectsSlugRoute
   '/app/': typeof AppIndexRoute
   '/projects/': typeof ProjectsIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
 }
 export interface FileRouteTypes {
@@ -354,12 +382,14 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/investor-signup'
     | '/investors'
+    | '/mcp'
     | '/public-funding'
     | '/sign-in'
     | '/sign-up'
     | '/signin'
     | '/signup'
     | '/submit-project'
+    | '/.well-known/oauth-protected-resource'
     | '/app/access-requests'
     | '/app/advisors'
     | '/app/bundle-builder'
@@ -379,6 +409,7 @@ export interface FileRouteTypes {
     | '/projects/$slug'
     | '/app/'
     | '/projects/'
+    | '/.lovable/oauth/consent'
     | '/app/projects/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -391,12 +422,14 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/investor-signup'
     | '/investors'
+    | '/mcp'
     | '/public-funding'
     | '/sign-in'
     | '/sign-up'
     | '/signin'
     | '/signup'
     | '/submit-project'
+    | '/.well-known/oauth-protected-resource'
     | '/app/access-requests'
     | '/app/advisors'
     | '/app/bundle-builder'
@@ -416,6 +449,7 @@ export interface FileRouteTypes {
     | '/projects/$slug'
     | '/app'
     | '/projects'
+    | '/.lovable/oauth/consent'
     | '/app/projects/$slug'
   id:
     | '__root__'
@@ -429,12 +463,14 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/investor-signup'
     | '/investors'
+    | '/mcp'
     | '/public-funding'
     | '/sign-in'
     | '/sign-up'
     | '/signin'
     | '/signup'
     | '/submit-project'
+    | '/.well-known/oauth-protected-resource'
     | '/app/access-requests'
     | '/app/advisors'
     | '/app/bundle-builder'
@@ -454,6 +490,7 @@ export interface FileRouteTypes {
     | '/projects/$slug'
     | '/app/'
     | '/projects/'
+    | '/.lovable/oauth/consent'
     | '/app/projects/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -468,14 +505,17 @@ export interface RootRouteChildren {
   HowItWorksRoute: typeof HowItWorksRoute
   InvestorSignupRoute: typeof InvestorSignupRoute
   InvestorsRoute: typeof InvestorsRoute
+  McpRoute: typeof McpRoute
   PublicFundingRoute: typeof PublicFundingRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
   SigninRoute: typeof SigninRoute
   SignupRoute: typeof SignupRoute
   SubmitProjectRoute: typeof SubmitProjectRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -550,6 +590,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvestorsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/public-funding': {
       id: '/public-funding'
       path: '/public-funding'
@@ -590,6 +637,13 @@ declare module '@tanstack/react-router' {
       path: '/submit-project'
       fullPath: '/submit-project'
       preLoaderRoute: typeof SubmitProjectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/': {
@@ -725,6 +779,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/projects/$slug': {
       id: '/app/projects/$slug'
       path: '/projects/$slug'
@@ -790,14 +851,18 @@ const rootRouteChildren: RootRouteChildren = {
   HowItWorksRoute: HowItWorksRoute,
   InvestorSignupRoute: InvestorSignupRoute,
   InvestorsRoute: InvestorsRoute,
+  McpRoute: McpRoute,
   PublicFundingRoute: PublicFundingRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
   SigninRoute: SigninRoute,
   SignupRoute: SignupRoute,
   SubmitProjectRoute: SubmitProjectRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
