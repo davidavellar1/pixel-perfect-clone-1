@@ -1,21 +1,27 @@
-const StatsBar = () => {
-  const stats = [
-    { value: "€2.4B+", label: "Pipeline Value" },
-    { value: "120+", label: "Projects Listed" },
-    { value: "45+", label: "Active Investors" },
-  ];
+const stats = [
+  { value: "€2.4B+", label: "Pipeline value" },
+  { value: "120+", label: "Projects listed" },
+  { value: "45+", label: "Active investors" },
+];
 
+const StatsBar = () => {
   return (
-    <section className="bg-card border-b">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          {stats.map((stat) => (
-            <div key={stat.label}>
-              <p className="text-3xl md:text-4xl font-bold text-foreground font-serif">{stat.value}</p>
-              <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+    <section className="border-b border-border bg-card">
+      <div className="container grid grid-cols-1 gap-7 py-12 md:grid-cols-3">
+        {stats.map((stat, i) => (
+          <div
+            key={stat.label}
+            className={`text-center ${i < stats.length - 1 ? "border-b border-border pb-6 md:border-b-0 md:border-r md:pb-0" : ""}`}
+          >
+            <div className="font-display text-[46px] font-semibold tracking-[-0.02em] text-foreground">
+              {stat.value}
             </div>
-          ))}
-        </div>
+            <div className="mt-1.5 font-display text-sm font-medium text-muted-foreground">{stat.label}</div>
+            <div className="mt-1 text-[11.5px] italic text-subtle-foreground">
+              illustrative — not live data
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );
