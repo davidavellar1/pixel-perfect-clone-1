@@ -14,8 +14,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) {
-    const redirect = encodeURIComponent(location.pathname + location.search);
-    return <Navigate to={`/signin?redirect=${redirect}`} replace />;
+    const target = location.pathname + location.search;
+    const to = target.startsWith("/app")
+      ? `/sign-in?redirect=${encodeURIComponent(target)}`
+      : "/sign-in";
+    return <Navigate to={to} replace />;
   }
 
   return <>{children}</>;
