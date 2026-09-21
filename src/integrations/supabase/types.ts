@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      developer_profiles: {
+        Row: {
+          company_name: string | null
+          countries_of_operation: string[] | null
+          created_at: string
+          developer_type: Database["public"]["Enums"]["developer_type"] | null
+          full_name: string
+          id: string
+          position: string | null
+          project_stages: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_name?: string | null
+          countries_of_operation?: string[] | null
+          created_at?: string
+          developer_type?: Database["public"]["Enums"]["developer_type"] | null
+          full_name: string
+          id?: string
+          position?: string | null
+          project_stages?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_name?: string | null
+          countries_of_operation?: string[] | null
+          created_at?: string
+          developer_type?: Database["public"]["Enums"]["developer_type"] | null
+          full_name?: string
+          id?: string
+          position?: string | null
+          project_stages?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      investor_profiles: {
+        Row: {
+          company_name: string | null
+          created_at: string
+          full_name: string
+          id: string
+          investment_range:
+            | Database["public"]["Enums"]["investment_range"]
+            | null
+          investor_type: Database["public"]["Enums"]["investor_type"] | null
+          regions_of_interest: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          investment_range?:
+            | Database["public"]["Enums"]["investment_range"]
+            | null
+          investor_type?: Database["public"]["Enums"]["investor_type"] | null
+          regions_of_interest?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          investment_range?:
+            | Database["public"]["Enums"]["investment_range"]
+            | null
+          investor_type?: Database["public"]["Enums"]["investor_type"] | null
+          regions_of_interest?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +103,31 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      developer_type:
+        | "utility"
+        | "municipality"
+        | "private_developer"
+        | "energy_company"
+        | "esco"
+        | "other"
+      investment_range:
+        | "under_1m"
+        | "1m_5m"
+        | "5m_25m"
+        | "25m_100m"
+        | "over_100m"
+      investor_type:
+        | "fund"
+        | "family_office"
+        | "corporate"
+        | "individual"
+        | "other"
+      project_stage:
+        | "concept"
+        | "feasibility"
+        | "development"
+        | "construction"
+        | "operational"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +254,36 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      developer_type: [
+        "utility",
+        "municipality",
+        "private_developer",
+        "energy_company",
+        "esco",
+        "other",
+      ],
+      investment_range: [
+        "under_1m",
+        "1m_5m",
+        "5m_25m",
+        "25m_100m",
+        "over_100m",
+      ],
+      investor_type: [
+        "fund",
+        "family_office",
+        "corporate",
+        "individual",
+        "other",
+      ],
+      project_stage: [
+        "concept",
+        "feasibility",
+        "development",
+        "construction",
+        "operational",
+      ],
+    },
   },
 } as const
