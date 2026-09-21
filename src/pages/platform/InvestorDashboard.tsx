@@ -191,10 +191,10 @@ const InvestorDashboard = () => {
       <div className="mb-7 grid gap-4 lg:grid-cols-2">
         <section className="rounded-lg border border-border bg-card p-5">
           <h2 className="mb-1 font-display text-sm font-semibold">Concentration by project (committed capital)</h2>
-          <p className="mb-4 text-[11px] text-muted-foreground">Computed on committed positions only (term sheet or financial close). Committed capital: \u20ac{(committedCapital / 1_000_000).toFixed(2)}M.</p>
+          <p className="mb-4 text-[11px] text-muted-foreground">Computed on committed positions only (term sheet or financial close). Committed capital: €{(committedCapital / 1_000_000).toFixed(2)}M.</p>
           {!committedProjects.length ? <p className="rounded-md bg-muted p-5 text-sm text-muted-foreground">No committed positions yet. Committed positions appear here once a deal reaches term sheet or financial close.</p> : <div className="space-y-3">{committedProjects.map((project) => { const pct = committedCapacity ? Number(project.capacity_mw) / committedCapacity * 100 : 0; return <div key={project.id}><div className="mb-1.5 flex justify-between gap-3 text-xs"><span className="truncate">{project.title}</span><strong>{pct.toFixed(0)}%</strong></div><div className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} /></div></div>; })}</div>}
           <div className="mt-4 rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground">
-            Indicated interest (not committed): \u20ac{(indicatedCapital / 1_000_000).toFixed(2)}M across {indicatedInterests.length} project{indicatedInterests.length === 1 ? "" : "s"}. Indicated figures are not committed capital.
+            Indicated interest (not committed): €{(indicatedCapital / 1_000_000).toFixed(2)}M across {indicatedInterests.length} project{indicatedInterests.length === 1 ? "" : "s"}. Indicated figures are not committed capital.
           </div>
         </section>
         <section className="rounded-lg border border-border bg-card p-5">
@@ -211,8 +211,8 @@ const InvestorDashboard = () => {
         <section className="rounded-lg border border-border bg-card p-5">
           <h2 className="mb-4 font-display text-sm font-semibold">Mandate capacity</h2>
           <div className="grid grid-cols-3 gap-3 text-center text-xs">
-            <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Committed</p><p className="mt-1 font-display text-lg font-semibold">\u20ac{(committedCapital / 1_000_000).toFixed(1)}M</p></div>
-            <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Deployed</p><p className="mt-1 font-display text-lg font-semibold">\u20ac{(mandateDeployed / 1_000_000).toFixed(1)}M</p></div>
+            <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Committed</p><p className="mt-1 font-display text-lg font-semibold">€{(committedCapital / 1_000_000).toFixed(1)}M</p></div>
+            <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Deployed</p><p className="mt-1 font-display text-lg font-semibold">€{(mandateDeployed / 1_000_000).toFixed(1)}M</p></div>
             <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Remaining</p><p className="mt-1 font-display text-lg font-semibold">{mandateSize ? `\u20ac${(mandateRemaining / 1_000_000).toFixed(1)}M` : "Not available"}</p></div>
           </div>
           <p className="mt-3 text-[11px] text-muted-foreground">Mandate size is estimated from your stated investment range and is unverified, self-reported.</p>
@@ -229,7 +229,7 @@ const InvestorDashboard = () => {
           {!committedProjects.length ? <p className="rounded-md bg-muted p-5 text-sm text-muted-foreground">No committed positions yet.</p> : (
             <div>
               <div className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-accent" style={{ width: `${Math.min(100, derisked.pct)}%` }} /></div>
-              <p className="mt-2 text-xs text-muted-foreground">{derisked.pct.toFixed(0)}% of committed capex (\u20ac{(derisked.totalCapex / 1_000_000).toFixed(1)}M) is covered by grant or public co-financing line items.</p>
+              <p className="mt-2 text-xs text-muted-foreground">{derisked.pct.toFixed(0)}% of committed capex (€{(derisked.totalCapex / 1_000_000).toFixed(1)}M) is covered by grant or public co-financing line items.</p>
             </div>
           )}
         </section>
