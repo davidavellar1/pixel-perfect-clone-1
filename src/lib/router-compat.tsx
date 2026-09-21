@@ -54,19 +54,25 @@ export function useLocation() {
 }
 
 export function useParams<T extends Record<string, string | undefined> = Record<string, string | undefined>>() {
-  return useTanStackParams({ strict: false }) as T;
+  return (useTanStackParams as unknown as (opts: { strict: false }) => T)({ strict: false });
 }
+
+type SearchParamsInit =
+  | string
+  | URLSearchParams
+  | Record<string, string>
+  | string[][];
 
 export function useSearchParams(): [
   URLSearchParams,
-  (next: URLSearchParams, options?: { replace?: boolean }) => void,
+  (next: SearchParamsInit, options?: { replace?: boolean }) => void,
 ] {
   const location = useLocation();
   const go = useGo();
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const setParams = useCallback(
-    (next: URLSearchParams, options?: { replace?: boolean }) => {
-      const qs = next.toString();
+    (next: SearchParamsInit, options?: { replace?: boolean }) => {
+      const qs = new URLSearchParams(next as never).toString();
       go(qs ? `${location.pathname}?${qs}` : location.pathname, options);
     },
     [go, location.pathname],
