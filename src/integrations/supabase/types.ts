@@ -125,6 +125,77 @@ export type Database = {
           },
         ]
       }
+      construction_package: {
+        Row: {
+          as_of: string | null
+          contingency_amount: number | null
+          contingency_pct: number | null
+          contract_type: string | null
+          contract_value: number | null
+          created_at: string
+          epc_contractor: string | null
+          epc_named_in_dataroom: boolean
+          id: string
+          interface_risk: string | null
+          ld_cap_pct: number | null
+          ld_rate: string | null
+          om_contract: string | null
+          permits_status: string | null
+          project_id: string
+          schedule_float_months: number | null
+          security: string | null
+          updated_at: string
+        }
+        Insert: {
+          as_of?: string | null
+          contingency_amount?: number | null
+          contingency_pct?: number | null
+          contract_type?: string | null
+          contract_value?: number | null
+          created_at?: string
+          epc_contractor?: string | null
+          epc_named_in_dataroom?: boolean
+          id?: string
+          interface_risk?: string | null
+          ld_cap_pct?: number | null
+          ld_rate?: string | null
+          om_contract?: string | null
+          permits_status?: string | null
+          project_id: string
+          schedule_float_months?: number | null
+          security?: string | null
+          updated_at?: string
+        }
+        Update: {
+          as_of?: string | null
+          contingency_amount?: number | null
+          contingency_pct?: number | null
+          contract_type?: string | null
+          contract_value?: number | null
+          created_at?: string
+          epc_contractor?: string | null
+          epc_named_in_dataroom?: boolean
+          id?: string
+          interface_risk?: string | null
+          ld_cap_pct?: number | null
+          ld_rate?: string | null
+          om_contract?: string | null
+          permits_status?: string | null
+          project_id?: string
+          schedule_float_months?: number | null
+          security?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "construction_package_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       developer_profiles: {
         Row: {
           company_name: string | null
@@ -269,11 +340,17 @@ export type Database = {
           concession_term_years: number | null
           created_at: string
           currency: string
+          debt_margin_bps: number | null
+          dscr_1x_connections: number | null
+          dsra_months: number | null
           equity_required: number | null
           first_revenue_year: number | null
           funding_progress_pct: number | null
           funding_remaining: number | null
+          gearing_pct: number | null
           id: string
+          irr_zero_connections: number | null
+          lockup_dscr: number | null
           min_ticket: number | null
           npv: number | null
           payback_years: number | null
@@ -287,11 +364,17 @@ export type Database = {
           concession_term_years?: number | null
           created_at?: string
           currency?: string
+          debt_margin_bps?: number | null
+          dscr_1x_connections?: number | null
+          dsra_months?: number | null
           equity_required?: number | null
           first_revenue_year?: number | null
           funding_progress_pct?: number | null
           funding_remaining?: number | null
+          gearing_pct?: number | null
           id?: string
+          irr_zero_connections?: number | null
+          lockup_dscr?: number | null
           min_ticket?: number | null
           npv?: number | null
           payback_years?: number | null
@@ -305,11 +388,17 @@ export type Database = {
           concession_term_years?: number | null
           created_at?: string
           currency?: string
+          debt_margin_bps?: number | null
+          dscr_1x_connections?: number | null
+          dsra_months?: number | null
           equity_required?: number | null
           first_revenue_year?: number | null
           funding_progress_pct?: number | null
           funding_remaining?: number | null
+          gearing_pct?: number | null
           id?: string
+          irr_zero_connections?: number | null
+          lockup_dscr?: number | null
           min_ticket?: number | null
           npv?: number | null
           payback_years?: number | null
@@ -370,6 +459,62 @@ export type Database = {
         }
         Relationships: []
       }
+      margin_profile: {
+        Row: {
+          as_of: string | null
+          created_at: string
+          customer_tariff: number | null
+          gross_spread: number | null
+          heat_purchase_price: number | null
+          id: string
+          indexation_mismatch_note: string | null
+          opex_per_kwh: number | null
+          project_id: string
+          purchase_floor_cap: string | null
+          purchase_index: string | null
+          tariff_index: string | null
+          updated_at: string
+        }
+        Insert: {
+          as_of?: string | null
+          created_at?: string
+          customer_tariff?: number | null
+          gross_spread?: number | null
+          heat_purchase_price?: number | null
+          id?: string
+          indexation_mismatch_note?: string | null
+          opex_per_kwh?: number | null
+          project_id: string
+          purchase_floor_cap?: string | null
+          purchase_index?: string | null
+          tariff_index?: string | null
+          updated_at?: string
+        }
+        Update: {
+          as_of?: string | null
+          created_at?: string
+          customer_tariff?: number | null
+          gross_spread?: number | null
+          heat_purchase_price?: number | null
+          id?: string
+          indexation_mismatch_note?: string | null
+          opex_per_kwh?: number | null
+          project_id?: string
+          purchase_floor_cap?: string | null
+          purchase_index?: string | null
+          tariff_index?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "margin_profile_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       milestone: {
         Row: {
           created_at: string
@@ -406,6 +551,100 @@ export type Database = {
             foreignKeyName: "milestone_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nda_signature: {
+        Row: {
+          document_version: string
+          entity_name: string | null
+          id: string
+          ip_address: string | null
+          project_id: string
+          signatory_name: string
+          signed_at: string
+          user_id: string
+        }
+        Insert: {
+          document_version?: string
+          entity_name?: string | null
+          id?: string
+          ip_address?: string | null
+          project_id: string
+          signatory_name: string
+          signed_at?: string
+          user_id: string
+        }
+        Update: {
+          document_version?: string
+          entity_name?: string | null
+          id?: string
+          ip_address?: string | null
+          project_id?: string
+          signatory_name?: string
+          signed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nda_signature_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offtake_ladder: {
+        Row: {
+          as_of: string | null
+          contracted_count: number
+          contracted_load_pct: number
+          created_at: string
+          id: string
+          in_negotiation_count: number
+          in_negotiation_load_pct: number
+          project_id: string
+          signed_connection_count: number
+          signed_connection_load_pct: number
+          total_buildings: number | null
+          updated_at: string
+        }
+        Insert: {
+          as_of?: string | null
+          contracted_count?: number
+          contracted_load_pct?: number
+          created_at?: string
+          id?: string
+          in_negotiation_count?: number
+          in_negotiation_load_pct?: number
+          project_id: string
+          signed_connection_count?: number
+          signed_connection_load_pct?: number
+          total_buildings?: number | null
+          updated_at?: string
+        }
+        Update: {
+          as_of?: string | null
+          contracted_count?: number
+          contracted_load_pct?: number
+          created_at?: string
+          id?: string
+          in_negotiation_count?: number
+          in_negotiation_load_pct?: number
+          project_id?: string
+          signed_connection_count?: number
+          signed_connection_load_pct?: number
+          total_buildings?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offtake_ladder_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
@@ -458,6 +697,7 @@ export type Database = {
           created_at: string
           description: string | null
           developer_id: string
+          financial_as_of: string | null
           headline_co2_tonnes: number | null
           headline_investment: number | null
           headline_irr_pct: number | null
@@ -468,8 +708,10 @@ export type Database = {
           longitude: number | null
           network_length_km: number | null
           project_type: Database["public"]["Enums"]["project_type"]
+          regulatory_as_of: string | null
           slug: string
           summary: string | null
+          technical_as_of: string | null
           technology: Database["public"]["Enums"]["technology"]
           timeline_end: string | null
           timeline_start: string | null
@@ -485,6 +727,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           developer_id: string
+          financial_as_of?: string | null
           headline_co2_tonnes?: number | null
           headline_investment?: number | null
           headline_irr_pct?: number | null
@@ -495,8 +738,10 @@ export type Database = {
           longitude?: number | null
           network_length_km?: number | null
           project_type: Database["public"]["Enums"]["project_type"]
+          regulatory_as_of?: string | null
           slug: string
           summary?: string | null
+          technical_as_of?: string | null
           technology: Database["public"]["Enums"]["technology"]
           timeline_end?: string | null
           timeline_start?: string | null
@@ -512,6 +757,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           developer_id?: string
+          financial_as_of?: string | null
           headline_co2_tonnes?: number | null
           headline_investment?: number | null
           headline_irr_pct?: number | null
@@ -522,8 +768,10 @@ export type Database = {
           longitude?: number | null
           network_length_km?: number | null
           project_type?: Database["public"]["Enums"]["project_type"]
+          regulatory_as_of?: string | null
           slug?: string
           summary?: string | null
+          technical_as_of?: string | null
           technology?: Database["public"]["Enums"]["technology"]
           timeline_end?: string | null
           timeline_start?: string | null
@@ -538,6 +786,53 @@ export type Database = {
             columns: ["developer_id"]
             isOneToOne: false
             referencedRelation: "developer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_case: {
+        Row: {
+          capex_variance_pct: number | null
+          connections: number | null
+          created_at: string
+          equity_irr_pct: number | null
+          id: string
+          min_dscr: number | null
+          name: Database["public"]["Enums"]["case_name"]
+          power_price: number | null
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          capex_variance_pct?: number | null
+          connections?: number | null
+          created_at?: string
+          equity_irr_pct?: number | null
+          id?: string
+          min_dscr?: number | null
+          name: Database["public"]["Enums"]["case_name"]
+          power_price?: number | null
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          capex_variance_pct?: number | null
+          connections?: number | null
+          created_at?: string
+          equity_irr_pct?: number | null
+          id?: string
+          min_dscr?: number | null
+          name?: Database["public"]["Enums"]["case_name"]
+          power_price?: number | null
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_case_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
             referencedColumns: ["id"]
           },
         ]
@@ -575,6 +870,169 @@ export type Database = {
             foreignKeyName: "project_interest_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_process: {
+        Row: {
+          adviser_disclosed: boolean
+          as_of: string | null
+          conditions_precedent: string[]
+          created_at: string
+          exclusivity_days: number | null
+          id: string
+          ioi_deadline: string | null
+          loi_deadline: string | null
+          management_meetings_window: string | null
+          parties_under_nda: number | null
+          parties_under_nda_breakdown: Json
+          process_type: Database["public"]["Enums"]["process_type"]
+          project_id: string
+          target_close: string | null
+          updated_at: string
+        }
+        Insert: {
+          adviser_disclosed?: boolean
+          as_of?: string | null
+          conditions_precedent?: string[]
+          created_at?: string
+          exclusivity_days?: number | null
+          id?: string
+          ioi_deadline?: string | null
+          loi_deadline?: string | null
+          management_meetings_window?: string | null
+          parties_under_nda?: number | null
+          parties_under_nda_breakdown?: Json
+          process_type?: Database["public"]["Enums"]["process_type"]
+          project_id: string
+          target_close?: string | null
+          updated_at?: string
+        }
+        Update: {
+          adviser_disclosed?: boolean
+          as_of?: string | null
+          conditions_precedent?: string[]
+          created_at?: string
+          exclusivity_days?: number | null
+          id?: string
+          ioi_deadline?: string | null
+          loi_deadline?: string | null
+          management_meetings_window?: string | null
+          parties_under_nda?: number | null
+          parties_under_nda_breakdown?: Json
+          process_type?: Database["public"]["Enums"]["process_type"]
+          project_id?: string
+          target_close?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_process_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_transaction: {
+        Row: {
+          as_of: string | null
+          board_seat_threshold: number | null
+          club_max_participants: number | null
+          created_at: string
+          distribution_policy: string | null
+          downside_equity_irr_pct: number | null
+          drag_along_threshold: number | null
+          drawdown_tranches: Json
+          equity_sought: number | null
+          exit_routes: string[]
+          expected_hold_years: number | null
+          first_distribution_year: number | null
+          id: string
+          instrument: Database["public"]["Enums"]["transaction_instrument"]
+          min_ticket: number | null
+          observer_threshold: number | null
+          post_money_ownership: Json
+          pre_emption: boolean
+          pre_money_equity: number | null
+          project_id: string
+          reserved_matters: string[]
+          rofr: boolean
+          sponsor_cash_funded: number | null
+          stake_offered_pct: number | null
+          tag_along: boolean
+          target_equity_irr_pct: number | null
+          updated_at: string
+          use_of_proceeds: Json
+        }
+        Insert: {
+          as_of?: string | null
+          board_seat_threshold?: number | null
+          club_max_participants?: number | null
+          created_at?: string
+          distribution_policy?: string | null
+          downside_equity_irr_pct?: number | null
+          drag_along_threshold?: number | null
+          drawdown_tranches?: Json
+          equity_sought?: number | null
+          exit_routes?: string[]
+          expected_hold_years?: number | null
+          first_distribution_year?: number | null
+          id?: string
+          instrument?: Database["public"]["Enums"]["transaction_instrument"]
+          min_ticket?: number | null
+          observer_threshold?: number | null
+          post_money_ownership?: Json
+          pre_emption?: boolean
+          pre_money_equity?: number | null
+          project_id: string
+          reserved_matters?: string[]
+          rofr?: boolean
+          sponsor_cash_funded?: number | null
+          stake_offered_pct?: number | null
+          tag_along?: boolean
+          target_equity_irr_pct?: number | null
+          updated_at?: string
+          use_of_proceeds?: Json
+        }
+        Update: {
+          as_of?: string | null
+          board_seat_threshold?: number | null
+          club_max_participants?: number | null
+          created_at?: string
+          distribution_policy?: string | null
+          downside_equity_irr_pct?: number | null
+          drag_along_threshold?: number | null
+          drawdown_tranches?: Json
+          equity_sought?: number | null
+          exit_routes?: string[]
+          expected_hold_years?: number | null
+          first_distribution_year?: number | null
+          id?: string
+          instrument?: Database["public"]["Enums"]["transaction_instrument"]
+          min_ticket?: number | null
+          observer_threshold?: number | null
+          post_money_ownership?: Json
+          pre_emption?: boolean
+          pre_money_equity?: number | null
+          project_id?: string
+          reserved_matters?: string[]
+          rofr?: boolean
+          sponsor_cash_funded?: number | null
+          stake_offered_pct?: number | null
+          tag_along?: boolean
+          target_equity_irr_pct?: number | null
+          updated_at?: string
+          use_of_proceeds?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_transaction_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
@@ -905,6 +1363,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "developer" | "investor" | "advisor"
+      case_name: "base" | "downside" | "stress" | "upside"
       deal_stage:
         | "interest_logged"
         | "data_room"
@@ -942,6 +1401,11 @@ export type Database = {
         | "commissioning"
         | "operational"
       milestone_status: "completed" | "in_progress" | "upcoming"
+      offtake_tier:
+        | "contracted"
+        | "signed_connection_agreement"
+        | "in_negotiation"
+      process_type: "bilateral" | "competitive"
       project_stage:
         | "concept"
         | "feasibility"
@@ -962,6 +1426,13 @@ export type Database = {
         | "seawater_cooling"
         | "thermal_storage"
         | "hybrid"
+      transaction_instrument:
+        | "equity"
+        | "equity_and_shareholder_loan"
+        | "preferred_equity"
+        | "mezzanine"
+        | "convertible"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1090,6 +1561,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "developer", "investor", "advisor"],
+      case_name: ["base", "downside", "stress", "upside"],
       deal_stage: [
         "interest_logged",
         "data_room",
@@ -1132,6 +1604,12 @@ export const Constants = {
         "operational",
       ],
       milestone_status: ["completed", "in_progress", "upcoming"],
+      offtake_tier: [
+        "contracted",
+        "signed_connection_agreement",
+        "in_negotiation",
+      ],
+      process_type: ["bilateral", "competitive"],
       project_stage: [
         "concept",
         "feasibility",
@@ -1153,6 +1631,14 @@ export const Constants = {
         "seawater_cooling",
         "thermal_storage",
         "hybrid",
+      ],
+      transaction_instrument: [
+        "equity",
+        "equity_and_shareholder_loan",
+        "preferred_equity",
+        "mezzanine",
+        "convertible",
+        "other",
       ],
     },
   },
