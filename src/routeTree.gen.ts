@@ -10,33 +10,472 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as DeveloperSignupRouteImport } from './routes/developer-signup'
+import { Route as DevelopersRouteImport } from './routes/developers'
+import { Route as EcosystemRouteImport } from './routes/ecosystem'
+import { Route as ForDevelopersRouteImport } from './routes/for-developers'
+import { Route as ForInvestorsRouteImport } from './routes/for-investors'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as InvestorSignupRouteImport } from './routes/investor-signup'
+import { Route as InvestorsRouteImport } from './routes/investors'
+import { Route as PublicFundingRouteImport } from './routes/public-funding'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as SigninRouteImport } from './routes/signin'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SubmitProjectRouteImport } from './routes/submit-project'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppAccessRequestsRouteImport } from './routes/app.access-requests'
+import { Route as AppAdvisorsRouteImport } from './routes/app.advisors'
+import { Route as AppBundleBuilderRouteImport } from './routes/app.bundle-builder'
+import { Route as AppDataRoomRequestsRouteImport } from './routes/app.data-room-requests'
+import { Route as AppDeveloperRouteImport } from './routes/app.developer'
+import { Route as AppEcosystemRouteImport } from './routes/app.ecosystem'
+import { Route as AppFeedbackRouteImport } from './routes/app.feedback'
+import { Route as AppInvestorRouteImport } from './routes/app.investor'
+import { Route as AppMyListingsRouteImport } from './routes/app.my-listings'
+import { Route as AppMyPortfolioRouteImport } from './routes/app.my-portfolio'
+import { Route as AppOpportunitiesRouteImport } from './routes/app.opportunities'
+import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
+import { Route as AppPublicFundingRouteImport } from './routes/app.public-funding'
+import { Route as AppSubmitProjectRouteImport } from './routes/app.submit-project'
+import { Route as AppSupportRouteImport } from './routes/app.support'
+import { Route as AppWatchlistRouteImport } from './routes/app.watchlist'
+import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
+import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
+import { Route as AppProjectsSlugRouteImport } from './routes/app.projects.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeveloperSignupRoute = DeveloperSignupRouteImport.update({
+  id: '/developer-signup',
+  path: '/developer-signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevelopersRoute = DevelopersRouteImport.update({
+  id: '/developers',
+  path: '/developers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EcosystemRoute = EcosystemRouteImport.update({
+  id: '/ecosystem',
+  path: '/ecosystem',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForDevelopersRoute = ForDevelopersRouteImport.update({
+  id: '/for-developers',
+  path: '/for-developers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForInvestorsRoute = ForInvestorsRouteImport.update({
+  id: '/for-investors',
+  path: '/for-investors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestorSignupRoute = InvestorSignupRouteImport.update({
+  id: '/investor-signup',
+  path: '/investor-signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestorsRoute = InvestorsRouteImport.update({
+  id: '/investors',
+  path: '/investors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublicFundingRoute = PublicFundingRouteImport.update({
+  id: '/public-funding',
+  path: '/public-funding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SigninRoute = SigninRouteImport.update({
+  id: '/signin',
+  path: '/signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubmitProjectRoute = SubmitProjectRouteImport.update({
+  id: '/submit-project',
+  path: '/submit-project',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAccessRequestsRoute = AppAccessRequestsRouteImport.update({
+  id: '/access-requests',
+  path: '/access-requests',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdvisorsRoute = AppAdvisorsRouteImport.update({
+  id: '/advisors',
+  path: '/advisors',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBundleBuilderRoute = AppBundleBuilderRouteImport.update({
+  id: '/bundle-builder',
+  path: '/bundle-builder',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDataRoomRequestsRoute = AppDataRoomRequestsRouteImport.update({
+  id: '/data-room-requests',
+  path: '/data-room-requests',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDeveloperRoute = AppDeveloperRouteImport.update({
+  id: '/developer',
+  path: '/developer',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEcosystemRoute = AppEcosystemRouteImport.update({
+  id: '/ecosystem',
+  path: '/ecosystem',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFeedbackRoute = AppFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInvestorRoute = AppInvestorRouteImport.update({
+  id: '/investor',
+  path: '/investor',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyListingsRoute = AppMyListingsRouteImport.update({
+  id: '/my-listings',
+  path: '/my-listings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyPortfolioRoute = AppMyPortfolioRouteImport.update({
+  id: '/my-portfolio',
+  path: '/my-portfolio',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOpportunitiesRoute = AppOpportunitiesRouteImport.update({
+  id: '/opportunities',
+  path: '/opportunities',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPortfolioRoute = AppPortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPublicFundingRoute = AppPublicFundingRouteImport.update({
+  id: '/public-funding',
+  path: '/public-funding',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSubmitProjectRoute = AppSubmitProjectRouteImport.update({
+  id: '/submit-project',
+  path: '/submit-project',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSupportRoute = AppSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWatchlistRoute = AppWatchlistRouteImport.update({
+  id: '/watchlist',
+  path: '/watchlist',
+  getParentRoute: () => AppRoute,
+} as any)
+const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
+  id: '/projects/$slug',
+  path: '/projects/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppProjectsSlugRoute = AppProjectsSlugRouteImport.update({
+  id: '/projects/$slug',
+  path: '/projects/$slug',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/developer-signup': typeof DeveloperSignupRoute
+  '/developers': typeof DevelopersRoute
+  '/ecosystem': typeof EcosystemRoute
+  '/for-developers': typeof ForDevelopersRoute
+  '/for-investors': typeof ForInvestorsRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/investor-signup': typeof InvestorSignupRoute
+  '/investors': typeof InvestorsRoute
+  '/public-funding': typeof PublicFundingRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
+  '/signin': typeof SigninRoute
+  '/signup': typeof SignupRoute
+  '/submit-project': typeof SubmitProjectRoute
+  '/app/access-requests': typeof AppAccessRequestsRoute
+  '/app/advisors': typeof AppAdvisorsRoute
+  '/app/bundle-builder': typeof AppBundleBuilderRoute
+  '/app/data-room-requests': typeof AppDataRoomRequestsRoute
+  '/app/developer': typeof AppDeveloperRoute
+  '/app/ecosystem': typeof AppEcosystemRoute
+  '/app/feedback': typeof AppFeedbackRoute
+  '/app/investor': typeof AppInvestorRoute
+  '/app/my-listings': typeof AppMyListingsRoute
+  '/app/my-portfolio': typeof AppMyPortfolioRoute
+  '/app/opportunities': typeof AppOpportunitiesRoute
+  '/app/portfolio': typeof AppPortfolioRoute
+  '/app/public-funding': typeof AppPublicFundingRoute
+  '/app/submit-project': typeof AppSubmitProjectRoute
+  '/app/support': typeof AppSupportRoute
+  '/app/watchlist': typeof AppWatchlistRoute
+  '/projects/$slug': typeof ProjectsSlugRoute
+  '/app/': typeof AppIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
+  '/app/projects/$slug': typeof AppProjectsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/developer-signup': typeof DeveloperSignupRoute
+  '/developers': typeof DevelopersRoute
+  '/ecosystem': typeof EcosystemRoute
+  '/for-developers': typeof ForDevelopersRoute
+  '/for-investors': typeof ForInvestorsRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/investor-signup': typeof InvestorSignupRoute
+  '/investors': typeof InvestorsRoute
+  '/public-funding': typeof PublicFundingRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
+  '/signin': typeof SigninRoute
+  '/signup': typeof SignupRoute
+  '/submit-project': typeof SubmitProjectRoute
+  '/app/access-requests': typeof AppAccessRequestsRoute
+  '/app/advisors': typeof AppAdvisorsRoute
+  '/app/bundle-builder': typeof AppBundleBuilderRoute
+  '/app/data-room-requests': typeof AppDataRoomRequestsRoute
+  '/app/developer': typeof AppDeveloperRoute
+  '/app/ecosystem': typeof AppEcosystemRoute
+  '/app/feedback': typeof AppFeedbackRoute
+  '/app/investor': typeof AppInvestorRoute
+  '/app/my-listings': typeof AppMyListingsRoute
+  '/app/my-portfolio': typeof AppMyPortfolioRoute
+  '/app/opportunities': typeof AppOpportunitiesRoute
+  '/app/portfolio': typeof AppPortfolioRoute
+  '/app/public-funding': typeof AppPublicFundingRoute
+  '/app/submit-project': typeof AppSubmitProjectRoute
+  '/app/support': typeof AppSupportRoute
+  '/app/watchlist': typeof AppWatchlistRoute
+  '/projects/$slug': typeof ProjectsSlugRoute
+  '/app': typeof AppIndexRoute
+  '/projects': typeof ProjectsIndexRoute
+  '/app/projects/$slug': typeof AppProjectsSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/developer-signup': typeof DeveloperSignupRoute
+  '/developers': typeof DevelopersRoute
+  '/ecosystem': typeof EcosystemRoute
+  '/for-developers': typeof ForDevelopersRoute
+  '/for-investors': typeof ForInvestorsRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/investor-signup': typeof InvestorSignupRoute
+  '/investors': typeof InvestorsRoute
+  '/public-funding': typeof PublicFundingRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
+  '/signin': typeof SigninRoute
+  '/signup': typeof SignupRoute
+  '/submit-project': typeof SubmitProjectRoute
+  '/app/access-requests': typeof AppAccessRequestsRoute
+  '/app/advisors': typeof AppAdvisorsRoute
+  '/app/bundle-builder': typeof AppBundleBuilderRoute
+  '/app/data-room-requests': typeof AppDataRoomRequestsRoute
+  '/app/developer': typeof AppDeveloperRoute
+  '/app/ecosystem': typeof AppEcosystemRoute
+  '/app/feedback': typeof AppFeedbackRoute
+  '/app/investor': typeof AppInvestorRoute
+  '/app/my-listings': typeof AppMyListingsRoute
+  '/app/my-portfolio': typeof AppMyPortfolioRoute
+  '/app/opportunities': typeof AppOpportunitiesRoute
+  '/app/portfolio': typeof AppPortfolioRoute
+  '/app/public-funding': typeof AppPublicFundingRoute
+  '/app/submit-project': typeof AppSubmitProjectRoute
+  '/app/support': typeof AppSupportRoute
+  '/app/watchlist': typeof AppWatchlistRoute
+  '/projects/$slug': typeof ProjectsSlugRoute
+  '/app/': typeof AppIndexRoute
+  '/projects/': typeof ProjectsIndexRoute
+  '/app/projects/$slug': typeof AppProjectsSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/developer-signup'
+    | '/developers'
+    | '/ecosystem'
+    | '/for-developers'
+    | '/for-investors'
+    | '/how-it-works'
+    | '/investor-signup'
+    | '/investors'
+    | '/public-funding'
+    | '/sign-in'
+    | '/sign-up'
+    | '/signin'
+    | '/signup'
+    | '/submit-project'
+    | '/app/access-requests'
+    | '/app/advisors'
+    | '/app/bundle-builder'
+    | '/app/data-room-requests'
+    | '/app/developer'
+    | '/app/ecosystem'
+    | '/app/feedback'
+    | '/app/investor'
+    | '/app/my-listings'
+    | '/app/my-portfolio'
+    | '/app/opportunities'
+    | '/app/portfolio'
+    | '/app/public-funding'
+    | '/app/submit-project'
+    | '/app/support'
+    | '/app/watchlist'
+    | '/projects/$slug'
+    | '/app/'
+    | '/projects/'
+    | '/app/projects/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/developer-signup'
+    | '/developers'
+    | '/ecosystem'
+    | '/for-developers'
+    | '/for-investors'
+    | '/how-it-works'
+    | '/investor-signup'
+    | '/investors'
+    | '/public-funding'
+    | '/sign-in'
+    | '/sign-up'
+    | '/signin'
+    | '/signup'
+    | '/submit-project'
+    | '/app/access-requests'
+    | '/app/advisors'
+    | '/app/bundle-builder'
+    | '/app/data-room-requests'
+    | '/app/developer'
+    | '/app/ecosystem'
+    | '/app/feedback'
+    | '/app/investor'
+    | '/app/my-listings'
+    | '/app/my-portfolio'
+    | '/app/opportunities'
+    | '/app/portfolio'
+    | '/app/public-funding'
+    | '/app/submit-project'
+    | '/app/support'
+    | '/app/watchlist'
+    | '/projects/$slug'
+    | '/app'
+    | '/projects'
+    | '/app/projects/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/developer-signup'
+    | '/developers'
+    | '/ecosystem'
+    | '/for-developers'
+    | '/for-investors'
+    | '/how-it-works'
+    | '/investor-signup'
+    | '/investors'
+    | '/public-funding'
+    | '/sign-in'
+    | '/sign-up'
+    | '/signin'
+    | '/signup'
+    | '/submit-project'
+    | '/app/access-requests'
+    | '/app/advisors'
+    | '/app/bundle-builder'
+    | '/app/data-room-requests'
+    | '/app/developer'
+    | '/app/ecosystem'
+    | '/app/feedback'
+    | '/app/investor'
+    | '/app/my-listings'
+    | '/app/my-portfolio'
+    | '/app/opportunities'
+    | '/app/portfolio'
+    | '/app/public-funding'
+    | '/app/submit-project'
+    | '/app/support'
+    | '/app/watchlist'
+    | '/projects/$slug'
+    | '/app/'
+    | '/projects/'
+    | '/app/projects/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
+  DeveloperSignupRoute: typeof DeveloperSignupRoute
+  DevelopersRoute: typeof DevelopersRoute
+  EcosystemRoute: typeof EcosystemRoute
+  ForDevelopersRoute: typeof ForDevelopersRoute
+  ForInvestorsRoute: typeof ForInvestorsRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  InvestorSignupRoute: typeof InvestorSignupRoute
+  InvestorsRoute: typeof InvestorsRoute
+  PublicFundingRoute: typeof PublicFundingRoute
+  SignInRoute: typeof SignInRoute
+  SignUpRoute: typeof SignUpRoute
+  SigninRoute: typeof SigninRoute
+  SignupRoute: typeof SignupRoute
+  SubmitProjectRoute: typeof SubmitProjectRoute
+  ProjectsSlugRoute: typeof ProjectsSlugRoute
+  ProjectsIndexRoute: typeof ProjectsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +487,317 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developer-signup': {
+      id: '/developer-signup'
+      path: '/developer-signup'
+      fullPath: '/developer-signup'
+      preLoaderRoute: typeof DeveloperSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developers': {
+      id: '/developers'
+      path: '/developers'
+      fullPath: '/developers'
+      preLoaderRoute: typeof DevelopersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ecosystem': {
+      id: '/ecosystem'
+      path: '/ecosystem'
+      fullPath: '/ecosystem'
+      preLoaderRoute: typeof EcosystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for-developers': {
+      id: '/for-developers'
+      path: '/for-developers'
+      fullPath: '/for-developers'
+      preLoaderRoute: typeof ForDevelopersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for-investors': {
+      id: '/for-investors'
+      path: '/for-investors'
+      fullPath: '/for-investors'
+      preLoaderRoute: typeof ForInvestorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investor-signup': {
+      id: '/investor-signup'
+      path: '/investor-signup'
+      fullPath: '/investor-signup'
+      preLoaderRoute: typeof InvestorSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investors': {
+      id: '/investors'
+      path: '/investors'
+      fullPath: '/investors'
+      preLoaderRoute: typeof InvestorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/public-funding': {
+      id: '/public-funding'
+      path: '/public-funding'
+      fullPath: '/public-funding'
+      preLoaderRoute: typeof PublicFundingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signin': {
+      id: '/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof SigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/submit-project': {
+      id: '/submit-project'
+      path: '/submit-project'
+      fullPath: '/submit-project'
+      preLoaderRoute: typeof SubmitProjectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/access-requests': {
+      id: '/app/access-requests'
+      path: '/access-requests'
+      fullPath: '/app/access-requests'
+      preLoaderRoute: typeof AppAccessRequestsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/advisors': {
+      id: '/app/advisors'
+      path: '/advisors'
+      fullPath: '/app/advisors'
+      preLoaderRoute: typeof AppAdvisorsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/bundle-builder': {
+      id: '/app/bundle-builder'
+      path: '/bundle-builder'
+      fullPath: '/app/bundle-builder'
+      preLoaderRoute: typeof AppBundleBuilderRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/data-room-requests': {
+      id: '/app/data-room-requests'
+      path: '/data-room-requests'
+      fullPath: '/app/data-room-requests'
+      preLoaderRoute: typeof AppDataRoomRequestsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/developer': {
+      id: '/app/developer'
+      path: '/developer'
+      fullPath: '/app/developer'
+      preLoaderRoute: typeof AppDeveloperRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/ecosystem': {
+      id: '/app/ecosystem'
+      path: '/ecosystem'
+      fullPath: '/app/ecosystem'
+      preLoaderRoute: typeof AppEcosystemRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/feedback': {
+      id: '/app/feedback'
+      path: '/feedback'
+      fullPath: '/app/feedback'
+      preLoaderRoute: typeof AppFeedbackRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/investor': {
+      id: '/app/investor'
+      path: '/investor'
+      fullPath: '/app/investor'
+      preLoaderRoute: typeof AppInvestorRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/my-listings': {
+      id: '/app/my-listings'
+      path: '/my-listings'
+      fullPath: '/app/my-listings'
+      preLoaderRoute: typeof AppMyListingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/my-portfolio': {
+      id: '/app/my-portfolio'
+      path: '/my-portfolio'
+      fullPath: '/app/my-portfolio'
+      preLoaderRoute: typeof AppMyPortfolioRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/opportunities': {
+      id: '/app/opportunities'
+      path: '/opportunities'
+      fullPath: '/app/opportunities'
+      preLoaderRoute: typeof AppOpportunitiesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/portfolio': {
+      id: '/app/portfolio'
+      path: '/portfolio'
+      fullPath: '/app/portfolio'
+      preLoaderRoute: typeof AppPortfolioRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/public-funding': {
+      id: '/app/public-funding'
+      path: '/public-funding'
+      fullPath: '/app/public-funding'
+      preLoaderRoute: typeof AppPublicFundingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/submit-project': {
+      id: '/app/submit-project'
+      path: '/submit-project'
+      fullPath: '/app/submit-project'
+      preLoaderRoute: typeof AppSubmitProjectRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/support': {
+      id: '/app/support'
+      path: '/support'
+      fullPath: '/app/support'
+      preLoaderRoute: typeof AppSupportRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/watchlist': {
+      id: '/app/watchlist'
+      path: '/watchlist'
+      fullPath: '/app/watchlist'
+      preLoaderRoute: typeof AppWatchlistRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/projects/': {
+      id: '/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof ProjectsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$slug': {
+      id: '/projects/$slug'
+      path: '/projects/$slug'
+      fullPath: '/projects/$slug'
+      preLoaderRoute: typeof ProjectsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/projects/$slug': {
+      id: '/app/projects/$slug'
+      path: '/projects/$slug'
+      fullPath: '/app/projects/$slug'
+      preLoaderRoute: typeof AppProjectsSlugRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppAccessRequestsRoute: typeof AppAccessRequestsRoute
+  AppAdvisorsRoute: typeof AppAdvisorsRoute
+  AppBundleBuilderRoute: typeof AppBundleBuilderRoute
+  AppDataRoomRequestsRoute: typeof AppDataRoomRequestsRoute
+  AppDeveloperRoute: typeof AppDeveloperRoute
+  AppEcosystemRoute: typeof AppEcosystemRoute
+  AppFeedbackRoute: typeof AppFeedbackRoute
+  AppInvestorRoute: typeof AppInvestorRoute
+  AppMyListingsRoute: typeof AppMyListingsRoute
+  AppMyPortfolioRoute: typeof AppMyPortfolioRoute
+  AppOpportunitiesRoute: typeof AppOpportunitiesRoute
+  AppPortfolioRoute: typeof AppPortfolioRoute
+  AppPublicFundingRoute: typeof AppPublicFundingRoute
+  AppSubmitProjectRoute: typeof AppSubmitProjectRoute
+  AppSupportRoute: typeof AppSupportRoute
+  AppWatchlistRoute: typeof AppWatchlistRoute
+  AppIndexRoute: typeof AppIndexRoute
+  AppProjectsSlugRoute: typeof AppProjectsSlugRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAccessRequestsRoute: AppAccessRequestsRoute,
+  AppAdvisorsRoute: AppAdvisorsRoute,
+  AppBundleBuilderRoute: AppBundleBuilderRoute,
+  AppDataRoomRequestsRoute: AppDataRoomRequestsRoute,
+  AppDeveloperRoute: AppDeveloperRoute,
+  AppEcosystemRoute: AppEcosystemRoute,
+  AppFeedbackRoute: AppFeedbackRoute,
+  AppInvestorRoute: AppInvestorRoute,
+  AppMyListingsRoute: AppMyListingsRoute,
+  AppMyPortfolioRoute: AppMyPortfolioRoute,
+  AppOpportunitiesRoute: AppOpportunitiesRoute,
+  AppPortfolioRoute: AppPortfolioRoute,
+  AppPublicFundingRoute: AppPublicFundingRoute,
+  AppSubmitProjectRoute: AppSubmitProjectRoute,
+  AppSupportRoute: AppSupportRoute,
+  AppWatchlistRoute: AppWatchlistRoute,
+  AppIndexRoute: AppIndexRoute,
+  AppProjectsSlugRoute: AppProjectsSlugRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  DeveloperSignupRoute: DeveloperSignupRoute,
+  DevelopersRoute: DevelopersRoute,
+  EcosystemRoute: EcosystemRoute,
+  ForDevelopersRoute: ForDevelopersRoute,
+  ForInvestorsRoute: ForInvestorsRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  InvestorSignupRoute: InvestorSignupRoute,
+  InvestorsRoute: InvestorsRoute,
+  PublicFundingRoute: PublicFundingRoute,
+  SignInRoute: SignInRoute,
+  SignUpRoute: SignUpRoute,
+  SigninRoute: SigninRoute,
+  SignupRoute: SignupRoute,
+  SubmitProjectRoute: SubmitProjectRoute,
+  ProjectsSlugRoute: ProjectsSlugRoute,
+  ProjectsIndexRoute: ProjectsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

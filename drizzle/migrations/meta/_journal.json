@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790028529744,
+      "tag": "0000_dhc_profiles_and_signup_trigger",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790028610043,
+      "tag": "0001_dhc_core_marketplace_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790028647341,
+      "tag": "0002_dhc_interest_grants_and_document_sync",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790028696600,
+      "tag": "0003_dhc_transaction_process_construction_cases",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790028730206,
+      "tag": "0004_dhc_access_lifecycle",
+      "breakpoints": true
+    }
+  ]
+}
