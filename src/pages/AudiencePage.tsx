@@ -75,7 +75,7 @@ const AudiencePage = ({ audience }: { audience: Audience }) => {
   return (
     <PublicShell>
       <section className="bg-hero-gradient py-20 text-primary-foreground md:py-24">
-        <div className="mx-auto max-w-6xl px-5 lg:px-7">
+        <div className="container">
           <span className="mb-5 inline-flex rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 font-display text-xs font-semibold uppercase text-accent">{c.eyebrow}</span>
           <h1 className="max-w-[17ch] font-display text-4xl font-semibold leading-tight md:text-5xl">{c.title}</h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-primary-foreground/70">{c.lead}</p>
@@ -88,7 +88,7 @@ const AudiencePage = ({ audience }: { audience: Audience }) => {
       </section>
 
       <section className="bg-card py-20">
-        <div className="mx-auto max-w-6xl px-5 lg:px-7">
+        <div className="container">
           <div className="grid overflow-hidden rounded-lg bg-foreground text-primary-foreground md:grid-cols-[1.08fr_1fr]">
             <div className="p-8 md:p-12">
               <span className="inline-flex rounded-full bg-accent/15 px-3 py-1 font-display text-xs font-semibold text-accent">The core value</span>
@@ -106,7 +106,7 @@ const AudiencePage = ({ audience }: { audience: Audience }) => {
       </section>
 
       <section className="bg-card pb-20">
-        <div className="mx-auto max-w-6xl px-5 lg:px-7">
+        <div className="container">
           <div className="mb-10 max-w-3xl"><p className="font-display text-xs font-semibold uppercase text-accent">{c.valueLabel}</p><h2 className="mt-3 font-display text-3xl font-semibold">{c.valueTitle}</h2><p className="mt-3 text-muted-foreground">{c.valueLead}</p></div>
           <div className="grid gap-5 md:grid-cols-3">
             {c.values.map(([title, text], index) => { const Icon = [Building2, LockKeyhole, Landmark][index]; return <article key={title} className="rounded-lg border border-border bg-background p-7"><div className="mb-5 flex h-11 w-11 items-center justify-center rounded-md bg-accent/10"><Icon className="text-accent" /></div><h3 className="font-display text-lg font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>; })}
@@ -115,21 +115,21 @@ const AudiencePage = ({ audience }: { audience: Audience }) => {
       </section>
 
       <section className="bg-secondary py-20">
-        <div className="mx-auto max-w-6xl px-5 lg:px-7">
+        <div className="container">
           <div className="mb-10 text-center"><p className="font-display text-xs font-semibold uppercase text-accent">How it works</p><h2 className="mt-3 font-display text-3xl font-semibold">From first screen to close</h2></div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{c.steps.map(([title, text], index) => <article key={title} className="rounded-lg border border-border bg-card p-6"><span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent font-display text-sm font-bold text-accent-foreground">{index + 1}</span><h3 className="mt-4 font-display font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}</div>
         </div>
       </section>
 
       <section className="bg-card py-20">
-        <div className="mx-auto grid max-w-6xl gap-10 px-5 md:grid-cols-2 md:items-center lg:px-7">
+        <div className="container grid gap-10 md:grid-cols-2 md:items-center">
           <div><p className="font-display text-xs font-semibold uppercase text-accent">You stay in control</p><h2 className="mt-3 font-display text-3xl font-semibold">{c.controlTitle}</h2><p className="mt-4 leading-7 text-muted-foreground">{c.controlText}</p></div>
           <div className="space-y-3">{c.controls.map(([title, text], index) => { const Icon = [LockKeyhole, ShieldCheck, Scale][index]; return <div key={title} className="flex gap-4 rounded-lg border border-border bg-background p-5"><Icon className="mt-0.5 shrink-0 text-accent" /><div><h3 className="font-display text-sm font-semibold">{title}</h3><p className="mt-1 text-sm leading-6 text-muted-foreground">{text}</p></div></div>; })}</div>
         </div>
       </section>
 
       <section className="bg-card pb-20">
-        <div className="mx-auto max-w-6xl px-5 lg:px-7"><div className="flex flex-wrap items-center gap-7 rounded-lg bg-foreground p-8 text-primary-foreground md:px-11"><strong className="font-display text-4xl text-accent">{c.fee}</strong><div className="min-w-[220px] flex-1"><h2 className="font-display text-xl font-semibold">{c.feeTitle}</h2><p className="mt-1 text-sm text-primary-foreground/60">{c.feeText}</p><p className="mt-2 text-xs text-primary-foreground/50">{FEE_SENTENCE}</p></div><Button variant="hero" asChild><Link to={signUp}>{c.primary}</Link></Button></div></div>
+        <div className="container"><div className="flex flex-wrap items-center gap-7 rounded-lg bg-foreground p-8 text-primary-foreground md:px-11"><strong className="font-display text-4xl text-accent">{c.fee}</strong><div className="min-w-[220px] flex-1"><h2 className="font-display text-xl font-semibold">{c.feeTitle}</h2><p className="mt-1 text-sm text-primary-foreground/60">{c.feeText}</p><p className="mt-2 text-xs text-primary-foreground/50">{FEE_SENTENCE}</p></div><Button variant="hero" asChild><Link to={signUp}>{c.primary}</Link></Button></div></div>
       </section>
 
       <section className="bg-hero-gradient py-20 text-center text-primary-foreground">
