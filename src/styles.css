@@ -57,9 +57,20 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   --background-image-hero-gradient: var(--hero-gradient);
+  --background-image-cta-gradient: var(--cta-gradient);
+  --background-image-grid-overlay: var(--grid-overlay);
 
-  --shadow-card: 0 1px 2px hsl(216 20% 10% / 0.04), 0 2px 8px hsl(216 20% 10% / 0.02);
-  --shadow-card-hover: 0 4px 12px hsl(216 20% 10% / 0.08), 0 8px 24px hsl(216 20% 10% / 0.04);
+  --color-navy-900: var(--navy-900);
+  --color-navy-800: var(--navy-800);
+  --color-navy-700: var(--navy-700);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-strong: var(--success-strong);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-surface-2: var(--surface-2);
+
+  --shadow-card: 0 1px 2px rgb(15 27 45 / 0.04), 0 2px 8px rgb(15 27 45 / 0.03);
+  --shadow-card-hover: 0 18px 40px -22px rgb(15 27 45 / 0.28);
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -84,57 +95,72 @@
 }
 
 :root {
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 
-  --background: hsl(216 28% 97%);
-  --foreground: hsl(222 47% 11%);
+  --navy-900: #081320;
+  --navy-800: #0b1b2e;
+  --navy-700: #0f2740;
 
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(222 47% 11%);
+  --background: #f4f6f9;
+  --surface-2: #eef1f5;
+  --foreground: #0f1b2d;
 
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(222 47% 11%);
+  --card: #ffffff;
+  --card-foreground: #0f1b2d;
 
-  --primary: hsl(217 72% 45%);
-  --primary-foreground: hsl(0 0% 100%);
+  --popover: #ffffff;
+  --popover-foreground: #0f1b2d;
 
-  --secondary: hsl(214 25% 93%);
-  --secondary-foreground: hsl(222 47% 11%);
+  --primary: #2f80ed;
+  --primary-foreground: #ffffff;
 
-  --muted: hsl(214 20% 92%);
-  --muted-foreground: hsl(215 16% 47%);
+  --secondary: #eef1f5;
+  --secondary-foreground: #0f1b2d;
 
-  --accent: hsl(199 89% 48%);
-  --accent-foreground: hsl(0 0% 100%);
+  --muted: #eef2f6;
+  --muted-foreground: #65748a;
+  --subtle-foreground: #8a98ab;
 
-  --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: hsl(210 40% 98%);
+  --accent: #3ea0ff;
+  --accent-foreground: #081320;
 
-  --border: hsl(214 25% 88%);
-  --input: hsl(214 25% 88%);
-  --ring: hsl(217 72% 45%);
+  --success: #1f9d63;
+  --success-soft: #e6f5ec;
+  --success-strong: #5bc88a;
 
-  --hero-gradient: linear-gradient(
-    135deg,
-    hsl(222 47% 11%) 0%,
-    hsl(217 40% 18%) 50%,
-    hsl(213 50% 25%) 100%
-  );
+  --destructive: #dc4c4c;
+  --destructive-foreground: #ffffff;
 
-  --chart-1: hsl(217 72% 45%);
-  --chart-2: hsl(199 89% 48%);
-  --chart-3: hsl(160 60% 40%);
-  --chart-4: hsl(35 85% 55%);
-  --chart-5: hsl(275 55% 55%);
+  --border: #e4e9ef;
+  --input: #e4e9ef;
+  --ring: #2f80ed;
 
-  --sidebar-background: hsl(222 47% 11%);
-  --sidebar-foreground: hsl(214 30% 88%);
-  --sidebar-primary: hsl(199 89% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(217 40% 18%);
-  --sidebar-accent-foreground: hsl(0 0% 100%);
-  --sidebar-border: hsl(217 33% 20%);
-  --sidebar-ring: hsl(199 89% 48%);
+  --hero-gradient:
+    radial-gradient(1200px 500px at 75% -10%, rgb(47 128 237 / 0.22), transparent 60%),
+    linear-gradient(160deg, var(--navy-800), var(--navy-900));
+
+  --cta-gradient:
+    radial-gradient(900px 400px at 50% -20%, rgb(47 128 237 / 0.2), transparent 60%),
+    linear-gradient(160deg, var(--navy-800), var(--navy-900));
+
+  --grid-overlay:
+    linear-gradient(rgb(255 255 255 / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px);
+
+  --chart-1: #2f80ed;
+  --chart-2: #3ea0ff;
+  --chart-3: #1f9d63;
+  --chart-4: #d6a23a;
+  --chart-5: #7d6bd8;
+
+  --sidebar-background: #081320;
+  --sidebar-foreground: #c5cedb;
+  --sidebar-primary: #2f80ed;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #0f2740;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgb(255 255 255 / 0.08);
+  --sidebar-ring: #3ea0ff;
 }
 
 @layer base {
@@ -162,6 +188,15 @@
 @utility container {
   width: 100%;
   margin-inline: auto;
-  padding-inline: 1.5rem;
-  max-width: 1400px;
+  padding-inline: 1.75rem;
+  max-width: 1180px;
+}
+
+@utility eyebrow {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--primary);
 }

@@ -1,41 +1,36 @@
-const partners = [
-  { initial: "E", name: "European Commission", type: "Policy" },
-  { initial: "E", name: "Euroheat & Power", type: "Industry" },
-  { initial: "I", name: "IRENA", type: "Knowledge" },
-  { initial: "D", name: "District Energy (UNEP)", type: "Institutional" },
-  { initial: "C", name: "Climate-KIC", type: "Innovation" },
-  { initial: "E", name: "EU Energy Efficiency Fund", type: "Financial" },
+const frameworks = [
+  { name: "EU Taxonomy", note: "Climate mitigation" },
+  { name: "Energy Efficiency Directive", note: "Efficient DHC (Arts. 24–26)" },
+  { name: "Renewable Energy Directive III", note: "DHC targets" },
+  { name: "SFDR", note: "Article 8 / 9 classification" },
+  { name: "DNSH", note: "Do No Significant Harm" },
 ];
 
 const PartnersSection = () => {
   return (
-    <section className="bg-secondary/50 py-20">
-      <div className="container mx-auto px-4">
-        <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase text-center mb-4">
-          Institutional Partners
-        </p>
-        <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground text-center mb-4">
-          Backed by Leading Institutions
+    <section className="bg-background py-[70px]">
+      <div className="container">
+        <h2 className="mb-2 text-center font-display text-[27px] font-semibold tracking-[-0.02em] text-foreground">
+          Aligned with the frameworks that govern DHC finance
         </h2>
-        <p className="text-muted-foreground text-center max-w-xl mx-auto mb-14">
-          Supported and recommended by key organizations in the European energy transition.
+        <p className="mb-8 text-center text-[15.5px] text-muted-foreground">
+          Project data is structured around the European standards investors are required to assess against.
         </p>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
-          {partners.map((p) => (
+        <div className="flex flex-wrap justify-center gap-3.5">
+          {frameworks.map((f) => (
             <div
-              key={p.name}
-              className="bg-card rounded-xl p-6 text-center"
-              style={{ boxShadow: "var(--card-shadow)" }}
+              key={f.name}
+              className="flex min-w-[150px] flex-col gap-0.5 rounded-[10px] border border-border bg-card px-5 py-3.5"
             >
-              <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mx-auto mb-3">
-                <span className="text-sm font-bold text-foreground">{p.initial}</span>
-              </div>
-              <p className="text-sm font-semibold text-foreground mb-1">{p.name}</p>
-              <p className="text-xs text-muted-foreground">{p.type}</p>
+              <span className="font-display text-[14.5px] font-medium text-[#2b3a52]">{f.name}</span>
+              <span className="text-xs text-subtle-foreground">{f.note}</span>
             </div>
           ))}
         </div>
+        <p className="mx-auto mt-6 max-w-[640px] text-center text-[12.5px] text-subtle-foreground">
+          DHC Market structures projects around these frameworks. Compliance for any individual project is assessed
+          and stated by the developer or named third-party assessors — not by DHC Market.
+        </p>
       </div>
     </section>
   );

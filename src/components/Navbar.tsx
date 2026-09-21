@@ -30,30 +30,28 @@ const Navbar = ({ isHome: isHomeProp }: NavbarProps = {}) => {
   };
 
   return (
-    <nav
-      className="fixed top-0 left-0 right-0 z-50 border-b border-primary-foreground/10"
-      style={{ background: "var(--hero-gradient)" }}
-    >
-      <div className="container mx-auto flex items-center justify-between h-16 px-4">
-        <a href="/" className="font-display text-xl font-bold text-primary-foreground tracking-tight">
+    <nav className="fixed left-0 right-0 top-0 z-50 border-b border-white/[0.07] bg-[rgb(8_19_32/0.86)] backdrop-blur-xl">
+      <div className="container flex h-[68px] items-center justify-between">
+        <a href="/" className="font-display text-[21px] font-bold tracking-[-0.03em] text-white">
           DHC<span className="text-accent">Market</span>
         </a>
-        <div className="hidden md:flex items-center gap-8">
-          <a href="/for-developers" className="text-sm font-medium text-primary-foreground hover:text-accent transition-colors">
-            For Developers
-          </a>
-          <a href="/for-investors" className="text-sm font-medium text-primary-foreground hover:text-accent transition-colors">
+        <div className="hidden items-center gap-[30px] md:flex">
+          <a href="/for-investors" className="text-[14.5px] font-medium text-[#c5cedb] transition-colors hover:text-white">
             For Investors
           </a>
-          <a href="/ecosystem" className="text-sm font-medium text-primary-foreground hover:text-accent transition-colors">
-            Ecosystem
+          <a href="/for-developers" className="text-[14.5px] font-medium text-[#c5cedb] transition-colors hover:text-white">
+            For Developers
           </a>
-          <a href="/public-funding" className="text-sm font-medium text-primary-foreground hover:text-accent transition-colors">
+          <a href="/ecosystem" className="text-[14.5px] font-medium text-[#c5cedb] transition-colors hover:text-white">
+            For Partners
+          </a>
+          <a href="/public-funding" className="text-[14.5px] font-medium text-[#c5cedb] transition-colors hover:text-white">
             Public Funding
           </a>
-          <a href="/how-it-works" className="text-sm font-medium text-primary-foreground hover:text-accent transition-colors">
+          <a href="/how-it-works" className="text-[14.5px] font-medium text-[#c5cedb] transition-colors hover:text-white">
             How it works
           </a>
+
 
           {user ? (
             <DropdownMenu>
@@ -87,21 +85,14 @@ const Navbar = ({ isHome: isHomeProp }: NavbarProps = {}) => {
             </DropdownMenu>
           ) : (
             <>
-              <a href="/signin">
-                <Button
-                  size="default"
-                  variant="outline"
-                  className="px-6 bg-transparent text-primary-foreground border-primary-foreground/20 hover:bg-primary-foreground/10 font-semibold rounded-md"
-                >
-                  Sign In
-                </Button>
-              </a>
-              <Button
-                size="default"
-                className="px-6 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold rounded-md"
-                  onClick={() => navigate("/sign-up")}
+              <a
+                href="/sign-in"
+                className="px-3 py-2 text-[14.5px] font-medium text-white transition-colors hover:text-accent"
               >
-                Get Started
+                Sign in
+              </a>
+              <Button variant="hero" onClick={() => navigate("/sign-up")}>
+                Get started
               </Button>
             </>
           )}

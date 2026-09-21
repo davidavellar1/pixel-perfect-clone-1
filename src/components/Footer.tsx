@@ -1,78 +1,66 @@
-import { Button } from "@/components/ui/button";
-
-type FooterLink = string | { label: string; href: string };
-
-const footerLinks: Record<string, FooterLink[]> = {
-  "For Investors": [{ label: "Browse Projects", href: "/investors" }, { label: "Portfolio Builder", href: "/investors" }, { label: "Pre-Arranged Portfolios", href: "/investors" }, { label: "Due Diligence", href: "/investors" }],
-  "For Developers": [{ label: "List Your Project", href: "/developers" }, { label: "Project Portfolio", href: "/developers" }, { label: "Service Providers", href: "/developers" }, { label: "Public Funding", href: "/developers" }],
-  "Platform": ["Ecosystem", "Partners", "About", "Contact"],
-};
+const columns: { title: string; links: { label: string; href: string }[] }[] = [
+  {
+    title: "For Investors",
+    links: [
+      { label: "Browse projects", href: "/investors" },
+      { label: "Public funding", href: "/public-funding" },
+      { label: "Ecosystem", href: "/ecosystem" },
+      { label: "How it works", href: "/how-it-works" },
+    ],
+  },
+  {
+    title: "For Developers",
+    links: [
+      { label: "List a project", href: "/developer-signup" },
+      { label: "Project portfolio", href: "/developers" },
+      { label: "Find advisors", href: "/ecosystem" },
+      { label: "Public funding", href: "/public-funding" },
+    ],
+  },
+  {
+    title: "Platform",
+    links: [
+      { label: "For Developers", href: "/for-developers" },
+      { label: "For Investors", href: "/for-investors" },
+      { label: "How it works", href: "/how-it-works" },
+      { label: "Sign in", href: "/sign-in" },
+    ],
+  },
+];
 
 const Footer = () => {
   return (
-    <footer style={{ background: "var(--hero-gradient)" }}>
-      {/* CTA */}
-      <div className="container mx-auto px-4 py-20 text-center">
-        <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary-foreground mb-4">
-          Ready to Shape the Future of District Energy?
-        </h2>
-        <p className="text-primary-foreground/60 max-w-2xl mx-auto mb-10">
-          Whether you're seeking investment opportunities or funding your next project, DHCMarket is your platform.
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <a href="/investors">
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8">
-              Start Investing <span className="ml-2">→</span>
-            </Button>
-          </a>
-          <a href="/developer-signup">
-            <Button
-              size="lg"
-              className="bg-card/20 backdrop-blur-sm border border-primary-foreground/30 text-primary-foreground hover:bg-card/30 font-semibold px-8"
-            >
-              List a Project
-            </Button>
-          </a>
-        </div>
-      </div>
-
-      {/* Footer Links */}
-      <div className="container mx-auto px-4 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+    <footer className="border-t border-white/5 bg-navy-900 pb-9 pt-14 text-[#9fb0c4]">
+      <div className="container">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
-            <p className="text-lg font-bold text-primary-foreground mb-3">
+            <div className="mb-3 font-display text-xl font-bold text-white">
               DHC<span className="text-accent">Market</span>
-            </p>
-            <p className="text-sm text-primary-foreground/50 leading-relaxed">
+            </div>
+            <p className="max-w-[260px] text-sm text-[#8295ac]">
               Connecting district heating & cooling developers with private and public capital.
             </p>
           </div>
-          {Object.entries(footerLinks).map(([category, links]) => (
-            <div key={category}>
-              <p className="text-xs font-semibold tracking-[0.15em] text-primary-foreground/70 uppercase mb-4">
-                {category}
-              </p>
-              <ul className="space-y-2">
-                {links.map((link) => {
-                  const label = typeof link === "string" ? link : link.label;
-                  const href = typeof link === "string" ? "#" : link.href;
-                  return (
-                    <li key={label}>
-                      <a href={href} className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors">
-                        {label}
-                      </a>
-                    </li>
-                  );
-                })}
-              </ul>
+          {columns.map((col) => (
+            <div key={col.title}>
+              <h5 className="mb-4 font-display text-xs font-semibold uppercase tracking-[0.14em] text-[#6f819a]">
+                {col.title}
+              </h5>
+              {col.links.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="block py-1.5 text-sm text-[#b3c1d2] transition-colors hover:text-white"
+                >
+                  {link.label}
+                </a>
+              ))}
             </div>
           ))}
         </div>
-
-        <div className="border-t border-primary-foreground/10 mt-12 pt-6">
-          <p className="text-xs text-primary-foreground/40 text-center">
-            © 2026 DHCMarket. All rights reserved.
-          </p>
+        <div className="mt-10 border-t border-white/10 pt-5 text-center text-[13px] text-[#6f819a]">
+          © 2026 DHC Market. An information and connection platform. DHC Market does not provide investment advice,
+          underwrite, or make investment decisions.
         </div>
       </div>
     </footer>
