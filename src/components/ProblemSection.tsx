@@ -7,7 +7,7 @@ const figures = [
 const ProblemSection = () => {
   return (
     <section className="border-b border-border bg-card py-[74px]">
-      <div className="container grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
+      <div className="container grid items-start gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
         <div>
           <span className="eyebrow">The financing gap</span>
           <h2 className="mt-2 font-display text-[32px] font-semibold tracking-[-0.02em] text-foreground">
