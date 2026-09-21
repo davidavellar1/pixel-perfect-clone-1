@@ -1,0 +1,18 @@
+REVOKE EXECUTE ON FUNCTION public.can_see_question(uuid, uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.financial_summary_is_listed(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.handle_new_investor() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.owns_document(uuid, uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.owns_financial_summary(uuid, uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.owns_project(uuid, uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.owns_sustainability(uuid, uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.project_is_listed(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.sustainability_is_listed(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.can_see_question(uuid, uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.financial_summary_is_listed(uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.handle_new_investor() TO service_role;
+GRANT EXECUTE ON FUNCTION public.owns_document(uuid, uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.owns_financial_summary(uuid, uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.owns_project(uuid, uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.owns_sustainability(uuid, uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.project_is_listed(uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.sustainability_is_listed(uuid) TO authenticated, service_role;
