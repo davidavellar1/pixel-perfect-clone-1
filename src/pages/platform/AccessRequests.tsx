@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "@/lib/router-compat";
 import {
   Building2, Check, CheckCheck, Clock, ExternalLink, Globe2, MessageSquare, ShieldAlert,
   ShieldCheck, User, X,

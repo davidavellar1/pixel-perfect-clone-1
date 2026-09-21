@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink } from "@/lib/router-compat";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

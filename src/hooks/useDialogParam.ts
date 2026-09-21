@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "@/lib/router-compat";
 
 /**
  * Keeps a dialog's open state in the URL so the state is linkable and the

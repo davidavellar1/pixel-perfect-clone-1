@@ -1,5 +1,5 @@
 import { Lock, TrendingUp, Building2 } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 
 interface LockedTabOverlayProps {

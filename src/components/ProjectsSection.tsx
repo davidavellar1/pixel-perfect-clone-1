@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import ProjectCard from "@/components/project/ProjectCard";
 import { Button } from "@/components/ui/button";
 import type { ProjectListing } from "@/hooks/useProjectListings";

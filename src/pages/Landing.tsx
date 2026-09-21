@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import PublicShell from "@/components/public/PublicShell";
 import ProjectCard from "@/components/project/ProjectCard";
 import { previewProjects } from "@/components/ProjectsSection";

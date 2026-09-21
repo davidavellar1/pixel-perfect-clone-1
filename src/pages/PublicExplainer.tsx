@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { ArrowRight, BadgeCheck, Building2, Check, FileSearch, Handshake, Landmark, Network, Scale, Search, ShieldCheck, Users } from "lucide-react";
 import PublicShell from "@/components/public/PublicShell";
 import { Button } from "@/components/ui/button";

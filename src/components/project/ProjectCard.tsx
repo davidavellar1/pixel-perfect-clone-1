@@ -1,5 +1,5 @@
 import { ArrowRight, Building2, Heart, Landmark, Lock, MapPin } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";

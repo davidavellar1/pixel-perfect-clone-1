@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "@/lib/router-compat";
 import { Briefcase, Boxes, ChevronLeft, Heart, HelpCircle, Landmark, LayoutGrid, ListChecks, LogOut, MessageSquare, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";

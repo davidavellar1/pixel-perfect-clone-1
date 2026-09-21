@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate } from "@/lib/router-compat";
 import PublicShell from "@/components/public/PublicShell";
 import ProjectHero from "@/components/project/ProjectHero";
 import ProjectSidebar from "@/components/project/ProjectSidebar";
