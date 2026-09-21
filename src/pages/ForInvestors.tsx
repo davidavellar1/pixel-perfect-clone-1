@@ -66,7 +66,7 @@ const ForInvestors = () => (
     <section className="bg-secondary py-20">
       <div className="container">
         <div className="mb-11 max-w-3xl">
-          <p className="font-display text-xs font-semibold uppercase text-accent">Why district energy</p>
+          <p className="eyebrow">Why district energy</p>
           <h2 className="mt-3 font-display text-3xl font-semibold">Real assets, contracted cash flows, policy tailwind</h2>
           <p className="mt-4 leading-7 text-muted-foreground">District heating and cooling offers infrastructure characteristics investors want, but the pipeline is fragmented and hard to source. That is the problem we solve.</p>
         </div>
@@ -85,7 +85,7 @@ const ForInvestors = () => (
     <section className="bg-card py-20">
       <div className="container grid gap-11 md:grid-cols-2 md:items-center">
         <div>
-          <p className="font-display text-xs font-semibold uppercase text-accent">Comparable, finally</p>
+          <p className="eyebrow">Comparable, finally</p>
           <h2 className="mt-3 font-display text-3xl font-semibold">Every project, the same five-tab profile</h2>
           <p className="mt-4 leading-7 text-muted-foreground">No two developers present a project the same way. We do. Each opportunity arrives in one structure: technical, financial, sustainability, structure and market, with the regulatory regime typed into one of six archetypes so you can compare a Danish non-profit network against a French concession at a glance.</p>
         </div>
@@ -125,7 +125,7 @@ const ForInvestors = () => (
 
     <section className="bg-background py-20">
       <div className="container">
-        <div className="mb-10 text-center"><p className="font-display text-xs font-semibold uppercase text-accent">How it works</p><h2 className="mt-3 font-display text-3xl font-semibold">From browse to close</h2></div>
+        <div className="mb-10 text-center"><p className="eyebrow">How it works</p><h2 className="mt-3 font-display text-3xl font-semibold">From browse to close</h2></div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map(([title, text], index) => <article key={title} className="rounded-lg border border-border bg-secondary p-6"><span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent font-display text-sm font-bold text-accent-foreground">{index + 1}</span><h3 className="mt-4 font-display font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}
         </div>

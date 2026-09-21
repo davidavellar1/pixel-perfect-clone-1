@@ -66,13 +66,13 @@ const PublicExplainer = ({ kind }: { kind: ExplainerKind }) => {
 
       <section className="bg-card py-20">
         <div className="container">
-          <div className="mb-10 max-w-3xl"><p className="font-display text-xs font-semibold uppercase text-accent">{page.sectionLabel}</p><h2 className="mt-3 font-display text-3xl font-semibold">{page.sectionTitle}</h2><p className="mt-4 leading-7 text-muted-foreground">{page.sectionText}</p></div>
+          <div className="mb-10 max-w-3xl"><p className="eyebrow">{page.sectionLabel}</p><h2 className="mt-3 font-display text-3xl font-semibold">{page.sectionTitle}</h2><p className="mt-4 leading-7 text-muted-foreground">{page.sectionText}</p></div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{page.cards.map(([title, text, Icon]) => <article key={title} className="rounded-lg border border-border bg-background p-6"><span className="flex h-11 w-11 items-center justify-center rounded-md bg-accent/10"><Icon className="h-5 w-5 text-accent" /></span><h3 className="mt-5 font-display font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}</div>
         </div>
       </section>
 
       <section className="bg-secondary py-20">
-        <div className="container"><div className="mb-10 text-center"><p className="font-display text-xs font-semibold uppercase text-accent">How it works</p><h2 className="mt-3 font-display text-3xl font-semibold">From need to direct connection</h2></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{page.steps.map(([title, text], index) => <article key={title} className="rounded-lg border border-border bg-card p-6"><span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent font-display text-sm font-bold text-accent-foreground">{index + 1}</span><h3 className="mt-4 font-display font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}</div></div>
+        <div className="container"><div className="mb-10 text-center"><p className="eyebrow">How it works</p><h2 className="mt-3 font-display text-3xl font-semibold">From need to direct connection</h2></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{page.steps.map(([title, text], index) => <article key={title} className="rounded-lg border border-border bg-card p-6"><span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent font-display text-sm font-bold text-accent-foreground">{index + 1}</span><h3 className="mt-4 font-display font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}</div></div>
       </section>
 
       <section className="bg-card py-20"><div className="container"><div className="flex gap-4 rounded-lg border border-border border-l-4 border-l-accent bg-background p-7"><Check className="mt-0.5 h-6 w-6 shrink-0 text-accent" /><div><h2 className="font-display text-lg font-semibold">{page.noteTitle}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{page.note}</p></div></div></div></section>

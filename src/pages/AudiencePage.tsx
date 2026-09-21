@@ -107,7 +107,7 @@ const AudiencePage = ({ audience }: { audience: Audience }) => {
 
       <section className="bg-card pb-20">
         <div className="container">
-          <div className="mb-10 max-w-3xl"><p className="font-display text-xs font-semibold uppercase text-accent">{c.valueLabel}</p><h2 className="mt-3 font-display text-3xl font-semibold">{c.valueTitle}</h2><p className="mt-3 text-muted-foreground">{c.valueLead}</p></div>
+          <div className="mb-10 max-w-3xl"><p className="eyebrow">{c.valueLabel}</p><h2 className="mt-3 font-display text-3xl font-semibold">{c.valueTitle}</h2><p className="mt-3 text-muted-foreground">{c.valueLead}</p></div>
           <div className="grid gap-5 md:grid-cols-3">
             {c.values.map(([title, text], index) => { const Icon = [Building2, LockKeyhole, Landmark][index]; return <article key={title} className="rounded-lg border border-border bg-background p-7"><div className="mb-5 flex h-11 w-11 items-center justify-center rounded-md bg-accent/10"><Icon className="text-accent" /></div><h3 className="font-display text-lg font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>; })}
           </div>
@@ -116,14 +116,14 @@ const AudiencePage = ({ audience }: { audience: Audience }) => {
 
       <section className="bg-secondary py-20">
         <div className="container">
-          <div className="mb-10 text-center"><p className="font-display text-xs font-semibold uppercase text-accent">How it works</p><h2 className="mt-3 font-display text-3xl font-semibold">From first screen to close</h2></div>
+          <div className="mb-10 text-center"><p className="eyebrow">How it works</p><h2 className="mt-3 font-display text-3xl font-semibold">From first screen to close</h2></div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{c.steps.map(([title, text], index) => <article key={title} className="rounded-lg border border-border bg-card p-6"><span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent font-display text-sm font-bold text-accent-foreground">{index + 1}</span><h3 className="mt-4 font-display font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}</div>
         </div>
       </section>
 
       <section className="bg-card py-20">
         <div className="container grid gap-10 md:grid-cols-2 md:items-center">
-          <div><p className="font-display text-xs font-semibold uppercase text-accent">You stay in control</p><h2 className="mt-3 font-display text-3xl font-semibold">{c.controlTitle}</h2><p className="mt-4 leading-7 text-muted-foreground">{c.controlText}</p></div>
+          <div><p className="eyebrow">You stay in control</p><h2 className="mt-3 font-display text-3xl font-semibold">{c.controlTitle}</h2><p className="mt-4 leading-7 text-muted-foreground">{c.controlText}</p></div>
           <div className="space-y-3">{c.controls.map(([title, text], index) => { const Icon = [LockKeyhole, ShieldCheck, Scale][index]; return <div key={title} className="flex gap-4 rounded-lg border border-border bg-background p-5"><Icon className="mt-0.5 shrink-0 text-accent" /><div><h3 className="font-display text-sm font-semibold">{title}</h3><p className="mt-1 text-sm leading-6 text-muted-foreground">{text}</p></div></div>; })}</div>
         </div>
       </section>
