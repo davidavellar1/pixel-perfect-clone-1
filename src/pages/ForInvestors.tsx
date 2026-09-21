@@ -83,7 +83,7 @@ const ForInvestors = () => (
     </section>
 
     <section className="bg-card py-20">
-      <div className="mx-auto grid max-w-6xl gap-11 px-5 md:grid-cols-2 md:items-center lg:px-7">
+      <div className="container grid gap-11 md:grid-cols-2 md:items-center">
         <div>
           <p className="font-display text-xs font-semibold uppercase text-accent">Comparable, finally</p>
           <h2 className="mt-3 font-display text-3xl font-semibold">Every project, the same five-tab profile</h2>
