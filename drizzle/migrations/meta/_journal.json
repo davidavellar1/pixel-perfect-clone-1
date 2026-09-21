@@ -29,6 +29,13 @@
       "when": 1790028696600,
       "tag": "0003_dhc_transaction_process_construction_cases",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790028730206,
+      "tag": "0004_dhc_access_lifecycle",
+      "breakpoints": true
     }
   ]
 }

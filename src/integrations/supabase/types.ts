@@ -17,30 +17,93 @@ export type Database = {
       access_request: {
         Row: {
           decided_at: string | null
+          decided_by: string | null
+          decision_note: string | null
+          decline_reason:
+            | Database["public"]["Enums"]["access_decline_reason"]
+            | null
+          developer_question: string | null
+          developer_question_at: string | null
+          fee_tail_expires_at: string | null
           id: string
+          introduction_logged_at: string | null
+          investor_reply: string | null
+          investor_reply_at: string | null
           investor_user_id: string
+          nda_effective_at: string | null
+          nda_ip: string | null
+          nda_signed_at: string | null
+          nda_signed_name: string | null
+          nda_signed_role: string | null
+          nda_version: string | null
           note: string | null
           project_id: string
+          reopen_allowed_at: string | null
           requested_at: string
+          scope_granted: Database["public"]["Enums"]["access_scope"] | null
+          state: Database["public"]["Enums"]["access_state"]
           status: Database["public"]["Enums"]["request_status"]
+          submitted_at: string
         }
         Insert: {
           decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          decline_reason?:
+            | Database["public"]["Enums"]["access_decline_reason"]
+            | null
+          developer_question?: string | null
+          developer_question_at?: string | null
+          fee_tail_expires_at?: string | null
           id?: string
+          introduction_logged_at?: string | null
+          investor_reply?: string | null
+          investor_reply_at?: string | null
           investor_user_id: string
+          nda_effective_at?: string | null
+          nda_ip?: string | null
+          nda_signed_at?: string | null
+          nda_signed_name?: string | null
+          nda_signed_role?: string | null
+          nda_version?: string | null
           note?: string | null
           project_id: string
+          reopen_allowed_at?: string | null
           requested_at?: string
+          scope_granted?: Database["public"]["Enums"]["access_scope"] | null
+          state?: Database["public"]["Enums"]["access_state"]
           status?: Database["public"]["Enums"]["request_status"]
+          submitted_at?: string
         }
         Update: {
           decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          decline_reason?:
+            | Database["public"]["Enums"]["access_decline_reason"]
+            | null
+          developer_question?: string | null
+          developer_question_at?: string | null
+          fee_tail_expires_at?: string | null
           id?: string
+          introduction_logged_at?: string | null
+          investor_reply?: string | null
+          investor_reply_at?: string | null
           investor_user_id?: string
+          nda_effective_at?: string | null
+          nda_ip?: string | null
+          nda_signed_at?: string | null
+          nda_signed_name?: string | null
+          nda_signed_role?: string | null
+          nda_version?: string | null
           note?: string | null
           project_id?: string
+          reopen_allowed_at?: string | null
           requested_at?: string
+          scope_granted?: Database["public"]["Enums"]["access_scope"] | null
+          state?: Database["public"]["Enums"]["access_state"]
           status?: Database["public"]["Enums"]["request_status"]
+          submitted_at?: string
         }
         Relationships: [
           {
@@ -48,6 +111,110 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      access_request_answers: {
+        Row: {
+          access_request_id: string
+          advisers_receiving_info: string | null
+          capital_source: Database["public"]["Enums"]["capital_source"] | null
+          conflicts_declared: boolean
+          conflicts_detail: string | null
+          construction_risk_appetite:
+            | Database["public"]["Enums"]["construction_risk_appetite"]
+            | null
+          created_at: string
+          decision_process:
+            | Database["public"]["Enums"]["decision_process"]
+            | null
+          diligence_focus: string | null
+          earliest_decision_date: string | null
+          entity_name: string
+          entity_type:
+            | Database["public"]["Enums"]["investor_entity_type"]
+            | null
+          id: string
+          instrument_sought: Database["public"]["Enums"]["instrument_sought"]
+          interest_drivers: string[]
+          jurisdiction: string | null
+          regulated_status: string | null
+          signatory_name: string
+          signatory_role: string | null
+          ticket_band: Database["public"]["Enums"]["ticket_band"]
+          updated_at: string
+          website: string | null
+          would_lead_club: boolean
+        }
+        Insert: {
+          access_request_id: string
+          advisers_receiving_info?: string | null
+          capital_source?: Database["public"]["Enums"]["capital_source"] | null
+          conflicts_declared?: boolean
+          conflicts_detail?: string | null
+          construction_risk_appetite?:
+            | Database["public"]["Enums"]["construction_risk_appetite"]
+            | null
+          created_at?: string
+          decision_process?:
+            | Database["public"]["Enums"]["decision_process"]
+            | null
+          diligence_focus?: string | null
+          earliest_decision_date?: string | null
+          entity_name: string
+          entity_type?:
+            | Database["public"]["Enums"]["investor_entity_type"]
+            | null
+          id?: string
+          instrument_sought: Database["public"]["Enums"]["instrument_sought"]
+          interest_drivers?: string[]
+          jurisdiction?: string | null
+          regulated_status?: string | null
+          signatory_name: string
+          signatory_role?: string | null
+          ticket_band: Database["public"]["Enums"]["ticket_band"]
+          updated_at?: string
+          website?: string | null
+          would_lead_club?: boolean
+        }
+        Update: {
+          access_request_id?: string
+          advisers_receiving_info?: string | null
+          capital_source?: Database["public"]["Enums"]["capital_source"] | null
+          conflicts_declared?: boolean
+          conflicts_detail?: string | null
+          construction_risk_appetite?:
+            | Database["public"]["Enums"]["construction_risk_appetite"]
+            | null
+          created_at?: string
+          decision_process?:
+            | Database["public"]["Enums"]["decision_process"]
+            | null
+          diligence_focus?: string | null
+          earliest_decision_date?: string | null
+          entity_name?: string
+          entity_type?:
+            | Database["public"]["Enums"]["investor_entity_type"]
+            | null
+          id?: string
+          instrument_sought?: Database["public"]["Enums"]["instrument_sought"]
+          interest_drivers?: string[]
+          jurisdiction?: string | null
+          regulated_status?: string | null
+          signatory_name?: string
+          signatory_role?: string | null
+          ticket_band?: Database["public"]["Enums"]["ticket_band"]
+          updated_at?: string
+          website?: string | null
+          would_lead_club?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_request_answers_access_request_id_fkey"
+            columns: ["access_request_id"]
+            isOneToOne: true
+            referencedRelation: "access_request"
             referencedColumns: ["id"]
           },
         ]
@@ -458,6 +625,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      listing_access_criteria: {
+        Row: {
+          auto_accept_qualified: boolean
+          created_at: string
+          id: string
+          instruments_accepted: string[]
+          min_ticket: number | null
+          notify_users: string[]
+          project_id: string
+          require_construction_risk_appetite: boolean
+          updated_at: string
+        }
+        Insert: {
+          auto_accept_qualified?: boolean
+          created_at?: string
+          id?: string
+          instruments_accepted?: string[]
+          min_ticket?: number | null
+          notify_users?: string[]
+          project_id: string
+          require_construction_risk_appetite?: boolean
+          updated_at?: string
+        }
+        Update: {
+          auto_accept_qualified?: boolean
+          created_at?: string
+          id?: string
+          instruments_accepted?: string[]
+          min_ticket?: number | null
+          notify_users?: string[]
+          project_id?: string
+          require_construction_risk_appetite?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_access_criteria_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       margin_profile: {
         Row: {
@@ -1331,6 +1542,10 @@ export type Database = {
         Args: { _question_id: string; _user_id: string }
         Returns: boolean
       }
+      developer_of_access_request: {
+        Args: { _request_id: string; _user_id: string }
+        Returns: boolean
+      }
       financial_summary_is_listed: {
         Args: { _fs_id: string }
         Returns: boolean
@@ -1340,6 +1555,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      owns_access_request: {
+        Args: { _request_id: string; _user_id: string }
         Returns: boolean
       }
       owns_document: {
@@ -1362,14 +1581,42 @@ export type Database = {
       sustainability_is_listed: { Args: { _sp_id: string }; Returns: boolean }
     }
     Enums: {
+      access_decline_reason:
+        | "ticket_too_small"
+        | "wrong_instrument"
+        | "conflict"
+        | "process_closed"
+        | "not_now"
+        | "other"
+      access_scope: "identity_and_data" | "full_including_dataroom"
+      access_state:
+        | "pending"
+        | "granted"
+        | "granted_full"
+        | "declined"
+        | "withdrawn"
+        | "lapsed"
       app_role: "admin" | "developer" | "investor" | "advisor"
+      capital_source:
+        | "fund_with_dry_powder"
+        | "balance_sheet"
+        | "club_to_be_assembled"
+        | "advising_a_client"
       case_name: "base" | "downside" | "stress" | "upside"
+      construction_risk_appetite: "yes" | "no" | "only_fixed_price_date_certain"
       deal_stage:
         | "interest_logged"
         | "data_room"
         | "due_diligence"
         | "term_sheet"
         | "financial_close"
+        | "watchlisted"
+        | "interest_submitted"
+        | "access_granted"
+        | "ioi"
+        | "loi"
+        | "closed"
+      decision_process: "discretionary" | "ic_approval" | "lp_consent"
       developer_type:
         | "utility"
         | "municipality"
@@ -1378,12 +1625,24 @@ export type Database = {
         | "esco"
         | "other"
       document_access: "public" | "gated"
+      instrument_sought: "equity" | "debt" | "either"
       investment_range:
         | "under_1m"
         | "1m_5m"
         | "5m_25m"
         | "25m_100m"
         | "over_100m"
+      investor_entity_type:
+        | "infra_fund"
+        | "pension"
+        | "insurer"
+        | "family_office"
+        | "regional_fund"
+        | "municipal_utility"
+        | "esco"
+        | "corporate"
+        | "bank_or_debt_fund"
+        | "other"
       investor_type:
         | "fund"
         | "family_office"
@@ -1426,6 +1685,7 @@ export type Database = {
         | "seawater_cooling"
         | "thermal_storage"
         | "hybrid"
+      ticket_band: "under_1m" | "1m_3m" | "3m_5m" | "5m_10m" | "10m_plus"
       transaction_instrument:
         | "equity"
         | "equity_and_shareholder_loan"
@@ -1560,15 +1820,50 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      access_decline_reason: [
+        "ticket_too_small",
+        "wrong_instrument",
+        "conflict",
+        "process_closed",
+        "not_now",
+        "other",
+      ],
+      access_scope: ["identity_and_data", "full_including_dataroom"],
+      access_state: [
+        "pending",
+        "granted",
+        "granted_full",
+        "declined",
+        "withdrawn",
+        "lapsed",
+      ],
       app_role: ["admin", "developer", "investor", "advisor"],
+      capital_source: [
+        "fund_with_dry_powder",
+        "balance_sheet",
+        "club_to_be_assembled",
+        "advising_a_client",
+      ],
       case_name: ["base", "downside", "stress", "upside"],
+      construction_risk_appetite: [
+        "yes",
+        "no",
+        "only_fixed_price_date_certain",
+      ],
       deal_stage: [
         "interest_logged",
         "data_room",
         "due_diligence",
         "term_sheet",
         "financial_close",
+        "watchlisted",
+        "interest_submitted",
+        "access_granted",
+        "ioi",
+        "loi",
+        "closed",
       ],
+      decision_process: ["discretionary", "ic_approval", "lp_consent"],
       developer_type: [
         "utility",
         "municipality",
@@ -1578,12 +1873,25 @@ export const Constants = {
         "other",
       ],
       document_access: ["public", "gated"],
+      instrument_sought: ["equity", "debt", "either"],
       investment_range: [
         "under_1m",
         "1m_5m",
         "5m_25m",
         "25m_100m",
         "over_100m",
+      ],
+      investor_entity_type: [
+        "infra_fund",
+        "pension",
+        "insurer",
+        "family_office",
+        "regional_fund",
+        "municipal_utility",
+        "esco",
+        "corporate",
+        "bank_or_debt_fund",
+        "other",
       ],
       investor_type: [
         "fund",
@@ -1632,6 +1940,7 @@ export const Constants = {
         "thermal_storage",
         "hybrid",
       ],
+      ticket_band: ["under_1m", "1m_3m", "3m_5m", "5m_10m", "10m_plus"],
       transaction_instrument: [
         "equity",
         "equity_and_shareholder_loan",
