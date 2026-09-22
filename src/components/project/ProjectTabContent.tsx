@@ -118,14 +118,17 @@ function OverviewTab({ project, grade }: { project: ProjectDetail; grade: Invest
             </div>
           ))}
         </div>
+        )}
       </div>
 
-      {/* Charts */}
-      <ProjectCharts
-        projectTitle={project.title}
-        capexNum={parseFloat(project.capex.replace(/[^0-9.]/g, ""))}
-        technology={project.technology}
-      />
+      {/* Charts — an illustrative model, only shown once a capex figure exists */}
+      {Number.isFinite(parseFloat(project.capex.replace(/[^0-9.]/g, ""))) && (
+        <ProjectCharts
+          projectTitle={project.title}
+          capexNum={parseFloat(project.capex.replace(/[^0-9.]/g, ""))}
+          technology={project.technology}
+        />
+      )}
     </div>
   );
 }
