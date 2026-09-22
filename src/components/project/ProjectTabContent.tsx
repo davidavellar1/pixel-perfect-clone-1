@@ -240,7 +240,7 @@ function FinancialTab({
     <div className="space-y-10">
       <MarginSection margin={grade.margin} asOf={asOf} />
       {/* Capital Stack */}
-      {project.capitalStack && (
+      {project.capitalStack && project.capitalStack.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Capital stack</h2>
           <div className="border-t border-border mb-6" />
@@ -281,7 +281,7 @@ function FinancialTab({
 
 
       {/* Revenue Model */}
-      {project.revenueStreams && (
+      {project.revenueStreams && project.revenueStreams.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Revenue model</h2>
           <div className="border-t border-border mb-6" />
@@ -311,7 +311,7 @@ function FinancialTab({
       )}
 
       {/* Risk Summary */}
-      {project.risks && (
+      {project.risks && project.risks.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Risk summary</h2>
           <div className="border-t border-border mb-6" />
@@ -561,7 +561,7 @@ function SustainabilityTab({ project }: { project: ProjectDetail }) {
   return (
     <div className="space-y-10">
       {/* Key Sustainability Metrics */}
-      {project.sustainabilityMetrics && (
+      {project.sustainabilityMetrics && project.sustainabilityMetrics.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Key sustainability metrics</h2>
           <div className="border-t border-border mb-6" />
@@ -750,7 +750,7 @@ function SustainabilityTab({ project }: { project: ProjectDetail }) {
       </div>
 
       {/* Energy Mix */}
-      {project.energyMix && (
+      {project.energyMix && project.energyMix.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Primary energy source mix</h2>
           <div className="border-t border-border mb-6" />
@@ -782,7 +782,7 @@ function SustainabilityTab({ project }: { project: ProjectDetail }) {
       )}
 
       {/* SDGs */}
-      {project.sdgs && (
+      {project.sdgs && project.sdgs.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Sustainable Development Goals</h2>
           <div className="border-t border-border mb-6" />
