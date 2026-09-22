@@ -20,10 +20,26 @@ export const Route = createFileRoute('/api/public/hooks/access-reminders')({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const unauthorized = await authenticateCronRequest(request)
-        if (unauthorized) return unauthorized
-
         const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
+
+        const provided = /^Bearer ([^\s,]+)$/.exec(request.headers.get('authorization') ?? '')?.[1]
+        if (!provided) return new Response('Unauthorized', { status: 401 })
+
+        const { data: tokenRow } = await supabaseAdmin
+          .from('cron_token')
+          .select('token')
+          .eq('id', 1)
+          .maybeSingle()
+
+        const expected = tokenRow?.token
+        if (!expected) return new Response('Server configuration error', { status: 500 })
+
+        const { createHash, timingSafeEqual } = await import('node:crypto')
+        const digest = (value: string) => createHash('sha256').update(value, 'utf8').digest()
+        if (!timingSafeEqual(digest(provided), digest(expected))) {
+          return new Response('Unauthorized', { status: 401 })
+        }
+
         const now = Date.now()
 
         const { data: requests, error } = await supabaseAdmin
