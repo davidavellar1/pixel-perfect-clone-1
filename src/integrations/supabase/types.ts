@@ -573,6 +573,44 @@ export type Database = {
           },
         ]
       }
+      energy_mix_item: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          share_pct: number | null
+          sort_order: number
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          share_pct?: number | null
+          sort_order?: number
+          source: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          share_pct?: number | null
+          sort_order?: number
+          source?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "energy_mix_item_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_summary: {
         Row: {
           capex: number | null
@@ -988,6 +1026,47 @@ export type Database = {
             foreignKeyName: "offtake_ladder_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: true
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operating_parameter: {
+        Row: {
+          benchmark: string | null
+          created_at: string
+          id: string
+          parameter: string
+          project_id: string
+          sort_order: number
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          benchmark?: string | null
+          created_at?: string
+          id?: string
+          parameter: string
+          project_id: string
+          sort_order?: number
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          benchmark?: string | null
+          created_at?: string
+          id?: string
+          parameter?: string
+          project_id?: string
+          sort_order?: number
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operating_parameter_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
@@ -1652,6 +1731,44 @@ export type Database = {
             foreignKeyName: "sustainability_profile_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: true
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      technology_card: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          project_id: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          project_id: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          project_id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technology_card_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           },

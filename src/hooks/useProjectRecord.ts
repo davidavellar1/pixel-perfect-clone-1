@@ -67,7 +67,16 @@ export function useProjectRecord(projectId: string | undefined) {
     setLoading(true);
 
     (async () => {
-      const [financialRes, sustainabilityRes, milestonesRes, risksRes, advisorsRes] = await Promise.all([
+      const [
+        financialRes,
+        sustainabilityRes,
+        milestonesRes,
+        risksRes,
+        advisorsRes,
+        techCardsRes,
+        energyMixRes,
+        operatingRes,
+      ] = await Promise.all([
         supabase.from("financial_summary").select("*").eq("project_id", projectId).maybeSingle(),
         supabase.from("sustainability_profile").select("*").eq("project_id", projectId).maybeSingle(),
         supabase.from("milestone").select("*").eq("project_id", projectId).order("sort_order"),
@@ -76,6 +85,21 @@ export function useProjectRecord(projectId: string | undefined) {
           .from("project_advisor")
           .select("role, advisor:advisor_id(name, label)")
           .eq("project_id", projectId),
+        supabase
+          .from("technology_card")
+          .select("title, description")
+          .eq("project_id", projectId)
+          .order("sort_order"),
+        supabase
+          .from("energy_mix_item")
+          .select("source, share_pct")
+          .eq("project_id", projectId)
+          .order("sort_order"),
+        supabase
+          .from("operating_parameter")
+          .select("parameter, value, benchmark")
+          .eq("project_id", projectId)
+          .order("sort_order"),
       ]);
 
       const financial = financialRes.data;
@@ -203,6 +227,25 @@ export function useProjectRecord(projectId: string | undefined) {
         })
         .filter((row): row is { name: string; role: string } => row !== null);
       if (advisors.length) next.advisors = advisors;
+
+      const technologyCards = (techCardsRes.data ?? []).map((row) => ({
+        title: row.title,
+        description: row.description ?? "",
+      }));
+      if (technologyCards.length) next.technologyCards = technologyCards;
+
+      const energyMix = (energyMixRes.data ?? []).map((row) => ({
+        source: row.source,
+        percentage: Number(row.share_pct ?? 0),
+      }));
+      if (energyMix.length) next.energyMix = energyMix;
+
+      const operatingParameters = (operatingRes.data ?? []).map((row) => ({
+        parameter: row.parameter,
+        value: row.value ?? "Not stated",
+        benchmark: row.benchmark ?? "",
+      }));
+      if (operatingParameters.length) next.operatingParameters = operatingParameters;
 
       setOverrides(next);
       setLoading(false);

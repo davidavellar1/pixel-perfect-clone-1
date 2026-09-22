@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "@/lib/router-compat";
-import { Check, Clock, ExternalLink, FileText, Lock, Plus, Users, X } from "lucide-react";
+import { Check, Clock, ExternalLink, FileText, Gauge, Lock, Plus, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { ACCESS_STATE_LABEL, stageIndex } from "@/lib/access";
 import ManageDocumentsDialog from "@/components/project/ManageDocumentsDialog";
 import ManageAdvisorsDialog from "@/components/project/ManageAdvisorsDialog";
+import ManageTechnicalDialog from "@/components/project/ManageTechnicalDialog";
 
 type Interest = Tables<"project_interest">;
 type Request = Tables<"access_request">;
@@ -141,6 +142,11 @@ const DeveloperDashboard = () => {
                       projectId={project.id}
                       projectTitle={project.title}
                       trigger={<Button size="sm" variant="outline"><Users className="h-3.5 w-3.5" /> Advisors</Button>}
+                    />
+                    <ManageTechnicalDialog
+                      projectId={project.id}
+                      projectTitle={project.title}
+                      trigger={<Button size="sm" variant="outline"><Gauge className="h-3.5 w-3.5" /> Technical</Button>}
                     />
                     <Button size="sm" variant="outline" asChild><Link to={`/app/projects/${project.slug}`}>Open <ExternalLink className="h-3.5 w-3.5" /></Link></Button>
                   </div>
