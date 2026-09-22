@@ -54,7 +54,13 @@ const ProjectTabContent = ({
   }
   if (activeTab === "Sustainability") return <SustainabilityTab project={project} />;
   if (activeTab === "Structure & market") return <StructureMarketTab project={project} />;
-  if (activeTab === "Documents") return <DocumentsTab project={project} dataRoomStatus={dataRoomStatus} onRequestDataRoom={onRequestDataRoom} />;
+  if (activeTab === "Documents") {
+    return projectId ? (
+      <ProjectDocuments projectId={projectId} dataRoomStatus={dataRoomStatus} />
+    ) : (
+      <DocumentsTab project={project} dataRoomStatus={dataRoomStatus} onRequestDataRoom={onRequestDataRoom} />
+    );
+  }
   if (activeTab === "Q&A") return <QATab project={project} />;
   return null;
 };
