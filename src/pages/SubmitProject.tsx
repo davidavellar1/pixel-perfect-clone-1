@@ -353,144 +353,126 @@ export default function SubmitProject() {
       return;
     }
     setPublishing(true);
-    let { data: developer, error: profileError } = await supabase
-      .from("developer_profiles").select("id").eq("user_id", user.id).maybeSingle();
-    if (!profileError && !developer) {
-      // First listing for this account: create the developer profile from the signup details.
-      const meta = (user.user_metadata || {}) as Record<string, string>;
-      const created = await supabase.from("developer_profiles").insert({
-        user_id: user.id,
-        full_name: meta.full_name || user.email || "Developer",
-        company_name: meta.company_name || null,
-      }).select("id").single();
-      developer = created.data;
-      profileError = created.error;
-    }
-    if (profileError || !developer) {
-      toast.error(profileError?.message || "A developer profile is required before publishing.");
-      setPublishing(false);
-      return;
-    }
+    const meta = (user.user_metadata || {}) as Record<string, string>;
     const baseSlug = slugify(title);
     const slug = `${baseSlug}-${Date.now().toString(36)}`;
-    const { data: project, error } = await supabase.from("project").insert({
-      slug, developer_id: developer.id, title: title.trim(), summary: summary.trim(), description: summary.trim(),
-      country_code: COUNTRY_CODES[country], city: city.trim(), lifecycle_stage: STAGE_VALUES[stage as keyof typeof STAGE_VALUES],
-      project_type: projectType, technology, capacity_mw: Number(capacity), visibility: "listed",
-      headline_investment: capex ? Number(capex) : null, headline_irr_pct: targetIrr ? Number(targetIrr) : null,
-      headline_co2_tonnes: co2 ? Number(co2) : null,
-      technical_as_of: technicalAsOf || null, financial_as_of: financialAsOf || null, regulatory_as_of: regulatoryAsOf || null,
-    }).select("id").single();
-    if (error || !project) {
-      toast.error(error?.message || "The listing could not be published.");
-      setPublishing(false);
+
+    const num = (v: string) => (v ? Number(v) : null);
+
+    const caseRows = CASE_ORDER.filter((name) => name === "base" || (cases[name].enabled && caseHasValue(cases[name]))).map((name) => {
+      const c = cases[name];
+      return {
+        name,
+        connections: num(c.connections),
+        power_price: num(c.powerPrice),
+        capex_variance_pct: num(c.capexVariancePct),
+        equity_irr_pct: num(c.equityIrrPct),
+        min_dscr: num(c.minDscr),
+      };
+    });
+
+    const payload = {
+      slug,
+      developer_full_name: meta.full_name || user.email || "Developer",
+      developer_company: meta.company_name || null,
+      project: {
+        title: title.trim(), summary: summary.trim(), description: summary.trim(),
+        country_code: COUNTRY_CODES[country], city: city.trim(),
+        lifecycle_stage: STAGE_VALUES[stage as keyof typeof STAGE_VALUES],
+        project_type: projectType, technology, capacity_mw: Number(capacity), visibility: "listed",
+        headline_investment: num(capex), headline_irr_pct: num(targetIrr), headline_co2_tonnes: num(co2),
+        technical_as_of: technicalAsOf || null, financial_as_of: financialAsOf || null, regulatory_as_of: regulatoryAsOf || null,
+      },
+      financial_summary:
+        capex || targetIrr || dscr1xConnections || irrZeroConnections || debtMarginBps || gearingPct || lockupDscr || dsraMonths
+          ? {
+              currency: "EUR", capex: num(capex), target_irr_pct: num(targetIrr),
+              dscr_1x_connections: num(dscr1xConnections), irr_zero_connections: num(irrZeroConnections),
+              debt_margin_bps: num(debtMarginBps), gearing_pct: num(gearingPct),
+              lockup_dscr: num(lockupDscr), dsra_months: num(dsraMonths),
+            }
+          : null,
+      sustainability_profile:
+        co2 || renewableShare
+          ? { co2_tonnes_per_year: num(co2), renewable_share_pct: num(renewableShare) }
+          : null,
+      offtake_ladder:
+        totalBuildings || contractedCount || signedCount || negotiationCount
+          ? {
+              as_of: ladderAsOf || null, total_buildings: num(totalBuildings),
+              contracted_count: Number(contractedCount || 0), contracted_load_pct: Number(contractedLoadPct || 0),
+              signed_connection_count: Number(signedCount || 0), signed_connection_load_pct: Number(signedLoadPct || 0),
+              in_negotiation_count: Number(negotiationCount || 0), in_negotiation_load_pct: Number(negotiationLoadPct || 0),
+            }
+          : null,
+      construction_package:
+        lateStage && (epcContractor || contractType || contractValue)
+          ? {
+              as_of: technicalAsOf || null, epc_contractor: epcContractor || null,
+              epc_named_in_dataroom: epcNamedInDataroom, contract_type: contractType || null,
+              contract_value: num(contractValue), ld_rate: ldRate || null, ld_cap_pct: num(ldCapPct),
+              security: security || null, contingency_amount: num(contingencyAmount), contingency_pct: num(contingencyPct),
+              schedule_float_months: num(scheduleFloatMonths), permits_status: permitsStatus || null,
+              interface_risk: interfaceRisk || null, om_contract: omContract || null,
+            }
+          : null,
+      margin_profile:
+        heatPurchasePrice || customerTariff || grossSpread || opexPerKwh
+          ? {
+              as_of: financialAsOf || null, heat_purchase_price: num(heatPurchasePrice), purchase_index: purchaseIndex || null,
+              customer_tariff: num(customerTariff), tariff_index: tariffIndex || null,
+              gross_spread: num(grossSpread), opex_per_kwh: num(opexPerKwh),
+              indexation_mismatch_note: indexationMismatchNote || null,
+            }
+          : null,
+      cases: caseRows,
+      project_transaction: early
+        ? null
+        : {
+            as_of: transactionAsOf || null, instrument,
+            equity_sought: num(equitySought), stake_offered_pct: num(stakeOfferedPct), min_ticket: num(minTicket),
+            club_max_participants: clubAllowed && clubMaxParticipants ? Number(clubMaxParticipants) : null,
+            board_seat_threshold: num(boardSeatThreshold), observer_threshold: num(observerThreshold),
+            reserved_matters: reservedMatters, pre_emption: preEmption, rofr, tag_along: tagAlong,
+            drag_along_threshold: num(dragAlongThreshold), distribution_policy: distributionPolicy || null,
+            first_distribution_year: num(firstDistributionYear), exit_routes: exitRoutes,
+            expected_hold_years: num(expectedHoldYears), pre_money_equity: num(preMoneyEquity),
+            sponsor_cash_funded: num(sponsorCashFunded),
+            post_money_ownership: postMoneyOwnership.filter((r) => r.holder || r.pct),
+            use_of_proceeds: useOfProceeds.filter((r) => r.item || r.amount),
+            drawdown_tranches: drawdownTranches.filter((r) => r.tranche || r.amount),
+            target_equity_irr_pct: num(targetEquityIrrPct), downside_equity_irr_pct: num(downsideEquityIrrPct),
+          },
+      project_process: early
+        ? null
+        : {
+            as_of: processAsOf || null, process_type: processType,
+            ioi_deadline: ioiDeadline || null, management_meetings_window: managementMeetingsWindow || null,
+            loi_deadline: loiDeadline || null, exclusivity_days: num(exclusivityDays),
+            target_close: targetClose || null,
+            conditions_precedent: conditionsPrecedent.map((r) => r.condition).filter(Boolean),
+            adviser_disclosed: adviserDisclosed, parties_under_nda: num(partiesUnderNda),
+          },
+      listing_access_criteria: {
+        min_ticket: num(accessMinTicket),
+        instruments_accepted: instrumentsAccepted,
+        require_construction_risk_appetite: requireConstructionAppetite,
+        auto_accept_qualified: autoAcceptQualified,
+        notify_users: notifyUsers.split(",").map((entry) => entry.trim()).filter(Boolean),
+      },
+    };
+
+    const { error } = await supabase.rpc("publish_project", { payload: payload as never });
+    setPublishing(false);
+    if (error) {
+      setPublishError(error.message || "The listing could not be published. Nothing was saved — please try again.");
+      toast.error("The listing was not published. Nothing was saved, so you can retry safely.");
       return;
     }
-    const projectId = project.id;
-    const childWrites = [];
-
-    if (capex || targetIrr || dscr1xConnections || irrZeroConnections || debtMarginBps || gearingPct || lockupDscr || dsraMonths) {
-      childWrites.push(supabase.from("financial_summary").insert({
-        project_id: projectId, currency: "EUR",
-        capex: capex ? Number(capex) : null, target_irr_pct: targetIrr ? Number(targetIrr) : null,
-        dscr_1x_connections: dscr1xConnections ? Number(dscr1xConnections) : null,
-        irr_zero_connections: irrZeroConnections ? Number(irrZeroConnections) : null,
-        debt_margin_bps: debtMarginBps ? Number(debtMarginBps) : null,
-        gearing_pct: gearingPct ? Number(gearingPct) : null,
-        lockup_dscr: lockupDscr ? Number(lockupDscr) : null,
-        dsra_months: dsraMonths ? Number(dsraMonths) : null,
-      }));
-    }
-    if (co2 || renewableShare) {
-      childWrites.push(supabase.from("sustainability_profile").insert({
-        project_id: projectId, co2_tonnes_per_year: co2 ? Number(co2) : null, renewable_share_pct: renewableShare ? Number(renewableShare) : null,
-      }));
-    }
-    if (totalBuildings || contractedCount || signedCount || negotiationCount) {
-      childWrites.push(supabase.from("offtake_ladder").insert({
-        project_id: projectId, as_of: ladderAsOf || null,
-        total_buildings: totalBuildings ? Number(totalBuildings) : null,
-        contracted_count: Number(contractedCount || 0), contracted_load_pct: Number(contractedLoadPct || 0),
-        signed_connection_count: Number(signedCount || 0), signed_connection_load_pct: Number(signedLoadPct || 0),
-        in_negotiation_count: Number(negotiationCount || 0), in_negotiation_load_pct: Number(negotiationLoadPct || 0),
-      }));
-    }
-    if (lateStage && (epcContractor || contractType || contractValue)) {
-      childWrites.push(supabase.from("construction_package").insert({
-        project_id: projectId, as_of: technicalAsOf || null,
-        epc_contractor: epcContractor || null, epc_named_in_dataroom: epcNamedInDataroom,
-        contract_type: contractType || null, contract_value: contractValue ? Number(contractValue) : null,
-        ld_rate: ldRate || null, ld_cap_pct: ldCapPct ? Number(ldCapPct) : null, security: security || null,
-        contingency_amount: contingencyAmount ? Number(contingencyAmount) : null, contingency_pct: contingencyPct ? Number(contingencyPct) : null,
-        schedule_float_months: scheduleFloatMonths ? Number(scheduleFloatMonths) : null,
-        permits_status: permitsStatus || null, interface_risk: interfaceRisk || null, om_contract: omContract || null,
-      }));
-    }
-    if (heatPurchasePrice || customerTariff || grossSpread || opexPerKwh) {
-      childWrites.push(supabase.from("margin_profile").insert({
-        project_id: projectId, as_of: financialAsOf || null,
-        heat_purchase_price: heatPurchasePrice ? Number(heatPurchasePrice) : null, purchase_index: purchaseIndex || null,
-        customer_tariff: customerTariff ? Number(customerTariff) : null, tariff_index: tariffIndex || null,
-        gross_spread: grossSpread ? Number(grossSpread) : null, opex_per_kwh: opexPerKwh ? Number(opexPerKwh) : null,
-        indexation_mismatch_note: indexationMismatchNote || null,
-      }));
-    }
-    CASE_ORDER.forEach((name) => {
-      const c = cases[name];
-      if (name !== "base" && (!c.enabled || !caseHasValue(c))) return;
-      childWrites.push(supabase.from("project_case").insert({
-        project_id: projectId, name,
-        connections: c.connections ? Number(c.connections) : null,
-        power_price: c.powerPrice ? Number(c.powerPrice) : null,
-        capex_variance_pct: c.capexVariancePct ? Number(c.capexVariancePct) : null,
-        equity_irr_pct: c.equityIrrPct ? Number(c.equityIrrPct) : null,
-        min_dscr: c.minDscr ? Number(c.minDscr) : null,
-      }));
-    });
-    if (!early) {
-      const transactionRow: TablesInsert<"project_transaction"> = {
-        project_id: projectId, as_of: transactionAsOf || null, instrument: instrument as TablesInsert<"project_transaction">["instrument"],
-        equity_sought: equitySought ? Number(equitySought) : null, stake_offered_pct: stakeOfferedPct ? Number(stakeOfferedPct) : null,
-        min_ticket: minTicket ? Number(minTicket) : null,
-        club_max_participants: clubAllowed && clubMaxParticipants ? Number(clubMaxParticipants) : null,
-        board_seat_threshold: boardSeatThreshold ? Number(boardSeatThreshold) : null,
-        observer_threshold: observerThreshold ? Number(observerThreshold) : null,
-        reserved_matters: reservedMatters, pre_emption: preEmption, rofr, tag_along: tagAlong,
-        drag_along_threshold: dragAlongThreshold ? Number(dragAlongThreshold) : null,
-        distribution_policy: distributionPolicy || null, first_distribution_year: firstDistributionYear ? Number(firstDistributionYear) : null,
-        exit_routes: exitRoutes, expected_hold_years: expectedHoldYears ? Number(expectedHoldYears) : null,
-        pre_money_equity: preMoneyEquity ? Number(preMoneyEquity) : null, sponsor_cash_funded: sponsorCashFunded ? Number(sponsorCashFunded) : null,
-        post_money_ownership: postMoneyOwnership.filter((r) => r.holder || r.pct),
-        use_of_proceeds: useOfProceeds.filter((r) => r.item || r.amount),
-        drawdown_tranches: drawdownTranches.filter((r) => r.tranche || r.amount),
-        target_equity_irr_pct: targetEquityIrrPct ? Number(targetEquityIrrPct) : null,
-        downside_equity_irr_pct: downsideEquityIrrPct ? Number(downsideEquityIrrPct) : null,
-      };
-      childWrites.push(supabase.from("project_transaction").insert(transactionRow));
-      childWrites.push(supabase.from("project_process").insert({
-        project_id: projectId, as_of: processAsOf || null, process_type: processType,
-        ioi_deadline: ioiDeadline || null, management_meetings_window: managementMeetingsWindow || null,
-        loi_deadline: loiDeadline || null, exclusivity_days: exclusivityDays ? Number(exclusivityDays) : null,
-        target_close: targetClose || null,
-        conditions_precedent: conditionsPrecedent.map((r) => r.condition).filter(Boolean),
-        adviser_disclosed: adviserDisclosed, parties_under_nda: partiesUnderNda ? Number(partiesUnderNda) : null,
-      }));
-    }
-
-    childWrites.push(supabase.from("listing_access_criteria").insert({
-      project_id: projectId,
-      min_ticket: accessMinTicket ? Number(accessMinTicket) : null,
-      instruments_accepted: instrumentsAccepted,
-      require_construction_risk_appetite: requireConstructionAppetite,
-      auto_accept_qualified: autoAcceptQualified,
-      notify_users: notifyUsers.split(",").map((entry) => entry.trim()).filter(Boolean),
-    }));
-
-    const results = await Promise.all(childWrites);
-    if (results.some((result) => result.error)) toast.warning("The listing is live, but some optional figures could not be saved.");
-    else toast.success("Listing published. It now appears in My Listings and the marketplace.");
+    toast.success("Listing published. It now appears in My Listings and the marketplace.");
     navigate("/app/developer");
   };
+
 
   return (
     <div className="bg-background">
