@@ -85,6 +85,21 @@ export function useProjectRecord(projectId: string | undefined) {
           .from("project_advisor")
           .select("role, advisor:advisor_id(name, label)")
           .eq("project_id", projectId),
+        supabase
+          .from("technology_card")
+          .select("title, description")
+          .eq("project_id", projectId)
+          .order("sort_order"),
+        supabase
+          .from("energy_mix_item")
+          .select("source, share_pct")
+          .eq("project_id", projectId)
+          .order("sort_order"),
+        supabase
+          .from("operating_parameter")
+          .select("parameter, value, benchmark")
+          .eq("project_id", projectId)
+          .order("sort_order"),
       ]);
 
       const financial = financialRes.data;
