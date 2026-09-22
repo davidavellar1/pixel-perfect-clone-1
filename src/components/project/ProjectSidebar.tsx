@@ -77,22 +77,35 @@ const ProjectSidebar = ({ project, onRequestAccess, loadingAuth }: ProjectSideba
             )}
           </div>
         </div>
-        <div className="space-y-0">
-          {[
+        {/* Only rows the developer has actually filled in */}
+        {(() => {
+          const rows = [
             { label: "HQ", value: project.developer.hq },
             { label: "Founded", value: project.developer.founded },
             { label: "DHC projects", value: project.developer.dhcProjects },
             { label: "Total capacity", value: project.developer.totalCapacity },
-          ].map((item, i) => (
-            <div key={item.label}>
-              <div className="flex justify-between items-center py-2.5">
-                <span className="text-sm text-muted-foreground">{item.label}</span>
-                <span className="text-sm font-bold text-foreground">{item.value}</span>
-              </div>
-              {i < 3 && <div className="border-t border-border" />}
+          ].filter((row) => row.value && row.value !== "Not stated");
+          if (rows.length === 0) {
+            return (
+              <p className="text-sm text-muted-foreground">
+                The developer has not published a company profile yet.
+              </p>
+            );
+          }
+          return (
+            <div className="space-y-0">
+              {rows.map((item, i) => (
+                <div key={item.label}>
+                  <div className="flex justify-between items-center py-2.5">
+                    <span className="text-sm text-muted-foreground">{item.label}</span>
+                    <span className="text-sm font-bold text-foreground">{item.value}</span>
+                  </div>
+                  {i < rows.length - 1 && <div className="border-t border-border" />}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          );
+        })()}
         <Button variant="outline" className="w-full mt-4 rounded-full">
           View developer profile
         </Button>
