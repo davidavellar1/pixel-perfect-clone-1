@@ -64,6 +64,9 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
 
   const canSubmit = !!role && agreed && !loading;
+  // "Other" personas browse as investors until an admin assigns something else.
+  const googleRoles: SignupRole[] =
+    role === "dev" ? ["developer"] : role === "both" ? ["investor", "developer"] : ["investor"];
 
   const handleSubmit = async () => {
     if (!fullName.trim() || !email.trim() || password.length < 8) {
