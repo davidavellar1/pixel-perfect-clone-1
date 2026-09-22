@@ -1538,6 +1538,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_read_project_object: {
+        Args: { _name: string; _user_id: string }
+        Returns: boolean
+      }
       can_see_question: {
         Args: { _question_id: string; _user_id: string }
         Returns: boolean
@@ -1578,6 +1582,7 @@ export type Database = {
         Returns: boolean
       }
       project_is_listed: { Args: { _project_id: string }; Returns: boolean }
+      storage_project_id: { Args: { _name: string }; Returns: string }
       sustainability_is_listed: { Args: { _sp_id: string }; Returns: boolean }
     }
     Enums: {
