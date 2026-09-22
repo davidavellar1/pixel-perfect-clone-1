@@ -196,6 +196,14 @@ export function useProjectRecord(projectId: string | undefined) {
       }));
       if (sdgs.length) next.sdgs = sdgs;
 
+      const advisors = (advisorsRes.data ?? [])
+        .map((row) => {
+          const linked = row.advisor as { name: string; label: string } | null;
+          return linked ? { name: linked.name, role: row.role ?? linked.label } : null;
+        })
+        .filter((row): row is { name: string; role: string } => row !== null);
+      if (advisors.length) next.advisors = advisors;
+
       setOverrides(next);
       setLoading(false);
     })();
