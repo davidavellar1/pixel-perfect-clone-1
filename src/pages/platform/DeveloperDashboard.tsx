@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "@/lib/router-compat";
 import { Check, Clock, ExternalLink, Lock, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -21,7 +20,6 @@ const StatBox = ({ label, value }: { label: string; value: string }) => (
 
 const DeveloperDashboard = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [interests, setInterests] = useState<Interest[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
