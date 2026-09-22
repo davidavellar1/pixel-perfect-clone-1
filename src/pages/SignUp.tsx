@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import GoogleSignupButton from "@/components/auth/GoogleSignupButton";
+import type { SignupRole } from "@/lib/googleSignup";
 import { cn } from "@/lib/utils";
 
 type RoleKey = "dev" | "inv" | "both" | "other";

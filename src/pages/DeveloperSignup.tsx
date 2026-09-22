@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import GoogleSignupButton from "@/components/auth/GoogleSignupButton";
 import { FileText, CheckCircle } from "lucide-react";
 
 const countries = [
