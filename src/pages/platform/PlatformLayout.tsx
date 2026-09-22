@@ -16,7 +16,8 @@ const groups = [
   { label: "My workspace", items: [
     { label: "My Portfolio", to: "/app/my-portfolio", icon: Briefcase },
     { label: "My Listings", to: "/app/my-listings", icon: ListChecks },
-    { label: "Watchlist", to: "/app/watchlist", icon: Heart, badge: true },
+    { label: "Watchlist", to: "/app/watchlist", icon: Heart, badge: "watchlist" },
+    { label: "Notifications", to: "/app/notifications", icon: Bell, badge: "notifications" },
   ] },
   { label: "Tools", items: [{ label: "Bundle builder", to: "/app/bundle-builder", icon: Boxes }] },
   { label: "Support", items: [
