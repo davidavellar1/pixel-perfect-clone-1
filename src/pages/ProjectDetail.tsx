@@ -15,6 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { projectsData, slugify, type ProjectDetail as ProjectDetailData } from "@/data/projectsData";
 import type { Tables } from "@/integrations/supabase/types";
 import { useInvestorGrade } from "@/hooks/useInvestorGrade";
+import { useProjectRecord } from "@/hooks/useProjectRecord";
+
 import {
   addDays, addMonths, declineReasonLabel, effectiveState, formatDate, isDataRoomOpen, isGranted,
   slaStatus, REOPEN_BLOCK_DAYS, FEE_TAIL_MONTHS, type AccessCriteriaRow, type AccessRequestRow, type ViewerAccess,
@@ -81,7 +83,9 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     ? "pending"
     : "none";
 
-  const baseProject: ProjectDetailData | undefined = staticProject || (databaseProject ? {
+  const { overrides } = useProjectRecord(databaseProject?.id);
+
+  const staticBase: ProjectDetailData | undefined = staticProject || (databaseProject ? {
     ...projectsData[0], slug: databaseProject.slug, title: databaseProject.title,
     summary: databaseProject.summary || databaseProject.description || "Project details supplied by the developer.",
     summaryExtended: databaseProject.description || undefined,
@@ -96,6 +100,12 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     timelineRange: [databaseProject.timeline_start?.slice(0, 4), databaseProject.timeline_end?.slice(0, 4)].filter(Boolean).join(" to ") || "To be confirmed",
     developer: { ...projectsData[0].developer, name: "Project developer", verified: databaseProject.verified },
   } : undefined);
+
+  /** Live database figures win over the static content wherever the developer supplied them. */
+  const baseProject: ProjectDetailData | undefined = staticBase
+    ? { ...staticBase, ...overrides }
+    : undefined;
+
 
   /** Teaser and every non-granted state stay anonymized: no identity, no city. */
   const capacityValue = Number(databaseProject?.capacity_mw || parseFloat(baseProject?.capacity || "0"));
