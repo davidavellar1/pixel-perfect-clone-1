@@ -142,6 +142,11 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
       <div>
         <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Technology & heat source</h2>
         <div className="border-t border-border mb-4" />
+        {project.technologyCards.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground">
+            The developer has not published technology detail for this project yet.
+          </p>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {project.technologyCards.map((card) => (
             <div key={card.title} className="bg-muted/50 border border-border rounded-xl p-5">
@@ -150,10 +155,11 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
             </div>
           ))}
         </div>
+        )}
       </div>
 
       {/* Operating Parameters */}
-      {project.operatingParameters && (
+      {project.operatingParameters && project.operatingParameters.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Operating parameters</h2>
           <div className="border-t border-border mb-6" />
