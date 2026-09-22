@@ -59,7 +59,7 @@ const PlatformLayout = () => {
             <div className={cn("space-y-1", collapsed && "pt-3")}>
               {group.items.map(({ label, to, icon: Icon, badge }) => <NavLink key={to} to={to} title={label} className={({ isActive }) => cn("flex h-10 items-center rounded-md text-sm font-medium transition-colors", collapsed ? "justify-center px-0" : "gap-3 px-3", isActive ? "bg-accent text-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground")}>
                 <Icon className="h-[18px] w-[18px] shrink-0" />
-                {!collapsed && <><span className="truncate">{label}</span>{badge && watchCount > 0 && <span className="ml-auto rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold text-accent">{watchCount}</span>}</>}
+                {!collapsed && <><span className="truncate">{label}</span>{badgeCount(badge) > 0 && <span className="ml-auto rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold text-accent">{badgeCount(badge)}</span>}</>}
               </NavLink>)}
             </div>
           </div>)}
