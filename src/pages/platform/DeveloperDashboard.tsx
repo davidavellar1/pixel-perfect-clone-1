@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "@/lib/router-compat";
-import { Check, Clock, ExternalLink, FileText, Lock, Plus, Users, X } from "lucide-react";
+import { Check, Clock, ExternalLink, FileText, Gauge, Lock, Plus, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
