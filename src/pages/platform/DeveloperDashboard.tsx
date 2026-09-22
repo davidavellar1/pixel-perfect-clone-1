@@ -8,6 +8,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { ACCESS_STATE_LABEL, stageIndex } from "@/lib/access";
 import ManageDocumentsDialog from "@/components/project/ManageDocumentsDialog";
 import ManageAdvisorsDialog from "@/components/project/ManageAdvisorsDialog";
+import ManageTechnicalDialog from "@/components/project/ManageTechnicalDialog";
 
 type Interest = Tables<"project_interest">;
 type Request = Tables<"access_request">;
