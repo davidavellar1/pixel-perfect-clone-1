@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { claimPendingSignup } from "@/lib/googleSignup";
 import type { Session, User } from "@supabase/supabase-js";
 
 interface Profile {
