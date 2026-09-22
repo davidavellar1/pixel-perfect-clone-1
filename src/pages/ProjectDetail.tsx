@@ -101,10 +101,15 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
 
   /** Teaser and every non-granted state stay anonymized: no identity, no city. */
-  const capacityValue = Number(databaseProject?.capacity_mw || parseFloat(baseProject?.capacity || "0"));
-  const capexValue = Number(databaseProject?.headline_investment || parseFloat((baseProject?.capex || "0").replace(/[^0-9.]/g, "")) * 1_000_000);
-  const capacityBand = capacityValue < 10 ? "Under 10 MW" : capacityValue < 25 ? "10-25 MW" : capacityValue < 50 ? "25-50 MW" : "50+ MW";
-  const capexBand = capexValue < 15_000_000 ? "Under EUR 15M" : capexValue < 30_000_000 ? "EUR 15-30M" : capexValue < 50_000_000 ? "EUR 30-50M" : "EUR 50M+";
+  const capacityValue = Number(databaseProject?.capacity_mw || parseFloat(baseProject?.capacity || "")) || 0;
+  const capexValue = Number(databaseProject?.headline_investment || parseFloat((baseProject?.capex || "").replace(/[^0-9.]/g, "")) * 1_000_000) || 0;
+  // A band is only shown where a figure exists; otherwise the listing says so.
+  const capacityBand = capacityValue <= 0
+    ? "Not stated"
+    : capacityValue < 10 ? "Under 10 MW" : capacityValue < 25 ? "10-25 MW" : capacityValue < 50 ? "25-50 MW" : "50+ MW";
+  const capexBand = capexValue <= 0
+    ? "Not stated"
+    : capexValue < 15_000_000 ? "Under EUR 15M" : capexValue < 30_000_000 ? "EUR 15-30M" : capexValue < 50_000_000 ? "EUR 30-50M" : "EUR 50M+";
   const project: ProjectDetailData | undefined = baseProject && !granted
     ? {
         ...baseProject,
