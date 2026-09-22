@@ -67,11 +67,15 @@ export function useProjectRecord(projectId: string | undefined) {
     setLoading(true);
 
     (async () => {
-      const [financialRes, sustainabilityRes, milestonesRes, risksRes] = await Promise.all([
+      const [financialRes, sustainabilityRes, milestonesRes, risksRes, advisorsRes] = await Promise.all([
         supabase.from("financial_summary").select("*").eq("project_id", projectId).maybeSingle(),
         supabase.from("sustainability_profile").select("*").eq("project_id", projectId).maybeSingle(),
         supabase.from("milestone").select("*").eq("project_id", projectId).order("sort_order"),
         supabase.from("risk").select("*").eq("project_id", projectId),
+        supabase
+          .from("project_advisor")
+          .select("role, advisor:advisor_id(name, label)")
+          .eq("project_id", projectId),
       ]);
 
       const financial = financialRes.data;
@@ -191,6 +195,14 @@ export function useProjectRecord(projectId: string | undefined) {
         color: SDG_COLORS[row.sdg_number] ?? "hsl(var(--primary))",
       }));
       if (sdgs.length) next.sdgs = sdgs;
+
+      const advisors = (advisorsRes.data ?? [])
+        .map((row) => {
+          const linked = row.advisor as { name: string; label: string } | null;
+          return linked ? { name: linked.name, role: row.role ?? linked.label } : null;
+        })
+        .filter((row): row is { name: string; role: string } => row !== null);
+      if (advisors.length) next.advisors = advisors;
 
       setOverrides(next);
       setLoading(false);
