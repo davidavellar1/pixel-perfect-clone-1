@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { authenticateCronRequest } from '@/integrations/supabase/cron-auth'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const REMINDER_AFTER_DAYS = 3
