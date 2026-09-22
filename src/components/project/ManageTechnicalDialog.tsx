@@ -91,7 +91,7 @@ const ManageTechnicalDialog = ({
       return;
     }
 
-    const inserts: Promise<{ error: { message: string } | null }>[] = [];
+    const inserts: PromiseLike<{ error: { message: string } | null }>[] = [];
     if (cleanCards.length) {
       inserts.push(
         supabase.from("technology_card").insert(
