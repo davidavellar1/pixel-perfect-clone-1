@@ -143,6 +143,11 @@ const DeveloperDashboard = () => {
                       projectTitle={project.title}
                       trigger={<Button size="sm" variant="outline"><Users className="h-3.5 w-3.5" /> Advisors</Button>}
                     />
+                    <ManageTechnicalDialog
+                      projectId={project.id}
+                      projectTitle={project.title}
+                      trigger={<Button size="sm" variant="outline"><Gauge className="h-3.5 w-3.5" /> Technical</Button>}
+                    />
                     <Button size="sm" variant="outline" asChild><Link to={`/app/projects/${project.slug}`}>Open <ExternalLink className="h-3.5 w-3.5" /></Link></Button>
                   </div>
                 </div>
