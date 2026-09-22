@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useDialogParam } from "@/hooks/useDialogParam";
 import AssistanceDialog from "@/components/platform/AssistanceDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 type AdvisorCategory = "Financial" | "Legal" | "Technical";
 
@@ -16,72 +17,55 @@ type Advisor = {
   tags: string[];
 };
 
-const ADVISORS: Advisor[] = [
-  {
-    initials: "EY",
-    name: "EY - Infrastructure",
-    category: "Financial",
-    label: "Financial advisory",
-    description: "Investment structuring, financial modelling, and bankability assessments for energy-transition infrastructure.",
-    tags: ["Modelling", "Bankability", "EU-wide"],
-  },
-  {
-    initials: "AG",
-    name: "Artelia Group",
-    category: "Technical",
-    label: "Technical advisory",
-    description: "Feasibility studies, system design, technology selection, and engineering reviews for district-energy networks.",
-    tags: ["Feasibility", "System design", "FR · EU"],
-  },
-  {
-    initials: "CM",
-    name: "Clifford-Mercer LLP",
-    category: "Legal",
-    label: "Legal services",
-    description: "Concession agreements, PPAs, regulatory compliance, and cross-border frameworks for DHC transactions.",
-    tags: ["Concessions", "PPAs", "Cross-border"],
-  },
-  {
-    initials: "RA",
-    name: "Rambøll",
-    category: "Technical",
-    label: "Technical advisory",
-    description: "District-energy planning, low-temperature network design, and decarbonization roadmaps across the Nordics and beyond.",
-    tags: ["Network design", "Low-temp DHC", "Nordics"],
-  },
-  {
-    initials: "PW",
-    name: "PwC - Capital Projects",
-    category: "Financial",
-    label: "Financial advisory",
-    description: "Transaction advisory, due-diligence support, and capital-structure optimization for infrastructure deals.",
-    tags: ["Transaction", "Due diligence", "EU-wide"],
-  },
-  {
-    initials: "BV",
-    name: "Bureau Veritas",
-    category: "Technical",
-    label: "Technical advisory",
-    description: "Independent verification: EU Taxonomy alignment, DNSH assessment, and technical due diligence.",
-    tags: ["Taxonomy", "DNSH", "Verification"],
-  },
-];
+const CATEGORY_LABEL: Record<string, AdvisorCategory> = {
+  financial: "Financial",
+  legal: "Legal",
+  technical: "Technical",
+};
 
 const FILTERS = ["All advisors", "Financial", "Legal", "Technical"] as const;
 type Filter = (typeof FILTERS)[number];
 
 const Ecosystem = () => {
   const [filter, setFilter] = useState<Filter>("All advisors");
+  const [all, setAll] = useState<Advisor[] | null>(null);
   const { value: assist, open, close } = useDialogParam("assist");
 
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      const { data } = await supabase
+        .from("advisor")
+        .select("name, initials, category, label, description, tags")
+        .eq("active", true)
+        .order("sort_order", { ascending: true });
+      if (!active) return;
+      setAll(
+        (data ?? []).map((row) => ({
+          name: row.name,
+          initials: row.initials,
+          category: CATEGORY_LABEL[row.category] ?? "Technical",
+          label: row.label,
+          description: row.description,
+          tags: row.tags ?? [],
+        })),
+      );
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const advisorsAll = all ?? [];
+
   const advisors = useMemo(
-    () => filter === "All advisors" ? ADVISORS : ADVISORS.filter((advisor) => advisor.category === filter),
-    [filter],
+    () => (filter === "All advisors" ? advisorsAll : advisorsAll.filter((advisor) => advisor.category === filter)),
+    [advisorsAll, filter],
   );
 
   const requestAssistance = (advisor?: Advisor) => open(advisor ? advisor.name : "any");
   const preselected = assist && assist !== "any"
-    ? ADVISORS.find((advisor) => advisor.name === assist) ?? null
+    ? advisorsAll.find((advisor) => advisor.name === assist) ?? null
     : null;
 
   return (
@@ -113,40 +97,51 @@ const Ecosystem = () => {
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {advisors.map((advisor) => (
-          <article
-            key={advisor.name}
-            className="flex min-h-[290px] flex-col rounded-lg border border-border bg-card p-6 transition-[border-color,box-shadow] hover:border-foreground/15 hover:shadow-md"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted font-display text-base font-bold text-foreground/75">
-                {advisor.initials}
+      {all === null ? (
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-8 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading advisors…
+        </div>
+      ) : advisors.length === 0 ? (
+        <div className="rounded-lg border border-border bg-card p-8 text-sm text-muted-foreground">
+          No advisors listed in this category yet.
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {advisors.map((advisor) => (
+            <article
+              key={advisor.name}
+              className="flex min-h-[290px] flex-col rounded-lg border border-border bg-card p-6 transition-[border-color,box-shadow] hover:border-foreground/15 hover:shadow-md"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted font-display text-base font-bold text-foreground/75">
+                  {advisor.initials}
+                </div>
+                <div className="min-w-0">
+                  <h2 className="font-display text-base font-semibold text-foreground">{advisor.name}</h2>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{advisor.label}</p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <h2 className="font-display text-base font-semibold text-foreground">{advisor.name}</h2>
-                <p className="mt-0.5 text-xs text-muted-foreground">{advisor.label}</p>
+
+              <p className="mt-4 text-[13.5px] leading-6 text-foreground/70">{advisor.description}</p>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                {advisor.tags.map((tag) => (
+                  <span key={tag} className="rounded-md border border-border bg-background px-2.5 py-1 text-xs text-foreground/75">
+                    {tag}
+                  </span>
+                ))}
               </div>
-            </div>
 
-            <p className="mt-4 text-[13.5px] leading-6 text-foreground/70">{advisor.description}</p>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {advisor.tags.map((tag) => (
-                <span key={tag} className="rounded-md border border-border bg-background px-2.5 py-1 text-xs text-foreground/75">
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            <div className="mt-auto border-t border-border pt-4">
-              <Button variant="outline" className="w-full bg-card" onClick={() => requestAssistance(advisor)}>
-                Request assistance
-              </Button>
-            </div>
-          </article>
-        ))}
-      </div>
+              <div className="mt-auto border-t border-border pt-4">
+                <Button variant="outline" className="w-full bg-card" onClick={() => requestAssistance(advisor)}>
+                  Request assistance
+                </Button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
 
       <section className="flex flex-col items-start justify-between gap-6 rounded-lg bg-primary px-7 py-7 text-primary-foreground lg:flex-row lg:items-center">
         <div>
@@ -168,8 +163,8 @@ const Ecosystem = () => {
         Advisory partners may pay DHC Market a referral fee for qualified introductions. This does not affect the fees you pay your chosen advisor, and you are free to engage any advisor. Connecting investors and developers to each other remains separate and is never influenced by advisory relationships.
       </p>
 
-      {assist && (
-        <AssistanceDialog advisors={ADVISORS} preselected={preselected} onClose={close} />
+      {assist && advisorsAll.length > 0 && (
+        <AssistanceDialog advisors={advisorsAll} preselected={preselected} onClose={close} />
       )}
     </div>
   );
