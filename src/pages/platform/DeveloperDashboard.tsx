@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "@/lib/router-compat";
-import { Check, Clock, ExternalLink, Lock, Plus, X } from "lucide-react";
+import { Check, Clock, ExternalLink, FileText, Lock, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { ACCESS_STATE_LABEL, stageIndex } from "@/lib/access";
+import ManageDocumentsDialog from "@/components/project/ManageDocumentsDialog";
 
 type Interest = Tables<"project_interest">;
 type Request = Tables<"access_request">;
@@ -129,7 +130,14 @@ const DeveloperDashboard = () => {
               <article key={project.id} className="rounded-md border border-border bg-background p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div><h3 className="font-display font-semibold">{project.title}</h3><p className="mt-1 text-xs capitalize text-muted-foreground">{project.city}, {project.country_code} | {project.lifecycle_stage.replace(/_/g, " ")} | {project.capacity_mw} MW</p></div>
-                  <Button size="sm" variant="outline" asChild><Link to={`/app/projects/${project.slug}`}>Open <ExternalLink className="h-3.5 w-3.5" /></Link></Button>
+                  <div className="flex items-center gap-2">
+                    <ManageDocumentsDialog
+                      projectId={project.id}
+                      projectTitle={project.title}
+                      trigger={<Button size="sm" variant="outline"><FileText className="h-3.5 w-3.5" /> Documents</Button>}
+                    />
+                    <Button size="sm" variant="outline" asChild><Link to={`/app/projects/${project.slug}`}>Open <ExternalLink className="h-3.5 w-3.5" /></Link></Button>
+                  </div>
                 </div>
                 <div className="mt-4 grid gap-2 sm:grid-cols-3">
                   <StatBox label="Interest submitted" value={String(projectInterests.length)} />
