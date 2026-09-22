@@ -228,6 +228,25 @@ export function useProjectRecord(projectId: string | undefined) {
         .filter((row): row is { name: string; role: string } => row !== null);
       if (advisors.length) next.advisors = advisors;
 
+      const technologyCards = (techCardsRes.data ?? []).map((row) => ({
+        title: row.title,
+        description: row.description ?? "",
+      }));
+      if (technologyCards.length) next.technologyCards = technologyCards;
+
+      const energyMix = (energyMixRes.data ?? []).map((row) => ({
+        source: row.source,
+        percentage: Number(row.share_pct ?? 0),
+      }));
+      if (energyMix.length) next.energyMix = energyMix;
+
+      const operatingParameters = (operatingRes.data ?? []).map((row) => ({
+        parameter: row.parameter,
+        value: row.value ?? "Not stated",
+        benchmark: row.benchmark ?? "",
+      }));
+      if (operatingParameters.length) next.operatingParameters = operatingParameters;
+
       setOverrides(next);
       setLoading(false);
     })();
