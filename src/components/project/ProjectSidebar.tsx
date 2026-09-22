@@ -37,18 +37,20 @@ const ProjectSidebar = ({ project, onRequestAccess, loadingAuth }: ProjectSideba
           ))}
         </div>
 
-        {/* Funding progress */}
-        <div className="mt-4 mb-4">
-          <p className="text-xs text-primary mb-1">
-            Funding progress {project.fundingProgress}% raised - {project.fundingRemaining} remaining
-          </p>
-          <div className="w-full bg-muted rounded-full h-2">
-            <div
-              className="bg-primary h-2 rounded-full transition-all"
-              style={{ width: `${project.fundingProgress}%` }}
-            />
+        {/* Funding progress — only once the developer has reported one */}
+        {project.fundingProgress > 0 && (
+          <div className="mt-4 mb-4">
+            <p className="text-xs text-primary mb-1">
+              Funding progress {project.fundingProgress}% raised - {project.fundingRemaining} remaining
+            </p>
+            <div className="w-full bg-muted rounded-full h-2">
+              <div
+                className="bg-primary h-2 rounded-full transition-all"
+                style={{ width: `${project.fundingProgress}%` }}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <Button
           onClick={onRequestAccess}
