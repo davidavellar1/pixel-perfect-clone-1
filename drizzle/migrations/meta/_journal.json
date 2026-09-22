@@ -78,6 +78,13 @@
       "when": 1790085583396,
       "tag": "0010_advisor_and_project_advisor",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790086282115,
+      "tag": "0011_technical_detail_tables",
+      "breakpoints": true
     }
   ]
 }
