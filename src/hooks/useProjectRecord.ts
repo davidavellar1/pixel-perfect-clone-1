@@ -67,7 +67,16 @@ export function useProjectRecord(projectId: string | undefined) {
     setLoading(true);
 
     (async () => {
-      const [financialRes, sustainabilityRes, milestonesRes, risksRes, advisorsRes] = await Promise.all([
+      const [
+        financialRes,
+        sustainabilityRes,
+        milestonesRes,
+        risksRes,
+        advisorsRes,
+        techCardsRes,
+        energyMixRes,
+        operatingRes,
+      ] = await Promise.all([
         supabase.from("financial_summary").select("*").eq("project_id", projectId).maybeSingle(),
         supabase.from("sustainability_profile").select("*").eq("project_id", projectId).maybeSingle(),
         supabase.from("milestone").select("*").eq("project_id", projectId).order("sort_order"),
