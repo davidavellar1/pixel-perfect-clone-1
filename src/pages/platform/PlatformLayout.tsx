@@ -32,8 +32,11 @@ const PlatformLayout = () => {
   const storageKey = `dhc-app-shell-collapsed-${user?.id || "guest"}`;
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(storageKey) === "true");
   const [watchCount, setWatchCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
   useEffect(() => { setCollapsed(localStorage.getItem(storageKey) === "true"); }, [storageKey]);
   useEffect(() => { if (user) void supabase.from("watchlist_item").select("id", { count: "exact", head: true }).eq("user_id", user.id).then(({ count }) => setWatchCount(count || 0)); }, [user]);
+  useEffect(() => { if (user) void supabase.from("notification").select("id", { count: "exact", head: true }).eq("user_id", user.id).is("read_at", null).then(({ count }) => setUnreadCount(count || 0)); }, [user]);
+  const badgeCount = (badge?: string) => (badge === "watchlist" ? watchCount : badge === "notifications" ? unreadCount : 0);
   const toggleCollapsed = () => setCollapsed((value) => { const next = !value; localStorage.setItem(storageKey, String(next)); return next; });
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "Member";
   const company = profile?.company_name || roles[0] || "DHC Market";
