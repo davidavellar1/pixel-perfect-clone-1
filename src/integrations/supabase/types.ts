@@ -1538,52 +1538,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      can_read_project_object: {
-        Args: { _name: string; _user_id: string }
-        Returns: boolean
-      }
-      can_see_question: {
-        Args: { _question_id: string; _user_id: string }
-        Returns: boolean
-      }
-      developer_of_access_request: {
-        Args: { _request_id: string; _user_id: string }
-        Returns: boolean
-      }
-      financial_summary_is_listed: {
-        Args: { _fs_id: string }
-        Returns: boolean
-      }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      owns_access_request: {
-        Args: { _request_id: string; _user_id: string }
-        Returns: boolean
-      }
-      owns_document: {
-        Args: { _document_id: string; _user_id: string }
-        Returns: boolean
-      }
-      owns_financial_summary: {
-        Args: { _fs_id: string; _user_id: string }
-        Returns: boolean
-      }
-      owns_project: {
-        Args: { _project_id: string; _user_id: string }
-        Returns: boolean
-      }
-      owns_sustainability: {
-        Args: { _sp_id: string; _user_id: string }
-        Returns: boolean
-      }
-      project_is_listed: { Args: { _project_id: string }; Returns: boolean }
-      storage_project_id: { Args: { _name: string }; Returns: string }
-      sustainability_is_listed: { Args: { _sp_id: string }; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
       access_decline_reason:
