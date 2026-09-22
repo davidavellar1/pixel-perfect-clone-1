@@ -64,6 +64,13 @@
       "when": 1790084472818,
       "tag": "0008_cron_token_table",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790084561846,
+      "tag": "0009_notification_dedupe_unique",
+      "breakpoints": true
     }
   ]
 }

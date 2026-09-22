@@ -831,7 +831,7 @@ export type Database = {
           access_request_id: string | null
           body: string | null
           created_at: string
-          dedupe_key: string | null
+          dedupe_key: string
           email_status: string
           id: string
           kind: string
@@ -845,7 +845,7 @@ export type Database = {
           access_request_id?: string | null
           body?: string | null
           created_at?: string
-          dedupe_key?: string | null
+          dedupe_key: string
           email_status?: string
           id?: string
           kind: string
@@ -859,7 +859,7 @@ export type Database = {
           access_request_id?: string | null
           body?: string | null
           created_at?: string
-          dedupe_key?: string | null
+          dedupe_key?: string
           email_status?: string
           id?: string
           kind?: string
