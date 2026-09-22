@@ -60,15 +60,9 @@ const DeveloperDashboard = () => {
   const interestedBuyers = new Set(interests.map((interest) => interest.investor_user_id)).size;
   const activeDeals = interests.filter((interest) => stageIndex(interest.stage) >= stageIndex("access_granted")).length;
 
-  const decide = async (request: Request, status: "approved" | "denied") => {
-    const { error } = await supabase.from("access_request").update({ status, decided_at: new Date().toISOString() }).eq("id", request.id);
-    if (error) {
-      toast({ title: "Request could not be updated", description: error.message, variant: "destructive" });
-      return;
-    }
-    toast({ title: status === "approved" ? "Data room approved" : "Request declined" });
-    await load();
-  };
+  // Decisions are taken on the dedicated review screen so the full agreement record is written.
+
+
 
   return (
     <div className="max-w-7xl space-y-6">
