@@ -189,6 +189,11 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
       <div>
         <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Development timeline</h2>
         <div className="border-t border-border mb-6" />
+        {project.timeline.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground">
+            The developer has not published a timeline for this project yet.
+          </p>
+        ) : (
         <div className="relative ml-4">
           <div className="absolute left-3 top-3 bottom-3 w-px bg-border" />
           {project.timeline.map((step, i) => (
