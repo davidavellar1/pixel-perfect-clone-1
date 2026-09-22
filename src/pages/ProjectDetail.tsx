@@ -15,6 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { projectsData, slugify, type ProjectDetail as ProjectDetailData } from "@/data/projectsData";
 import type { Tables } from "@/integrations/supabase/types";
 import { useInvestorGrade } from "@/hooks/useInvestorGrade";
+import { useProjectRecord } from "@/hooks/useProjectRecord";
+
 import {
   addDays, addMonths, declineReasonLabel, effectiveState, formatDate, isDataRoomOpen, isGranted,
   slaStatus, REOPEN_BLOCK_DAYS, FEE_TAIL_MONTHS, type AccessCriteriaRow, type AccessRequestRow, type ViewerAccess,
