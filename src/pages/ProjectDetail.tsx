@@ -85,21 +85,13 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
   const { overrides } = useProjectRecord(databaseProject?.id);
 
-  const staticBase: ProjectDetailData | undefined = staticProject || (databaseProject ? {
-    ...projectsData[0], slug: databaseProject.slug, title: databaseProject.title,
-    summary: databaseProject.summary || databaseProject.description || "Project details supplied by the developer.",
-    summaryExtended: databaseProject.description || undefined,
-    location: `${databaseProject.city}, ${databaseProject.country_code}`,
-    country: databaseProject.country_code, source: databaseProject.technology.replace(/_/g, " "),
-    technology: databaseProject.technology.replace(/_/g, " "), stage: databaseProject.lifecycle_stage.replace(/_/g, " "),
-    badge: databaseProject.project_type.replace(/_/g, " "), capacity: `${databaseProject.capacity_mw} MW`,
-    capex: databaseProject.headline_investment ? `EUR ${(databaseProject.headline_investment / 1_000_000).toFixed(1)}M` : "Not stated",
-    targetIRR: "See the Transaction tab",
-    co2Reduction: databaseProject.headline_co2_tonnes ? `${databaseProject.headline_co2_tonnes.toLocaleString()} tonnes/yr` : "Not stated",
-    householdsServed: databaseProject.households_served?.toLocaleString() || "Not stated",
-    timelineRange: [databaseProject.timeline_start?.slice(0, 4), databaseProject.timeline_end?.slice(0, 4)].filter(Boolean).join(" to ") || "To be confirmed",
-    developer: { ...projectsData[0].developer, name: "Project developer", verified: databaseProject.verified },
-  } : undefined);
+  /**
+   * A listing that only exists in the database carries exactly what its developer entered.
+   * Nothing is borrowed from the sample content, so blank fields read as "Not stated"
+   * rather than as another project's facts.
+   */
+  const staticBase: ProjectDetailData | undefined =
+    staticProject || (databaseProject ? blankProjectDetail(databaseProject) : undefined);
 
   /** Live database figures win over the static content wherever the developer supplied them. */
   const baseProject: ProjectDetailData | undefined = staticBase
