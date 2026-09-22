@@ -218,6 +218,7 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
             </div>
           ))}
         </div>
+        )}
       </div>
     </div>
   );
