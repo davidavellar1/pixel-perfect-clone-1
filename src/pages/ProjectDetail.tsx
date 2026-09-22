@@ -16,6 +16,7 @@ import { projectsData, slugify, type ProjectDetail as ProjectDetailData } from "
 import type { Tables } from "@/integrations/supabase/types";
 import { useInvestorGrade } from "@/hooks/useInvestorGrade";
 import { useProjectRecord } from "@/hooks/useProjectRecord";
+import { blankProjectDetail } from "@/lib/blankProject";
 
 import {
   addDays, addMonths, declineReasonLabel, effectiveState, formatDate, isDataRoomOpen, isGranted,
