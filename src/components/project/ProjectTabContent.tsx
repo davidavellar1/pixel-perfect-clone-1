@@ -89,6 +89,11 @@ function OverviewTab({ project, grade }: { project: ProjectDetail; grade: Invest
       <div>
         <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Development timeline</h2>
         <div className="border-t border-border mb-6" />
+        {project.timeline.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground">
+            The developer has not published a timeline for this project yet.
+          </p>
+        ) : (
         <div className="relative ml-4">
           <div className="absolute left-3 top-3 bottom-3 w-px bg-border" />
           {project.timeline.map((step, i) => (
@@ -113,14 +118,17 @@ function OverviewTab({ project, grade }: { project: ProjectDetail; grade: Invest
             </div>
           ))}
         </div>
+        )}
       </div>
 
-      {/* Charts */}
-      <ProjectCharts
-        projectTitle={project.title}
-        capexNum={parseFloat(project.capex.replace(/[^0-9.]/g, ""))}
-        technology={project.technology}
-      />
+      {/* Charts — an illustrative model, only shown once a capex figure exists */}
+      {Number.isFinite(parseFloat(project.capex.replace(/[^0-9.]/g, ""))) && (
+        <ProjectCharts
+          projectTitle={project.title}
+          capexNum={parseFloat(project.capex.replace(/[^0-9.]/g, ""))}
+          technology={project.technology}
+        />
+      )}
     </div>
   );
 }
@@ -134,6 +142,11 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
       <div>
         <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Technology & heat source</h2>
         <div className="border-t border-border mb-4" />
+        {project.technologyCards.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground">
+            The developer has not published technology detail for this project yet.
+          </p>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {project.technologyCards.map((card) => (
             <div key={card.title} className="bg-muted/50 border border-border rounded-xl p-5">
@@ -142,10 +155,11 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
             </div>
           ))}
         </div>
+        )}
       </div>
 
       {/* Operating Parameters */}
-      {project.operatingParameters && (
+      {project.operatingParameters && project.operatingParameters.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Operating parameters</h2>
           <div className="border-t border-border mb-6" />
@@ -175,6 +189,11 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
       <div>
         <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Development timeline</h2>
         <div className="border-t border-border mb-6" />
+        {project.timeline.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground">
+            The developer has not published a timeline for this project yet.
+          </p>
+        ) : (
         <div className="relative ml-4">
           <div className="absolute left-3 top-3 bottom-3 w-px bg-border" />
           {project.timeline.map((step, i) => (
@@ -199,6 +218,7 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
             </div>
           ))}
         </div>
+        )}
       </div>
     </div>
   );
@@ -220,7 +240,7 @@ function FinancialTab({
     <div className="space-y-10">
       <MarginSection margin={grade.margin} asOf={asOf} />
       {/* Capital Stack */}
-      {project.capitalStack && (
+      {project.capitalStack && project.capitalStack.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Capital stack</h2>
           <div className="border-t border-border mb-6" />
@@ -261,7 +281,7 @@ function FinancialTab({
 
 
       {/* Revenue Model */}
-      {project.revenueStreams && (
+      {project.revenueStreams && project.revenueStreams.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Revenue model</h2>
           <div className="border-t border-border mb-6" />
@@ -291,7 +311,7 @@ function FinancialTab({
       )}
 
       {/* Risk Summary */}
-      {project.risks && (
+      {project.risks && project.risks.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Risk summary</h2>
           <div className="border-t border-border mb-6" />
@@ -541,7 +561,7 @@ function SustainabilityTab({ project }: { project: ProjectDetail }) {
   return (
     <div className="space-y-10">
       {/* Key Sustainability Metrics */}
-      {project.sustainabilityMetrics && (
+      {project.sustainabilityMetrics && project.sustainabilityMetrics.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Key sustainability metrics</h2>
           <div className="border-t border-border mb-6" />
@@ -730,7 +750,7 @@ function SustainabilityTab({ project }: { project: ProjectDetail }) {
       </div>
 
       {/* Energy Mix */}
-      {project.energyMix && (
+      {project.energyMix && project.energyMix.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Primary energy source mix</h2>
           <div className="border-t border-border mb-6" />
@@ -762,7 +782,7 @@ function SustainabilityTab({ project }: { project: ProjectDetail }) {
       )}
 
       {/* SDGs */}
-      {project.sdgs && (
+      {project.sdgs && project.sdgs.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Sustainable Development Goals</h2>
           <div className="border-t border-border mb-6" />
