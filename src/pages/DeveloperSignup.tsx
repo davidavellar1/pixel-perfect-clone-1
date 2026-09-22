@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import GoogleSignupButton from "@/components/auth/GoogleSignupButton";
 import { FileText, CheckCircle } from "lucide-react";
 
 const countries = [
@@ -261,6 +262,22 @@ const DeveloperSignup = () => {
             <Button type="submit" className="w-full" size="lg" disabled={loading || !form.acceptedTerms}>
               {loading ? "Creating account..." : "Create Account"}
             </Button>
+
+            <div className="relative py-2">
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+              <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or continue with</span></div>
+            </div>
+
+            <GoogleSignupButton
+              roles={["developer"]}
+              fullName={form.fullName}
+              company={form.companyName}
+              disabled={!form.acceptedTerms}
+              label="Sign up with Google"
+            />
+            <p className="text-center text-xs text-muted-foreground">
+              Accept the terms above first. Google accounts are ready to use immediately — no email confirmation needed.
+            </p>
 
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}

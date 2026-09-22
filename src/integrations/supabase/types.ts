@@ -1829,6 +1829,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_signup_role: {
+        Args: {
+          _company?: string
+          _full_name?: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
       project_owner_user_id: { Args: { _project_id: string }; Returns: string }
     }
     Enums: {

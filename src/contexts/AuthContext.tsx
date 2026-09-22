@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { claimPendingSignup } from "@/lib/googleSignup";
 import type { Session, User } from "@supabase/supabase-js";
 
 interface Profile {
@@ -59,6 +60,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  // Someone who signed up with Google has their persona waiting in the browser.
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    void claimPendingSignup().then((destination) => {
+      if (active && destination) window.location.replace(destination);
+    });
+    return () => {
+      active = false;
+    };
+  }, [user]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
