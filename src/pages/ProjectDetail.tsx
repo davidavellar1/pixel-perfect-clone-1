@@ -472,11 +472,12 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
                 description={LOCK_COPY[activeTab]}
                 onExpressInterest={openInterest}
               >
-                <ProjectTabContent project={project} activeTab={activeTab} grade={grade} asOf={asOf} breakeven={breakeven} />
+                <ProjectTabContent project={project} projectId={databaseProject?.id} activeTab={activeTab} grade={grade} asOf={asOf} breakeven={breakeven} />
               </LockedTabOverlay>
             ) : (
               <ProjectTabContent
                 project={project}
+                projectId={databaseProject?.id}
                 activeTab={activeTab}
                 dataRoomStatus={dataRoomStatus}
                 grade={grade}

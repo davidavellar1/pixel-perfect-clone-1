@@ -11,6 +11,7 @@ import OfftakeLadderBar from "@/components/project/OfftakeLadderBar";
 import TransactionTab from "@/components/project/TransactionTab";
 import ConstructionPackageSection from "@/components/project/ConstructionPackageSection";
 import { CasesSection, MarginSection } from "@/components/project/FinancialGradeSections";
+import ProjectDocuments from "@/components/project/ProjectDocuments";
 
 export type DataRoomStatus = "none" | "pending" | "approved";
 
@@ -23,6 +24,7 @@ export interface AsOfDates {
 interface ProjectTabContentProps {
   project: ProjectDetail;
   activeTab: string;
+  projectId?: string;
   dataRoomStatus?: DataRoomStatus;
   onRequestDataRoom?: () => void;
   grade?: InvestorGradeBundle;
@@ -33,6 +35,7 @@ interface ProjectTabContentProps {
 const ProjectTabContent = ({
   project,
   activeTab,
+  projectId,
   dataRoomStatus = "none",
   onRequestDataRoom,
   grade = emptyInvestorGrade,
