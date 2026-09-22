@@ -363,6 +363,24 @@ export type Database = {
           },
         ]
       }
+      cron_token: {
+        Row: {
+          created_at: string
+          id: number
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          token: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          token?: string
+        }
+        Relationships: []
+      }
       developer_profiles: {
         Row: {
           company_name: string | null
@@ -801,6 +819,66 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "nda_signature_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification: {
+        Row: {
+          access_request_id: string | null
+          body: string | null
+          created_at: string
+          dedupe_key: string
+          email_status: string
+          id: string
+          kind: string
+          link: string | null
+          project_id: string | null
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          access_request_id?: string | null
+          body?: string | null
+          created_at?: string
+          dedupe_key: string
+          email_status?: string
+          id?: string
+          kind: string
+          link?: string | null
+          project_id?: string | null
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          access_request_id?: string | null
+          body?: string | null
+          created_at?: string
+          dedupe_key?: string
+          email_status?: string
+          id?: string
+          kind?: string
+          link?: string | null
+          project_id?: string | null
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_access_request_id_fkey"
+            columns: ["access_request_id"]
+            isOneToOne: false
+            referencedRelation: "access_request"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "project"
@@ -1538,7 +1616,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      project_owner_user_id: { Args: { _project_id: string }; Returns: string }
     }
     Enums: {
       access_decline_reason:

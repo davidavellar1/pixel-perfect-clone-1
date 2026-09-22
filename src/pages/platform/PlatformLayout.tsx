@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "@/lib/router-compat";
-import { Briefcase, Boxes, ChevronLeft, Heart, HelpCircle, Landmark, LayoutGrid, ListChecks, LogOut, MessageSquare, Users } from "lucide-react";
+import { Bell, Briefcase, Boxes, ChevronLeft, Heart, HelpCircle, Landmark, LayoutGrid, ListChecks, LogOut, MessageSquare, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,8 @@ const groups = [
   { label: "My workspace", items: [
     { label: "My Portfolio", to: "/app/my-portfolio", icon: Briefcase },
     { label: "My Listings", to: "/app/my-listings", icon: ListChecks },
-    { label: "Watchlist", to: "/app/watchlist", icon: Heart, badge: true },
+    { label: "Watchlist", to: "/app/watchlist", icon: Heart, badge: "watchlist" },
+    { label: "Notifications", to: "/app/notifications", icon: Bell, badge: "notifications" },
   ] },
   { label: "Tools", items: [{ label: "Bundle builder", to: "/app/bundle-builder", icon: Boxes }] },
   { label: "Support", items: [
@@ -31,8 +32,11 @@ const PlatformLayout = () => {
   const storageKey = `dhc-app-shell-collapsed-${user?.id || "guest"}`;
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(storageKey) === "true");
   const [watchCount, setWatchCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
   useEffect(() => { setCollapsed(localStorage.getItem(storageKey) === "true"); }, [storageKey]);
   useEffect(() => { if (user) void supabase.from("watchlist_item").select("id", { count: "exact", head: true }).eq("user_id", user.id).then(({ count }) => setWatchCount(count || 0)); }, [user]);
+  useEffect(() => { if (user) void supabase.from("notification").select("id", { count: "exact", head: true }).eq("user_id", user.id).is("read_at", null).then(({ count }) => setUnreadCount(count || 0)); }, [user]);
+  const badgeCount = (badge?: string) => (badge === "watchlist" ? watchCount : badge === "notifications" ? unreadCount : 0);
   const toggleCollapsed = () => setCollapsed((value) => { const next = !value; localStorage.setItem(storageKey, String(next)); return next; });
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "Member";
   const company = profile?.company_name || roles[0] || "DHC Market";
@@ -55,7 +59,7 @@ const PlatformLayout = () => {
             <div className={cn("space-y-1", collapsed && "pt-3")}>
               {group.items.map(({ label, to, icon: Icon, badge }) => <NavLink key={to} to={to} title={label} className={({ isActive }) => cn("flex h-10 items-center rounded-md text-sm font-medium transition-colors", collapsed ? "justify-center px-0" : "gap-3 px-3", isActive ? "bg-accent text-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground")}>
                 <Icon className="h-[18px] w-[18px] shrink-0" />
-                {!collapsed && <><span className="truncate">{label}</span>{badge && watchCount > 0 && <span className="ml-auto rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold text-accent">{watchCount}</span>}</>}
+                {!collapsed && <><span className="truncate">{label}</span>{badgeCount(badge) > 0 && <span className="ml-auto rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold text-accent">{badgeCount(badge)}</span>}</>}
               </NavLink>)}
             </div>
           </div>)}
