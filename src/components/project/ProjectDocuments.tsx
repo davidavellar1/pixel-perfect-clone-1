@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, FileSpreadsheet, Lock, Clock, Download, Loader2 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
-import type { DataRoomStatus } from "@/components/project/ProjectTabContent";
+
+type DataRoomStatus = "none" | "pending" | "approved";
 
 type DocumentRow = Tables<"document">;
 
