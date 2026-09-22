@@ -38,6 +38,7 @@ import { Route as AppFeedbackRouteImport } from './routes/app.feedback'
 import { Route as AppInvestorRouteImport } from './routes/app.investor'
 import { Route as AppMyListingsRouteImport } from './routes/app.my-listings'
 import { Route as AppMyPortfolioRouteImport } from './routes/app.my-portfolio'
+import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
 import { Route as AppOpportunitiesRouteImport } from './routes/app.opportunities'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
 import { Route as AppPublicFundingRouteImport } from './routes/app.public-funding'
@@ -196,6 +197,11 @@ const AppMyPortfolioRoute = AppMyPortfolioRouteImport.update({
   path: '/my-portfolio',
   getParentRoute: () => AppRoute,
 } as any)
+const AppNotificationsRoute = AppNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOpportunitiesRoute = AppOpportunitiesRouteImport.update({
   id: '/opportunities',
   path: '/opportunities',
@@ -282,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/app/investor': typeof AppInvestorRoute
   '/app/my-listings': typeof AppMyListingsRoute
   '/app/my-portfolio': typeof AppMyPortfolioRoute
+  '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/public-funding': typeof AppPublicFundingRoute
@@ -323,6 +330,7 @@ export interface FileRoutesByTo {
   '/app/investor': typeof AppInvestorRoute
   '/app/my-listings': typeof AppMyListingsRoute
   '/app/my-portfolio': typeof AppMyPortfolioRoute
+  '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/public-funding': typeof AppPublicFundingRoute
@@ -366,6 +374,7 @@ export interface FileRoutesById {
   '/app/investor': typeof AppInvestorRoute
   '/app/my-listings': typeof AppMyListingsRoute
   '/app/my-portfolio': typeof AppMyPortfolioRoute
+  '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/public-funding': typeof AppPublicFundingRoute
@@ -410,6 +419,7 @@ export interface FileRouteTypes {
     | '/app/investor'
     | '/app/my-listings'
     | '/app/my-portfolio'
+    | '/app/notifications'
     | '/app/opportunities'
     | '/app/portfolio'
     | '/app/public-funding'
@@ -451,6 +461,7 @@ export interface FileRouteTypes {
     | '/app/investor'
     | '/app/my-listings'
     | '/app/my-portfolio'
+    | '/app/notifications'
     | '/app/opportunities'
     | '/app/portfolio'
     | '/app/public-funding'
@@ -493,6 +504,7 @@ export interface FileRouteTypes {
     | '/app/investor'
     | '/app/my-listings'
     | '/app/my-portfolio'
+    | '/app/notifications'
     | '/app/opportunities'
     | '/app/portfolio'
     | '/app/public-funding'
@@ -737,6 +749,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMyPortfolioRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/notifications': {
+      id: '/app/notifications'
+      path: '/notifications'
+      fullPath: '/app/notifications'
+      preLoaderRoute: typeof AppNotificationsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/opportunities': {
       id: '/app/opportunities'
       path: '/opportunities'
@@ -828,6 +847,7 @@ interface AppRouteChildren {
   AppInvestorRoute: typeof AppInvestorRoute
   AppMyListingsRoute: typeof AppMyListingsRoute
   AppMyPortfolioRoute: typeof AppMyPortfolioRoute
+  AppNotificationsRoute: typeof AppNotificationsRoute
   AppOpportunitiesRoute: typeof AppOpportunitiesRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
   AppPublicFundingRoute: typeof AppPublicFundingRoute
@@ -849,6 +869,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppInvestorRoute: AppInvestorRoute,
   AppMyListingsRoute: AppMyListingsRoute,
   AppMyPortfolioRoute: AppMyPortfolioRoute,
+  AppNotificationsRoute: AppNotificationsRoute,
   AppOpportunitiesRoute: AppOpportunitiesRoute,
   AppPortfolioRoute: AppPortfolioRoute,
   AppPublicFundingRoute: AppPublicFundingRoute,
