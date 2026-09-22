@@ -263,6 +263,22 @@ const DeveloperSignup = () => {
               {loading ? "Creating account..." : "Create Account"}
             </Button>
 
+            <div className="relative py-2">
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+              <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or continue with</span></div>
+            </div>
+
+            <GoogleSignupButton
+              roles={["developer"]}
+              fullName={form.fullName}
+              company={form.companyName}
+              disabled={!form.acceptedTerms}
+              label="Sign up with Google"
+            />
+            <p className="text-center text-xs text-muted-foreground">
+              Accept the terms above first. Google accounts are ready to use immediately — no email confirmation needed.
+            </p>
+
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <a href="/signin" className="text-primary hover:underline font-medium">
