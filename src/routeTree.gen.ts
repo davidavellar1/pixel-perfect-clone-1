@@ -48,6 +48,7 @@ import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AppProjectsSlugRouteImport } from './routes/app.projects.$slug'
+import { Route as ApiPublicHooksAccessRemindersRouteImport } from './routes/api/public/hooks/access-reminders'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -245,6 +246,12 @@ const AppProjectsSlugRoute = AppProjectsSlugRouteImport.update({
   path: '/projects/$slug',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiPublicHooksAccessRemindersRoute =
+  ApiPublicHooksAccessRemindersRouteImport.update({
+    id: '/api/public/hooks/access-reminders',
+    path: '/api/public/hooks/access-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -286,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/projects/': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
+  '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -326,6 +334,7 @@ export interface FileRoutesByTo {
   '/projects': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
+  '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -368,6 +377,7 @@ export interface FileRoutesById {
   '/projects/': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
+  '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -411,6 +421,7 @@ export interface FileRouteTypes {
     | '/projects/'
     | '/.lovable/oauth/consent'
     | '/app/projects/$slug'
+    | '/api/public/hooks/access-reminders'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -451,6 +462,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/.lovable/oauth/consent'
     | '/app/projects/$slug'
+    | '/api/public/hooks/access-reminders'
   id:
     | '__root__'
     | '/'
@@ -492,6 +504,7 @@ export interface FileRouteTypes {
     | '/projects/'
     | '/.lovable/oauth/consent'
     | '/app/projects/$slug'
+    | '/api/public/hooks/access-reminders'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -516,6 +529,7 @@ export interface RootRouteChildren {
   ProjectsSlugRoute: typeof ProjectsSlugRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  ApiPublicHooksAccessRemindersRoute: typeof ApiPublicHooksAccessRemindersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -793,6 +807,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProjectsSlugRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/public/hooks/access-reminders': {
+      id: '/api/public/hooks/access-reminders'
+      path: '/api/public/hooks/access-reminders'
+      fullPath: '/api/public/hooks/access-reminders'
+      preLoaderRoute: typeof ApiPublicHooksAccessRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -863,6 +884,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsSlugRoute: ProjectsSlugRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  ApiPublicHooksAccessRemindersRoute: ApiPublicHooksAccessRemindersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
