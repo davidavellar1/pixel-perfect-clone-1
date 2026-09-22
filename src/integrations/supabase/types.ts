@@ -1838,6 +1838,7 @@ export type Database = {
         Returns: boolean
       }
       project_owner_user_id: { Args: { _project_id: string }; Returns: string }
+      publish_project: { Args: { payload: Json }; Returns: Json }
     }
     Enums: {
       access_decline_reason:
