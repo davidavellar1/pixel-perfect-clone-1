@@ -219,6 +219,60 @@ export type Database = {
           },
         ]
       }
+      advisor: {
+        Row: {
+          active: boolean
+          category: Database["public"]["Enums"]["advisor_category"]
+          countries: string[]
+          created_at: string
+          description: string
+          id: string
+          initials: string
+          label: string
+          name: string
+          slug: string
+          sort_order: number
+          tags: string[]
+          updated_at: string
+          verified: boolean
+          website: string | null
+        }
+        Insert: {
+          active?: boolean
+          category: Database["public"]["Enums"]["advisor_category"]
+          countries?: string[]
+          created_at?: string
+          description: string
+          id?: string
+          initials: string
+          label: string
+          name: string
+          slug: string
+          sort_order?: number
+          tags?: string[]
+          updated_at?: string
+          verified?: boolean
+          website?: string | null
+        }
+        Update: {
+          active?: boolean
+          category?: Database["public"]["Enums"]["advisor_category"]
+          countries?: string[]
+          created_at?: string
+          description?: string
+          id?: string
+          initials?: string
+          label?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          tags?: string[]
+          updated_at?: string
+          verified?: boolean
+          website?: string | null
+        }
+        Relationships: []
+      }
       answer: {
         Row: {
           author_id: string
@@ -1079,6 +1133,48 @@ export type Database = {
           },
         ]
       }
+      project_advisor: {
+        Row: {
+          advisor_id: string
+          created_at: string
+          disclosed: boolean
+          id: string
+          project_id: string
+          role: string | null
+        }
+        Insert: {
+          advisor_id: string
+          created_at?: string
+          disclosed?: boolean
+          id?: string
+          project_id: string
+          role?: string | null
+        }
+        Update: {
+          advisor_id?: string
+          created_at?: string
+          disclosed?: boolean
+          id?: string
+          project_id?: string
+          role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_advisor_advisor_id_fkey"
+            columns: ["advisor_id"]
+            isOneToOne: false
+            referencedRelation: "advisor"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_advisor_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_case: {
         Row: {
           capex_variance_pct: number | null
@@ -1634,6 +1730,7 @@ export type Database = {
         | "declined"
         | "withdrawn"
         | "lapsed"
+      advisor_category: "financial" | "legal" | "technical"
       app_role: "admin" | "developer" | "investor" | "advisor"
       capital_source:
         | "fund_with_dry_powder"
@@ -1875,6 +1972,7 @@ export const Constants = {
         "withdrawn",
         "lapsed",
       ],
+      advisor_category: ["financial", "legal", "technical"],
       app_role: ["admin", "developer", "investor", "advisor"],
       capital_source: [
         "fund_with_dry_powder",
