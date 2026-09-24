@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_event: {
+        Row: {
+          actor_user_id: string | null
+          event: string
+          from_state: string | null
+          id: string
+          investor_user_id: string | null
+          new_row: Json | null
+          occurred_at: string
+          old_row: Json | null
+          operation: string
+          project_id: string | null
+          record_id: string
+          source: string
+          to_state: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          event: string
+          from_state?: string | null
+          id?: string
+          investor_user_id?: string | null
+          new_row?: Json | null
+          occurred_at?: string
+          old_row?: Json | null
+          operation: string
+          project_id?: string | null
+          record_id: string
+          source: string
+          to_state?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          event?: string
+          from_state?: string | null
+          id?: string
+          investor_user_id?: string | null
+          new_row?: Json | null
+          occurred_at?: string
+          old_row?: Json | null
+          operation?: string
+          project_id?: string | null
+          record_id?: string
+          source?: string
+          to_state?: string | null
+        }
+        Relationships: []
+      }
       access_request: {
         Row: {
           decided_at: string | null
@@ -733,6 +781,42 @@ export type Database = {
           regions_of_interest?: string[] | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      legal_acceptance: {
+        Row: {
+          accepted_at: string
+          client_accepted_at: string | null
+          document: string
+          id: string
+          ip: string | null
+          source: string
+          user_agent: string | null
+          user_id: string
+          version: string
+        }
+        Insert: {
+          accepted_at?: string
+          client_accepted_at?: string | null
+          document: string
+          id?: string
+          ip?: string | null
+          source: string
+          user_agent?: string | null
+          user_id: string
+          version: string
+        }
+        Update: {
+          accepted_at?: string
+          client_accepted_at?: string | null
+          document?: string
+          id?: string
+          ip?: string | null
+          source?: string
+          user_agent?: string | null
+          user_id?: string
+          version?: string
         }
         Relationships: []
       }
@@ -1839,6 +1923,14 @@ export type Database = {
       }
       project_owner_user_id: { Args: { _project_id: string }; Returns: string }
       publish_project: { Args: { payload: Json }; Returns: Json }
+      record_legal_acceptance: {
+        Args: {
+          p_client_accepted_at?: string
+          p_items: Json
+          p_source?: string
+        }
+        Returns: number
+      }
     }
     Enums: {
       access_decline_reason:
