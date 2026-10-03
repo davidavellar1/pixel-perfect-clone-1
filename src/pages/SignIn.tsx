@@ -29,7 +29,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const safeRedirect = (value: string | null) => value?.startsWith("/") && !value.startsWith("//") ? value : "/app/opportunities";
+const safeRedirect = (value: string | null) => value?.startsWith("/") && !value.startsWith("//") ? value : "/app";
 
 const SignIn = () => {
   const navigate = useNavigate();
