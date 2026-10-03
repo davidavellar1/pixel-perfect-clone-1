@@ -27,10 +27,10 @@ const subRoles = [
 ];
 
 const destinations: Record<RoleKey, string> = {
-  dev: "/app/opportunities",
-  inv: "/app/opportunities",
-  both: "/app/opportunities",
-  other: "/app/opportunities",
+  dev: "/app",
+  inv: "/app",
+  both: "/app",
+  other: "/app",
 };
 
 const brandPoints = [
