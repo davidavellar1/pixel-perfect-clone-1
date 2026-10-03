@@ -1197,7 +1197,7 @@ export type Database = {
       }
       project: {
         Row: {
-          capacity_mw: number
+          capacity_mw: number | null
           city: string
           country_code: string
           created_at: string
@@ -1227,7 +1227,7 @@ export type Database = {
           visibility: Database["public"]["Enums"]["project_visibility"]
         }
         Insert: {
-          capacity_mw: number
+          capacity_mw?: number | null
           city: string
           country_code: string
           created_at?: string
@@ -1257,7 +1257,7 @@ export type Database = {
           visibility?: Database["public"]["Enums"]["project_visibility"]
         }
         Update: {
-          capacity_mw?: number
+          capacity_mw?: number | null
           city?: string
           country_code?: string
           created_at?: string
