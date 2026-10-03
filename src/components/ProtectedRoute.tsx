@@ -10,7 +10,6 @@ type AppRole = Database["public"]["Enums"]["app_role"];
 const DEVELOPER_ONLY = [
   "/app/submit-project",
   "/app/developer",
-  "/app/my-listings",
   "/app/access-requests",
   "/app/data-room-requests",
 ];
@@ -71,7 +70,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         roles.includes("admin") ||
         (developerArea && roles.includes("developer")) ||
         (investorArea && roles.includes("investor"));
-      if (!allowed) return <Navigate to="/app/opportunities" replace />;
+      if (!allowed) return <Navigate to="/app" replace />;
     }
   }
 
