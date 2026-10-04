@@ -35,6 +35,10 @@ const text = (v: unknown): string => {
   return "";
 };
 
+// WordPress feeds append "The post <title> appeared first on <site>." to every excerpt.
+const stripFeedBoilerplate = (s: string): string =>
+  s.replace(/\s*The post .*? (?:first appeared|appeared first) on .*$/i, "").replace(/\s*\[(?:…|&#8230;|\.\.\.)\]\s*$/, "…").trim();
+
 const asArray = <T,>(v: T | T[] | undefined): T[] => (v == null ? [] : Array.isArray(v) ? v : [v]);
 
 const toDate = (s: string): Date | null => {
@@ -73,7 +77,7 @@ export const parseFeed = (xml: string): ParsedItem[] => {
       title: stripHtml(text(item.title)),
       url: text(item.link).trim() || text(item.guid).trim(),
       publishedAt: toDate(text(item.pubDate ?? item["dc:date"])),
-      excerpt: desc ? stripHtml(desc) || null : null,
+      excerpt: desc ? stripFeedBoilerplate(stripHtml(desc)) || null : null,
       imageUrl: pickImage(item),
       publisher: null,
       language: null,

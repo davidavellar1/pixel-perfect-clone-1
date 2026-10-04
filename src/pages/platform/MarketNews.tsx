@@ -100,7 +100,7 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
     setError(null);
     let q = supabase.from("news_item").select(NEWS_ITEM_COLUMNS).eq("hidden", false);
     const list = countryFilter.join(",");
-    if (includeEu) q = list ? q.or(`country_codes.ov.{${list}},country_codes.eq.{}`) : q.eq("country_codes", "{}");
+    if (includeEu) q = list ? q.or(`country_codes.ov.{${list}},country_codes.eq.{}`) : q.filter("country_codes", "eq", "{}");
     else q = q.overlaps("country_codes", countryFilter.length ? countryFilter : ["--"]);
     if (category !== "all") q = q.eq("category", category);
     else if (prefs.categories.length) q = q.in("category", prefs.categories);

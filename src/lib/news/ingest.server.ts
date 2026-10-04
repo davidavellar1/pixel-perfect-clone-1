@@ -9,8 +9,8 @@ type NewsInsert = Database["public"]["Tables"]["news_item"]["Insert"];
 type ProjectLite = { id: string; city: string; country_code: string; technology: string };
 
 const USER_AGENT = "DHCMarketNewsBot/1.0 (+https://dhc-deal-space.lovable.app)";
-const MAX_SOURCES = 14;
-const ENRICH_BUDGET = 25;
+const MAX_SOURCES = 5; // keeps one run well inside hosting request limits; hourly runs cover all sources
+const ENRICH_BUDGET = 12;
 const MAX_AGE_MS = 30 * 86_400_000;
 const PRUNE_DAYS = 180;
 const GDELT_GAP_MS = 6_000;
