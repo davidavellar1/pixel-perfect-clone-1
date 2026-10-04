@@ -38,6 +38,7 @@ import { Route as AppFeedbackRouteImport } from './routes/app.feedback'
 import { Route as AppInvestorRouteImport } from './routes/app.investor'
 import { Route as AppMyListingsRouteImport } from './routes/app.my-listings'
 import { Route as AppMyPortfolioRouteImport } from './routes/app.my-portfolio'
+import { Route as AppNewsRouteImport } from './routes/app.news'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
 import { Route as AppOpportunitiesRouteImport } from './routes/app.opportunities'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
@@ -198,6 +199,11 @@ const AppMyPortfolioRoute = AppMyPortfolioRouteImport.update({
   path: '/my-portfolio',
   getParentRoute: () => AppRoute,
 } as any)
+const AppNewsRoute = AppNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppNotificationsRoute = AppNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
@@ -295,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/app/investor': typeof AppInvestorRoute
   '/app/my-listings': typeof AppMyListingsRoute
   '/app/my-portfolio': typeof AppMyPortfolioRoute
+  '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
@@ -338,6 +345,7 @@ export interface FileRoutesByTo {
   '/app/investor': typeof AppInvestorRoute
   '/app/my-listings': typeof AppMyListingsRoute
   '/app/my-portfolio': typeof AppMyPortfolioRoute
+  '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
@@ -383,6 +391,7 @@ export interface FileRoutesById {
   '/app/investor': typeof AppInvestorRoute
   '/app/my-listings': typeof AppMyListingsRoute
   '/app/my-portfolio': typeof AppMyPortfolioRoute
+  '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
@@ -429,6 +438,7 @@ export interface FileRouteTypes {
     | '/app/investor'
     | '/app/my-listings'
     | '/app/my-portfolio'
+    | '/app/news'
     | '/app/notifications'
     | '/app/opportunities'
     | '/app/portfolio'
@@ -472,6 +482,7 @@ export interface FileRouteTypes {
     | '/app/investor'
     | '/app/my-listings'
     | '/app/my-portfolio'
+    | '/app/news'
     | '/app/notifications'
     | '/app/opportunities'
     | '/app/portfolio'
@@ -516,6 +527,7 @@ export interface FileRouteTypes {
     | '/app/investor'
     | '/app/my-listings'
     | '/app/my-portfolio'
+    | '/app/news'
     | '/app/notifications'
     | '/app/opportunities'
     | '/app/portfolio'
@@ -763,6 +775,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMyPortfolioRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/news': {
+      id: '/app/news'
+      path: '/news'
+      fullPath: '/app/news'
+      preLoaderRoute: typeof AppNewsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/notifications': {
       id: '/app/notifications'
       path: '/notifications'
@@ -868,6 +887,7 @@ interface AppRouteChildren {
   AppInvestorRoute: typeof AppInvestorRoute
   AppMyListingsRoute: typeof AppMyListingsRoute
   AppMyPortfolioRoute: typeof AppMyPortfolioRoute
+  AppNewsRoute: typeof AppNewsRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppOpportunitiesRoute: typeof AppOpportunitiesRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
@@ -890,6 +910,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppInvestorRoute: AppInvestorRoute,
   AppMyListingsRoute: AppMyListingsRoute,
   AppMyPortfolioRoute: AppMyPortfolioRoute,
+  AppNewsRoute: AppNewsRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppOpportunitiesRoute: AppOpportunitiesRoute,
   AppPortfolioRoute: AppPortfolioRoute,
