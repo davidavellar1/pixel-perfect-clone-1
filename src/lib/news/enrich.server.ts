@@ -2,6 +2,9 @@ import type { Database } from "@/integrations/supabase/types";
 import { categoriseByKeywords, type NewsCategoryValue } from "./keywords";
 import { truncateAtWord } from "./parse";
 
+// Region-level codes the model sometimes returns; EU-wide news is stored with no country.
+const NOT_COUNTRIES = new Set(["EU", "EZ", "UN", "XX", "ZZ"]);
+
 type Technology = Database["public"]["Enums"]["technology"];
 
 export const TECHNOLOGIES: Technology[] = [
@@ -54,11 +57,11 @@ const TOOL = {
     parameters: {
       type: "object",
       properties: {
-        title_en: { type: "string", description: "English headline" },
+        title_en: { type: "string", description: "English headline in sentence case (never ALL CAPS)" },
         summary: { type: "string", description: "Max 2 sentences in your own words, English, no quotation marks, never copied from the source" },
         why_it_matters: { type: "string", description: "1 sentence for infrastructure investors and DHC project developers" },
         category: { type: "string", enum: CATEGORIES },
-        country_codes: { type: "array", items: { type: "string" }, description: "ISO-3166 alpha-2, GB for UK" },
+        country_codes: { type: "array", items: { type: "string" }, description: "ISO-3166 alpha-2 codes of the countries concerned, GB for UK. Empty array for EU-wide or international news - never EU" },
         technologies: { type: "array", items: { type: "string", enum: TECHNOLOGIES } },
         deal_value_eur: { type: ["number", "null"] },
         counterparties: { type: "array", items: { type: "string" }, maxItems: 5 },
@@ -116,7 +119,7 @@ export async function enrichWithAi(input: EnrichInput, apiKey: string): Promise<
     const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim().replace(/["“”„«»]/g, "") : null);
     const category = CATEGORIES.includes(raw.category as NewsCategoryValue) ? (raw.category as NewsCategoryValue) : "other";
     const codes = Array.isArray(raw.country_codes)
-      ? [...new Set(raw.country_codes.filter((c): c is string => typeof c === "string").map((c) => c.toUpperCase().replace("UK", "GB")).filter((c) => /^[A-Z]{2}$/.test(c)))]
+      ? [...new Set(raw.country_codes.filter((c): c is string => typeof c === "string").map((c) => c.trim().toUpperCase().replace(/^UK$/, "GB")).filter((c) => /^[A-Z]{2}$/.test(c) && !NOT_COUNTRIES.has(c)))]
       : [];
     const techs = Array.isArray(raw.technologies)
       ? [...new Set(raw.technologies.filter((t): t is Technology => TECHNOLOGIES.includes(t as Technology)))]
