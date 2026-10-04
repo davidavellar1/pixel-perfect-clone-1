@@ -50,6 +50,7 @@ import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AppProjectsSlugRouteImport } from './routes/app.projects.$slug'
 import { Route as ApiPublicHooksAccessRemindersRouteImport } from './routes/api/public/hooks/access-reminders'
+import { Route as ApiPublicHooksIngestNewsRouteImport } from './routes/api/public/hooks/ingest-news'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -258,6 +259,12 @@ const ApiPublicHooksAccessRemindersRoute =
     path: '/api/public/hooks/access-reminders',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksIngestNewsRoute =
+  ApiPublicHooksIngestNewsRouteImport.update({
+    id: '/api/public/hooks/ingest-news',
+    path: '/api/public/hooks/ingest-news',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -301,6 +308,7 @@ export interface FileRoutesByFullPath {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
+  '/api/public/hooks/ingest-news': typeof ApiPublicHooksIngestNewsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -343,6 +351,7 @@ export interface FileRoutesByTo {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
+  '/api/public/hooks/ingest-news': typeof ApiPublicHooksIngestNewsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -387,6 +396,7 @@ export interface FileRoutesById {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
+  '/api/public/hooks/ingest-news': typeof ApiPublicHooksIngestNewsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -432,6 +442,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/app/projects/$slug'
     | '/api/public/hooks/access-reminders'
+    | '/api/public/hooks/ingest-news'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -474,6 +485,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/app/projects/$slug'
     | '/api/public/hooks/access-reminders'
+    | '/api/public/hooks/ingest-news'
   id:
     | '__root__'
     | '/'
@@ -517,6 +529,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/app/projects/$slug'
     | '/api/public/hooks/access-reminders'
+    | '/api/public/hooks/ingest-news'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -542,6 +555,7 @@ export interface RootRouteChildren {
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicHooksAccessRemindersRoute: typeof ApiPublicHooksAccessRemindersRoute
+  ApiPublicHooksIngestNewsRoute: typeof ApiPublicHooksIngestNewsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -833,6 +847,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAccessRemindersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/ingest-news': {
+      id: '/api/public/hooks/ingest-news'
+      path: '/api/public/hooks/ingest-news'
+      fullPath: '/api/public/hooks/ingest-news'
+      preLoaderRoute: typeof ApiPublicHooksIngestNewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -906,6 +927,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsIndexRoute: ProjectsIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicHooksAccessRemindersRoute: ApiPublicHooksAccessRemindersRoute,
+  ApiPublicHooksIngestNewsRoute: ApiPublicHooksIngestNewsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

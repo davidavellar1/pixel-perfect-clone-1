@@ -1,4 +1,4 @@
-import { Bell, Briefcase, Boxes, Heart, HelpCircle, Landmark, LayoutGrid, ListChecks, MessageSquare, Users, type LucideIcon } from "lucide-react";
+import { Bell, Briefcase, Boxes, Heart, HelpCircle, Landmark, LayoutGrid, ListChecks, Newspaper, MessageSquare, Users, type LucideIcon } from "lucide-react";
 
 export type AppView = "investor" | "developer" | "both";
 
@@ -23,6 +23,7 @@ export const NAV_GROUPS: NavGroup[] = [
   { label: "Discover", items: [
     { key: "opportunities", label: "Opportunities", to: "/app/opportunities", icon: LayoutGrid, views: INV },
     { key: "public-funding", label: "Public Funding", to: "/app/public-funding", icon: Landmark, views: ALL },
+    { key: "news", label: "Market news", to: "/app/news", icon: Newspaper, views: ALL },
     { key: "ecosystem", label: "Ecosystem", to: "/app/ecosystem", icon: Users, views: INV },
   ] },
   { label: "My workspace", items: [
@@ -47,6 +48,7 @@ export const homePathFor = (view: AppView) => (view === "developer" ? "/app/my-l
 
 const DEVELOPER_ALLOWED = [
   "/app/public-funding",
+  "/app/news",
   "/app/my-listings",
   "/app/notifications",
   "/app/support",

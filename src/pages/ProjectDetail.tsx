@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "@/lib/router-compat";
 import PublicShell from "@/components/public/PublicShell";
 import ProjectHero from "@/components/project/ProjectHero";
 import ProjectSidebar from "@/components/project/ProjectSidebar";
+import ProjectNewsCard from "@/components/news/ProjectNewsCard";
 import ProjectTabContent from "@/components/project/ProjectTabContent";
 import LockedTabOverlay from "@/components/project/LockedTabOverlay";
 import type { DataRoomStatus } from "@/components/project/ProjectTabContent";
@@ -486,6 +487,9 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
           </div>
           <div className="lg:col-span-1">
             <ProjectSidebar project={project} onRequestAccess={openInterest} loadingAuth={loadingAuth} />
+            {context === "app" && databaseProject && (
+              <div className="mt-6"><ProjectNewsCard projectId={databaseProject.id} countryCode={databaseProject.country_code} /></div>
+            )}
           </div>
         </div>
       </div>
