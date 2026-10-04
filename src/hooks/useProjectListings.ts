@@ -44,12 +44,14 @@ export const useProjectListings = () => {
   const { user } = useAuth();
   const [projects, setProjects] = useState<ProjectListing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError(null);
     const { data: rows, error } = await supabase.from("project").select("*").eq("visibility", "listed").order("created_at", { ascending: false });
     if (error || !rows) {
-      if (error) console.error("Project listing query failed", error);
+      if (error) { console.error("Project listing query failed", error); setError(error.message); }
       setProjects([]); setLoading(false); return;
     }
     const ids = rows.map((row) => row.id);
@@ -89,5 +91,5 @@ export const useProjectListings = () => {
   }, [user]);
 
   useEffect(() => { void load(); }, [load]);
-  return { projects, loading, reload: load };
+  return { projects, loading, error, reload: load };
 };

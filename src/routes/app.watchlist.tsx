@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import PlaceholderPage from "@/pages/platform/PlaceholderPage";
+import Watchlist from "@/pages/platform/Watchlist";
 
 export const Route = createFileRoute("/app/watchlist")({
   head: () => ({
@@ -10,5 +10,5 @@ export const Route = createFileRoute("/app/watchlist")({
       { property: "og:description", content: "Projects you're tracking." },
     ],
   }),
-  component: () => <PlaceholderPage title="Watchlist" description="Projects you're tracking." />,
+  component: () => <Watchlist />,
 });

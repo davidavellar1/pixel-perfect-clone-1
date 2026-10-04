@@ -2,13 +2,13 @@ import { ArrowRight, Building2, Heart, Landmark, Lock, MapPin } from "lucide-rea
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { toast } from "sonner";
 import type { ProjectListing } from "@/hooks/useProjectListings";
 import { isGranted } from "@/lib/access";
 
-interface ProjectCardProps { project: ProjectListing; context: "public" | "app"; onWatchlistChange?: () => void; }
+interface ProjectCardProps { project: ProjectListing; context: "public" | "app"; onWatchlistChange?: (watchlisted: boolean) => void; }
 const money = (value: number) => `EUR ${(value / 1_000_000).toFixed(value >= 10_000_000 ? 0 : 1)}M`;
 const capacityBand = (mw: number) => mw < 10 ? "Under 10 MW" : mw < 25 ? "10-25 MW" : mw < 50 ? "25-50 MW" : "50+ MW";
 const capexBand = (value: number | null) => value == null ? null : value < 15_000_000 ? "Under EUR 15M" : value < 30_000_000 ? "EUR 15-30M" : value < 50_000_000 ? "EUR 30-50M" : "EUR 50M+";
@@ -20,12 +20,21 @@ const ProjectCard = ({ project, context, onWatchlistChange }: ProjectCardProps) 
   const { user } = useAuth();
   const revealed = isGranted(project.accessState);
   const pending = project.accessState === "pending";
+  const watchlist = useWatchlist();
+  const watchlisted = watchlist.has(project.id);
   const toggleWatchlist = async () => {
     if (!user) return;
-    const result = project.watchlisted
-      ? await supabase.from("watchlist_item").delete().eq("project_id", project.id).eq("user_id", user.id)
-      : await supabase.from("watchlist_item").insert({ project_id: project.id, user_id: user.id });
-    if (result.error) toast.error(result.error.message); else { toast.success(project.watchlisted ? "Removed from watchlist" : "Added to watchlist"); onWatchlistChange?.(); }
+    if (watchlisted) {
+      const result = await watchlist.remove(project.id);
+      if (!result.ok) { toast.error(result.error); return; }
+      toast.success("Removed from watchlist", { action: { label: "Undo", onClick: () => { void watchlist.add(project.id); } } });
+      onWatchlistChange?.(false);
+    } else {
+      const result = await watchlist.add(project.id);
+      if (!result.ok) { toast.error(result.error); return; }
+      toast.success("Added to watchlist");
+      onWatchlistChange?.(true);
+    }
   };
   const title = revealed ? project.title : `${project.teaserTitle}, ${project.region}`;
   const location = revealed ? `${project.city}, ${project.country}` : project.region;
@@ -51,7 +60,7 @@ const ProjectCard = ({ project, context, onWatchlistChange }: ProjectCardProps) 
       {terms.some(Boolean) && <div className="grid grid-cols-2 gap-3 py-3">{terms.filter(Boolean).map((metric) => metric && <Metric key={metric.label} {...metric} />)}</div>}
       <div className="mt-auto flex items-center gap-2 border-t border-border pt-4">
         <Button variant="outline" className="flex-1 justify-between" asChild><Link to={href}>{context === "public" ? "Create account" : "View project"}<ArrowRight className="h-4 w-4" /></Link></Button>
-        {context === "app" && <Button type="button" variant="outline" size="icon" aria-label={project.watchlisted ? "Remove from watchlist" : "Add to watchlist"} title={project.watchlisted ? "Remove from watchlist" : "Add to watchlist"} onClick={toggleWatchlist}><Heart className={cn("h-4 w-4", project.watchlisted && "fill-accent text-accent")} /></Button>}
+        {context === "app" && <Button type="button" variant="outline" size="icon" aria-label={watchlisted ? "Remove from watchlist" : "Add to watchlist"} aria-pressed={watchlisted} title={watchlisted ? "Remove from watchlist" : "Add to watchlist"} onClick={toggleWatchlist}><Heart className={cn("h-4 w-4", watchlisted && "fill-accent text-accent")} /></Button>}
       </div>
       {!revealed && <p className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground"><Lock className="h-3 w-3" />Identity and exact figures are locked</p>}
     </div>

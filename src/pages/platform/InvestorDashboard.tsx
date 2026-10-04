@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@/lib/router-compat";
 import { Building2, FolderOpen, Heart, Info, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { ACCESS_STATE_LABEL, PIPELINE_STAGES, effectiveState, normaliseStage, slaStatus, stageLabel } from "@/lib/access";
@@ -14,7 +15,6 @@ import { ACCESS_STATE_LABEL, PIPELINE_STAGES, effectiveState, normaliseStage, sl
 type Interest = Tables<"project_interest">;
 type Project = Tables<"project">;
 type Request = Tables<"access_request">;
-type Watch = Tables<"watchlist_item">;
 type Finance = Tables<"financial_summary">;
 type Process = Tables<"project_process">;
 type CaseRow = Tables<"project_case">;
@@ -59,7 +59,8 @@ const InvestorDashboard = () => {
   const [interests, setInterests] = useState<Interest[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
-  const [watchlist, setWatchlist] = useState<Watch[]>([]);
+  // Shared with the cards, project page and sidebar so the tab updates without a reload.
+  const { items: watchlist } = useWatchlist();
   const [finance, setFinance] = useState<Finance[]>([]);
   const [processes, setProcesses] = useState<Process[]>([]);
   const [cases, setCases] = useState<CaseRow[]>([]);
@@ -104,7 +105,7 @@ const InvestorDashboard = () => {
     } else {
       setProjects([]); setFinance([]); setProcesses([]); setCases([]); setStackItems([]);
     }
-    setInterests(interestRows || []); setRequests(requestRows || []); setWatchlist(watchRows || []);
+    setInterests(interestRows || []); setRequests(requestRows || []);
     setInvestorProfile(investorProfileRow || null);
     setLoading(false);
   }, [user]);
@@ -112,6 +113,16 @@ const InvestorDashboard = () => {
   useEffect(() => { load(); }, [load]);
 
   const projectById = useMemo(() => new Map(projects.map((project) => [project.id, project])), [projects]);
+
+  // A project saved elsewhere since this page loaded: fetch its details once.
+  const fetchedFor = useRef(new Set<string>());
+  useEffect(() => {
+    if (loading) return;
+    const missing = watchlist.filter((w) => !w.id.startsWith("pending-") && !projectById.has(w.project_id) && !fetchedFor.current.has(w.project_id));
+    if (!missing.length) return;
+    missing.forEach((w) => fetchedFor.current.add(w.project_id));
+    void load();
+  }, [watchlist, projectById, loading, load]);
   const financeByProject = useMemo(() => new Map(finance.map((row) => [row.project_id, row])), [finance]);
   const processByProject = useMemo(() => new Map(processes.map((row) => [row.project_id, row])), [processes]);
   const casesByProject = useMemo(() => {

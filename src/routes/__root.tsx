@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { WatchlistProvider } from "@/hooks/useWatchlist";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -134,10 +135,12 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
-          <Toaster />
-          <Sonner />
-          {/* Required: nested routes render here. */}
-          <Outlet />
+          <WatchlistProvider>
+            <Toaster />
+            <Sonner />
+            {/* Required: nested routes render here. */}
+            <Outlet />
+          </WatchlistProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>

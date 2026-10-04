@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { ProjectDetail } from "@/data/projectsData";
 import { MapPin, Heart, Share2, FileText, CheckSquare } from "lucide-react";
 import { asOfLine, committedBuildingPct, committedLoadPct, eur, type InvestorGradeBundle } from "@/data/investorGrade";
@@ -10,9 +11,14 @@ interface ProjectHeroProps {
   grade?: InvestorGradeBundle;
   asOf?: { financial?: string | null; technical?: string | null; regulatory?: string | null };
   ctaLabel?: string;
+  /** Database id of the project; the watchlist button is shown only when it is known. */
+  projectId?: string;
+  watchlisted?: boolean;
+  watchlistBusy?: boolean;
+  onToggleWatchlist?: () => void;
 }
 
-const ProjectHero = ({ project, onRequestAccess, loadingAuth, grade, asOf, ctaLabel }: ProjectHeroProps) => {
+const ProjectHero = ({ project, onRequestAccess, loadingAuth, grade, asOf, ctaLabel, projectId, watchlisted = false, watchlistBusy = false, onToggleWatchlist }: ProjectHeroProps) => {
   const ladder = grade?.ladder ?? null;
   const loadPct = committedLoadPct(ladder);
   const buildingPct = committedBuildingPct(ladder);
@@ -89,10 +95,12 @@ const ProjectHero = ({ project, onRequestAccess, loadingAuth, grade, asOf, ctaLa
           >
             {ctaLabel ?? "Express interest"}
           </Button>
-          <Button variant="hero-outline">
-            <Heart className="w-4 h-4 mr-2" />
-            Add to watchlist
-          </Button>
+          {projectId && onToggleWatchlist && (
+            <Button variant="hero-outline" onClick={onToggleWatchlist} disabled={watchlistBusy} aria-pressed={watchlisted}>
+              <Heart className={cn("w-4 h-4 mr-2", watchlisted && "fill-current")} />
+              {watchlisted ? "Saved to watchlist" : "Add to watchlist"}
+            </Button>
+          )}
           <Button variant="hero-outline">
             <Share2 className="w-4 h-4 mr-2" />
             Share

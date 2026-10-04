@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Heart, Lock, CheckCircle2, Clock, ShieldX, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { projectsData, slugify, type ProjectDetail as ProjectDetailData } from "@/data/projectsData";
 import type { Tables } from "@/integrations/supabase/types";
 import { useInvestorGrade } from "@/hooks/useInvestorGrade";
@@ -67,6 +69,8 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   const staticProject = projectsData.find((p) => p.slug === slug || slugify(p.title) === slug);
   const [databaseProject, setDatabaseProject] = useState<Tables<"project"> | null>(null);
   const [user, setUser] = useState<{ id: string; email?: string | null } | null>(null);
+  const watchlist = useWatchlist();
+  const [watchlistBusy, setWatchlistBusy] = useState(false);
   const [showInterest, setShowInterest] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [justSubmitted, setJustSubmitted] = useState(false);
@@ -163,6 +167,22 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     supabase.from("listing_access_criteria").select("*").eq("project_id", databaseProject.id).maybeSingle()
       .then(({ data }) => setCriteria(data ?? null));
   }, [databaseProject, loadEngagement, user]);
+
+  const toggleWatchlist = async () => {
+    if (!databaseProject) return;
+    if (!user) {
+      navigate(`/sign-in?redirect=${encodeURIComponent(context === "app" ? `/app/projects/${slug}` : `/projects/${slug}`)}`);
+      return;
+    }
+    const projectId = databaseProject.id;
+    setWatchlistBusy(true);
+    const saved = watchlist.has(projectId);
+    const result = saved ? await watchlist.remove(projectId) : await watchlist.add(projectId);
+    setWatchlistBusy(false);
+    if (!result.ok) { sonnerToast.error(result.error); return; }
+    if (saved) sonnerToast.success("Removed from watchlist", { action: { label: "Undo", onClick: () => { void watchlist.add(projectId); } } });
+    else sonnerToast.success("Saved to watchlist");
+  };
 
   const openInterest = () => {
     if (!user) {
@@ -348,6 +368,10 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
         grade={grade}
         asOf={asOf}
         ctaLabel={granted ? "Access granted" : accessState === "pending" ? "Request pending" : undefined}
+        projectId={databaseProject?.id}
+        watchlisted={databaseProject ? watchlist.has(databaseProject.id) : false}
+        watchlistBusy={watchlistBusy || loadingAuth}
+        onToggleWatchlist={toggleWatchlist}
       />
 
       <div className="mx-auto mt-6 max-w-[980px] px-5">
