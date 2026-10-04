@@ -59,7 +59,7 @@ export function relatedProjects(
 }
 
 const toRow = (
-  item: ParsedItem & { url: string },
+  item: ParsedItem & { url: string; weak?: boolean },
   source: SourceRow,
   e: Enrichment,
   projects: ProjectLite[],
@@ -84,7 +84,9 @@ const toRow = (
     related_project_ids: relatedProjects({ title: item.title, title_en: e.title_en, summary: e.summary, country_codes, technologies: e.technologies }, projects),
     relevance: e.relevance,
     enriched: e.enriched,
-    hidden: e.relevance < 30,
+    // GDELT matches keywords anywhere in the article but only returns the headline; when the
+    // headline itself has no keyword, keep the item hidden until the AI has scored it.
+    hidden: e.relevance < 30 || (!!item.weak && !e.enriched),
   };
 };
 
@@ -97,9 +99,21 @@ export async function runIngest(opts: { source?: string; force?: boolean } = {})
   const { data: allSources, error: srcErr } = await query.order("last_polled_at", { ascending: true, nullsFirst: true });
   if (srcErr) throw new Error(`news_source query failed: ${srcErr.message}`);
 
-  const due = (allSources ?? [])
-    .filter((s) => opts.force || !s.last_polled_at || new Date(s.last_polled_at).getTime() < now - s.poll_interval_minutes * 60_000)
-    .slice(0, MAX_SOURCES);
+  // GDELT rate-limits shared hosting IPs, so the database fetches GDELT sources with pg_net
+  // (see migration 0021) and we claim the stored responses here.
+  const fetched = new Map<string, { status: number | null; body: string | null; error: string | null }>();
+  const { data: claimed, error: claimErr } = await (supabaseAdmin.rpc as unknown as (
+    fn: string,
+  ) => Promise<{ data: { source_id: string; status_code: number | null; body: string | null; error_msg: string | null }[] | null; error: { message: string } | null }>)("news_claim_fetched");
+  if (claimErr) console.error(`[ingest-news] claim failed: ${claimErr.message}`);
+  for (const c of claimed ?? []) fetched.set(c.source_id, { status: c.status_code, body: c.body, error: c.error_msg });
+
+  const isDue = (s: SourceRow) =>
+    opts.force || !s.last_polled_at || new Date(s.last_polled_at).getTime() < now - s.poll_interval_minutes * 60_000;
+  const rssDue = (allSources ?? []).filter((s) => s.kind === "rss" && isDue(s)).slice(0, MAX_SOURCES);
+  // GDELT: process whatever the database fetched; a direct fetch only for a forced single-source test.
+  const gdeltDue = (allSources ?? []).filter((s) => s.kind === "gdelt" && (fetched.has(s.id) || (opts.force && opts.source === s.slug)));
+  const due = [...rssDue, ...gdeltDue];
 
   const { data: projectRows } = await supabaseAdmin
     .from("project")
@@ -123,14 +137,22 @@ export async function runIngest(opts: { source?: string; force?: boolean } = {})
   for (const source of due) {
     const result: SourceResult = { slug: source.slug, fetched: 0, kept: 0, inserted: 0 };
     try {
-      if (source.kind === "gdelt") {
-        const wait = lastGdelt + GDELT_GAP_MS - Date.now();
-        if (lastGdelt && wait > 0) await sleep(wait);
-        lastGdelt = Date.now();
+      let body: string;
+      const pre = fetched.get(source.id);
+      if (pre) {
+        if (pre.error) throw new Error(pre.error.slice(0, 200));
+        if (pre.status !== 200) throw new Error(`HTTP ${pre.status ?? "no response"}`);
+        body = pre.body ?? "";
+      } else {
+        if (source.kind === "gdelt") {
+          const wait = lastGdelt + GDELT_GAP_MS - Date.now();
+          if (lastGdelt && wait > 0) await sleep(wait);
+          lastGdelt = Date.now();
+        }
+        const res = await fetchWithTimeout(source.url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        body = await res.text();
       }
-      const res = await fetchWithTimeout(source.url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const body = await res.text();
       let parsed: ParsedItem[];
       if (source.kind === "gdelt") {
         let json: unknown;
@@ -141,9 +163,9 @@ export async function runIngest(opts: { source?: string; force?: boolean } = {})
       }
       result.fetched = parsed.length;
 
-      const needKeywords = source.keyword_filter || source.kind === "gdelt";
+      const needKeywords = source.keyword_filter;
       const seen = new Set<string>();
-      const candidates: (ParsedItem & { url: string })[] = [];
+      const candidates: (ParsedItem & { url: string; weak?: boolean })[] = [];
       for (const item of parsed) {
         const url = item.url ? canonicalUrl(item.url) : null;
         if (!url || !item.title) continue;
@@ -152,7 +174,8 @@ export async function runIngest(opts: { source?: string; force?: boolean } = {})
         if (recentTitles.has(normaliseTitle(item.title))) continue;
         if (needKeywords && !matchesDistrictEnergy(`${item.title} ${item.excerpt ?? ""}`)) continue;
         seen.add(url);
-        candidates.push({ ...item, url });
+        const weak = source.kind === "gdelt" && !matchesDistrictEnergy(`${item.title} ${item.excerpt ?? ""}`);
+        candidates.push({ ...item, url, weak });
       }
 
       let fresh = candidates;
