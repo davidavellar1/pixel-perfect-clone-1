@@ -1002,6 +1002,152 @@ export type Database = {
           },
         ]
       }
+      news_item: {
+        Row: {
+          category: Database["public"]["Enums"]["news_category"]
+          counterparties: string[]
+          country_codes: string[]
+          created_at: string
+          deal_value_eur: number | null
+          enriched: boolean
+          hidden: boolean
+          id: string
+          image_url: string | null
+          language: string | null
+          published_at: string
+          publisher: string | null
+          related_project_ids: string[]
+          relevance: number
+          source_id: string | null
+          summary: string | null
+          technologies: Database["public"]["Enums"]["technology"][]
+          title: string
+          title_en: string | null
+          url: string
+          why_it_matters: string | null
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["news_category"]
+          counterparties?: string[]
+          country_codes?: string[]
+          created_at?: string
+          deal_value_eur?: number | null
+          enriched?: boolean
+          hidden?: boolean
+          id?: string
+          image_url?: string | null
+          language?: string | null
+          published_at: string
+          publisher?: string | null
+          related_project_ids?: string[]
+          relevance?: number
+          source_id?: string | null
+          summary?: string | null
+          technologies?: Database["public"]["Enums"]["technology"][]
+          title: string
+          title_en?: string | null
+          url: string
+          why_it_matters?: string | null
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["news_category"]
+          counterparties?: string[]
+          country_codes?: string[]
+          created_at?: string
+          deal_value_eur?: number | null
+          enriched?: boolean
+          hidden?: boolean
+          id?: string
+          image_url?: string | null
+          language?: string | null
+          published_at?: string
+          publisher?: string | null
+          related_project_ids?: string[]
+          relevance?: number
+          source_id?: string | null
+          summary?: string | null
+          technologies?: Database["public"]["Enums"]["technology"][]
+          title?: string
+          title_en?: string | null
+          url?: string
+          why_it_matters?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_item_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "news_source"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news_source: {
+        Row: {
+          active: boolean
+          consecutive_failures: number
+          country_code: string | null
+          created_at: string
+          homepage_url: string | null
+          id: string
+          items_ingested: number
+          keyword_filter: boolean
+          kind: Database["public"]["Enums"]["news_source_kind"]
+          language: string
+          last_error: string | null
+          last_polled_at: string | null
+          last_success_at: string | null
+          name: string
+          notes: string | null
+          poll_interval_minutes: number
+          slug: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          consecutive_failures?: number
+          country_code?: string | null
+          created_at?: string
+          homepage_url?: string | null
+          id?: string
+          items_ingested?: number
+          keyword_filter?: boolean
+          kind: Database["public"]["Enums"]["news_source_kind"]
+          language?: string
+          last_error?: string | null
+          last_polled_at?: string | null
+          last_success_at?: string | null
+          name: string
+          notes?: string | null
+          poll_interval_minutes?: number
+          slug: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          consecutive_failures?: number
+          country_code?: string | null
+          created_at?: string
+          homepage_url?: string | null
+          id?: string
+          items_ingested?: number
+          keyword_filter?: boolean
+          kind?: Database["public"]["Enums"]["news_source_kind"]
+          language?: string
+          last_error?: string | null
+          last_polled_at?: string | null
+          last_success_at?: string | null
+          name?: string
+          notes?: string | null
+          poll_interval_minutes?: number
+          slug?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       notification: {
         Row: {
           access_request_id: string | null
@@ -1858,6 +2004,33 @@ export type Database = {
           },
         ]
       }
+      user_news_preference: {
+        Row: {
+          categories: Database["public"]["Enums"]["news_category"][]
+          country_codes: string[]
+          include_eu: boolean
+          regions: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          categories?: Database["public"]["Enums"]["news_category"][]
+          country_codes?: string[]
+          include_eu?: boolean
+          regions?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          categories?: Database["public"]["Enums"]["news_category"][]
+          country_codes?: string[]
+          include_eu?: boolean
+          regions?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_role: {
         Row: {
           created_at: string
@@ -1920,6 +2093,21 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      news_source_health: {
+        Args: never
+        Returns: {
+          active: boolean
+          consecutive_failures: number
+          country_code: string
+          items_ingested: number
+          kind: Database["public"]["Enums"]["news_source_kind"]
+          last_error: string
+          last_polled_at: string
+          last_success_at: string
+          name: string
+          slug: string
+        }[]
       }
       project_owner_user_id: { Args: { _project_id: string }; Returns: string }
       publish_project: { Args: { payload: Json }; Returns: Json }
@@ -2013,6 +2201,15 @@ export type Database = {
         | "commissioning"
         | "operational"
       milestone_status: "completed" | "in_progress" | "upcoming"
+      news_category:
+        | "deal"
+        | "policy"
+        | "funding"
+        | "project"
+        | "market"
+        | "technology"
+        | "other"
+      news_source_kind: "rss" | "gdelt" | "scraper"
       offtake_tier:
         | "contracted"
         | "signed_connection_agreement"
@@ -2266,6 +2463,16 @@ export const Constants = {
         "operational",
       ],
       milestone_status: ["completed", "in_progress", "upcoming"],
+      news_category: [
+        "deal",
+        "policy",
+        "funding",
+        "project",
+        "market",
+        "technology",
+        "other",
+      ],
+      news_source_kind: ["rss", "gdelt", "scraper"],
       offtake_tier: [
         "contracted",
         "signed_connection_agreement",
