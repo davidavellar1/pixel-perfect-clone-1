@@ -864,6 +864,45 @@ export type Database = {
           },
         ]
       }
+      member_message: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["member_message_kind"]
+          page_url: string | null
+          rating: number | null
+          status: Database["public"]["Enums"]["member_message_status"]
+          subject: string | null
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["member_message_kind"]
+          page_url?: string | null
+          rating?: number | null
+          status?: Database["public"]["Enums"]["member_message_status"]
+          subject?: string | null
+          topic: string
+          user_id?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["member_message_kind"]
+          page_url?: string | null
+          rating?: number | null
+          status?: Database["public"]["Enums"]["member_message_status"]
+          subject?: string | null
+          topic?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       margin_profile: {
         Row: {
           as_of: string | null
@@ -2200,6 +2239,8 @@ export type Database = {
         | "construction"
         | "commissioning"
         | "operational"
+      member_message_kind: "support" | "feedback"
+      member_message_status: "open" | "answered" | "closed"
       milestone_status: "completed" | "in_progress" | "upcoming"
       news_category:
         | "deal"
@@ -2462,6 +2503,8 @@ export const Constants = {
         "commissioning",
         "operational",
       ],
+      member_message_kind: ["support", "feedback"],
+      member_message_status: ["open", "answered", "closed"],
       milestone_status: ["completed", "in_progress", "upcoming"],
       news_category: [
         "deal",
