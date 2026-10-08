@@ -558,15 +558,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
             )}
           </div>
           <div className="lg:col-span-1">
-            <ProjectSidebar
-              project={project}
-              onRequestAccess={openInterest}
-              loadingAuth={loadingAuth}
-              isOwner={isOwner}
-              context={context}
-              projectId={databaseProject?.id}
-              granted={granted}
-            />
+            <ProjectSidebar project={project} onRequestAccess={openInterest} loadingAuth={loadingAuth} isOwner={isOwner} context={context} />
             {context === "app" && databaseProject && (
               <div className="mt-6"><ProjectNewsCard projectId={databaseProject.id} countryCode={databaseProject.country_code} /></div>
             )}

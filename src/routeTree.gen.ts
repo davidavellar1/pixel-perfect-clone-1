@@ -33,7 +33,6 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAccessRequestsRouteImport } from './routes/app.access-requests'
 import { Route as AppAdvisorsRouteImport } from './routes/app.advisors'
 import { Route as AppBundleBuilderRouteImport } from './routes/app.bundle-builder'
-import { Route as AppCompanyProfileRouteImport } from './routes/app.company-profile'
 import { Route as AppDataRoomRequestsRouteImport } from './routes/app.data-room-requests'
 import { Route as AppDeveloperRouteImport } from './routes/app.developer'
 import { Route as AppEcosystemRouteImport } from './routes/app.ecosystem'
@@ -177,11 +176,6 @@ const AppBundleBuilderRoute = AppBundleBuilderRouteImport.update({
   path: '/bundle-builder',
   getParentRoute: () => AppRoute,
 } as any)
-const AppCompanyProfileRoute = AppCompanyProfileRouteImport.update({
-  id: '/company-profile',
-  path: '/company-profile',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppDataRoomRequestsRoute = AppDataRoomRequestsRouteImport.update({
   id: '/data-room-requests',
   path: '/data-room-requests',
@@ -314,7 +308,6 @@ export interface FileRoutesByFullPath {
   '/app/access-requests': typeof AppAccessRequestsRoute
   '/app/advisors': typeof AppAdvisorsRoute
   '/app/bundle-builder': typeof AppBundleBuilderRoute
-  '/app/company-profile': typeof AppCompanyProfileRoute
   '/app/data-room-requests': typeof AppDataRoomRequestsRoute
   '/app/developer': typeof AppDeveloperRoute
   '/app/ecosystem': typeof AppEcosystemRoute
@@ -361,7 +354,6 @@ export interface FileRoutesByTo {
   '/app/access-requests': typeof AppAccessRequestsRoute
   '/app/advisors': typeof AppAdvisorsRoute
   '/app/bundle-builder': typeof AppBundleBuilderRoute
-  '/app/company-profile': typeof AppCompanyProfileRoute
   '/app/data-room-requests': typeof AppDataRoomRequestsRoute
   '/app/developer': typeof AppDeveloperRoute
   '/app/ecosystem': typeof AppEcosystemRoute
@@ -410,7 +402,6 @@ export interface FileRoutesById {
   '/app/access-requests': typeof AppAccessRequestsRoute
   '/app/advisors': typeof AppAdvisorsRoute
   '/app/bundle-builder': typeof AppBundleBuilderRoute
-  '/app/company-profile': typeof AppCompanyProfileRoute
   '/app/data-room-requests': typeof AppDataRoomRequestsRoute
   '/app/developer': typeof AppDeveloperRoute
   '/app/ecosystem': typeof AppEcosystemRoute
@@ -460,7 +451,6 @@ export interface FileRouteTypes {
     | '/app/access-requests'
     | '/app/advisors'
     | '/app/bundle-builder'
-    | '/app/company-profile'
     | '/app/data-room-requests'
     | '/app/developer'
     | '/app/ecosystem'
@@ -507,7 +497,6 @@ export interface FileRouteTypes {
     | '/app/access-requests'
     | '/app/advisors'
     | '/app/bundle-builder'
-    | '/app/company-profile'
     | '/app/data-room-requests'
     | '/app/developer'
     | '/app/ecosystem'
@@ -555,7 +544,6 @@ export interface FileRouteTypes {
     | '/app/access-requests'
     | '/app/advisors'
     | '/app/bundle-builder'
-    | '/app/company-profile'
     | '/app/data-room-requests'
     | '/app/developer'
     | '/app/ecosystem'
@@ -778,13 +766,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBundleBuilderRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/company-profile': {
-      id: '/app/company-profile'
-      path: '/company-profile'
-      fullPath: '/app/company-profile'
-      preLoaderRoute: typeof AppCompanyProfileRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/data-room-requests': {
       id: '/app/data-room-requests'
       path: '/data-room-requests'
@@ -939,7 +920,6 @@ interface AppRouteChildren {
   AppAccessRequestsRoute: typeof AppAccessRequestsRoute
   AppAdvisorsRoute: typeof AppAdvisorsRoute
   AppBundleBuilderRoute: typeof AppBundleBuilderRoute
-  AppCompanyProfileRoute: typeof AppCompanyProfileRoute
   AppDataRoomRequestsRoute: typeof AppDataRoomRequestsRoute
   AppDeveloperRoute: typeof AppDeveloperRoute
   AppEcosystemRoute: typeof AppEcosystemRoute
@@ -963,7 +943,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppAccessRequestsRoute: AppAccessRequestsRoute,
   AppAdvisorsRoute: AppAdvisorsRoute,
   AppBundleBuilderRoute: AppBundleBuilderRoute,
-  AppCompanyProfileRoute: AppCompanyProfileRoute,
   AppDataRoomRequestsRoute: AppDataRoomRequestsRoute,
   AppDeveloperRoute: AppDeveloperRoute,
   AppEcosystemRoute: AppEcosystemRoute,

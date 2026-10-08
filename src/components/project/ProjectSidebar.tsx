@@ -1,7 +1,7 @@
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { ProjectDetail } from "@/data/projectsData";
-import DeveloperCard from "@/components/company/DeveloperCard";
+import { Building2, CheckCircle } from "lucide-react";
 
 interface ProjectSidebarProps {
   project: ProjectDetail;
@@ -10,9 +10,6 @@ interface ProjectSidebarProps {
   /** The signed-in developer owns this listing. */
   isOwner?: boolean;
   context?: "public" | "app";
-  projectId?: string;
-  /** Viewer may see the developer's identity (accepted request, or owner). */
-  granted?: boolean;
 }
 
 const ProjectSidebar = ({
@@ -21,8 +18,6 @@ const ProjectSidebar = ({
   loadingAuth,
   isOwner = false,
   context = "public",
-  projectId,
-  granted = false,
 }: ProjectSidebarProps) => {
   return (
     <div className="space-y-6">
@@ -84,13 +79,55 @@ const ProjectSidebar = ({
         )}
       </div>
 
-      <DeveloperCard
-        project={project}
-        projectId={projectId}
-        granted={granted}
-        isOwner={isOwner}
-        context={context}
-      />
+      {/* Project Developer */}
+      <div
+        className="bg-card rounded-xl border border-border p-6"
+        style={{ boxShadow: "var(--card-shadow)" }}
+      >
+        <h3 className="text-base font-serif font-bold text-foreground mb-4">Project developer</h3>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+            <Building2 className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-foreground">{project.developer.name}</p>
+            {project.developer.verified && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                Verified developer <CheckCircle className="w-3 h-3 text-primary" />
+              </p>
+            )}
+          </div>
+        </div>
+        {/* Only rows the developer has actually filled in */}
+        {(() => {
+          const rows = [
+            { label: "HQ", value: project.developer.hq },
+            { label: "Founded", value: project.developer.founded },
+            { label: "DHC projects", value: project.developer.dhcProjects },
+            { label: "Total capacity", value: project.developer.totalCapacity },
+          ].filter((row) => row.value && row.value !== "Not stated");
+          if (rows.length === 0) {
+            return (
+              <p className="text-sm text-muted-foreground">
+                The developer has not published a company profile yet.
+              </p>
+            );
+          }
+          return (
+            <div className="space-y-0">
+              {rows.map((item, i) => (
+                <div key={item.label}>
+                  <div className="flex justify-between items-center py-2.5">
+                    <span className="text-sm text-muted-foreground">{item.label}</span>
+                    <span className="text-sm font-bold text-foreground">{item.value}</span>
+                  </div>
+                  {i < rows.length - 1 && <div className="border-t border-border" />}
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+      </div>
 
       {/* Advisors */}
       {project.advisors && project.advisors.length > 0 && (

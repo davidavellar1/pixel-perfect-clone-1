@@ -1656,12 +1656,6 @@ export type Database = {
       }
       organization: {
         Row: {
-          countries_of_operation: string[]
-          description: string | null
-          employees_band: string | null
-          ownership: string | null
-          registry_number: string | null
-          website: string | null
           country_code: string | null
           created_at: string
           founded_year: number | null
@@ -1674,12 +1668,6 @@ export type Database = {
           verified: boolean
         }
         Insert: {
-          countries_of_operation?: string[]
-          description?: string | null
-          employees_band?: string | null
-          ownership?: string | null
-          registry_number?: string | null
-          website?: string | null
           country_code?: string | null
           created_at?: string
           founded_year?: number | null
@@ -1692,12 +1680,6 @@ export type Database = {
           verified?: boolean
         }
         Update: {
-          countries_of_operation?: string[]
-          description?: string | null
-          employees_band?: string | null
-          ownership?: string | null
-          registry_number?: string | null
-          website?: string | null
           country_code?: string | null
           created_at?: string
           founded_year?: number | null
@@ -1710,65 +1692,6 @@ export type Database = {
           verified?: boolean
         }
         Relationships: []
-      }
-      organization_track_record: {
-        Row: {
-          capacity_mw: number | null
-          cod_year: number | null
-          country_code: string
-          created_at: string
-          id: string
-          notes: string | null
-          organization_id: string
-          project_name: string
-          role: string
-          sort_order: number
-          status: string
-          technology: string | null
-          updated_at: string
-          verified: boolean
-        }
-        Insert: {
-          capacity_mw?: number | null
-          cod_year?: number | null
-          country_code: string
-          created_at?: string
-          id?: string
-          notes?: string | null
-          organization_id: string
-          project_name: string
-          role: string
-          sort_order?: number
-          status?: string
-          technology?: string | null
-          updated_at?: string
-          verified?: boolean
-        }
-        Update: {
-          capacity_mw?: number | null
-          cod_year?: number | null
-          country_code?: string
-          created_at?: string
-          id?: string
-          notes?: string | null
-          organization_id?: string
-          project_name?: string
-          role?: string
-          sort_order?: number
-          status?: string
-          technology?: string | null
-          updated_at?: string
-          verified?: boolean
-        }
-        Relationships: [
-          {
-            foreignKeyName: "organization_track_record_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organization"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       project: {
         Row: {
@@ -2524,18 +2447,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      project_developer_profile: {
-        Args: { _project_id: string }
-        Returns: Json
-      }
-      project_sponsor_summary: {
-        Args: { _project_id: string }
-        Returns: Json
-      }
-      save_my_organization: {
-        Args: { p: Json }
-        Returns: string
-      }
       answer_question: {
         Args: { _answer: string; _publish?: boolean; _question_id: string }
         Returns: undefined
