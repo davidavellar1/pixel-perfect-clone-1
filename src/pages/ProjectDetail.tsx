@@ -76,13 +76,15 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   const [justSubmitted, setJustSubmitted] = useState(false);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("Overview");
+  const [isOwner, setIsOwner] = useState(false);
   const [request, setRequest] = useState<AccessRequestRow | null>(null);
   const [criteria, setCriteria] = useState<AccessCriteriaRow | null>(null);
   const [investorProfile, setInvestorProfile] = useState<Tables<"investor_profiles"> | null>(null);
   const { grade } = useInvestorGrade(databaseProject?.id);
 
   const accessState: ViewerAccess = request ? effectiveState(request) : "teaser";
-  const granted = isGranted(accessState);
+  /** The developer always sees their own listing in full. */
+  const granted = isOwner || isGranted(accessState);
   const dataRoomStatus: DataRoomStatus = isDataRoomOpen(accessState)
     ? "approved"
     : accessState === "pending"
@@ -160,6 +162,33 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     if (!slug) return;
     supabase.from("project").select("*").eq("slug", slug).maybeSingle().then(({ data }) => setDatabaseProject(data));
   }, [slug]);
+
+  /** Notification links open a tab directly, e.g. ?tab=qa. */
+  useEffect(() => {
+    const wanted = new URLSearchParams(window.location.search).get("tab")?.toLowerCase();
+    if (!wanted) return;
+    const match = tabs.find((t) => t.toLowerCase().replace(/[^a-z]/g, "") === wanted.replace(/[^a-z]/g, ""));
+    if (match) setActiveTab(match);
+  }, [slug]);
+
+  useEffect(() => {
+    if (!databaseProject || !user) {
+      setIsOwner(false);
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from("developer_profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled) setIsOwner(!!data && data.id === databaseProject.developer_id);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [databaseProject, user]);
 
   useEffect(() => {
     if (!databaseProject) return;
@@ -354,11 +383,28 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
       <div className="mx-auto flex max-w-[980px] items-center justify-between gap-3 border-b border-border px-5 py-3">
         <Link to={context === "app" ? "/app/opportunities" : "/sign-in?redirect=/app/opportunities"} className="text-sm font-medium text-muted-foreground hover:text-foreground">Back to opportunities</Link>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm"><Heart className="h-4 w-4" />Save</Button>
-          <Button size="sm" onClick={openInterest} disabled={loadingAuth}>{ctaLabel}</Button>
+          {isOwner ? (
+            <Button size="sm" variant="outline" asChild>
+              <Link to="/app/my-listings">Manage listing</Link>
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleWatchlist}
+                disabled={watchlistBusy || !databaseProject}
+                aria-pressed={!!databaseProject && watchlist.has(databaseProject.id)}
+              >
+                <Heart className={`h-4 w-4 ${databaseProject && watchlist.has(databaseProject.id) ? "fill-current" : ""}`} />
+                {databaseProject && watchlist.has(databaseProject.id) ? "Saved" : "Save"}
+              </Button>
+              <Button size="sm" onClick={openInterest} disabled={loadingAuth}>{ctaLabel}</Button>
+            </>
+          )}
         </div>
       </div>
-      <AccessStateBar state={accessState} />
+      {!isOwner && <AccessStateBar state={accessState} />}
 
       {/* Hero */}
       <ProjectHero
@@ -441,7 +487,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
           </div>
         )}
 
-        {(accessState === "teaser" || accessState === "withdrawn") && (
+        {!isOwner && (accessState === "teaser" || accessState === "withdrawn") && (
           <div className="flex flex-col gap-4 rounded-xl bg-gradient-to-r from-primary to-primary/90 px-6 py-5 text-primary-foreground sm:flex-row sm:items-center">
             <div className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-primary-foreground/10">
               <Lock className="h-5 w-5 text-accent" />
@@ -495,7 +541,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
                 description={LOCK_COPY[activeTab]}
                 onExpressInterest={openInterest}
               >
-                <ProjectTabContent project={project} projectId={databaseProject?.id} activeTab={activeTab} grade={grade} asOf={asOf} breakeven={breakeven} />
+                <ProjectTabContent project={project} projectId={databaseProject?.id} activeTab={activeTab} grade={grade} asOf={asOf} breakeven={breakeven} isOwner={isOwner} userId={user?.id ?? null} />
               </LockedTabOverlay>
             ) : (
               <ProjectTabContent
@@ -503,6 +549,8 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
                 projectId={databaseProject?.id}
                 activeTab={activeTab}
                 dataRoomStatus={dataRoomStatus}
+                isOwner={isOwner}
+                userId={user?.id ?? null}
                 grade={grade}
                 asOf={asOf}
                 breakeven={breakeven}
@@ -510,7 +558,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
             )}
           </div>
           <div className="lg:col-span-1">
-            <ProjectSidebar project={project} onRequestAccess={openInterest} loadingAuth={loadingAuth} />
+            <ProjectSidebar project={project} onRequestAccess={openInterest} loadingAuth={loadingAuth} isOwner={isOwner} context={context} />
             {context === "app" && databaseProject && (
               <div className="mt-6"><ProjectNewsCard projectId={databaseProject.id} countryCode={databaseProject.country_code} /></div>
             )}

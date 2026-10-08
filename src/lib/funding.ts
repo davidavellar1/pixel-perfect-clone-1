@@ -138,6 +138,8 @@ export type CallState =
   | { kind: "open"; call: FundingCall; urgent: boolean }
   | { kind: "upcoming"; call: FundingCall }
   | { kind: "rolling"; call: FundingCall }
+  | { kind: "standing" }
+  | { kind: "national" }
   | { kind: "paused" }
   | { kind: "none" };
 
@@ -165,6 +167,9 @@ export const callState = (p: FundingEntry): CallState => {
     .filter((c) => c.status === "upcoming")
     .sort((a, b) => (a.opens_at || "9999").localeCompare(b.opens_at || "9999"));
   if (upcoming[0]) return { kind: "upcoming", call: upcoming[0] };
+  // Programmes without call windows accept applications for as long as they run.
+  if (p.application_mode === "standing" && p.status === "active") return { kind: "standing" };
+  if (p.application_mode === "national_calls") return { kind: "national" };
   return { kind: "none" };
 };
 
@@ -176,6 +181,10 @@ export const callLabel = (s: CallState) => {
       return s.call.opens_at ? `Opens ${dateOf(s.call.opens_at)}` : "Upcoming";
     case "rolling":
       return "Rolling";
+    case "standing":
+      return "Apply any time";
+    case "national":
+      return "Via national calls";
     case "paused":
       return "Paused";
     default:
@@ -183,10 +192,14 @@ export const callLabel = (s: CallState) => {
   }
 };
 
+/** Accepting applications today: an open or rolling call, or a programme without call windows. */
+export const isAcceptingApplications = (p: FundingEntry) =>
+  ["open", "rolling", "standing"].includes(callState(p).kind);
+
 export const sortRank = (p: FundingEntry) => {
   const s = callState(p);
   if (s.kind === "open") return [0, new Date(s.call.deadline_at!).getTime()] as const;
-  if (s.kind === "rolling") return [1, 0] as const;
+  if (s.kind === "rolling" || s.kind === "standing") return [1, 0] as const;
   if (s.kind === "upcoming")
     return [
       2,

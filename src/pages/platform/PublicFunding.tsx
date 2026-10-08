@@ -27,6 +27,7 @@ import {
   fits,
   geographyLabel,
   humanize,
+  isAcceptingApplications,
   isStale,
   sortRank,
   useFundingCatalogue,
@@ -42,9 +43,10 @@ const CallBadge = ({ entry }: { entry: FundingEntry }) => {
         "rounded-full px-3 py-1.5 text-[11px] font-semibold",
         state.kind === "open" &&
           (state.urgent ? "bg-warning/15 text-warning" : "bg-success/10 text-success"),
-        state.kind === "rolling" && "bg-success/10 text-success",
+        (state.kind === "rolling" || state.kind === "standing") && "bg-success/10 text-success",
         state.kind === "upcoming" && "bg-accent/10 text-accent",
-        (state.kind === "none" || state.kind === "paused") && "bg-muted text-muted-foreground",
+        (state.kind === "none" || state.kind === "paused" || state.kind === "national") &&
+          "bg-muted text-muted-foreground",
       )}
     >
       {callLabel(state)}
@@ -95,7 +97,7 @@ const PublicFunding = () => {
           !e.applicant_types.includes(applicant)
         )
           return false;
-        if (openOnly && !["open", "rolling"].includes(callState(e).kind)) return false;
+        if (openOnly && !isAcceptingApplications(e)) return false;
         return true;
       })
       .sort((a, b) => {
@@ -220,7 +222,7 @@ const PublicFunding = () => {
           <div className="flex items-center gap-2">
             <Switch id="open-only" checked={openOnly} onCheckedChange={setOpenOnly} />
             <Label htmlFor="open-only" className="text-sm">
-              Open calls only
+              Accepting applications now
             </Label>
           </div>
           {!loading && entries.length > 0 && (
@@ -338,8 +340,16 @@ const PublicFunding = () => {
       ) : (
         <div className="rounded-lg border border-dashed border-border bg-card py-16 text-center">
           <p className="font-display font-semibold text-foreground">
-            No funding instruments match these filters
+            {openOnly
+              ? "No programme matching these filters is accepting applications right now"
+              : "No funding instruments match these filters"}
           </p>
+          {openOnly && (
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+              Call-based programmes appear here again when their next call opens. Turn the toggle
+              off to see every programme, including upcoming and closed calls.
+            </p>
+          )}
           <Button variant="outline" className="mt-4" onClick={reset}>
             Clear filters
           </Button>

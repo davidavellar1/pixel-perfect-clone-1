@@ -928,6 +928,7 @@ export type Database = {
         Row: {
           administering_body: string
           applicant_types: string[]
+          application_mode: string | null
           budget_eur: number | null
           budget_note: string | null
           confidence: string
@@ -961,6 +962,7 @@ export type Database = {
         Insert: {
           administering_body: string
           applicant_types?: string[]
+          application_mode?: string | null
           budget_eur?: number | null
           budget_note?: string | null
           confidence?: string
@@ -994,6 +996,7 @@ export type Database = {
         Update: {
           administering_body?: string
           applicant_types?: string[]
+          application_mode?: string | null
           budget_eur?: number | null
           budget_note?: string | null
           confidence?: string
@@ -2121,6 +2124,9 @@ export type Database = {
       }
       question: {
         Row: {
+          answer_body: string | null
+          answered_at: string | null
+          answered_by: string | null
           author_id: string
           body: string
           created_at: string
@@ -2129,6 +2135,9 @@ export type Database = {
           project_id: string
         }
         Insert: {
+          answer_body?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
           author_id: string
           body: string
           created_at?: string
@@ -2137,6 +2146,9 @@ export type Database = {
           project_id: string
         }
         Update: {
+          answer_body?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
           author_id?: string
           body?: string
           created_at?: string
@@ -2435,6 +2447,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      answer_question: {
+        Args: { _answer: string; _publish?: boolean; _question_id: string }
+        Returns: undefined
+      }
       claim_signup_role: {
         Args: {
           _company?: string
