@@ -26,6 +26,9 @@ export interface ProjectListing {
   offtakeLoadPct: number | null;
   accessState: ViewerAccess;
   watchlisted: boolean;
+  contractedPct: number | null;
+  signedPct: number | null;
+  financialAsOf: string | null;
 }
 
 type Project = Tables<"project">;
@@ -85,6 +88,9 @@ export const useProjectListings = () => {
         instrument: transaction?.instrument || null,
         offtakeLoadPct: ladder ? Number(ladder.contracted_load_pct || 0) + Number(ladder.signed_connection_load_pct || 0) : null,
         accessState: access ? effectiveState(access) : "teaser", watchlisted: watched.has(project.id),
+        contractedPct: ladder?.contracted_load_pct == null ? null : Number(ladder.contracted_load_pct),
+        signedPct: ladder?.signed_connection_load_pct == null ? null : Number(ladder.signed_connection_load_pct),
+        financialAsOf: project.financial_as_of ?? null,
       };
     }));
     setLoading(false);
