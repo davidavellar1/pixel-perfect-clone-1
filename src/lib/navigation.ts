@@ -1,4 +1,4 @@
-import { Bell, Briefcase, Boxes, Heart, HelpCircle, Landmark, LayoutGrid, ListChecks, Newspaper, MessageSquare, Users, type LucideIcon } from "lucide-react";
+import { Bell, Briefcase, Boxes, Building2, Heart, HelpCircle, Landmark, LayoutGrid, ListChecks, Newspaper, MessageSquare, Users, type LucideIcon } from "lucide-react";
 
 export type AppView = "investor" | "developer" | "both";
 
@@ -18,6 +18,7 @@ export interface NavGroup {
 
 const ALL: AppView[] = ["investor", "developer", "both"];
 const INV: AppView[] = ["investor", "both"];
+const DEV: AppView[] = ["developer", "both"];
 
 export const NAV_GROUPS: NavGroup[] = [
   { label: "Discover", items: [
@@ -29,6 +30,7 @@ export const NAV_GROUPS: NavGroup[] = [
   { label: "My workspace", items: [
     { key: "my-portfolio", label: "My Portfolio", to: "/app/my-portfolio", icon: Briefcase, views: INV },
     { key: "my-listings", label: "My Listings", to: "/app/my-listings", icon: ListChecks, views: ALL },
+    { key: "company-profile", label: "Company profile", to: "/app/company-profile", icon: Building2, views: DEV },
     { key: "watchlist", label: "Watchlist", to: "/app/watchlist", icon: Heart, badge: "watchlist", views: INV },
     { key: "notifications", label: "Notifications", to: "/app/notifications", icon: Bell, badge: "notifications", views: ALL },
   ] },
@@ -50,6 +52,7 @@ const DEVELOPER_ALLOWED = [
   "/app/public-funding",
   "/app/news",
   "/app/my-listings",
+  "/app/company-profile",
   "/app/notifications",
   "/app/support",
   "/app/feedback",
