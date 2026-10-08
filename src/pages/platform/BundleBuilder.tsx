@@ -162,7 +162,7 @@ const toRow = (p: ProjectListing): Row => {
     contr: p.contractedPct ?? 0,
     signed: p.signedPct ?? 0,
     completeness,
-    financialAsOf: p.financialAsOf,
+    financialAsOf: p.financialAsOf ?? null,
     fit: 100,
   };
 };

@@ -26,9 +26,9 @@ export interface ProjectListing {
   offtakeLoadPct: number | null;
   accessState: ViewerAccess;
   watchlisted: boolean;
-  contractedPct: number | null;
-  signedPct: number | null;
-  financialAsOf: string | null;
+  contractedPct?: number | null;
+  signedPct?: number | null;
+  financialAsOf?: string | null;
 }
 
 type Project = Tables<"project">;
