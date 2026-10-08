@@ -802,6 +802,170 @@ export type Database = {
           },
         ]
       }
+      funding_call: {
+        Row: {
+          budget_eur: number | null
+          call_url: string
+          created_at: string
+          deadline_at: string | null
+          deadline_note: string | null
+          id: string
+          last_verified_at: string
+          notes: string | null
+          opens_at: string | null
+          programme_id: string
+          rolling: boolean
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          budget_eur?: number | null
+          call_url: string
+          created_at?: string
+          deadline_at?: string | null
+          deadline_note?: string | null
+          id?: string
+          last_verified_at?: string
+          notes?: string | null
+          opens_at?: string | null
+          programme_id: string
+          rolling?: boolean
+          slug: string
+          status: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          budget_eur?: number | null
+          call_url?: string
+          created_at?: string
+          deadline_at?: string | null
+          deadline_note?: string | null
+          id?: string
+          last_verified_at?: string
+          notes?: string | null
+          opens_at?: string | null
+          programme_id?: string
+          rolling?: boolean
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_call_programme_id_fkey"
+            columns: ["programme_id"]
+            isOneToOne: false
+            referencedRelation: "funding_programme"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funding_programme: {
+        Row: {
+          administering_body: string
+          applicant_types: string[]
+          budget_eur: number | null
+          budget_note: string | null
+          confidence: string
+          country_codes: string[]
+          created_at: string
+          cumulation: string | null
+          id: string
+          instrument_types: string[]
+          key_conditions: string[]
+          language: string
+          last_verified_at: string
+          level: string
+          max_aid_pct: number | null
+          max_amount_eur: number | null
+          min_amount_eur: number | null
+          name: string
+          name_en: string | null
+          official_url: string
+          project_types: string[]
+          regions: string[]
+          slug: string
+          source_urls: string[]
+          stages: string[]
+          state_aid_basis: string | null
+          status: string
+          summary: string
+          technologies: string[]
+          updated_at: string
+          verified_by: string
+        }
+        Insert: {
+          administering_body: string
+          applicant_types?: string[]
+          budget_eur?: number | null
+          budget_note?: string | null
+          confidence?: string
+          country_codes?: string[]
+          created_at?: string
+          cumulation?: string | null
+          id?: string
+          instrument_types: string[]
+          key_conditions?: string[]
+          language?: string
+          last_verified_at?: string
+          level: string
+          max_aid_pct?: number | null
+          max_amount_eur?: number | null
+          min_amount_eur?: number | null
+          name: string
+          name_en?: string | null
+          official_url: string
+          project_types?: string[]
+          regions?: string[]
+          slug: string
+          source_urls?: string[]
+          stages?: string[]
+          state_aid_basis?: string | null
+          status?: string
+          summary: string
+          technologies?: string[]
+          updated_at?: string
+          verified_by?: string
+        }
+        Update: {
+          administering_body?: string
+          applicant_types?: string[]
+          budget_eur?: number | null
+          budget_note?: string | null
+          confidence?: string
+          country_codes?: string[]
+          created_at?: string
+          cumulation?: string | null
+          id?: string
+          instrument_types?: string[]
+          key_conditions?: string[]
+          language?: string
+          last_verified_at?: string
+          level?: string
+          max_aid_pct?: number | null
+          max_amount_eur?: number | null
+          min_amount_eur?: number | null
+          name?: string
+          name_en?: string | null
+          official_url?: string
+          project_types?: string[]
+          regions?: string[]
+          slug?: string
+          source_urls?: string[]
+          stages?: string[]
+          state_aid_basis?: string | null
+          status?: string
+          summary?: string
+          technologies?: string[]
+          updated_at?: string
+          verified_by?: string
+        }
+        Relationships: []
+      }
       investor_profiles: {
         Row: {
           company_name: string | null
