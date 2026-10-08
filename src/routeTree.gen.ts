@@ -21,10 +21,12 @@ import { Route as InvestorSignupRouteImport } from './routes/investor-signup'
 import { Route as InvestorsRouteImport } from './routes/investors'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PublicFundingRouteImport } from './routes/public-funding'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SubmitProjectRouteImport } from './routes/submit-project'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AppIndexRouteImport } from './routes/app.index'
@@ -38,6 +40,7 @@ import { Route as AppFeedbackRouteImport } from './routes/app.feedback'
 import { Route as AppInvestorRouteImport } from './routes/app.investor'
 import { Route as AppMyListingsRouteImport } from './routes/app.my-listings'
 import { Route as AppMyPortfolioRouteImport } from './routes/app.my-portfolio'
+import { Route as AppNewsRouteImport } from './routes/app.news'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
 import { Route as AppOpportunitiesRouteImport } from './routes/app.opportunities'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
@@ -50,6 +53,7 @@ import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AppProjectsSlugRouteImport } from './routes/app.projects.$slug'
 import { Route as ApiPublicHooksAccessRemindersRouteImport } from './routes/api/public/hooks/access-reminders'
+import { Route as ApiPublicHooksIngestNewsRouteImport } from './routes/api/public/hooks/ingest-news'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -111,6 +115,11 @@ const PublicFundingRoute = PublicFundingRouteImport.update({
   path: '/public-funding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
@@ -129,6 +138,11 @@ const SigninRoute = SigninRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SubmitProjectRoute = SubmitProjectRouteImport.update({
@@ -197,6 +211,11 @@ const AppMyPortfolioRoute = AppMyPortfolioRouteImport.update({
   path: '/my-portfolio',
   getParentRoute: () => AppRoute,
 } as any)
+const AppNewsRoute = AppNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppNotificationsRoute = AppNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
@@ -258,6 +277,12 @@ const ApiPublicHooksAccessRemindersRoute =
     path: '/api/public/hooks/access-reminders',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksIngestNewsRoute =
+  ApiPublicHooksIngestNewsRouteImport.update({
+    id: '/api/public/hooks/ingest-news',
+    path: '/api/public/hooks/ingest-news',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -272,10 +297,12 @@ export interface FileRoutesByFullPath {
   '/investors': typeof InvestorsRoute
   '/mcp': typeof McpRoute
   '/public-funding': typeof PublicFundingRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit-project': typeof SubmitProjectRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/app/access-requests': typeof AppAccessRequestsRoute
@@ -288,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/app/investor': typeof AppInvestorRoute
   '/app/my-listings': typeof AppMyListingsRoute
   '/app/my-portfolio': typeof AppMyPortfolioRoute
+  '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
@@ -301,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
+  '/api/public/hooks/ingest-news': typeof ApiPublicHooksIngestNewsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -314,10 +343,12 @@ export interface FileRoutesByTo {
   '/investors': typeof InvestorsRoute
   '/mcp': typeof McpRoute
   '/public-funding': typeof PublicFundingRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit-project': typeof SubmitProjectRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/app/access-requests': typeof AppAccessRequestsRoute
@@ -330,6 +361,7 @@ export interface FileRoutesByTo {
   '/app/investor': typeof AppInvestorRoute
   '/app/my-listings': typeof AppMyListingsRoute
   '/app/my-portfolio': typeof AppMyPortfolioRoute
+  '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
@@ -343,6 +375,7 @@ export interface FileRoutesByTo {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
+  '/api/public/hooks/ingest-news': typeof ApiPublicHooksIngestNewsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -358,10 +391,12 @@ export interface FileRoutesById {
   '/investors': typeof InvestorsRoute
   '/mcp': typeof McpRoute
   '/public-funding': typeof PublicFundingRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit-project': typeof SubmitProjectRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/app/access-requests': typeof AppAccessRequestsRoute
@@ -374,6 +409,7 @@ export interface FileRoutesById {
   '/app/investor': typeof AppInvestorRoute
   '/app/my-listings': typeof AppMyListingsRoute
   '/app/my-portfolio': typeof AppMyPortfolioRoute
+  '/app/news': typeof AppNewsRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
@@ -387,6 +423,7 @@ export interface FileRoutesById {
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
+  '/api/public/hooks/ingest-news': typeof ApiPublicHooksIngestNewsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -403,10 +440,12 @@ export interface FileRouteTypes {
     | '/investors'
     | '/mcp'
     | '/public-funding'
+    | '/robots.txt'
     | '/sign-in'
     | '/sign-up'
     | '/signin'
     | '/signup'
+    | '/sitemap.xml'
     | '/submit-project'
     | '/.well-known/oauth-protected-resource'
     | '/app/access-requests'
@@ -419,6 +458,7 @@ export interface FileRouteTypes {
     | '/app/investor'
     | '/app/my-listings'
     | '/app/my-portfolio'
+    | '/app/news'
     | '/app/notifications'
     | '/app/opportunities'
     | '/app/portfolio'
@@ -432,6 +472,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/app/projects/$slug'
     | '/api/public/hooks/access-reminders'
+    | '/api/public/hooks/ingest-news'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -445,10 +486,12 @@ export interface FileRouteTypes {
     | '/investors'
     | '/mcp'
     | '/public-funding'
+    | '/robots.txt'
     | '/sign-in'
     | '/sign-up'
     | '/signin'
     | '/signup'
+    | '/sitemap.xml'
     | '/submit-project'
     | '/.well-known/oauth-protected-resource'
     | '/app/access-requests'
@@ -461,6 +504,7 @@ export interface FileRouteTypes {
     | '/app/investor'
     | '/app/my-listings'
     | '/app/my-portfolio'
+    | '/app/news'
     | '/app/notifications'
     | '/app/opportunities'
     | '/app/portfolio'
@@ -474,6 +518,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/app/projects/$slug'
     | '/api/public/hooks/access-reminders'
+    | '/api/public/hooks/ingest-news'
   id:
     | '__root__'
     | '/'
@@ -488,10 +533,12 @@ export interface FileRouteTypes {
     | '/investors'
     | '/mcp'
     | '/public-funding'
+    | '/robots.txt'
     | '/sign-in'
     | '/sign-up'
     | '/signin'
     | '/signup'
+    | '/sitemap.xml'
     | '/submit-project'
     | '/.well-known/oauth-protected-resource'
     | '/app/access-requests'
@@ -504,6 +551,7 @@ export interface FileRouteTypes {
     | '/app/investor'
     | '/app/my-listings'
     | '/app/my-portfolio'
+    | '/app/news'
     | '/app/notifications'
     | '/app/opportunities'
     | '/app/portfolio'
@@ -517,6 +565,7 @@ export interface FileRouteTypes {
     | '/.lovable/oauth/consent'
     | '/app/projects/$slug'
     | '/api/public/hooks/access-reminders'
+    | '/api/public/hooks/ingest-news'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -532,16 +581,19 @@ export interface RootRouteChildren {
   InvestorsRoute: typeof InvestorsRoute
   McpRoute: typeof McpRoute
   PublicFundingRoute: typeof PublicFundingRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
   SigninRoute: typeof SigninRoute
   SignupRoute: typeof SignupRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SubmitProjectRoute: typeof SubmitProjectRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicHooksAccessRemindersRoute: typeof ApiPublicHooksAccessRemindersRoute
+  ApiPublicHooksIngestNewsRoute: typeof ApiPublicHooksIngestNewsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -630,6 +682,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicFundingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign-in': {
       id: '/sign-in'
       path: '/sign-in'
@@ -656,6 +715,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/submit-project': {
@@ -749,6 +815,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMyPortfolioRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/news': {
+      id: '/app/news'
+      path: '/news'
+      fullPath: '/app/news'
+      preLoaderRoute: typeof AppNewsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/notifications': {
       id: '/app/notifications'
       path: '/notifications'
@@ -833,6 +906,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAccessRemindersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/ingest-news': {
+      id: '/api/public/hooks/ingest-news'
+      path: '/api/public/hooks/ingest-news'
+      fullPath: '/api/public/hooks/ingest-news'
+      preLoaderRoute: typeof ApiPublicHooksIngestNewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -847,6 +927,7 @@ interface AppRouteChildren {
   AppInvestorRoute: typeof AppInvestorRoute
   AppMyListingsRoute: typeof AppMyListingsRoute
   AppMyPortfolioRoute: typeof AppMyPortfolioRoute
+  AppNewsRoute: typeof AppNewsRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppOpportunitiesRoute: typeof AppOpportunitiesRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
@@ -869,6 +950,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppInvestorRoute: AppInvestorRoute,
   AppMyListingsRoute: AppMyListingsRoute,
   AppMyPortfolioRoute: AppMyPortfolioRoute,
+  AppNewsRoute: AppNewsRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppOpportunitiesRoute: AppOpportunitiesRoute,
   AppPortfolioRoute: AppPortfolioRoute,
@@ -895,10 +977,12 @@ const rootRouteChildren: RootRouteChildren = {
   InvestorsRoute: InvestorsRoute,
   McpRoute: McpRoute,
   PublicFundingRoute: PublicFundingRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
   SigninRoute: SigninRoute,
   SignupRoute: SignupRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SubmitProjectRoute: SubmitProjectRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
@@ -906,6 +990,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsIndexRoute: ProjectsIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicHooksAccessRemindersRoute: ApiPublicHooksAccessRemindersRoute,
+  ApiPublicHooksIngestNewsRoute: ApiPublicHooksIngestNewsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

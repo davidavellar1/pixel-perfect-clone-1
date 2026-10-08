@@ -19,7 +19,7 @@ export const startGoogleSignup = async (pending: Partial<PendingSignup> & { role
     roles: pending.roles,
     fullName: pending.fullName?.trim() || "",
     company: pending.company?.trim() || "",
-    destination: pending.destination || "/app/opportunities",
+    destination: pending.destination || "/app",
   };
   try {
     localStorage.setItem(PENDING_KEY, JSON.stringify(payload));

@@ -353,6 +353,66 @@ export type Database = {
           },
         ]
       }
+      bundle: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bundle_item: {
+        Row: {
+          added_at: string
+          bundle_id: string
+          project_id: string
+        }
+        Insert: {
+          added_at?: string
+          bundle_id: string
+          project_id: string
+        }
+        Update: {
+          added_at?: string
+          bundle_id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_item_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "bundle"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bundle_item_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       capital_stack_item: {
         Row: {
           amount: number | null
@@ -742,6 +802,233 @@ export type Database = {
           },
         ]
       }
+      funding_call: {
+        Row: {
+          budget_eur: number | null
+          call_url: string
+          created_at: string
+          deadline_at: string | null
+          deadline_note: string | null
+          id: string
+          last_verified_at: string
+          notes: string | null
+          opens_at: string | null
+          programme_id: string
+          rolling: boolean
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          budget_eur?: number | null
+          call_url: string
+          created_at?: string
+          deadline_at?: string | null
+          deadline_note?: string | null
+          id?: string
+          last_verified_at?: string
+          notes?: string | null
+          opens_at?: string | null
+          programme_id: string
+          rolling?: boolean
+          slug: string
+          status: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          budget_eur?: number | null
+          call_url?: string
+          created_at?: string
+          deadline_at?: string | null
+          deadline_note?: string | null
+          id?: string
+          last_verified_at?: string
+          notes?: string | null
+          opens_at?: string | null
+          programme_id?: string
+          rolling?: boolean
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_call_programme_id_fkey"
+            columns: ["programme_id"]
+            isOneToOne: false
+            referencedRelation: "funding_programme"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funding_change_log: {
+        Row: {
+          actor: string
+          at: string
+          change: string
+          diff: Json
+          entity: string
+          entity_id: string
+          entity_slug: string
+          id: number
+          source_url: string | null
+        }
+        Insert: {
+          actor?: string
+          at?: string
+          change: string
+          diff?: Json
+          entity: string
+          entity_id: string
+          entity_slug: string
+          id?: never
+          source_url?: string | null
+        }
+        Update: {
+          actor?: string
+          at?: string
+          change?: string
+          diff?: Json
+          entity?: string
+          entity_id?: string
+          entity_slug?: string
+          id?: never
+          source_url?: string | null
+        }
+        Relationships: []
+      }
+      funding_coverage: {
+        Row: {
+          last_swept_at: string | null
+          notes: string | null
+          scope: string
+          status: string
+          wave: number
+        }
+        Insert: {
+          last_swept_at?: string | null
+          notes?: string | null
+          scope: string
+          status?: string
+          wave: number
+        }
+        Update: {
+          last_swept_at?: string | null
+          notes?: string | null
+          scope?: string
+          status?: string
+          wave?: number
+        }
+        Relationships: []
+      }
+      funding_programme: {
+        Row: {
+          administering_body: string
+          applicant_types: string[]
+          application_mode: string | null
+          budget_eur: number | null
+          budget_note: string | null
+          confidence: string
+          country_codes: string[]
+          created_at: string
+          cumulation: string | null
+          id: string
+          instrument_types: string[]
+          key_conditions: string[]
+          language: string
+          last_verified_at: string
+          level: string
+          max_aid_pct: number | null
+          max_amount_eur: number | null
+          min_amount_eur: number | null
+          name: string
+          name_en: string | null
+          official_url: string
+          project_types: string[]
+          regions: string[]
+          slug: string
+          source_urls: string[]
+          stages: string[]
+          state_aid_basis: string | null
+          status: string
+          summary: string
+          technologies: string[]
+          updated_at: string
+          verified_by: string
+        }
+        Insert: {
+          administering_body: string
+          applicant_types?: string[]
+          application_mode?: string | null
+          budget_eur?: number | null
+          budget_note?: string | null
+          confidence?: string
+          country_codes?: string[]
+          created_at?: string
+          cumulation?: string | null
+          id?: string
+          instrument_types: string[]
+          key_conditions?: string[]
+          language?: string
+          last_verified_at?: string
+          level: string
+          max_aid_pct?: number | null
+          max_amount_eur?: number | null
+          min_amount_eur?: number | null
+          name: string
+          name_en?: string | null
+          official_url: string
+          project_types?: string[]
+          regions?: string[]
+          slug: string
+          source_urls?: string[]
+          stages?: string[]
+          state_aid_basis?: string | null
+          status?: string
+          summary: string
+          technologies?: string[]
+          updated_at?: string
+          verified_by?: string
+        }
+        Update: {
+          administering_body?: string
+          applicant_types?: string[]
+          application_mode?: string | null
+          budget_eur?: number | null
+          budget_note?: string | null
+          confidence?: string
+          country_codes?: string[]
+          created_at?: string
+          cumulation?: string | null
+          id?: string
+          instrument_types?: string[]
+          key_conditions?: string[]
+          language?: string
+          last_verified_at?: string
+          level?: string
+          max_aid_pct?: number | null
+          max_amount_eur?: number | null
+          min_amount_eur?: number | null
+          name?: string
+          name_en?: string | null
+          official_url?: string
+          project_types?: string[]
+          regions?: string[]
+          slug?: string
+          source_urls?: string[]
+          stages?: string[]
+          state_aid_basis?: string | null
+          status?: string
+          summary?: string
+          technologies?: string[]
+          updated_at?: string
+          verified_by?: string
+        }
+        Relationships: []
+      }
       investor_profiles: {
         Row: {
           company_name: string | null
@@ -920,6 +1207,45 @@ export type Database = {
           },
         ]
       }
+      member_message: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["member_message_kind"]
+          page_url: string | null
+          rating: number | null
+          status: Database["public"]["Enums"]["member_message_status"]
+          subject: string | null
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["member_message_kind"]
+          page_url?: string | null
+          rating?: number | null
+          status?: Database["public"]["Enums"]["member_message_status"]
+          subject?: string | null
+          topic: string
+          user_id?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["member_message_kind"]
+          page_url?: string | null
+          rating?: number | null
+          status?: Database["public"]["Enums"]["member_message_status"]
+          subject?: string | null
+          topic?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       milestone: {
         Row: {
           created_at: string
@@ -1001,6 +1327,178 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      news_fetch: {
+        Row: {
+          request_id: number
+          requested_at: string
+          source_id: string
+        }
+        Insert: {
+          request_id: number
+          requested_at?: string
+          source_id: string
+        }
+        Update: {
+          request_id?: number
+          requested_at?: string
+          source_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_fetch_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "news_source"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news_item: {
+        Row: {
+          category: Database["public"]["Enums"]["news_category"]
+          counterparties: string[]
+          country_codes: string[]
+          created_at: string
+          deal_value_eur: number | null
+          enriched: boolean
+          hidden: boolean
+          id: string
+          image_url: string | null
+          language: string | null
+          published_at: string
+          publisher: string | null
+          related_project_ids: string[]
+          relevance: number
+          source_id: string | null
+          summary: string | null
+          technologies: Database["public"]["Enums"]["technology"][]
+          title: string
+          title_en: string | null
+          url: string
+          why_it_matters: string | null
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["news_category"]
+          counterparties?: string[]
+          country_codes?: string[]
+          created_at?: string
+          deal_value_eur?: number | null
+          enriched?: boolean
+          hidden?: boolean
+          id?: string
+          image_url?: string | null
+          language?: string | null
+          published_at: string
+          publisher?: string | null
+          related_project_ids?: string[]
+          relevance?: number
+          source_id?: string | null
+          summary?: string | null
+          technologies?: Database["public"]["Enums"]["technology"][]
+          title: string
+          title_en?: string | null
+          url: string
+          why_it_matters?: string | null
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["news_category"]
+          counterparties?: string[]
+          country_codes?: string[]
+          created_at?: string
+          deal_value_eur?: number | null
+          enriched?: boolean
+          hidden?: boolean
+          id?: string
+          image_url?: string | null
+          language?: string | null
+          published_at?: string
+          publisher?: string | null
+          related_project_ids?: string[]
+          relevance?: number
+          source_id?: string | null
+          summary?: string | null
+          technologies?: Database["public"]["Enums"]["technology"][]
+          title?: string
+          title_en?: string | null
+          url?: string
+          why_it_matters?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_item_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "news_source"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news_source: {
+        Row: {
+          active: boolean
+          consecutive_failures: number
+          country_code: string | null
+          created_at: string
+          homepage_url: string | null
+          id: string
+          items_ingested: number
+          keyword_filter: boolean
+          kind: Database["public"]["Enums"]["news_source_kind"]
+          language: string
+          last_error: string | null
+          last_polled_at: string | null
+          last_success_at: string | null
+          name: string
+          notes: string | null
+          poll_interval_minutes: number
+          slug: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          consecutive_failures?: number
+          country_code?: string | null
+          created_at?: string
+          homepage_url?: string | null
+          id?: string
+          items_ingested?: number
+          keyword_filter?: boolean
+          kind: Database["public"]["Enums"]["news_source_kind"]
+          language?: string
+          last_error?: string | null
+          last_polled_at?: string | null
+          last_success_at?: string | null
+          name: string
+          notes?: string | null
+          poll_interval_minutes?: number
+          slug: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          consecutive_failures?: number
+          country_code?: string | null
+          created_at?: string
+          homepage_url?: string | null
+          id?: string
+          items_ingested?: number
+          keyword_filter?: boolean
+          kind?: Database["public"]["Enums"]["news_source_kind"]
+          language?: string
+          last_error?: string | null
+          last_polled_at?: string | null
+          last_success_at?: string | null
+          name?: string
+          notes?: string | null
+          poll_interval_minutes?: number
+          slug?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
       }
       notification: {
         Row: {
@@ -1626,6 +2124,9 @@ export type Database = {
       }
       question: {
         Row: {
+          answer_body: string | null
+          answered_at: string | null
+          answered_by: string | null
           author_id: string
           body: string
           created_at: string
@@ -1634,6 +2135,9 @@ export type Database = {
           project_id: string
         }
         Insert: {
+          answer_body?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
           author_id: string
           body: string
           created_at?: string
@@ -1642,6 +2146,9 @@ export type Database = {
           project_id: string
         }
         Update: {
+          answer_body?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
           author_id?: string
           body?: string
           created_at?: string
@@ -1858,6 +2365,33 @@ export type Database = {
           },
         ]
       }
+      user_news_preference: {
+        Row: {
+          categories: Database["public"]["Enums"]["news_category"][]
+          country_codes: string[]
+          include_eu: boolean
+          regions: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          categories?: Database["public"]["Enums"]["news_category"][]
+          country_codes?: string[]
+          include_eu?: boolean
+          regions?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          categories?: Database["public"]["Enums"]["news_category"][]
+          country_codes?: string[]
+          include_eu?: boolean
+          regions?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_role: {
         Row: {
           created_at: string
@@ -1913,6 +2447,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      answer_question: {
+        Args: { _answer: string; _publish?: boolean; _question_id: string }
+        Returns: undefined
+      }
       claim_signup_role: {
         Args: {
           _company?: string
@@ -1920,6 +2458,44 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      member_message_inbox: {
+        Args: never
+        Returns: {
+          body: string
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["member_message_kind"]
+          rating: number
+          sender_email: string
+          status: Database["public"]["Enums"]["member_message_status"]
+          subject: string
+          topic: string
+        }[]
+      }
+      news_claim_fetched: {
+        Args: never
+        Returns: {
+          body: string
+          error_msg: string
+          source_id: string
+          status_code: number
+        }[]
+      }
+      news_source_health: {
+        Args: never
+        Returns: {
+          active: boolean
+          consecutive_failures: number
+          country_code: string
+          items_ingested: number
+          kind: Database["public"]["Enums"]["news_source_kind"]
+          last_error: string
+          last_polled_at: string
+          last_success_at: string
+          name: string
+          slug: string
+        }[]
       }
       project_owner_user_id: { Args: { _project_id: string }; Returns: string }
       publish_project: { Args: { payload: Json }; Returns: Json }
@@ -2012,7 +2588,18 @@ export type Database = {
         | "construction"
         | "commissioning"
         | "operational"
+      member_message_kind: "support" | "feedback"
+      member_message_status: "open" | "answered" | "closed"
       milestone_status: "completed" | "in_progress" | "upcoming"
+      news_category:
+        | "deal"
+        | "policy"
+        | "funding"
+        | "project"
+        | "market"
+        | "technology"
+        | "other"
+      news_source_kind: "rss" | "gdelt" | "scraper"
       offtake_tier:
         | "contracted"
         | "signed_connection_agreement"
@@ -2265,7 +2852,19 @@ export const Constants = {
         "commissioning",
         "operational",
       ],
+      member_message_kind: ["support", "feedback"],
+      member_message_status: ["open", "answered", "closed"],
       milestone_status: ["completed", "in_progress", "upcoming"],
+      news_category: [
+        "deal",
+        "policy",
+        "funding",
+        "project",
+        "market",
+        "technology",
+        "other",
+      ],
+      news_source_kind: ["rss", "gdelt", "scraper"],
       offtake_tier: [
         "contracted",
         "signed_connection_agreement",

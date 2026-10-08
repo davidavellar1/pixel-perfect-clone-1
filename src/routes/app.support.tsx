@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import PlaceholderPage from "@/pages/platform/PlaceholderPage";
+import Support from "@/pages/platform/Support";
 
 export const Route = createFileRoute("/app/support")({
   head: () => ({
@@ -10,5 +10,5 @@ export const Route = createFileRoute("/app/support")({
       { property: "og:description", content: "Get help from the DHC Market team." },
     ],
   }),
-  component: () => <PlaceholderPage title="Support" description="Get help from the DHC Market team." />,
+  component: () => <Support />,
 });

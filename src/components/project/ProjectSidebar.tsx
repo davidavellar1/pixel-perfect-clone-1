@@ -1,3 +1,4 @@
+import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { ProjectDetail } from "@/data/projectsData";
 import { Building2, CheckCircle } from "lucide-react";
@@ -6,13 +7,25 @@ interface ProjectSidebarProps {
   project: ProjectDetail;
   onRequestAccess: () => void;
   loadingAuth: boolean;
+  /** The signed-in developer owns this listing. */
+  isOwner?: boolean;
+  context?: "public" | "app";
 }
 
-const ProjectSidebar = ({ project, onRequestAccess, loadingAuth }: ProjectSidebarProps) => {
+const ProjectSidebar = ({
+  project,
+  onRequestAccess,
+  loadingAuth,
+  isOwner = false,
+  context = "public",
+}: ProjectSidebarProps) => {
   return (
     <div className="space-y-6">
       {/* Key Investment Data */}
-      <div className="bg-card rounded-xl border border-border p-6" style={{ boxShadow: "var(--card-shadow)" }}>
+      <div
+        className="bg-card rounded-xl border border-border p-6"
+        style={{ boxShadow: "var(--card-shadow)" }}
+      >
         <h3 className="text-lg font-serif font-bold text-foreground mb-5">Key investment data</h3>
         <div className="space-y-0">
           {[
@@ -28,7 +41,9 @@ const ProjectSidebar = ({ project, onRequestAccess, loadingAuth }: ProjectSideba
             <div key={item.label}>
               <div className="flex justify-between items-center py-3">
                 <span className="text-sm text-muted-foreground">{item.label}</span>
-                <span className={`text-sm font-bold ${item.highlight ? "text-primary" : "text-foreground"}`}>
+                <span
+                  className={`text-sm font-bold ${item.highlight ? "text-primary" : "text-foreground"}`}
+                >
                   {item.value}
                 </span>
               </div>
@@ -41,7 +56,8 @@ const ProjectSidebar = ({ project, onRequestAccess, loadingAuth }: ProjectSideba
         {project.fundingProgress > 0 && (
           <div className="mt-4 mb-4">
             <p className="text-xs text-primary mb-1">
-              Funding progress {project.fundingProgress}% raised - {project.fundingRemaining} remaining
+              Funding progress {project.fundingProgress}% raised - {project.fundingRemaining}{" "}
+              remaining
             </p>
             <div className="w-full bg-muted rounded-full h-2">
               <div
@@ -52,17 +68,22 @@ const ProjectSidebar = ({ project, onRequestAccess, loadingAuth }: ProjectSideba
           </div>
         )}
 
-        <Button
-          onClick={onRequestAccess}
-          disabled={loadingAuth}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-full"
-        >
-          Express investment interest
-        </Button>
+        {!isOwner && (
+          <Button
+            onClick={onRequestAccess}
+            disabled={loadingAuth}
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-full"
+          >
+            Express investment interest
+          </Button>
+        )}
       </div>
 
       {/* Project Developer */}
-      <div className="bg-card rounded-xl border border-border p-6" style={{ boxShadow: "var(--card-shadow)" }}>
+      <div
+        className="bg-card rounded-xl border border-border p-6"
+        style={{ boxShadow: "var(--card-shadow)" }}
+      >
         <h3 className="text-base font-serif font-bold text-foreground mb-4">Project developer</h3>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
@@ -106,15 +127,17 @@ const ProjectSidebar = ({ project, onRequestAccess, loadingAuth }: ProjectSideba
             </div>
           );
         })()}
-        <Button variant="outline" className="w-full mt-4 rounded-full">
-          View developer profile
-        </Button>
       </div>
 
       {/* Advisors */}
       {project.advisors && project.advisors.length > 0 && (
-        <div className="bg-card rounded-xl border border-border p-6" style={{ boxShadow: "var(--card-shadow)" }}>
-          <h3 className="text-base font-serif font-bold text-foreground mb-4">Advisors on this project</h3>
+        <div
+          className="bg-card rounded-xl border border-border p-6"
+          style={{ boxShadow: "var(--card-shadow)" }}
+        >
+          <h3 className="text-base font-serif font-bold text-foreground mb-4">
+            Advisors on this project
+          </h3>
           <div className="space-y-3">
             {project.advisors.map((advisor) => (
               <div key={advisor.name} className="flex items-center gap-3">
@@ -130,9 +153,11 @@ const ProjectSidebar = ({ project, onRequestAccess, loadingAuth }: ProjectSideba
               </div>
             ))}
           </div>
-          <Button variant="outline" className="w-full mt-4 rounded-full">
-            Find advisors for your project
-          </Button>
+          {isOwner && (
+            <Button variant="outline" className="w-full mt-4 rounded-full" asChild>
+              <Link to="/app/ecosystem">Find advisors for your project</Link>
+            </Button>
+          )}
         </div>
       )}
 
@@ -151,10 +176,21 @@ const ProjectSidebar = ({ project, onRequestAccess, loadingAuth }: ProjectSideba
             ))}
           </div>
           <p className="text-xs text-purple-600 mt-3 leading-relaxed">
-            €{project.publicFunding.reduce((sum, f) => sum + parseFloat(f.amount.replace(/[^0-9.]/g, "")), 0).toFixed(1)}M in public co-financing reduces first-loss risk and lowers the cost of capital for private investors.
+            €
+            {project.publicFunding
+              .reduce((sum, f) => sum + parseFloat(f.amount.replace(/[^0-9.]/g, "")), 0)
+              .toFixed(1)}
+            M in public co-financing reduces first-loss risk and lowers the cost of capital for
+            private investors.
           </p>
-          <Button variant="outline" className="w-full mt-4 rounded-full border-purple-300 text-purple-700 hover:bg-purple-100">
-            Explore public funding hub
+          <Button
+            variant="outline"
+            className="w-full mt-4 rounded-full border-purple-300 text-purple-700 hover:bg-purple-100"
+            asChild
+          >
+            <Link to={context === "app" ? "/app/public-funding" : "/public-funding"}>
+              Explore public funding hub
+            </Link>
           </Button>
         </div>
       )}

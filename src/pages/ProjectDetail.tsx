@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "@/lib/router-compat";
 import PublicShell from "@/components/public/PublicShell";
 import ProjectHero from "@/components/project/ProjectHero";
 import ProjectSidebar from "@/components/project/ProjectSidebar";
+import ProjectNewsCard from "@/components/news/ProjectNewsCard";
 import ProjectTabContent from "@/components/project/ProjectTabContent";
 import LockedTabOverlay from "@/components/project/LockedTabOverlay";
 import type { DataRoomStatus } from "@/components/project/ProjectTabContent";
@@ -12,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Heart, Lock, CheckCircle2, Clock, ShieldX, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { projectsData, slugify, type ProjectDetail as ProjectDetailData } from "@/data/projectsData";
 import type { Tables } from "@/integrations/supabase/types";
 import { useInvestorGrade } from "@/hooks/useInvestorGrade";
@@ -66,18 +69,22 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   const staticProject = projectsData.find((p) => p.slug === slug || slugify(p.title) === slug);
   const [databaseProject, setDatabaseProject] = useState<Tables<"project"> | null>(null);
   const [user, setUser] = useState<{ id: string; email?: string | null } | null>(null);
+  const watchlist = useWatchlist();
+  const [watchlistBusy, setWatchlistBusy] = useState(false);
   const [showInterest, setShowInterest] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [justSubmitted, setJustSubmitted] = useState(false);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("Overview");
+  const [isOwner, setIsOwner] = useState(false);
   const [request, setRequest] = useState<AccessRequestRow | null>(null);
   const [criteria, setCriteria] = useState<AccessCriteriaRow | null>(null);
   const [investorProfile, setInvestorProfile] = useState<Tables<"investor_profiles"> | null>(null);
   const { grade } = useInvestorGrade(databaseProject?.id);
 
   const accessState: ViewerAccess = request ? effectiveState(request) : "teaser";
-  const granted = isGranted(accessState);
+  /** The developer always sees their own listing in full. */
+  const granted = isOwner || isGranted(accessState);
   const dataRoomStatus: DataRoomStatus = isDataRoomOpen(accessState)
     ? "approved"
     : accessState === "pending"
@@ -156,12 +163,55 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     supabase.from("project").select("*").eq("slug", slug).maybeSingle().then(({ data }) => setDatabaseProject(data));
   }, [slug]);
 
+  /** Notification links open a tab directly, e.g. ?tab=qa. */
+  useEffect(() => {
+    const wanted = new URLSearchParams(window.location.search).get("tab")?.toLowerCase();
+    if (!wanted) return;
+    const match = tabs.find((t) => t.toLowerCase().replace(/[^a-z]/g, "") === wanted.replace(/[^a-z]/g, ""));
+    if (match) setActiveTab(match);
+  }, [slug]);
+
+  useEffect(() => {
+    if (!databaseProject || !user) {
+      setIsOwner(false);
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from("developer_profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled) setIsOwner(!!data && data.id === databaseProject.developer_id);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [databaseProject, user]);
+
   useEffect(() => {
     if (!databaseProject) return;
     loadEngagement(user?.id ?? null, databaseProject.id);
     supabase.from("listing_access_criteria").select("*").eq("project_id", databaseProject.id).maybeSingle()
       .then(({ data }) => setCriteria(data ?? null));
   }, [databaseProject, loadEngagement, user]);
+
+  const toggleWatchlist = async () => {
+    if (!databaseProject) return;
+    if (!user) {
+      navigate(`/sign-in?redirect=${encodeURIComponent(context === "app" ? `/app/projects/${slug}` : `/projects/${slug}`)}`);
+      return;
+    }
+    const projectId = databaseProject.id;
+    setWatchlistBusy(true);
+    const saved = watchlist.has(projectId);
+    const result = saved ? await watchlist.remove(projectId) : await watchlist.add(projectId);
+    setWatchlistBusy(false);
+    if (!result.ok) { sonnerToast.error(result.error); return; }
+    if (saved) sonnerToast.success("Removed from watchlist", { action: { label: "Undo", onClick: () => { void watchlist.add(projectId); } } });
+    else sonnerToast.success("Saved to watchlist");
+  };
 
   const openInterest = () => {
     if (!user) {
@@ -333,11 +383,28 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
       <div className="mx-auto flex max-w-[980px] items-center justify-between gap-3 border-b border-border px-5 py-3">
         <Link to={context === "app" ? "/app/opportunities" : "/sign-in?redirect=/app/opportunities"} className="text-sm font-medium text-muted-foreground hover:text-foreground">Back to opportunities</Link>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm"><Heart className="h-4 w-4" />Save</Button>
-          <Button size="sm" onClick={openInterest} disabled={loadingAuth}>{ctaLabel}</Button>
+          {isOwner ? (
+            <Button size="sm" variant="outline" asChild>
+              <Link to="/app/my-listings">Manage listing</Link>
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleWatchlist}
+                disabled={watchlistBusy || !databaseProject}
+                aria-pressed={!!databaseProject && watchlist.has(databaseProject.id)}
+              >
+                <Heart className={`h-4 w-4 ${databaseProject && watchlist.has(databaseProject.id) ? "fill-current" : ""}`} />
+                {databaseProject && watchlist.has(databaseProject.id) ? "Saved" : "Save"}
+              </Button>
+              <Button size="sm" onClick={openInterest} disabled={loadingAuth}>{ctaLabel}</Button>
+            </>
+          )}
         </div>
       </div>
-      <AccessStateBar state={accessState} />
+      {!isOwner && <AccessStateBar state={accessState} />}
 
       {/* Hero */}
       <ProjectHero
@@ -347,6 +414,10 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
         grade={grade}
         asOf={asOf}
         ctaLabel={granted ? "Access granted" : accessState === "pending" ? "Request pending" : undefined}
+        projectId={databaseProject?.id}
+        watchlisted={databaseProject ? watchlist.has(databaseProject.id) : false}
+        watchlistBusy={watchlistBusy || loadingAuth}
+        onToggleWatchlist={toggleWatchlist}
       />
 
       <div className="mx-auto mt-6 max-w-[980px] px-5">
@@ -416,7 +487,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
           </div>
         )}
 
-        {(accessState === "teaser" || accessState === "withdrawn") && (
+        {!isOwner && (accessState === "teaser" || accessState === "withdrawn") && (
           <div className="flex flex-col gap-4 rounded-xl bg-gradient-to-r from-primary to-primary/90 px-6 py-5 text-primary-foreground sm:flex-row sm:items-center">
             <div className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-primary-foreground/10">
               <Lock className="h-5 w-5 text-accent" />
@@ -470,7 +541,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
                 description={LOCK_COPY[activeTab]}
                 onExpressInterest={openInterest}
               >
-                <ProjectTabContent project={project} projectId={databaseProject?.id} activeTab={activeTab} grade={grade} asOf={asOf} breakeven={breakeven} />
+                <ProjectTabContent project={project} projectId={databaseProject?.id} activeTab={activeTab} grade={grade} asOf={asOf} breakeven={breakeven} isOwner={isOwner} userId={user?.id ?? null} />
               </LockedTabOverlay>
             ) : (
               <ProjectTabContent
@@ -478,6 +549,8 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
                 projectId={databaseProject?.id}
                 activeTab={activeTab}
                 dataRoomStatus={dataRoomStatus}
+                isOwner={isOwner}
+                userId={user?.id ?? null}
                 grade={grade}
                 asOf={asOf}
                 breakeven={breakeven}
@@ -485,7 +558,10 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
             )}
           </div>
           <div className="lg:col-span-1">
-            <ProjectSidebar project={project} onRequestAccess={openInterest} loadingAuth={loadingAuth} />
+            <ProjectSidebar project={project} onRequestAccess={openInterest} loadingAuth={loadingAuth} isOwner={isOwner} context={context} />
+            {context === "app" && databaseProject && (
+              <div className="mt-6"><ProjectNewsCard projectId={databaseProject.id} countryCode={databaseProject.country_code} /></div>
+            )}
           </div>
         </div>
       </div>

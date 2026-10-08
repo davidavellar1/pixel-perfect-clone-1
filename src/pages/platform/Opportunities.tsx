@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 const SelectFilter = ({ label, value, setValue, options }: { label: string; value: string; setValue: (value: string) => void; options: string[] }) => <label className="grid gap-1.5 text-xs font-semibold text-muted-foreground"><span>{label}</span><select className="h-10 rounded-md border border-input bg-background px-3 text-sm font-normal text-foreground" value={value} onChange={(event) => setValue(event.target.value)}><option value="all">All</option>{options.map((option) => <option key={option} value={option}>{option}</option>)}</select></label>;
 
 const Opportunities = () => {
-  const { projects, loading, reload } = useProjectListings();
+  const { projects, loading } = useProjectListings();
   const { collapsed } = useAppShell();
   const [query, setQuery] = useState("");
   const [view, setView] = useState<"grid" | "map">("grid");
@@ -36,7 +36,7 @@ const Opportunities = () => {
       <SelectFilter label="Instrument" value={instrument} setValue={setInstrument} options={Object.keys(INSTRUMENT_LABEL)} />
     </div></section>
     <div className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/95 py-3 backdrop-blur"><p className="text-sm text-muted-foreground">{loading ? "Loading opportunities..." : `${filtered.length} result${filtered.length === 1 ? "" : "s"}`}</p><div className="flex rounded-md border border-border p-1"><Button size="sm" variant={view === "grid" ? "secondary" : "ghost"} onClick={() => setView("grid")}><Grid3X3 />Grid</Button><Button size="sm" variant={view === "map" ? "secondary" : "ghost"} onClick={() => setView("map")}><Map />Map</Button></div></div>
-    {view === "map" ? <div className="flex min-h-[460px] items-center justify-center border border-border bg-muted/40 text-sm text-muted-foreground">Map view is being prepared.</div> : <div className={cn("grid gap-5", collapsed ? "sm:grid-cols-2 xl:grid-cols-3" : "md:grid-cols-2 min-[1500px]:grid-cols-3")}>{filtered.map((project) => <ProjectCard key={project.id} project={project} context="app" onWatchlistChange={reload} />)}</div>}
+    {view === "map" ? <div className="flex min-h-[460px] items-center justify-center border border-border bg-muted/40 text-sm text-muted-foreground">Map view is being prepared.</div> : <div className={cn("grid gap-5", collapsed ? "sm:grid-cols-2 xl:grid-cols-3" : "md:grid-cols-2 min-[1500px]:grid-cols-3")}>{filtered.map((project) => <ProjectCard key={project.id} project={project} context="app" />)}</div>}
     {!loading && !filtered.length && <p className="py-16 text-center text-sm text-muted-foreground">No opportunities match these filters.</p>}
   </div>;
 };

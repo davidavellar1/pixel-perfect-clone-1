@@ -26,6 +26,9 @@ export interface ProjectListing {
   offtakeLoadPct: number | null;
   accessState: ViewerAccess;
   watchlisted: boolean;
+  contractedPct?: number | null;
+  signedPct?: number | null;
+  financialAsOf?: string | null;
 }
 
 type Project = Tables<"project">;
@@ -44,12 +47,14 @@ export const useProjectListings = () => {
   const { user } = useAuth();
   const [projects, setProjects] = useState<ProjectListing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError(null);
     const { data: rows, error } = await supabase.from("project").select("*").eq("visibility", "listed").order("created_at", { ascending: false });
     if (error || !rows) {
-      if (error) console.error("Project listing query failed", error);
+      if (error) { console.error("Project listing query failed", error); setError(error.message); }
       setProjects([]); setLoading(false); return;
     }
     const ids = rows.map((row) => row.id);
@@ -83,11 +88,14 @@ export const useProjectListings = () => {
         instrument: transaction?.instrument || null,
         offtakeLoadPct: ladder ? Number(ladder.contracted_load_pct || 0) + Number(ladder.signed_connection_load_pct || 0) : null,
         accessState: access ? effectiveState(access) : "teaser", watchlisted: watched.has(project.id),
+        contractedPct: ladder?.contracted_load_pct == null ? null : Number(ladder.contracted_load_pct),
+        signedPct: ladder?.signed_connection_load_pct == null ? null : Number(ladder.signed_connection_load_pct),
+        financialAsOf: project.financial_as_of ?? null,
       };
     }));
     setLoading(false);
   }, [user]);
 
   useEffect(() => { void load(); }, [load]);
-  return { projects, loading, reload: load };
+  return { projects, loading, error, reload: load };
 };

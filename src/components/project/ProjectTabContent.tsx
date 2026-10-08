@@ -12,6 +12,7 @@ import TransactionTab from "@/components/project/TransactionTab";
 import ConstructionPackageSection from "@/components/project/ConstructionPackageSection";
 import { CasesSection, MarginSection } from "@/components/project/FinancialGradeSections";
 import ProjectDocuments from "@/components/project/ProjectDocuments";
+import ProjectQA from "@/components/project/ProjectQA";
 
 export type DataRoomStatus = "none" | "pending" | "approved";
 
@@ -30,6 +31,8 @@ interface ProjectTabContentProps {
   grade?: InvestorGradeBundle;
   asOf?: AsOfDates;
   breakeven?: { dscr1x: number | null; irrZero: number | null };
+  isOwner?: boolean;
+  userId?: string | null;
 }
 
 const ProjectTabContent = ({
@@ -41,6 +44,8 @@ const ProjectTabContent = ({
   grade = emptyInvestorGrade,
   asOf = {},
   breakeven = { dscr1x: null, irrZero: null },
+  isOwner = false,
+  userId = null,
 }: ProjectTabContentProps) => {
   if (activeTab === "Overview") return <OverviewTab project={project} grade={grade} />;
   if (activeTab === "Transaction") return <TransactionTab grade={grade} asOf={asOf.financial} />;
@@ -64,7 +69,7 @@ const ProjectTabContent = ({
       <DocumentsTab project={project} dataRoomStatus={dataRoomStatus} onRequestDataRoom={onRequestDataRoom} />
     );
   }
-  if (activeTab === "Q&A") return <QATab project={project} />;
+  if (activeTab === "Q&A") return <ProjectQA projectId={projectId} userId={userId} isOwner={isOwner} />;
   return null;
 };
 
@@ -988,170 +993,6 @@ function DocumentsTab({
             <span>The data room opens only when the developer accepts your request in full. They decide this separately.</span>
           </div>
         )}
-      </div>
-    </div>
-  );
-}
-
-/* ─── Q&A ─── */
-type QAItem = {
-  initials: string;
-  name: string;
-  org: string;
-  date: string;
-  question: string;
-  answer: {
-    initials: string;
-    name: string;
-    role: string;
-    date: string;
-    text: string;
-  };
-};
-
-const QA_LIST: QAItem[] = [
-  {
-    initials: "MH",
-    name: "M. Hansen",
-    org: "Nordea Asset Management",
-    date: "12 Mar 2025",
-    question:
-      "What is the sensitivity of the project IRR to a 50bps increase in EURIBOR, given that only 75% of the floating-rate tranche is hedged?",
-    answer: {
-      initials: "CP",
-      name: "Copenhagen Energy Partners",
-      role: "Developer",
-      date: "14 Mar 2025",
-      text: "A 50bps increase on the unhedged 25% (~€20.8M) reduces equity IRR by approximately 18bps. Full sensitivity table in the financial model in the data room.",
-    },
-  },
-  {
-    initials: "SR",
-    name: "S. Rasmussen",
-    org: "PensionDanmark",
-    date: "5 Mar 2025",
-    question:
-      "Is there a minimum co-investment ticket for the remaining equity allocation, and what governance rights would a minority investor receive?",
-    answer: {
-      initials: "CP",
-      name: "Copenhagen Energy Partners",
-      role: "Developer",
-      date: "7 Mar 2025",
-      text: "Minimum ticket is €5M. Investors above €15M receive a board observer seat. All equity investors receive quarterly reports, annual audited accounts, and proportional voting rights on reserved matters.",
-    },
-  },
-  {
-    initials: "LB",
-    name: "L. Bergström",
-    org: "AP3",
-    date: "18 Feb 2025",
-    question:
-      "Has the project completed the DNSH assessment for water and marine resources, given the depth of the geothermal extraction?",
-    answer: {
-      initials: "CP",
-      name: "Copenhagen Energy Partners",
-      role: "Developer",
-      date: "20 Feb 2025",
-      text: "Yes - the Bunter Sandstone aquifer is confined, saline, non-potable with no connection to surface or potable groundwater. Full DNSH assessment by Bureau Veritas is available in the data room.",
-    },
-  },
-];
-
-function QATab({ project: _project }: { project: ProjectDetail }) {
-  const { toast } = useToast();
-  const [question, setQuestion] = useState("");
-
-  const handleSubmit = () => {
-    const trimmed = question.trim();
-    if (!trimmed) {
-      toast({
-        title: "Question required",
-        description: "Please type your question before submitting.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (trimmed.length > 1000) {
-      toast({
-        title: "Question too long",
-        description: "Please keep your question under 1000 characters.",
-        variant: "destructive",
-      });
-      return;
-    }
-    toast({
-      title: "Question submitted",
-      description: "The project developer will respond within 5 business days.",
-    });
-    setQuestion("");
-  };
-
-  return (
-    <div>
-      <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Investor questions</h2>
-      <div className="border-t border-border mb-6" />
-      <div className="space-y-4">
-        {QA_LIST.map((item, idx) => (
-          <div key={idx} className="bg-card border border-border rounded-xl p-5">
-            {/* Question */}
-            <div className="flex gap-3">
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                <span className="text-xs font-semibold text-muted-foreground">{item.initials}</span>
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-x-2 text-sm">
-                  <span className="font-semibold text-foreground">{item.name}</span>
-                  <span className="text-muted-foreground">· {item.org} · {item.date}</span>
-                </div>
-                <p className="text-sm text-foreground/90 mt-1.5 leading-relaxed">{item.question}</p>
-              </div>
-            </div>
-
-            {/* Answer */}
-            <div className="mt-4 ml-4 pl-5 border-l-2 border-primary/30">
-              <div className="flex gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-                  <span className="text-xs font-semibold text-primary">{item.answer.initials}</span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-baseline gap-x-2 text-sm">
-                    <span className="font-semibold text-foreground">{item.answer.name}</span>
-                    <span className="text-muted-foreground">· {item.answer.role} · {item.answer.date}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{item.answer.text}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Submit a question */}
-      <div className="mt-6 bg-card border border-border rounded-xl p-5">
-        <h3 className="text-base font-semibold text-foreground mb-3">Submit a question to the project developer</h3>
-        <Textarea
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          maxLength={1000}
-          placeholder="Type your question here. Questions are answered publicly within 5 business days and visible to all registered investors…"
-          className="min-h-[110px] resize-y bg-background"
-        />
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={() => setQuestion("")}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-          >
-            Submit question
-          </Button>
-        </div>
-      </div>
-
-      <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
-        <Shield className="w-4 h-4 shrink-0 mt-0.5" />
-        <p>Q&A is available to approved investors who have expressed investment interest.</p>
       </div>
     </div>
   );
