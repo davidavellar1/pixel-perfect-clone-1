@@ -864,6 +864,66 @@ export type Database = {
           },
         ]
       }
+      funding_change_log: {
+        Row: {
+          actor: string
+          at: string
+          change: string
+          diff: Json
+          entity: string
+          entity_id: string
+          entity_slug: string
+          id: number
+          source_url: string | null
+        }
+        Insert: {
+          actor?: string
+          at?: string
+          change: string
+          diff?: Json
+          entity: string
+          entity_id: string
+          entity_slug: string
+          id?: never
+          source_url?: string | null
+        }
+        Update: {
+          actor?: string
+          at?: string
+          change?: string
+          diff?: Json
+          entity?: string
+          entity_id?: string
+          entity_slug?: string
+          id?: never
+          source_url?: string | null
+        }
+        Relationships: []
+      }
+      funding_coverage: {
+        Row: {
+          last_swept_at: string | null
+          notes: string | null
+          scope: string
+          status: string
+          wave: number
+        }
+        Insert: {
+          last_swept_at?: string | null
+          notes?: string | null
+          scope: string
+          status?: string
+          wave: number
+        }
+        Update: {
+          last_swept_at?: string | null
+          notes?: string | null
+          scope?: string
+          status?: string
+          wave?: number
+        }
+        Relationships: []
+      }
       funding_programme: {
         Row: {
           administering_body: string
