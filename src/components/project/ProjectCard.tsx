@@ -9,9 +9,7 @@ import type { ProjectListing } from "@/hooks/useProjectListings";
 import { isGranted } from "@/lib/access";
 
 interface ProjectCardProps { project: ProjectListing; context: "public" | "app"; onWatchlistChange?: (watchlisted: boolean) => void; }
-const money = (value: number) => `EUR ${(value / 1_000_000).toFixed(value >= 10_000_000 ? 0 : 1)}M`;
-const capacityBand = (mw: number) => mw < 10 ? "Under 10 MW" : mw < 25 ? "10-25 MW" : mw < 50 ? "25-50 MW" : "50+ MW";
-const capexBand = (value: number | null) => value == null ? null : value < 15_000_000 ? "Under EUR 15M" : value < 30_000_000 ? "EUR 15-30M" : value < 50_000_000 ? "EUR 30-50M" : "EUR 50M+";
+import { money, capacityBand, capexBand } from "@/lib/bands";
 const stripe: Record<string, string> = { Expansion: "bg-accent", Modernization: "bg-warning", Greenfield: "bg-success", "New Construction": "bg-success" };
 
 const Metric = ({ label, value, note }: { label: string; value: string; note?: string }) => <div className="min-w-0"><p className="text-[10px] font-semibold uppercase text-muted-foreground">{label}</p><p className="mt-1 truncate font-display text-sm font-semibold text-foreground">{value}</p>{note && <p className="mt-0.5 text-[10px] text-muted-foreground">{note}</p>}</div>;

@@ -353,6 +353,66 @@ export type Database = {
           },
         ]
       }
+      bundle: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bundle_item: {
+        Row: {
+          added_at: string
+          bundle_id: string
+          project_id: string
+        }
+        Insert: {
+          added_at?: string
+          bundle_id: string
+          project_id: string
+        }
+        Update: {
+          added_at?: string
+          bundle_id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_item_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "bundle"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bundle_item_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       capital_stack_item: {
         Row: {
           amount: number | null
@@ -864,45 +924,6 @@ export type Database = {
           },
         ]
       }
-      member_message: {
-        Row: {
-          body: string
-          created_at: string
-          id: string
-          kind: Database["public"]["Enums"]["member_message_kind"]
-          page_url: string | null
-          rating: number | null
-          status: Database["public"]["Enums"]["member_message_status"]
-          subject: string | null
-          topic: string
-          user_id: string
-        }
-        Insert: {
-          body: string
-          created_at?: string
-          id?: string
-          kind: Database["public"]["Enums"]["member_message_kind"]
-          page_url?: string | null
-          rating?: number | null
-          status?: Database["public"]["Enums"]["member_message_status"]
-          subject?: string | null
-          topic: string
-          user_id?: string
-        }
-        Update: {
-          body?: string
-          created_at?: string
-          id?: string
-          kind?: Database["public"]["Enums"]["member_message_kind"]
-          page_url?: string | null
-          rating?: number | null
-          status?: Database["public"]["Enums"]["member_message_status"]
-          subject?: string | null
-          topic?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       margin_profile: {
         Row: {
           as_of: string | null
@@ -958,6 +979,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      member_message: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["member_message_kind"]
+          page_url: string | null
+          rating: number | null
+          status: Database["public"]["Enums"]["member_message_status"]
+          subject: string | null
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["member_message_kind"]
+          page_url?: string | null
+          rating?: number | null
+          status?: Database["public"]["Enums"]["member_message_status"]
+          subject?: string | null
+          topic: string
+          user_id?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["member_message_kind"]
+          page_url?: string | null
+          rating?: number | null
+          status?: Database["public"]["Enums"]["member_message_status"]
+          subject?: string | null
+          topic?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       milestone: {
         Row: {
@@ -1037,6 +1097,32 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news_fetch: {
+        Row: {
+          request_id: number
+          requested_at: string
+          source_id: string
+        }
+        Insert: {
+          request_id: number
+          requested_at?: string
+          source_id: string
+        }
+        Update: {
+          request_id?: number
+          requested_at?: string
+          source_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_fetch_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "news_source"
             referencedColumns: ["id"]
           },
         ]
@@ -2132,6 +2218,29 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      member_message_inbox: {
+        Args: never
+        Returns: {
+          body: string
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["member_message_kind"]
+          rating: number
+          sender_email: string
+          status: Database["public"]["Enums"]["member_message_status"]
+          subject: string
+          topic: string
+        }[]
+      }
+      news_claim_fetched: {
+        Args: never
+        Returns: {
+          body: string
+          error_msg: string
+          source_id: string
+          status_code: number
+        }[]
       }
       news_source_health: {
         Args: never
