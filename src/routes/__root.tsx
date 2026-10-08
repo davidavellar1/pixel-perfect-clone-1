@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -16,6 +17,7 @@ import { WatchlistProvider } from "@/hooks/useWatchlist";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { OG_IMAGE, SITE_NAME, SITE_URL, absoluteUrl, isNoIndexPath } from "@/lib/site";
 
 function NotFoundComponent() {
   return (
@@ -95,17 +97,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Verified project listings, staged data-room access and a transparent engagement workflow for developers and investors.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: SITE_NAME },
+      { property: "og:image", content: OG_IMAGE },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      {
+        property: "og:image:alt",
+        content: "DHC Market – where district heating and cooling meets capital",
+      },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: OG_IMAGE },
+      { name: "theme-color", content: "#0b1b2e" },
     ],
     links: [
+      // Self-hosted fonts (see styles.css). Not preloaded: measured slower LCP with preload.
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap",
-      },
     ],
   }),
   shellComponent: RootShell,
@@ -114,11 +121,48 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+const ORGANIZATION_JSON_LD = JSON.stringify({
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: SITE_URL,
+      logo: OG_IMAGE,
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      name: SITE_NAME,
+      url: SITE_URL,
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      inLanguage: "en",
+    },
+  ],
+});
+
 function RootShell({ children }: { children: ReactNode }) {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const noIndex = isNoIndexPath(pathname);
   return (
     <html lang="en">
       <head>
         <HeadContent />
+        {noIndex ? (
+          <meta name="robots" content="noindex, nofollow" />
+        ) : (
+          <>
+            <link rel="canonical" href={absoluteUrl(pathname)} />
+            <meta property="og:url" content={absoluteUrl(pathname)} />
+          </>
+        )}
+        {pathname === "/" && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: ORGANIZATION_JSON_LD }}
+          />
+        )}
       </head>
       <body>
         {children}

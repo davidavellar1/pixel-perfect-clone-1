@@ -43,9 +43,9 @@ const Footer = () => {
           </div>
           {columns.map((col) => (
             <div key={col.title}>
-              <h5 className="mb-4 font-display text-xs font-semibold uppercase tracking-[0.14em] text-[#6f819a]">
+              <h2 className="mb-4 font-display text-xs font-semibold uppercase tracking-[0.14em] text-[#8a9bb2]">
                 {col.title}
-              </h5>
+              </h2>
               {col.links.map((link) => (
                 <a
                   key={link.label}
@@ -59,8 +59,8 @@ const Footer = () => {
           ))}
         </div>
         <div className="mt-10 border-t border-white/10 pt-5 text-center text-[13px] text-[#6f819a]">
-          © 2026 DHC Market. An information and connection platform. DHC Market does not provide investment advice,
-          underwrite, or make investment decisions.
+          © 2026 DHC Market. An information and connection platform. DHC Market does not provide
+          investment advice, underwrite, or make investment decisions.
         </div>
       </div>
     </footer>
