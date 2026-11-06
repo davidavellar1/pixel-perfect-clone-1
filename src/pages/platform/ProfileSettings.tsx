@@ -16,6 +16,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, A
 import { Chips, EnumSelect, Field } from "@/components/settings/SettingsFields";
 import { avatarError, COUNTRIES, DEVELOPER_TYPES, developerSchema, INVESTOR_TYPES, investorSchema, legalDocument, passwordSchema, profileSchema, REGIONS, STAGES, TECHNOLOGIES, TICKETS } from "@/lib/profileSettings";
 import { cn } from "@/lib/utils";
+import type { User } from "@supabase/supabase-js";
 
 const emptyPersonal = { first_name: "", last_name: "", job_title: "", phone: "", linkedin_url: "", bio: "" };
 const emptyInvestor = { company_name: "", investor_type: null, investment_range: null, regions_of_interest: [], technologies_of_interest: [] } as import("zod").z.infer<typeof investorSchema>;
@@ -43,6 +44,7 @@ export default function ProfileSettings() {
   const [removeAvatar, setRemoveAvatar] = useState(false);
   const [passwords, setPasswords] = useState({ password: "", confirm: "" });
   const [active, setActive] = useState("profile");
+  const [accountUser, setAccountUser] = useState<User | null>(user);
   const fileInput = useRef<HTMLInputElement>(null);
   const personalDirty = !same(personal, baseline.personal) || !!file || removeAvatar;
   const investorDirty = !same(investor, baseline.investor);
@@ -52,9 +54,16 @@ export default function ProfileSettings() {
   const hasInvestor = roles.includes("investor");
   const hasDeveloper = roles.includes("developer");
   const sections = [{ id: "profile", label: "Profile" }, ...(hasInvestor ? [{ id: "investor", label: "Investor profile" }] : []), ...(hasDeveloper ? [{ id: "developer", label: "Developer profile" }] : []), { id: "account", label: "Account" }];
-  const identityProviders = user?.identities?.map(i => i.provider) ?? [];
+  const identityProviders = accountUser?.identities?.map(i => i.provider) ?? [];
   const emailAccount = identityProviders.includes("email");
   const googleAccount = identityProviders.includes("google");
+  useEffect(() => {
+    let activeRequest = true;
+    void supabase.auth.getUser().then(({ data: current }) => {
+      if (activeRequest && current.user) setAccountUser(current.user);
+    });
+    return () => { activeRequest = false; };
+  }, [user?.id]);
 
   useEffect(() => {
     if (!data) return;
@@ -83,7 +92,8 @@ export default function ProfileSettings() {
   const fullName = [baseline.personal.first_name, baseline.personal.last_name].filter(Boolean).join(" ");
   const validate = (result: { success: boolean; error?: { issues: { path: (string | number)[]; message: string }[] } }) => {
     if (result.success) { setErrors({}); return true; }
-    setErrors(Object.fromEntries(result.error?.issues.map(i => [String(i.path[0]), i.message]) ?? [])); return false;
+    setErrors(Object.fromEntries(result.error?.issues.map(i => [String(i.path[0]), i.message]) ?? []));
+    toast.error("Please check your profile details."); return false;
   };
   const savePersonal = async () => {
     const parsed = profileSchema.safeParse(personal);
@@ -168,7 +178,7 @@ export default function ProfileSettings() {
           {!data.investor && <p className="text-sm text-muted-foreground">Complete your investor profile</p>}
           <p className="text-sm text-muted-foreground">Used to match you with relevant opportunities and funding.</p>
           <Field id="investor-company" label="Organisation name" error={errors.company_name}><Input id="investor-company" maxLength={200} value={investor.company_name} onChange={e => setInvestor(i => ({ ...i, company_name: e.target.value }))} className="h-11" aria-invalid={!!errors.company_name} aria-describedby={errors.company_name ? 'investor-company-error' : undefined} /></Field>
-          <div className="grid gap-5 sm:grid-cols-2"><EnumSelect id="investor-type" label="Investor type" value={investor.investor_type} options={INVESTOR_TYPES} onChange={v => setInvestor(i => ({ ...i, investor_type: v }))} /><EnumSelect id="ticket" label="Typical ticket" value={investor.investment_range} options={TICKETS} onChange={v => setInvestor(i => ({ ...i, investment_range: v }))} /></div>
+          <div className="grid gap-5 sm:grid-cols-2"><EnumSelect id="investor-type" label="Investor type" error={errors.investor_type ? "Choose an investor type or Not stated." : undefined} value={investor.investor_type} options={INVESTOR_TYPES} onChange={v => setInvestor(i => ({ ...i, investor_type: v }))} /><EnumSelect id="ticket" label="Typical ticket" error={errors.investment_range ? "Choose a typical ticket or Not stated." : undefined} value={investor.investment_range} options={TICKETS} onChange={v => setInvestor(i => ({ ...i, investment_range: v }))} /></div>
           <Chips id="regions" label="Regions of interest" options={listOptions([...new Set([...REGIONS, ...investor.regions_of_interest])])} value={investor.regions_of_interest} onChange={v => setInvestor(i => ({ ...i, regions_of_interest: v }))} />
           <Chips id="technologies" label="Technologies of interest" options={TECHNOLOGIES} value={investor.technologies_of_interest} onChange={v => setInvestor(i => ({ ...i, technologies_of_interest: v }))} />
           {saveButton('investor', investorDirty)}
@@ -177,7 +187,7 @@ export default function ProfileSettings() {
           {!data.developer && <p className="text-sm text-muted-foreground">Complete your developer profile</p>}
           <Field id="developer-company" label="Company name" error={errors.company_name}><Input id="developer-company" maxLength={200} value={developer.company_name} onChange={e => setDeveloper(d => ({ ...d, company_name: e.target.value }))} className="h-11" aria-invalid={!!errors.company_name} aria-describedby={errors.company_name ? 'developer-company-error' : undefined} /></Field>
           <Field id="position" label="Position" error={errors.position}><Input id="position" maxLength={160} value={developer.position} onChange={e => setDeveloper(d => ({ ...d, position: e.target.value }))} className="h-11" {...aria('position')} /></Field>
-          <EnumSelect id="developer-type" label="Developer type" value={developer.developer_type} options={DEVELOPER_TYPES} onChange={v => setDeveloper(d => ({ ...d, developer_type: v }))} />
+          <EnumSelect id="developer-type" label="Developer type" error={errors.developer_type ? "Choose a developer type or Not stated." : undefined} value={developer.developer_type} options={DEVELOPER_TYPES} onChange={v => setDeveloper(d => ({ ...d, developer_type: v }))} />
           <Chips id="stages" label="Project stages" options={STAGES} value={developer.project_stages} onChange={v => setDeveloper(d => ({ ...d, project_stages: v }))} />
           <Chips id="countries" label="Countries of operation" options={listOptions([...new Set([...COUNTRIES, ...developer.countries_of_operation])])} value={developer.countries_of_operation} onChange={v => setDeveloper(d => ({ ...d, countries_of_operation: v }))} />
           {saveButton('developer', developerDirty)}
