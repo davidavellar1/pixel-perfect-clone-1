@@ -47,6 +47,7 @@ export const navGroupsFor = (view: AppView): NavGroup[] =>
 export const homePathFor = (view: AppView) => (view === "developer" ? "/app/my-listings" : "/app/opportunities");
 
 const DEVELOPER_ALLOWED = [
+  "/app/settings",
   "/app/public-funding",
   "/app/news",
   "/app/my-listings",

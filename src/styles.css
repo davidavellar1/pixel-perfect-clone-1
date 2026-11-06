@@ -240,6 +240,11 @@
   max-width: 1180px;
 }
 
+.app-shell-grid { grid-template-columns: 74px minmax(0, 1fr); }
+@media (min-width: 768px) {
+  .app-shell-grid:not(.app-shell-collapsed) { grid-template-columns: 264px minmax(0, 1fr); }
+}
+
 @utility eyebrow {
   font-family: var(--font-display);
   font-weight: 600;

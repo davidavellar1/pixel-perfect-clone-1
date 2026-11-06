@@ -45,6 +45,7 @@ import { Route as AppNotificationsRouteImport } from './routes/app.notifications
 import { Route as AppOpportunitiesRouteImport } from './routes/app.opportunities'
 import { Route as AppPortfolioRouteImport } from './routes/app.portfolio'
 import { Route as AppPublicFundingRouteImport } from './routes/app.public-funding'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppSubmitProjectRouteImport } from './routes/app.submit-project'
 import { Route as AppSupportRouteImport } from './routes/app.support'
 import { Route as AppWatchlistRouteImport } from './routes/app.watchlist'
@@ -236,6 +237,11 @@ const AppPublicFundingRoute = AppPublicFundingRouteImport.update({
   path: '/public-funding',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSubmitProjectRoute = AppSubmitProjectRouteImport.update({
   id: '/submit-project',
   path: '/submit-project',
@@ -320,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/public-funding': typeof AppPublicFundingRoute
+  '/app/settings': typeof AppSettingsRoute
   '/app/submit-project': typeof AppSubmitProjectRoute
   '/app/support': typeof AppSupportRoute
   '/app/watchlist': typeof AppWatchlistRoute
@@ -366,6 +373,7 @@ export interface FileRoutesByTo {
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/public-funding': typeof AppPublicFundingRoute
+  '/app/settings': typeof AppSettingsRoute
   '/app/submit-project': typeof AppSubmitProjectRoute
   '/app/support': typeof AppSupportRoute
   '/app/watchlist': typeof AppWatchlistRoute
@@ -414,6 +422,7 @@ export interface FileRoutesById {
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
   '/app/public-funding': typeof AppPublicFundingRoute
+  '/app/settings': typeof AppSettingsRoute
   '/app/submit-project': typeof AppSubmitProjectRoute
   '/app/support': typeof AppSupportRoute
   '/app/watchlist': typeof AppWatchlistRoute
@@ -463,6 +472,7 @@ export interface FileRouteTypes {
     | '/app/opportunities'
     | '/app/portfolio'
     | '/app/public-funding'
+    | '/app/settings'
     | '/app/submit-project'
     | '/app/support'
     | '/app/watchlist'
@@ -509,6 +519,7 @@ export interface FileRouteTypes {
     | '/app/opportunities'
     | '/app/portfolio'
     | '/app/public-funding'
+    | '/app/settings'
     | '/app/submit-project'
     | '/app/support'
     | '/app/watchlist'
@@ -556,6 +567,7 @@ export interface FileRouteTypes {
     | '/app/opportunities'
     | '/app/portfolio'
     | '/app/public-funding'
+    | '/app/settings'
     | '/app/submit-project'
     | '/app/support'
     | '/app/watchlist'
@@ -850,6 +862,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPublicFundingRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/submit-project': {
       id: '/app/submit-project'
       path: '/submit-project'
@@ -932,6 +951,7 @@ interface AppRouteChildren {
   AppOpportunitiesRoute: typeof AppOpportunitiesRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
   AppPublicFundingRoute: typeof AppPublicFundingRoute
+  AppSettingsRoute: typeof AppSettingsRoute
   AppSubmitProjectRoute: typeof AppSubmitProjectRoute
   AppSupportRoute: typeof AppSupportRoute
   AppWatchlistRoute: typeof AppWatchlistRoute
@@ -955,6 +975,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOpportunitiesRoute: AppOpportunitiesRoute,
   AppPortfolioRoute: AppPortfolioRoute,
   AppPublicFundingRoute: AppPublicFundingRoute,
+  AppSettingsRoute: AppSettingsRoute,
   AppSubmitProjectRoute: AppSubmitProjectRoute,
   AppSupportRoute: AppSupportRoute,
   AppWatchlistRoute: AppWatchlistRoute,

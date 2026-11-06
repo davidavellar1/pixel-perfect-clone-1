@@ -113,6 +113,20 @@
       "when": 1790093403628,
       "tag": "0015_atomic_publish_project",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793987412918,
+      "tag": "0016_profile_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793987733092,
+      "tag": "0017_avatar_initial_upload_policy",
+      "breakpoints": true
     }
   ]
 }

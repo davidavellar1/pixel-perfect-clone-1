@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Profile settings use owner-scoped typed Cloud queries, with personal-name synchronization in a database trigger so independent section saves cannot diverge.
+- Avatar records store owner-folder storage paths, not expiring links; resolve private signed URLs centrally in AuthContext for consistent account displays.

@@ -18,6 +18,7 @@ interface AuthContextValue {
   roles: string[];
   view: AppView;
   loading: boolean;
+  refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -60,6 +61,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [roles, setRoles] = useState<string[]>([]);
   const [sessionReady, setSessionReady] = useState(false);
   const [rolesFor, setRolesFor] = useState<string | null>(null);
+  const refreshProfile = async () => {
+    if (!user) return;
+    const { data } = await supabase.from("user_profile").select("first_name, last_name, avatar_url").eq("user_id", user.id).maybeSingle();
+    let avatarUrl: string | null = null;
+    if (data?.avatar_url) {
+      const result = await supabase.storage.from("avatars").createSignedUrl(data.avatar_url, 3600);
+      avatarUrl = result.data?.signedUrl ?? null;
+    }
+    setProfile(previous => ({ ...previous, display_name: data?.first_name?.trim() || user.user_metadata?.display_name || user.user_metadata?.full_name || null, first_name: data?.first_name, last_name: data?.last_name, avatar_url: avatarUrl }));
+  };
+  useEffect(() => {
+    if (!user) return;
+    void refreshProfile();
+    const timer = window.setInterval(() => void refreshProfile(), 50 * 60 * 1000);
+    return () => window.clearInterval(timer);
+  }, [user?.id]);
 
   useEffect(() => {
     const apply = (s: Session | null) => {
@@ -67,10 +84,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser((prev) => (prev?.id === s?.user?.id ? prev ?? s?.user ?? null : s?.user ?? null));
       if (s?.user) {
         const meta = (s.user.user_metadata || {}) as Profile;
-        setProfile({
-          display_name: meta.display_name || meta.full_name || null,
+        setProfile(previous => ({
+          ...(previous?.user_id === s.user.id ? previous : {}),
+          user_id: s.user.id,
+          display_name: (previous?.user_id === s.user.id ? previous?.first_name : null) || meta.display_name || meta.full_name || null,
           company_name: meta.company_name || null,
-        });
+        }));
       } else {
         setProfile(null);
         setRoles([]);
@@ -126,7 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, roles, view, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, profile, roles, view, loading, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

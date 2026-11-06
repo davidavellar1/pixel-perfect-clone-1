@@ -1040,6 +1040,7 @@ export type Database = {
             | null
           investor_type: Database["public"]["Enums"]["investor_type"] | null
           regions_of_interest: string[] | null
+          technologies_of_interest: Database["public"]["Enums"]["technology"][]
           updated_at: string
           user_id: string
         }
@@ -1053,6 +1054,7 @@ export type Database = {
             | null
           investor_type?: Database["public"]["Enums"]["investor_type"] | null
           regions_of_interest?: string[] | null
+          technologies_of_interest?: Database["public"]["Enums"]["technology"][]
           updated_at?: string
           user_id: string
         }
@@ -1066,6 +1068,7 @@ export type Database = {
             | null
           investor_type?: Database["public"]["Enums"]["investor_type"] | null
           regions_of_interest?: string[] | null
+          technologies_of_interest?: Database["public"]["Enums"]["technology"][]
           updated_at?: string
           user_id?: string
         }
@@ -2387,6 +2390,45 @@ export type Database = {
           country_codes?: string[]
           include_eu?: boolean
           regions?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_profile: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          first_name: string | null
+          job_title: string | null
+          last_name: string | null
+          linkedin_url: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          first_name?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          linkedin_url?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          first_name?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          linkedin_url?: string | null
+          phone?: string | null
           updated_at?: string
           user_id?: string
         }
