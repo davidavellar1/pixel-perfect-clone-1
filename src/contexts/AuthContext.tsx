@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import { claimPendingSignup } from "@/lib/googleSignup";
 import type { Session, User } from "@supabase/supabase-js";
+import { readIntents, type SignupIntent } from "@/lib/navigation";
 
 interface Profile {
   display_name?: string | null;
@@ -9,14 +10,13 @@ interface Profile {
   [key: string]: any;
 }
 
-export type AppView = "investor" | "developer" | "both";
-
 interface AuthContextValue {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
   roles: string[];
-  view: AppView;
+  /** What the member said brought them here; only used to pick their first page. */
+  intents: SignupIntent[];
   loading: boolean;
   refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -43,15 +43,6 @@ const rolesFromMetadata = (meta: Profile): string[] => {
   add(meta.role);
   add(meta.user_type);
   return out.size ? [...out] : ["investor"];
-};
-
-const deriveView = (roles: string[]): AppView => {
-  const dev = roles.includes("developer");
-  const inv = roles.includes("investor");
-  const admin = roles.includes("admin");
-  if (dev && !inv && !admin) return "developer";
-  if (admin || (inv && dev)) return "both";
-  return "investor";
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -126,7 +117,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [user?.id]);
 
   const loading = !sessionReady || (!!user && rolesFor !== user.id);
-  const view = deriveView(roles);
+  const intents = readIntents(user?.user_metadata);
 
   // Someone who signed up with Google has their persona waiting in the browser.
   useEffect(() => {
@@ -145,7 +136,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, roles, view, loading, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, roles, intents, loading, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

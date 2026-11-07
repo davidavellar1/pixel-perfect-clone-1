@@ -1,14 +1,18 @@
-import { Bell, Briefcase, Boxes, Heart, HelpCircle, Landmark, LayoutGrid, ListChecks, Newspaper, MessageSquare, Users, type LucideIcon } from "lucide-react";
+import { Bell, Boxes, Briefcase, Heart, HelpCircle, Landmark, LayoutGrid, MessageSquare, Newspaper, Users, type LucideIcon } from "lucide-react";
 
-export type AppView = "investor" | "developer" | "both";
+// Every member gets the same workspace: anyone can invest in projects and anyone can list one.
 
-export interface NavItem {
+export interface NavLeaf {
   key: string;
   label: string;
   to: string;
+  badge?: "watchlist" | "notifications" | "investing" | "listing";
+}
+
+export interface NavItem extends NavLeaf {
   icon: LucideIcon;
-  badge?: "watchlist" | "notifications";
-  views: AppView[];
+  /** A collapsible parent: `to` is where the parent itself points (its first child). */
+  children?: NavLeaf[];
 }
 
 export interface NavGroup {
@@ -16,60 +20,49 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-const ALL: AppView[] = ["investor", "developer", "both"];
-const INV: AppView[] = ["investor", "both"];
+export const INVESTING_PATH = "/app/my-deals/investing";
+export const LISTING_PATH = "/app/my-deals/listing";
 
 export const NAV_GROUPS: NavGroup[] = [
   { label: "Discover", items: [
-    { key: "opportunities", label: "Opportunities", to: "/app/opportunities", icon: LayoutGrid, views: INV },
-    { key: "public-funding", label: "Public Funding", to: "/app/public-funding", icon: Landmark, views: ALL },
-    { key: "news", label: "Market news", to: "/app/news", icon: Newspaper, views: ALL },
-    { key: "ecosystem", label: "Ecosystem", to: "/app/ecosystem", icon: Users, views: INV },
+    { key: "opportunities", label: "Opportunities", to: "/app/opportunities", icon: LayoutGrid },
+    { key: "public-funding", label: "Public Funding", to: "/app/public-funding", icon: Landmark },
+    { key: "news", label: "Market news", to: "/app/news", icon: Newspaper },
+    { key: "ecosystem", label: "Advisors & ecosystem", to: "/app/ecosystem", icon: Users },
   ] },
   { label: "My workspace", items: [
-    { key: "my-portfolio", label: "My Portfolio", to: "/app/my-portfolio", icon: Briefcase, views: INV },
-    { key: "my-listings", label: "My Listings", to: "/app/my-listings", icon: ListChecks, views: ALL },
-    { key: "watchlist", label: "Watchlist", to: "/app/watchlist", icon: Heart, badge: "watchlist", views: INV },
-    { key: "notifications", label: "Notifications", to: "/app/notifications", icon: Bell, badge: "notifications", views: ALL },
+    { key: "my-deals", label: "My Deals", to: INVESTING_PATH, icon: Briefcase, children: [
+      { key: "investing", label: "Investing", to: INVESTING_PATH, badge: "investing" },
+      { key: "listing", label: "Listing", to: LISTING_PATH, badge: "listing" },
+    ] },
+    { key: "watchlist", label: "Watchlist", to: "/app/watchlist", icon: Heart, badge: "watchlist" },
+    { key: "notifications", label: "Notifications", to: "/app/notifications", icon: Bell, badge: "notifications" },
   ] },
   { label: "Tools", items: [
-    { key: "bundle-builder", label: "Bundle builder", to: "/app/bundle-builder", icon: Boxes, views: INV },
+    { key: "bundle-builder", label: "Bundle builder", to: "/app/bundle-builder", icon: Boxes },
   ] },
   { label: "Support", items: [
-    { key: "support", label: "Support", to: "/app/support", icon: HelpCircle, views: ALL },
-    { key: "feedback", label: "Feedback", to: "/app/feedback", icon: MessageSquare, views: ALL },
+    { key: "support", label: "Support", to: "/app/support", icon: HelpCircle },
+    { key: "feedback", label: "Feedback", to: "/app/feedback", icon: MessageSquare },
   ] },
 ];
 
-export const navGroupsFor = (view: AppView): NavGroup[] =>
-  NAV_GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => i.views.includes(view)) })).filter((g) => g.items.length > 0);
+/** What a member said brought them here at sign-up. It only picks the first page, never what they can open. */
+export type SignupIntent = "investing" | "listing" | "advising" | "exploring";
 
-export const homePathFor = (view: AppView) => (view === "developer" ? "/app/my-listings" : "/app/opportunities");
-
-const DEVELOPER_ALLOWED = [
-  "/app/settings",
-  "/app/public-funding",
-  "/app/news",
-  "/app/my-listings",
-  "/app/notifications",
-  "/app/support",
-  "/app/feedback",
-  "/app/submit-project",
-  "/app/access-requests",
-  "/app/data-room-requests",
-  "/app/developer",
-  "/app/projects",
-  "/app/advisors",
+export const SIGNUP_INTENTS: { value: SignupIntent; label: string }[] = [
+  { value: "investing", label: "Investing in projects" },
+  { value: "listing", label: "Listing projects" },
+  { value: "advising", label: "Advising" },
+  { value: "exploring", label: "Just exploring" },
 ];
 
-const matches = (pathname: string, prefix: string) => pathname === prefix || pathname.startsWith(`${prefix}/`);
-
-export const isPathAllowed = (view: AppView, pathname: string): boolean => {
-  if (view !== "developer") return true;
-  const path = pathname.replace(/\/+$/, "") || "/";
-  if (path === "/app") return true;
-  return DEVELOPER_ALLOWED.some((p) => matches(path, p));
+export const readIntents = (meta: Record<string, unknown> | undefined | null): SignupIntent[] => {
+  const raw = meta?.signup_intent;
+  const valid = new Set(SIGNUP_INTENTS.map((i) => i.value));
+  return Array.isArray(raw) ? raw.filter((v): v is SignupIntent => typeof v === "string" && valid.has(v as SignupIntent)) : [];
 };
 
-export const viewLabel = (view: AppView) =>
-  view === "developer" ? "Developer" : view === "both" ? "Investor & developer" : "Investor";
+/** Members who only came to list a project start on Listing; everyone else starts on Opportunities. */
+export const homePathFor = (intents: SignupIntent[]) =>
+  intents.includes("listing") && !intents.includes("investing") ? LISTING_PATH : "/app/opportunities";

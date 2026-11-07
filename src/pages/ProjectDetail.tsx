@@ -385,7 +385,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
         <div className="flex items-center gap-2">
           {isOwner ? (
             <Button size="sm" variant="outline" asChild>
-              <Link to="/app/my-listings">Manage listing</Link>
+              <Link to="/app/my-deals/listing">Manage listing</Link>
             </Button>
           ) : (
             <>

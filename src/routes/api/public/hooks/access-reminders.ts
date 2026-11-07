@@ -95,7 +95,7 @@ export const Route = createFileRoute('/api/public/hooks/access-reminders')({
                 kind: 'fee_tail_expiring',
                 title: 'Introduction fee tail expiring',
                 body: `The fee tail for an introduction on ${title} expires in ${daysLeft} days.`,
-                link: slug ? `/app/projects/${slug}` : '/app/my-listings',
+                link: slug ? `/app/projects/${slug}` : '/app/my-deals/listing',
                 project_id: row.project_id,
                 access_request_id: row.id,
                 dedupe_key: `fee_tail_expiring:${row.id}`,

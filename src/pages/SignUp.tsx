@@ -10,28 +10,10 @@ import { useToast } from "@/hooks/use-toast";
 import GoogleSignupButton from "@/components/auth/GoogleSignupButton";
 import type { SignupRole } from "@/lib/googleSignup";
 import { cn } from "@/lib/utils";
+import { SIGNUP_INTENTS, homePathFor, type SignupIntent } from "@/lib/navigation";
 
-type RoleKey = "dev" | "inv" | "both" | "other";
-
-const roles: { key: RoleKey; title: string; desc: string }[] = [
-  { key: "dev", title: "Developer", desc: "List and finance DHC projects" },
-  { key: "inv", title: "Investor", desc: "Discover and back projects" },
-  { key: "both", title: "Both", desc: "I do both" },
-  { key: "other", title: "Other", desc: "Advisor, funder, or exploring" },
-];
-
-const subRoles = [
-  "Advisory partner (financial, legal, technical)",
-  "Public co-investor / funding institution",
-  "Just exploring",
-];
-
-const destinations: Record<RoleKey, string> = {
-  dev: "/app",
-  inv: "/app",
-  both: "/app",
-  other: "/app",
-};
+// Every member gets the full workspace. This optional answer only picks the first page.
+const ROLE_PARAM_INTENT: Record<string, SignupIntent> = { developer: "listing", investor: "investing" };
 
 const brandPoints = [
   {
@@ -53,9 +35,9 @@ const SignUp = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const requestedRole = searchParams.get("role");
-  const initialRole: RoleKey | "" = requestedRole === "developer" ? "dev" : requestedRole === "investor" ? "inv" : "";
-  const [role, setRole] = useState<RoleKey | "">(initialRole);
-  const [subRole, setSubRole] = useState("");
+  const [intents, setIntents] = useState<SignupIntent[]>(() => (requestedRole && ROLE_PARAM_INTENT[requestedRole] ? [ROLE_PARAM_INTENT[requestedRole]] : []));
+  const toggleIntent = (value: SignupIntent) =>
+    setIntents((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
   const [fullName, setFullName] = useState("");
   const [organization, setOrganization] = useState("");
   const [email, setEmail] = useState("");
@@ -63,10 +45,10 @@ const SignUp = () => {
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const canSubmit = !!role && agreed && !loading;
-  // "Other" personas browse as investors until an admin assigns something else.
-  const googleRoles: SignupRole[] =
-    role === "dev" ? ["developer"] : role === "both" ? ["investor", "developer"] : ["investor"];
+  const canSubmit = agreed && !loading;
+  // Every new member can invest and list, so both profile records are created.
+  const googleRoles: SignupRole[] = ["investor", "developer"];
+  const destination = homePathFor(intents);
 
   const handleSubmit = async () => {
     if (!fullName.trim() || !email.trim() || password.length < 8) {
@@ -87,8 +69,8 @@ const SignUp = () => {
           data: {
             full_name: fullName.trim(),
             company_name: organization.trim(),
-            role,
-            sub_role: role === "other" ? subRole : undefined,
+            role: "both",
+            signup_intent: intents,
           },
         },
       });
@@ -97,7 +79,7 @@ const SignUp = () => {
         title: "Account created",
         description: "You are signed in. Welcome to DHC Market.",
       });
-      navigate(destinations[role as RoleKey] ?? "/app");
+      navigate(destination);
     } catch (err: any) {
       const message: string = err?.message || "Something went wrong. Please try again.";
       const alreadyRegistered = /already registered|already exists|User already/i.test(message);
@@ -144,45 +126,9 @@ const SignUp = () => {
       <div className="flex items-center justify-center px-6 py-10 lg:px-8">
         <div className="w-full max-w-[430px]">
           <h1 className="mb-1.5 font-display text-[27px] font-semibold">Get started</h1>
-          <p className="mb-6 text-sm text-muted-foreground">Create your account. It takes a minute.</p>
+          <p className="mb-6 text-sm text-muted-foreground">One account to invest in projects, list your own, or both.</p>
 
-          <div className="mb-2.5">
-            <Label className="mb-2 block text-[13.5px] font-semibold">I'm joining as a</Label>
-            <div className="grid grid-cols-2 gap-2.5">
-              {roles.map((r) => (
-                <button
-                  key={r.key}
-                  type="button"
-                  onClick={() => setRole(r.key)}
-                  className={cn(
-                    "rounded-xl border border-border p-3.5 text-left transition-colors hover:border-[#c2cedb]",
-                    role === r.key && "border-accent bg-accent/10",
-                  )}
-                >
-                  <div className="font-display text-sm font-semibold">{r.title}</div>
-                  <div className="mt-0.5 text-xs leading-snug text-muted-foreground">{r.desc}</div>
-                </button>
-              ))}
-            </div>
-            {role === "other" && (
-              <div className="mb-2 mt-2 rounded-lg border border-border bg-muted/40 px-4 py-3">
-                {subRoles.map((s) => (
-                  <label key={s} className="flex cursor-pointer items-center gap-2 py-1 text-[13.5px] text-foreground/80">
-                    <input
-                      type="radio"
-                      name="subrole"
-                      checked={subRole === s}
-                      onChange={() => setSubRole(s)}
-                      className="accent-[#2f80ed]"
-                    />
-                    {s}
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <Label htmlFor="fullName" className="mb-1.5 block text-[13.5px] font-semibold">Full name</Label>
               <Input id="fullName" placeholder="Jane Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} />
@@ -201,6 +147,30 @@ const SignUp = () => {
             <Input id="password" type="password" placeholder="Create a password" value={password} onChange={(e) => setPassword(e.target.value)} />
             <p className="mt-1.5 text-xs text-muted-foreground">At least 8 characters.</p>
           </div>
+
+          <fieldset className="mt-5 rounded-lg border border-border bg-muted/40 px-4 pb-4 pt-2">
+            <legend className="px-1 text-[13.5px] font-semibold">
+              What brings you to DHC Market? <span className="font-normal text-muted-foreground">(optional)</span>
+            </legend>
+            <div className="mt-1 flex flex-wrap gap-2">
+              {SIGNUP_INTENTS.map((option) => {
+                const checked = intents.includes(option.value);
+                return (
+                  <label
+                    key={option.value}
+                    className={cn(
+                      "inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border px-3 text-[13px] transition-colors focus-within:ring-2 focus-within:ring-ring",
+                      checked ? "border-primary bg-primary/10 font-semibold text-[#1f5fb8]" : "border-border bg-card font-medium text-foreground hover:border-[#c2cedb]",
+                    )}
+                  >
+                    <input type="checkbox" className="h-3.5 w-3.5 accent-[#2f80ed]" checked={checked} onChange={() => toggleIntent(option.value)} />
+                    {option.label}
+                  </label>
+                );
+              })}
+            </div>
+            <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground">This only sets the page you start on. Every member can invest and list.</p>
+          </fieldset>
 
           <div className="mt-5 flex gap-2.5 rounded-lg border border-[#c9e8d5] bg-[#e6f5ec] p-3.5 text-[12.5px] leading-relaxed text-[#1c6e48]">
             <ShieldCheck className="mt-0.5 h-4 w-4 flex-none" />
@@ -235,12 +205,13 @@ const SignUp = () => {
             roles={googleRoles}
             fullName={fullName}
             company={organization}
-            disabled={!role || !agreed}
+            intents={intents}
+            destination={destination}
+            disabled={!agreed}
             label="Sign up with Google"
           />
           <p className="mt-2 text-center text-xs text-muted-foreground">
-            Pick who you are joining as and accept the terms first. Google accounts work straight away — no email
-            confirmation needed.
+            Accept the terms first. Google accounts work straight away — no email confirmation needed.
           </p>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{" "}

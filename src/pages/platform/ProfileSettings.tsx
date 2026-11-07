@@ -30,7 +30,7 @@ function Section({ id, title, children }: { id: string; title: string; children:
 }
 
 export default function ProfileSettings() {
-  const { user, profile, roles, refreshProfile, signOut } = useAuth();
+  const { user, profile, refreshProfile, signOut } = useAuth();
   const { data, setData, loading, error, retry } = useProfileSettings();
   const navigate = useNavigate();
   const [personal, setPersonal] = useState(emptyPersonal);
@@ -51,9 +51,8 @@ export default function ProfileSettings() {
   const developerDirty = !same(developer, baseline.developer);
   const dirty = personalDirty || investorDirty || developerDirty || !!passwords.password || !!passwords.confirm;
   const blocker = useBlocker({ shouldBlockFn: () => dirty, enableBeforeUnload: dirty, withResolver: true });
-  const hasInvestor = roles.includes("investor");
-  const hasDeveloper = roles.includes("developer");
-  const sections = [{ id: "profile", label: "Profile" }, ...(hasInvestor ? [{ id: "investor", label: "Investor profile" }] : []), ...(hasDeveloper ? [{ id: "developer", label: "Developer profile" }] : []), { id: "account", label: "Account" }];
+  // Every member can invest and list, so both optional sections are always offered.
+  const sections = [{ id: "profile", label: "Profile" }, { id: "investor", label: "Investing" }, { id: "developer", label: "Listing" }, { id: "account", label: "Account" }];
   const identityProviders = accountUser?.identities?.map(i => i.provider) ?? [];
   const emailAccount = identityProviders.includes("email");
   const googleAccount = identityProviders.includes("google");
@@ -174,24 +173,23 @@ export default function ProfileSettings() {
           <Field id="email" label="Email" hint="Your sign-in email. Contact support to change it."><Input id="email" type="email" readOnly value={user?.email ?? ''} className="h-11 bg-muted" aria-describedby="email-hint" /></Field>
           {saveButton('profile', personalDirty)}
         </form></Section>
-        {hasInvestor && <Section id="investor" title="Investor profile"><form noValidate onSubmit={e => { e.preventDefault(); void saveInvestor(); }} className="space-y-5">
-          {!data.investor && <p className="text-sm text-muted-foreground">Complete your investor profile</p>}
-          <p className="text-sm text-muted-foreground">Used to match you with relevant opportunities and funding.</p>
+        <Section id="investor" title="Investing preferences"><form noValidate onSubmit={e => { e.preventDefault(); void saveInvestor(); }} className="space-y-5">
+          <p className="text-sm text-muted-foreground">Optional. Used to match you with relevant opportunities and funding{!data.investor ? "; nothing is saved here yet" : ""}.</p>
           <Field id="investor-company" label="Organisation name" error={errors.company_name}><Input id="investor-company" maxLength={200} value={investor.company_name} onChange={e => setInvestor(i => ({ ...i, company_name: e.target.value }))} className="h-11" aria-invalid={!!errors.company_name} aria-describedby={errors.company_name ? 'investor-company-error' : undefined} /></Field>
           <div className="grid gap-5 sm:grid-cols-2"><EnumSelect id="investor-type" label="Investor type" error={errors.investor_type ? "Choose an investor type or Not stated." : undefined} value={investor.investor_type} options={INVESTOR_TYPES} onChange={v => setInvestor(i => ({ ...i, investor_type: v }))} /><EnumSelect id="ticket" label="Typical ticket" error={errors.investment_range ? "Choose a typical ticket or Not stated." : undefined} value={investor.investment_range} options={TICKETS} onChange={v => setInvestor(i => ({ ...i, investment_range: v }))} /></div>
           <Chips id="regions" label="Regions of interest" options={listOptions([...new Set([...REGIONS, ...investor.regions_of_interest])])} value={investor.regions_of_interest} onChange={v => setInvestor(i => ({ ...i, regions_of_interest: v }))} />
           <Chips id="technologies" label="Technologies of interest" options={TECHNOLOGIES} value={investor.technologies_of_interest} onChange={v => setInvestor(i => ({ ...i, technologies_of_interest: v }))} />
           {saveButton('investor', investorDirty)}
-        </form></Section>}
-        {hasDeveloper && <Section id="developer" title="Developer profile"><form noValidate onSubmit={e => { e.preventDefault(); void saveDeveloper(); }} className="space-y-5">
-          {!data.developer && <p className="text-sm text-muted-foreground">Complete your developer profile</p>}
+        </form></Section>
+        <Section id="developer" title="Listing details"><form noValidate onSubmit={e => { e.preventDefault(); void saveDeveloper(); }} className="space-y-5">
+          <p className="text-sm text-muted-foreground">Optional. Shown to investors once you accept their access request{!data.developer ? "; nothing is saved here yet" : ""}.</p>
           <Field id="developer-company" label="Company name" error={errors.company_name}><Input id="developer-company" maxLength={200} value={developer.company_name} onChange={e => setDeveloper(d => ({ ...d, company_name: e.target.value }))} className="h-11" aria-invalid={!!errors.company_name} aria-describedby={errors.company_name ? 'developer-company-error' : undefined} /></Field>
           <Field id="position" label="Position" error={errors.position}><Input id="position" maxLength={160} value={developer.position} onChange={e => setDeveloper(d => ({ ...d, position: e.target.value }))} className="h-11" {...aria('position')} /></Field>
           <EnumSelect id="developer-type" label="Developer type" error={errors.developer_type ? "Choose a developer type or Not stated." : undefined} value={developer.developer_type} options={DEVELOPER_TYPES} onChange={v => setDeveloper(d => ({ ...d, developer_type: v }))} />
           <Chips id="stages" label="Project stages" options={STAGES} value={developer.project_stages} onChange={v => setDeveloper(d => ({ ...d, project_stages: v }))} />
           <Chips id="countries" label="Countries of operation" options={listOptions([...new Set([...COUNTRIES, ...developer.countries_of_operation])])} value={developer.countries_of_operation} onChange={v => setDeveloper(d => ({ ...d, countries_of_operation: v }))} />
           {saveButton('developer', developerDirty)}
-        </form></Section>}
+        </form></Section>
         <Section id="account" title="Account"><div className="space-y-6">
           <div><h3 className="text-sm font-semibold">Sign-in method</h3><p className="mt-2 text-sm text-muted-foreground">{[googleAccount ? 'Google' : '', emailAccount ? 'Email' : ''].filter(Boolean).join(' & ') || 'Not available'}</p></div>
           {emailAccount ? <form noValidate onSubmit={e => { e.preventDefault(); void changePassword(); }} className="space-y-5"><h3 className="font-display text-lg font-semibold">Change password</h3><Field id="password" label="New password" hint="Use at least 8 characters." error={errors.password}><Input id="password" type="password" autoComplete="new-password" value={passwords.password} onChange={e => setPasswords(p => ({ ...p, password: e.target.value }))} className="h-11" {...aria('password', true)} /></Field><Field id="confirm" label="Confirm new password" error={errors.confirm}><Input id="confirm" type="password" autoComplete="new-password" value={passwords.confirm} onChange={e => setPasswords(p => ({ ...p, confirm: e.target.value }))} className="h-11" {...aria('confirm')} /></Field>{saveButton('account', !!passwords.password || !!passwords.confirm)}</form> : <p className="text-sm text-muted-foreground">{googleAccount ? 'You sign in with Google. Manage your password in your Google account.' : 'Password changes are available for email sign-in accounts only.'}</p>}

@@ -470,7 +470,7 @@ export default function SubmitProject() {
       return;
     }
     toast.success("Listing published. It now appears in My Listings and the marketplace.");
-    navigate("/app/developer");
+    navigate("/app/my-deals/listing");
   };
 
 

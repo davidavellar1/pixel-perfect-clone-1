@@ -1,14 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
-import DeveloperDashboard from "@/pages/platform/DeveloperDashboard";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// Old address from before investing and listing moved under My Deals.
 export const Route = createFileRoute("/app/my-listings")({
-  head: () => ({
-    meta: [
-      { title: 'My listings — DHC Market' },
-      { name: "description", content: 'Manage your published projects and incoming investor interest.' },
-      { property: "og:title", content: 'My listings — DHC Market' },
-      { property: "og:description", content: 'Manage your published projects and incoming investor interest.' },
-    ],
-  }),
-  component: () => <DeveloperDashboard />,
+  beforeLoad: () => {
+    throw redirect({ href: "/app/my-deals/listing", replace: true });
+  },
+  component: () => null,
 });

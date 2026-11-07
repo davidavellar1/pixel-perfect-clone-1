@@ -12,6 +12,8 @@ interface PendingSignup {
   fullName: string;
   company: string;
   destination: string;
+  /** Optional answer to "what brings you here"; only picks the first page. */
+  intents?: string[];
 }
 
 export const startGoogleSignup = async (pending: Partial<PendingSignup> & { roles: SignupRole[] }) => {
@@ -20,6 +22,7 @@ export const startGoogleSignup = async (pending: Partial<PendingSignup> & { role
     fullName: pending.fullName?.trim() || "",
     company: pending.company?.trim() || "",
     destination: pending.destination || "/app",
+    intents: pending.intents ?? [],
   };
   try {
     localStorage.setItem(PENDING_KEY, JSON.stringify(payload));
@@ -60,6 +63,10 @@ export const claimPendingSignup = async (): Promise<string | null> => {
       _company: pending.company,
     });
     if (error) console.error("Could not save the sign-up role", error);
+  }
+  if (pending.intents?.length) {
+    const { error } = await supabase.auth.updateUser({ data: { signup_intent: pending.intents } });
+    if (error) console.error("Could not save the sign-up intent", error);
   }
   return pending.destination;
 };

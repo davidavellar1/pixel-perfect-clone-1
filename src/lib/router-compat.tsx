@@ -9,7 +9,7 @@ import {
   useParams as useTanStackParams,
   useRouter,
 } from "@tanstack/react-router";
-import { forwardRef, useCallback, useEffect, useMemo, type AnchorHTMLAttributes } from "react";
+import { forwardRef, useCallback, useEffect, useMemo, type AnchorHTMLAttributes, type ReactNode } from "react";
 
 export { Outlet };
 
@@ -130,8 +130,10 @@ Link.displayName = "Link";
 
 type NavClassName = string | ((state: { isActive: boolean; isPending: boolean }) => string);
 
-export interface NavLinkProps extends Omit<LinkProps, "className"> {
+export interface NavLinkProps extends Omit<LinkProps, "className" | "children"> {
   className?: NavClassName;
+  /** Plain children, or a function of the active state (as in react-router). */
+  children?: ReactNode | ((state: { isActive: boolean }) => ReactNode);
 }
 
 function isPathActive(current: string, to: string, end?: boolean) {
@@ -142,13 +144,14 @@ function isPathActive(current: string, to: string, end?: boolean) {
 }
 
 export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
-  ({ className, to, end, ...rest }, ref) => {
+  ({ className, to, end, children, ...rest }, ref) => {
     const { pathname } = useLocation();
     const isActive = isPathActive(pathname, to, end);
     const resolved = typeof className === "function" ? className({ isActive, isPending: false }) : className;
     return (
       <Link
         {...rest}
+        children={typeof children === "function" ? children({ isActive }) : children}
         ref={ref}
         to={to}
         end={end}

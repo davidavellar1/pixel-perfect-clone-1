@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "@/lib/router-compat";
-import { Building2, FolderOpen, Heart, Info, TrendingUp } from "lucide-react";
+import { Link, useNavigate } from "@/lib/router-compat";
+import { Building2, FolderOpen, Heart, Info, LockOpen, Send, TrendingUp } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import StatTile from "@/components/platform/StatTile";
+import DealsSwitch from "@/components/platform/DealsSwitch";
+import { TECHNOLOGIES } from "@/lib/profileSettings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-import { ACCESS_STATE_LABEL, PIPELINE_STAGES, effectiveState, normaliseStage, slaStatus, stageLabel } from "@/lib/access";
+import { ACCESS_STATE_LABEL, PIPELINE_STAGES, effectiveState, isGranted, normaliseStage, slaStatus, stageLabel } from "@/lib/access";
 
 type Interest = Tables<"project_interest">;
 type Project = Tables<"project">;
@@ -112,6 +116,12 @@ const InvestorDashboard = () => {
 
   useEffect(() => { load(); }, [load]);
 
+  const [alerts, setAlerts] = useState<Tables<"notification">[] | null>(null);
+  useEffect(() => {
+    if (!user) return;
+    void supabase.from("notification").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(3).then(({ data }) => setAlerts(data || []));
+  }, [user]);
+
   const projectById = useMemo(() => new Map(projects.map((project) => [project.id, project])), [projects]);
 
   // A project saved elsewhere since this page loaded: fetch its details once.
@@ -194,7 +204,67 @@ const InvestorDashboard = () => {
 
   return (
     <div className="max-w-[1240px]">
-      <div className="mb-6"><h1 className="font-display text-[28px] font-semibold">Pipeline</h1><p className="mt-1 text-[15px] text-muted-foreground">Your account-specific pipeline of projects progressing toward close.</p></div>
+      <DealsSwitch />
+      <div className="mb-6"><h1 className="font-display text-[28px] font-semibold">Investing</h1><p className="mt-1 text-[15px] text-muted-foreground">Projects you have reviewed, asked to see, or are negotiating on.</p></div>
+
+      <div className="mb-5 grid gap-5 lg:grid-cols-3">
+        <section className="rounded-xl border border-border bg-card p-5 shadow-card lg:col-span-2">
+          <h2 className="font-display text-base font-semibold">Your activity</h2>
+          <p className="mb-4 mt-1 text-[13px] text-muted-foreground">Across every project you have engaged with</p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <StatTile icon={Heart} label="Watchlisted" value={loading ? "…" : String(watchlist.length)} />
+            <StatTile icon={Send} label="Access requests sent" value={loading ? "…" : String(requests.length)} />
+            <StatTile icon={LockOpen} label="Access granted" value={loading ? "…" : String(requests.filter((request) => isGranted(effectiveState(request))).length)} tone="success" />
+          </div>
+        </section>
+        <section className="rounded-xl border border-border bg-card p-5 shadow-card">
+          <div className="flex items-baseline justify-between gap-3"><h2 className="font-display text-base font-semibold">Alerts</h2><Link to="/app/notifications" className="text-[13px] font-medium text-primary hover:underline">See all</Link></div>
+          <div className="mt-3 space-y-2.5">
+            {alerts === null ? <><Skeleton className="h-14 w-full" /><Skeleton className="h-14 w-full" /></> : !alerts.length ? <p className="py-6 text-center text-[13px] text-muted-foreground">No notifications for now.</p> : alerts.map((alert) => {
+              const body = <><span className={cn("mt-1.5 h-2 w-2 flex-none rounded-full", alert.read_at ? "bg-subtle-foreground" : "bg-primary")} aria-hidden="true" /><span><strong className="font-semibold">{alert.title}</strong>{alert.body ? <span className="block text-[#4f5d70]">{alert.body}</span> : null}<span className="mt-0.5 block text-xs text-[#4f5d70]">{new Date(alert.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span></span></>;
+              return alert.link ? <Link key={alert.id} to={alert.link} className="flex gap-2.5 rounded-lg bg-background p-3 text-[13px] leading-snug transition-colors hover:bg-muted">{body}</Link> : <div key={alert.id} className="flex gap-2.5 rounded-lg bg-background p-3 text-[13px] leading-snug">{body}</div>;
+            })}
+          </div>
+        </section>
+      </div>
+
+      <section className="mb-8 rounded-xl border border-border bg-card p-5 shadow-card">
+        <h2 className="font-display text-base font-semibold">Your deals</h2>
+        <p className="mb-4 mt-1 text-[13px] text-muted-foreground">Every project you have expressed interest in, and where it stands.</p>
+        {loading ? <div className="space-y-2" aria-hidden="true"><Skeleton className="h-11 w-full" /><Skeleton className="h-14 w-full" /></div> : !interests.length ? (
+          <div className="rounded-lg border border-dashed border-border px-6 py-10 text-center">
+            <p className="font-display text-lg font-semibold">Here you will see the projects you are pursuing</p>
+            <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">Express interest on a listing to request access. Its status and next step show up here.</p>
+            <Button asChild className="mt-4"><Link to="/app/opportunities">Browse opportunities</Link></Button>
+          </div>
+        ) : (
+          <div className="relative overflow-x-auto rounded-lg border border-border">
+            <table className="w-full min-w-[760px] border-collapse text-[13px]">
+              <thead><tr className="bg-background text-left text-[#4f5d70]"><th scope="col" className="px-3.5 py-3 font-semibold">Status</th><th scope="col" className="px-3.5 py-3 font-semibold">Project</th><th scope="col" className="px-3.5 py-3 font-semibold">Technology</th><th scope="col" className="px-3.5 py-3 font-semibold">Capacity</th><th scope="col" className="px-3.5 py-3 font-semibold">Location</th><th scope="col" className="px-3.5 py-3 font-semibold">Stage</th><th scope="col" className="px-3.5 py-3"><span className="sr-only">Open</span></th></tr></thead>
+              <tbody>
+                {interests.map((interest) => {
+                  const project = projectById.get(interest.project_id);
+                  if (!project) return null;
+                  const request = requests.find((item) => item.project_id === project.id);
+                  const state = request ? effectiveState(request) : null;
+                  const chip = !state ? { label: "Interest logged", className: "bg-muted text-muted-foreground" } : isGranted(state) ? { label: state === "granted_full" ? "Data room open" : "Access granted", className: "bg-success-soft text-[#137347]" } : state === "pending" ? { label: "Request pending", className: "bg-[#e7f1fd] text-[#1f5fb8]" } : { label: ACCESS_STATE_LABEL[state].replace(/^Request /, "").replace(/^./, (c) => c.toUpperCase()), className: "bg-muted text-muted-foreground" };
+                  return <tr key={interest.id} className="border-t border-border">
+                    <td className="px-3.5 py-3.5"><span className={cn("inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold", chip.className)}>{chip.label}</span></td>
+                    <td className="px-3.5 py-3.5 font-semibold text-foreground">{project.title}</td>
+                    <td className="px-3.5 py-3.5 text-[#4f5d70]">{TECHNOLOGIES[project.technology] || project.technology}</td>
+                    <td className="px-3.5 py-3.5 text-[#4f5d70]">{project.capacity_mw != null ? `${project.capacity_mw} MW` : "—"}</td>
+                    <td className="px-3.5 py-3.5 text-[#4f5d70]">{[project.city, project.country_code].filter(Boolean).join(", ") || "—"}</td>
+                    <td className="px-3.5 py-3.5 text-[#4f5d70]">{stageLabel(normaliseStage(interest.stage))}{state === "pending" && request ? ` · ${slaStatus(request).workingDays} working days` : ""}</td>
+                    <td className="px-3.5 py-3.5 text-right"><Button size="sm" variant="outline" onClick={() => navigate(`/app/projects/${project.slug}`)}>Open</Button></td>
+                  </tr>;
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <h2 className="mb-3 font-display text-lg font-semibold">Portfolio analytics</h2>
       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {kpis.map(([label, value, sub]) => <div key={label} className="rounded-lg border border-border border-l-[3px] border-l-accent bg-card px-4 py-3.5"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1.5 font-display text-xl font-semibold">{loading ? "..." : value}</p><p className="mt-1 text-[11px] text-muted-foreground">{sub}</p></div>)}
       </div>
@@ -246,7 +316,7 @@ const InvestorDashboard = () => {
         </section>
       </div>
 
-      <div className="mb-5 flex gap-1.5 border-b border-border">
+      <div className="mb-5 flex gap-1.5 overflow-x-auto border-b border-border">
         {([['interests', 'My interests'], ['deals', 'Deals'], ['watch', 'Watchlist'], ['passed', 'Passed deals']] as const).map(([id, label]) => <Button key={id} variant="ghost" onClick={() => setTab(id)} className={cn("rounded-none border-b-2", tab === id ? "border-accent text-accent" : "border-transparent text-muted-foreground")}>{label}</Button>)}
       </div>
 

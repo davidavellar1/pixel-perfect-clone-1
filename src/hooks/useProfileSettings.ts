@@ -11,7 +11,7 @@ export interface SettingsData {
   legal: Tables["legal_acceptance"]["Row"][];
 }
 export const useProfileSettings = () => {
-  const { user, roles } = useAuth();
+  const { user } = useAuth();
   const [data, setData] = useState<SettingsData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -21,15 +21,15 @@ export const useProfileSettings = () => {
     try {
       const [personal, investor, developer, legal] = await Promise.all([
         supabase.from("user_profile").select("*").eq("user_id", user.id).maybeSingle(),
-        roles.includes("investor") ? supabase.from("investor_profiles").select("*").eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null, error: null }),
-        roles.includes("developer") ? supabase.from("developer_profiles").select("*").eq("user_id", user.id).maybeSingle() : Promise.resolve({ data: null, error: null }),
+        supabase.from("investor_profiles").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase.from("developer_profiles").select("*").eq("user_id", user.id).maybeSingle(),
         supabase.from("legal_acceptance").select("*").eq("user_id", user.id).order("accepted_at", { ascending: false }),
       ]);
       for (const result of [personal, investor, developer, legal]) if (result.error) throw result.error;
       setData({ personal: personal.data, investor: investor.data, developer: developer.data, legal: legal.data ?? [] });
     } catch (err) { setError(err instanceof Error ? err.message : (err as { message?: string }).message ?? "Couldn't load your profile."); }
     finally { setLoading(false); }
-  }, [user?.id, roles.join(",")]);
+  }, [user?.id]);
   useEffect(() => { void load(); }, [load]);
   return { data, setData, loading, error, retry: load };
 };

@@ -52,6 +52,9 @@ import { Route as AppWatchlistRouteImport } from './routes/app.watchlist'
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as AppMyDealsIndexRouteImport } from './routes/app.my-deals.index'
+import { Route as AppMyDealsInvestingRouteImport } from './routes/app.my-deals.investing'
+import { Route as AppMyDealsListingRouteImport } from './routes/app.my-deals.listing'
 import { Route as AppProjectsSlugRouteImport } from './routes/app.projects.$slug'
 import { Route as ApiPublicHooksAccessRemindersRouteImport } from './routes/api/public/hooks/access-reminders'
 import { Route as ApiPublicHooksIngestNewsRouteImport } from './routes/api/public/hooks/ingest-news'
@@ -272,6 +275,21 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppMyDealsIndexRoute = AppMyDealsIndexRouteImport.update({
+  id: '/my-deals/',
+  path: '/my-deals/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyDealsInvestingRoute = AppMyDealsInvestingRouteImport.update({
+  id: '/my-deals/investing',
+  path: '/my-deals/investing',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyDealsListingRoute = AppMyDealsListingRouteImport.update({
+  id: '/my-deals/listing',
+  path: '/my-deals/listing',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProjectsSlugRoute = AppProjectsSlugRouteImport.update({
   id: '/projects/$slug',
   path: '/projects/$slug',
@@ -334,7 +352,10 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/app/my-deals/investing': typeof AppMyDealsInvestingRoute
+  '/app/my-deals/listing': typeof AppMyDealsListingRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
+  '/app/my-deals/': typeof AppMyDealsIndexRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
   '/api/public/hooks/ingest-news': typeof ApiPublicHooksIngestNewsRoute
 }
@@ -381,7 +402,10 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/projects': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/app/my-deals/investing': typeof AppMyDealsInvestingRoute
+  '/app/my-deals/listing': typeof AppMyDealsListingRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
+  '/app/my-deals': typeof AppMyDealsIndexRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
   '/api/public/hooks/ingest-news': typeof ApiPublicHooksIngestNewsRoute
 }
@@ -430,7 +454,10 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/app/my-deals/investing': typeof AppMyDealsInvestingRoute
+  '/app/my-deals/listing': typeof AppMyDealsListingRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
+  '/app/my-deals/': typeof AppMyDealsIndexRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
   '/api/public/hooks/ingest-news': typeof ApiPublicHooksIngestNewsRoute
 }
@@ -480,7 +507,10 @@ export interface FileRouteTypes {
     | '/app/'
     | '/projects/'
     | '/.lovable/oauth/consent'
+    | '/app/my-deals/investing'
+    | '/app/my-deals/listing'
     | '/app/projects/$slug'
+    | '/app/my-deals/'
     | '/api/public/hooks/access-reminders'
     | '/api/public/hooks/ingest-news'
   fileRoutesByTo: FileRoutesByTo
@@ -527,7 +557,10 @@ export interface FileRouteTypes {
     | '/app'
     | '/projects'
     | '/.lovable/oauth/consent'
+    | '/app/my-deals/investing'
+    | '/app/my-deals/listing'
     | '/app/projects/$slug'
+    | '/app/my-deals'
     | '/api/public/hooks/access-reminders'
     | '/api/public/hooks/ingest-news'
   id:
@@ -575,7 +608,10 @@ export interface FileRouteTypes {
     | '/app/'
     | '/projects/'
     | '/.lovable/oauth/consent'
+    | '/app/my-deals/investing'
+    | '/app/my-deals/listing'
     | '/app/projects/$slug'
+    | '/app/my-deals/'
     | '/api/public/hooks/access-reminders'
     | '/api/public/hooks/ingest-news'
   fileRoutesById: FileRoutesById
@@ -911,6 +947,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/my-deals/': {
+      id: '/app/my-deals/'
+      path: '/my-deals'
+      fullPath: '/app/my-deals/'
+      preLoaderRoute: typeof AppMyDealsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/my-deals/investing': {
+      id: '/app/my-deals/investing'
+      path: '/my-deals/investing'
+      fullPath: '/app/my-deals/investing'
+      preLoaderRoute: typeof AppMyDealsInvestingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/my-deals/listing': {
+      id: '/app/my-deals/listing'
+      path: '/my-deals/listing'
+      fullPath: '/app/my-deals/listing'
+      preLoaderRoute: typeof AppMyDealsListingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/projects/$slug': {
       id: '/app/projects/$slug'
       path: '/projects/$slug'
@@ -956,7 +1013,10 @@ interface AppRouteChildren {
   AppSupportRoute: typeof AppSupportRoute
   AppWatchlistRoute: typeof AppWatchlistRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppMyDealsInvestingRoute: typeof AppMyDealsInvestingRoute
+  AppMyDealsListingRoute: typeof AppMyDealsListingRoute
   AppProjectsSlugRoute: typeof AppProjectsSlugRoute
+  AppMyDealsIndexRoute: typeof AppMyDealsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -980,7 +1040,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppSupportRoute: AppSupportRoute,
   AppWatchlistRoute: AppWatchlistRoute,
   AppIndexRoute: AppIndexRoute,
+  AppMyDealsInvestingRoute: AppMyDealsInvestingRoute,
+  AppMyDealsListingRoute: AppMyDealsListingRoute,
   AppProjectsSlugRoute: AppProjectsSlugRoute,
+  AppMyDealsIndexRoute: AppMyDealsIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

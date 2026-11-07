@@ -16,19 +16,21 @@ interface Props {
   roles: SignupRole[];
   fullName?: string;
   company?: string;
+  intents?: string[];
+  destination?: string;
   disabled?: boolean;
   label?: string;
   className?: string;
 }
 
-const GoogleSignupButton = ({ roles, fullName, company, disabled, label = "Sign up with Google", className }: Props) => {
+const GoogleSignupButton = ({ roles, fullName, company, intents, destination, disabled, label = "Sign up with Google", className }: Props) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
     setLoading(true);
     try {
-      const result = await startGoogleSignup({ roles, fullName, company });
+      const result = await startGoogleSignup({ roles, fullName, company, intents, destination });
       if (result.redirected) return;
     } catch (error: any) {
       toast({

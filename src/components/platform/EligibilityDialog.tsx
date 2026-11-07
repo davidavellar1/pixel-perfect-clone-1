@@ -11,7 +11,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Link } from "@/lib/router-compat";
-import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import {
   APPLICANT_LABEL,
@@ -37,7 +36,6 @@ const EligibilityDialog = ({
   projects: OwnProject[];
   onClose: () => void;
 }) => {
-  const { view } = useAuth();
   const [step, setStep] = useState(0);
   const [projectId, setProjectId] = useState("");
 
@@ -146,11 +144,9 @@ const EligibilityDialog = ({
                   {applicants.length ? applicants.join(", ") : "Check on the official page"}
                 </li>
               </ul>
-              {view !== "investor" && (
-                <Button asChild variant="outline" className="mt-4">
-                  <Link to="/app/submit-project">Add a listing</Link>
-                </Button>
-              )}
+              <Button asChild variant="outline" className="mt-4">
+                <Link to="/app/submit-project">Add a listing</Link>
+              </Button>
             </>
           ) : step === 0 ? (
             <>

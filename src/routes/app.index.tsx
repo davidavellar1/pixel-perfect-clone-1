@@ -7,9 +7,9 @@ export const Route = createFileRoute("/app/")({
   component: AppHome,
 });
 
-// The landing page depends on the member's role, which is only known client-side.
+// The first page depends on what the member said brought them here, which is only known client-side.
 function AppHome() {
-  const { view, loading } = useAuth();
+  const { intents, loading } = useAuth();
   if (loading) return null;
-  return <Navigate to={homePathFor(view)} replace />;
+  return <Navigate to={homePathFor(intents)} replace />;
 }
