@@ -55,12 +55,13 @@ function clean<T extends object>(input: T): Partial<T> {
 }
 
 export function useProjectRecord(projectId: string | undefined) {
-  const [overrides, setOverrides] = useState<Partial<ProjectDetail>>({});
+  const [result, setResult] = useState<{ id: string; overrides: Partial<ProjectDetail> } | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!projectId) {
-      setOverrides({});
+      setResult(null);
+      setLoading(false);
       return;
     }
     let cancelled = false;
@@ -129,8 +130,6 @@ export function useProjectRecord(projectId: string | undefined) {
           equityRequired: money(financial?.equity_required),
           minTicket: money(financial?.min_ticket),
           fundingRemaining: money(financial?.funding_remaining),
-          targetIRR: pct(financial?.target_irr_pct),
-          unleveragedIRR: pct(financial?.unleveraged_irr_pct),
           paybackPeriod: financial?.payback_years ? `${Number(financial.payback_years)} years` : undefined,
           concessionTerm: financial?.concession_term_years ? `${financial.concession_term_years} years` : undefined,
           firstRevenue: financial?.first_revenue_year ? String(financial.first_revenue_year) : undefined,
@@ -144,9 +143,9 @@ export function useProjectRecord(projectId: string | undefined) {
       const stack = (stackRes.data ?? []).map((item, index) => ({
         label: item.label,
         percentage: Number(item.share_pct ?? 0),
-        amount: money(item.amount) ?? "Not stated",
+        amount: money(item.amount) ?? "",
         description: item.provider ?? "",
-        color: STACK_COLORS[index % STACK_COLORS.length]!,
+        color: STACK_COLORS[index % STACK_COLORS.length] ?? STACK_COLORS[0] ?? "",
       }));
       if (stack.length) next.capitalStack = stack;
 
@@ -160,7 +159,7 @@ export function useProjectRecord(projectId: string | undefined) {
 
       const funding = (fundingRes.data ?? []).map((row) => ({
         source: row.source,
-        amount: money(row.amount) ?? "Not stated",
+        amount: money(row.amount) ?? "",
         status: row.status ?? "Indicative",
       }));
       if (funding.length) next.publicFunding = funding;
@@ -190,10 +189,10 @@ export function useProjectRecord(projectId: string | undefined) {
             tonnes: Number(sustainability.co2_tonnes_per_year),
             equivalentCars: sustainability.equivalent_cars
               ? Number(sustainability.equivalent_cars).toLocaleString()
-              : "not stated",
+              : "",
             lifetimeReduction: sustainability.lifetime_reduction_tonnes
               ? `${Number(sustainability.lifetime_reduction_tonnes).toLocaleString()} tonnes`
-              : "not stated",
+              : "",
           };
         }
         if (sustainability.eu_taxonomy_objective) {
@@ -242,12 +241,12 @@ export function useProjectRecord(projectId: string | undefined) {
 
       const operatingParameters = (operatingRes.data ?? []).map((row) => ({
         parameter: row.parameter,
-        value: row.value ?? "Not stated",
+        value: row.value ?? "",
         benchmark: row.benchmark ?? "",
       }));
       if (operatingParameters.length) next.operatingParameters = operatingParameters;
 
-      setOverrides(next);
+      setResult({ id: projectId, overrides: next });
       setLoading(false);
     })();
 
@@ -256,5 +255,5 @@ export function useProjectRecord(projectId: string | undefined) {
     };
   }, [projectId]);
 
-  return { overrides, loading };
+  return { overrides: result && result.id === projectId ? result.overrides : {}, loading };
 }

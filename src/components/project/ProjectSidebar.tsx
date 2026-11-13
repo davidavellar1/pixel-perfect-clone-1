@@ -32,17 +32,15 @@ const ProjectSidebar = ({
             { label: "Total capex", value: project.capex },
             { label: "Equity required", value: project.equityRequired },
             { label: "Min. ticket", value: project.minTicket },
-            { label: "Target equity IRR", value: project.targetIRR, highlight: true },
-            { label: "Target unlevered IRR", value: project.unleveragedIRR },
             { label: "Payback period", value: project.paybackPeriod },
             { label: "Concession term", value: project.concessionTerm },
             { label: "First revenue", value: project.firstRevenue },
-          ].map((item, i) => (
+          ].filter((item) => Boolean(item.value)).map((item, i) => (
             <div key={item.label}>
               <div className="flex justify-between items-center py-3">
                 <span className="text-sm text-muted-foreground">{item.label}</span>
                 <span
-                  className={`text-sm font-bold ${item.highlight ? "text-primary" : "text-foreground"}`}
+                  className="text-sm font-bold text-foreground"
                 >
                   {item.value}
                 </span>

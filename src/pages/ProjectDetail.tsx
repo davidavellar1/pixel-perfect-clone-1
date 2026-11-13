@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "@/lib/router-compat";
 import PublicShell from "@/components/public/PublicShell";
 import ProjectHero from "@/components/project/ProjectHero";
@@ -15,11 +15,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
 import { useWatchlist } from "@/hooks/useWatchlist";
-import { projectsData, slugify, type ProjectDetail as ProjectDetailData } from "@/data/projectsData";
+import type { ProjectDetail as ProjectDetailData } from "@/data/projectsData";
 import type { Tables } from "@/integrations/supabase/types";
 import { useInvestorGrade } from "@/hooks/useInvestorGrade";
 import { useProjectRecord } from "@/hooks/useProjectRecord";
 import { blankProjectDetail } from "@/lib/blankProject";
+import { loadDisclosedProject, teaserProjectDetail, type ProjectTeaser } from "@/lib/projectDisclosure";
 
 import {
   addDays, addMonths, declineReasonLabel, effectiveState, formatDate, isDataRoomOpen, isGranted,
@@ -66,7 +67,9 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const staticProject = projectsData.find((p) => p.slug === slug || slugify(p.title) === slug);
+  const [teaser, setTeaser] = useState<ProjectTeaser | null>(null);
+  const [loadingProject, setLoadingProject] = useState(true);
+  const [projectError, setProjectError] = useState<string | null>(null);
   const [databaseProject, setDatabaseProject] = useState<Tables<"project"> | null>(null);
   const [user, setUser] = useState<{ id: string; email?: string | null } | null>(null);
   const watchlist = useWatchlist();
@@ -80,7 +83,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   const [request, setRequest] = useState<AccessRequestRow | null>(null);
   const [criteria, setCriteria] = useState<AccessCriteriaRow | null>(null);
   const [investorProfile, setInvestorProfile] = useState<Tables<"investor_profiles"> | null>(null);
-  const { grade } = useInvestorGrade(databaseProject?.id);
+
 
   const accessState: ViewerAccess = request ? effectiveState(request) : "teaser";
   /** The developer always sees their own listing in full. */
@@ -91,60 +94,13 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     ? "pending"
     : "none";
 
-  const { overrides } = useProjectRecord(databaseProject?.id);
-
-  /**
-   * A listing that only exists in the database carries exactly what its developer entered.
-   * Nothing is borrowed from the sample content, so blank fields read as "Not stated"
-   * rather than as another project's facts.
-   */
-  const staticBase: ProjectDetailData | undefined =
-    staticProject || (databaseProject ? blankProjectDetail(databaseProject) : undefined);
-
-  /** Live database figures win over the static content wherever the developer supplied them. */
-  const baseProject: ProjectDetailData | undefined = staticBase
-    ? { ...staticBase, ...overrides }
-    : undefined;
-
-
-  /** Teaser and every non-granted state stay anonymized: no identity, no city. */
-  const capacityValue = Number(databaseProject?.capacity_mw || parseFloat(baseProject?.capacity || "")) || 0;
-  const capexValue = Number(databaseProject?.headline_investment || parseFloat((baseProject?.capex || "").replace(/[^0-9.]/g, "")) * 1_000_000) || 0;
-  // A band is only shown where a figure exists; otherwise the listing says so.
-  const capacityBand = capacityValue <= 0
-    ? "Not stated"
-    : capacityValue < 10 ? "Under 10 MW" : capacityValue < 25 ? "10-25 MW" : capacityValue < 50 ? "25-50 MW" : "50+ MW";
-  const capexBand = capexValue <= 0
-    ? "Not stated"
-    : capexValue < 15_000_000 ? "Under EUR 15M" : capexValue < 30_000_000 ? "EUR 15-30M" : capexValue < 50_000_000 ? "EUR 30-50M" : "EUR 50M+";
-  const project: ProjectDetailData | undefined = baseProject && !granted
-    ? {
-        ...baseProject,
-        title: `${baseProject.technology} ${baseProject.badge.toLowerCase()}, ${baseProject.country}`,
-        location: baseProject.country,
-        capacity: capacityBand,
-        capex: capexBand,
-        targetIRR: "",
-        equityRequired: "",
-        minTicket: "",
-        co2Reduction: "",
-        householdsServed: "",
-        developer: { ...baseProject.developer, name: "Developer identity withheld until access is granted", verified: baseProject.developer.verified },
-      }
-    : baseProject;
-
-  const loadEngagement = useCallback(async (authUserId: string | null, projectId: string) => {
-    if (!authUserId) {
-      setRequest(null);
-      return;
-    }
-    const [{ data: requestRow }, { data: profileRow }] = await Promise.all([
-      supabase.from("access_request").select("*").eq("project_id", projectId).eq("investor_user_id", authUserId).maybeSingle(),
-      supabase.from("investor_profiles").select("*").eq("user_id", authUserId).maybeSingle(),
-    ]);
-    setRequest(requestRow ?? null);
-    setInvestorProfile(profileRow ?? null);
-  }, []);
+  const projectId = databaseProject?.id ?? teaser?.id ?? undefined;
+  const { grade } = useInvestorGrade(granted ? databaseProject?.id : null, accessState, isOwner);
+  const { overrides } = useProjectRecord(granted ? databaseProject?.id : undefined);
+  const baseProject = granted && databaseProject ? blankProjectDetail(databaseProject) : undefined;
+  const project: ProjectDetailData | undefined = baseProject
+    ? { ...baseProject, ...overrides }
+    : teaser ? teaserProjectDetail(teaser) : undefined;
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -159,9 +115,28 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   }, []);
 
   useEffect(() => {
-    if (!slug) return;
-    supabase.from("project").select("*").eq("slug", slug).maybeSingle().then(({ data }) => setDatabaseProject(data));
-  }, [slug]);
+    setDatabaseProject(null);
+    setTeaser(null);
+    setRequest(null);
+    setIsOwner(false);
+    setProjectError(null);
+    setLoadingProject(true);
+    if (!slug || loadingAuth) return;
+    let cancelled = false;
+    loadDisclosedProject(supabase, slug, user?.id ?? null).then((result) => {
+      if (cancelled) return;
+      setTeaser(result.teaser);
+      setDatabaseProject(result.project);
+      setRequest(result.request);
+      setIsOwner(result.owner);
+      setLoadingProject(false);
+    }).catch((error: { message?: string }) => {
+      if (cancelled) return;
+      setProjectError(error.message ?? "Project could not be loaded. Please try again.");
+      setLoadingProject(false);
+    });
+    return () => { cancelled = true; };
+  }, [slug, user?.id, loadingAuth]);
 
   /** Notification links open a tab directly, e.g. ?tab=qa. */
   useEffect(() => {
@@ -172,38 +147,23 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   }, [slug]);
 
   useEffect(() => {
-    if (!databaseProject || !user) {
-      setIsOwner(false);
-      return;
-    }
+    setCriteria(null);
+    setInvestorProfile(null);
+    if (!projectId) return;
     let cancelled = false;
-    supabase
-      .from("developer_profiles")
-      .select("id")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!cancelled) setIsOwner(!!data && data.id === databaseProject.developer_id);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [databaseProject, user]);
-
-  useEffect(() => {
-    if (!databaseProject) return;
-    loadEngagement(user?.id ?? null, databaseProject.id);
-    supabase.from("listing_access_criteria").select("*").eq("project_id", databaseProject.id).maybeSingle()
-      .then(({ data }) => setCriteria(data ?? null));
-  }, [databaseProject, loadEngagement, user]);
+    if (user) supabase.from("investor_profiles").select("*").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => { if (!cancelled) setInvestorProfile(data); });
+    supabase.from("listing_access_criteria").select("*").eq("project_id", projectId).maybeSingle()
+      .then(({ data }) => { if (!cancelled) setCriteria(data ?? null); });
+    return () => { cancelled = true; };
+  }, [projectId, user?.id]);
 
   const toggleWatchlist = async () => {
-    if (!databaseProject) return;
+    if (!projectId) return;
     if (!user) {
       navigate(`/sign-in?redirect=${encodeURIComponent(context === "app" ? `/app/projects/${slug}` : `/projects/${slug}`)}`);
       return;
     }
-    const projectId = databaseProject.id;
     setWatchlistBusy(true);
     const saved = watchlist.has(projectId);
     const result = saved ? await watchlist.remove(projectId) : await watchlist.add(projectId);
@@ -247,7 +207,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   };
 
   const handleSubmitInterest = async (draft: InterestFormDraft) => {
-    if (!user || !databaseProject) {
+    if (!user || !projectId) {
       toast({ title: "This listing is not connected yet", description: "Please choose a live marketplace listing.", variant: "destructive" });
       return;
     }
@@ -264,7 +224,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
       .from("access_request")
       .upsert(
         {
-          project_id: databaseProject.id,
+          project_id: projectId,
           investor_user_id: user.id,
           status: "requested",
           state: "pending",
@@ -332,10 +292,10 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
     setRequest(saved);
     setJustSubmitted(true);
-    try { localStorage.removeItem(`dhc-interest-draft-${databaseProject.id}`); } catch { /* storage unavailable */ }
+    try { localStorage.removeItem(`dhc-interest-draft-${projectId}`); } catch { /* storage unavailable */ }
 
     await supabase.from("project_interest").upsert(
-      { project_id: databaseProject.id, investor_user_id: user.id, stage: "interest_submitted" },
+      { project_id: projectId, investor_user_id: user.id, stage: "interest_submitted" },
       { onConflict: "project_id,investor_user_id" },
     );
   };
@@ -355,6 +315,9 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     setRequest(data);
     toast({ title: "Request withdrawn", description: "The developer has been notified that you withdrew before a decision." });
   };
+
+  if (loadingProject || loadingAuth) return <div className="mx-auto max-w-[980px] px-5 py-20 text-muted-foreground">Loading project...</div>;
+  if (projectError) return <div role="alert" className="mx-auto max-w-[980px] px-5 py-20 text-destructive">{projectError}</div>;
 
   if (!project) {
     const notFound = <div className="mx-auto max-w-[980px] px-5 py-20 text-center"><h1 className="mb-4 font-display text-2xl font-semibold text-foreground">Project not found</h1><Button variant="outline" asChild><Link to={context === "app" ? "/app/opportunities" : "/sign-in?redirect=/app/opportunities"}>Back to opportunities</Link></Button></div>;
@@ -393,11 +356,11 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
                 variant="outline"
                 size="sm"
                 onClick={toggleWatchlist}
-                disabled={watchlistBusy || !databaseProject}
-                aria-pressed={!!databaseProject && watchlist.has(databaseProject.id)}
+                disabled={watchlistBusy || !projectId}
+                aria-pressed={!!projectId && watchlist.has(projectId)}
               >
-                <Heart className={`h-4 w-4 ${databaseProject && watchlist.has(databaseProject.id) ? "fill-current" : ""}`} />
-                {databaseProject && watchlist.has(databaseProject.id) ? "Saved" : "Save"}
+                <Heart className={`h-4 w-4 ${projectId && watchlist.has(projectId) ? "fill-current" : ""}`} />
+                {projectId && watchlist.has(projectId) ? "Saved" : "Save"}
               </Button>
               <Button size="sm" onClick={openInterest} disabled={loadingAuth}>{ctaLabel}</Button>
             </>
@@ -412,10 +375,11 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
         onRequestAccess={openInterest}
         loadingAuth={loadingAuth}
         grade={grade}
+        granted={granted}
         asOf={asOf}
         ctaLabel={granted ? "Access granted" : accessState === "pending" ? "Request pending" : undefined}
-        projectId={databaseProject?.id}
-        watchlisted={databaseProject ? watchlist.has(databaseProject.id) : false}
+        projectId={projectId}
+        watchlisted={projectId ? watchlist.has(projectId) : false}
         watchlistBusy={watchlistBusy || loadingAuth}
         onToggleWatchlist={toggleWatchlist}
       />
@@ -533,29 +497,21 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
       <div className="mx-auto max-w-[980px] px-5 py-10">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            {isLocked(activeTab) ? (
-              <LockedTabOverlay
-                tabName={activeTab}
-                mode={user ? "interest" : "signin"}
-                pending={accessState === "pending"}
-                description={LOCK_COPY[activeTab]}
-                onExpressInterest={openInterest}
-              >
-                <ProjectTabContent project={project} projectId={databaseProject?.id} activeTab={activeTab} grade={grade} asOf={asOf} breakeven={breakeven} isOwner={isOwner} userId={user?.id ?? null} />
-              </LockedTabOverlay>
-            ) : (
+            <LockedTabOverlay
+              locked={isLocked(activeTab)}
+              tabName={activeTab}
+              mode={user ? "interest" : "signin"}
+              pending={accessState === "pending"}
+              description={LOCK_COPY[activeTab]}
+              onExpressInterest={openInterest}
+            >
               <ProjectTabContent
-                project={project}
-                projectId={databaseProject?.id}
-                activeTab={activeTab}
-                dataRoomStatus={dataRoomStatus}
-                isOwner={isOwner}
-                userId={user?.id ?? null}
-                grade={grade}
-                asOf={asOf}
-                breakeven={breakeven}
+                project={project} projectId={granted ? projectId : undefined}
+                activeTab={activeTab} dataRoomStatus={dataRoomStatus}
+                isOwner={isOwner} userId={user?.id ?? null}
+                grade={grade} asOf={asOf} breakeven={breakeven}
               />
-            )}
+            </LockedTabOverlay>
           </div>
           <div className="lg:col-span-1">
             <ProjectSidebar project={project} onRequestAccess={openInterest} loadingAuth={loadingAuth} isOwner={isOwner} context={context} />
@@ -569,7 +525,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
       <ExpressInterestDialog
         open={showInterest}
         onOpenChange={setShowInterest}
-        projectId={databaseProject?.id || slug || "listing"}
+        projectId={projectId || slug || "listing"}
         projectTitle={project.title}
         criteria={criteria}
         submitting={submitting}

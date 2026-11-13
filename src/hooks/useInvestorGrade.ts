@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { emptyInvestorGrade, type InvestorGradeBundle } from "@/data/investorGrade";
+import type { ViewerAccess } from "@/lib/access";
+import { canReadProjectDetail } from "@/lib/projectDisclosure";
 
 /** Loads every investor-grade record attached to a database project. */
-export const useInvestorGrade = (projectId: string | null | undefined) => {
-  const [grade, setGrade] = useState<InvestorGradeBundle>(emptyInvestorGrade);
+export const useInvestorGrade = (projectId: string | null | undefined, accessState: ViewerAccess, isOwner = false) => {
+  const allowed = canReadProjectDetail(accessState, isOwner);
+  const [result, setResult] = useState<{ id: string; grade: InvestorGradeBundle } | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!projectId) {
-      setGrade(emptyInvestorGrade);
+    setResult(null);
+    if (!projectId || !allowed) {
+      setLoading(false);
       return;
     }
     let cancelled = false;
@@ -24,18 +28,18 @@ export const useInvestorGrade = (projectId: string | null | undefined) => {
         supabase.from("offtake_ladder").select("*").eq("project_id", projectId).maybeSingle(),
       ]);
       if (cancelled) return;
-      setGrade({
+      setResult({ id: projectId, grade: {
         transaction: transaction.data ?? null,
         process: process.data ?? null,
         construction: construction.data ?? null,
         margin: margin.data ?? null,
         cases: cases.data ?? [],
         ladder: ladder.data ?? null,
-      });
+      } });
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [projectId]);
+  }, [projectId, allowed]);
 
-  return { grade, loading };
+  return { grade: allowed && result && result.id === projectId ? result.grade : emptyInvestorGrade, loading: allowed && loading };
 };

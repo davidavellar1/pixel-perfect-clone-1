@@ -9,6 +9,7 @@ interface ProjectHeroProps {
   onRequestAccess: () => void;
   loadingAuth: boolean;
   grade?: InvestorGradeBundle;
+  granted?: boolean;
   asOf?: { financial?: string | null; technical?: string | null; regulatory?: string | null };
   ctaLabel?: string;
   /** Database id of the project; the watchlist button is shown only when it is known. */
@@ -18,8 +19,8 @@ interface ProjectHeroProps {
   onToggleWatchlist?: () => void;
 }
 
-const ProjectHero = ({ project, onRequestAccess, loadingAuth, grade, asOf, ctaLabel, projectId, watchlisted = false, watchlistBusy = false, onToggleWatchlist }: ProjectHeroProps) => {
-  const ladder = grade?.ladder ?? null;
+const ProjectHero = ({ project, onRequestAccess, loadingAuth, grade, granted = false, asOf, ctaLabel, projectId, watchlisted = false, watchlistBusy = false, onToggleWatchlist }: ProjectHeroProps) => {
+  const ladder = granted ? grade?.ladder ?? null : null;
   const loadPct = committedLoadPct(ladder);
   const buildingPct = committedBuildingPct(ladder);
   const metrics = [
@@ -32,7 +33,7 @@ const ProjectHero = ({ project, onRequestAccess, loadingAuth, grade, asOf, ctaLa
           ? null
           : `${loadPct}% of design load${buildingPct !== null ? `, ${buildingPct.toFixed(0)}% of buildings` : ""}`,
     },
-    { label: "Equity sought", value: grade?.transaction?.equity_sought == null ? null : eur(grade.transaction.equity_sought) },
+    { label: "Equity sought", value: !granted || grade?.transaction?.equity_sought == null ? null : eur(grade.transaction.equity_sought) },
   ].filter((metric): metric is { label: string; value: string } => Boolean(metric.value));
   return (
     <div className="border-b border-border bg-foreground text-primary-foreground">
@@ -82,7 +83,8 @@ const ProjectHero = ({ project, onRequestAccess, loadingAuth, grade, asOf, ctaLa
           ))}
         </div>
         <p className="mb-6 text-xs text-primary-foreground/50">
-          {asOfLine("Financial information", asOf?.financial)}. {asOfLine("Technical information", asOf?.technical)}.
+          {asOf?.financial && <>{asOfLine("Financial information", asOf.financial)}. </>}
+          {asOf?.technical && <>{asOfLine("Technical information", asOf.technical)}. </>}
           All figures are developer-stated.
         </p>
 

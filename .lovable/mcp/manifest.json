@@ -37,7 +37,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Free text matched against title, city and summary."
+              "description": "Free text matched against the anonymized teaser title."
             },
             "countryCode": {
               "anyOf": [
@@ -84,7 +84,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Minimum installed capacity in MW."
+              "description": "Minimum capacity band floor in MW; exact capacity is not disclosed."
             },
             "limit": {
               "anyOf": [
@@ -116,7 +116,7 @@
       {
         "name": "get_project",
         "title": "Get project profile",
-        "description": "Return the public profile of one listed project by slug, including headline figures and any financial summary the developer has published. Figures are developer-stated and unverified.",
+        "description": "Return an anonymized teaser, or investor detail after the calling user has granted access. Figures are developer-stated and unverified.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,

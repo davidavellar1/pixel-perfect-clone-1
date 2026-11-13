@@ -2,37 +2,7 @@ import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
 import { supabaseForUser } from "../supabase";
 
-interface ProjectRow {
-  slug: string;
-  title: string;
-  city: string;
-  country_code: string;
-  technology: string;
-  lifecycle_stage: string;
-  project_type: string;
-  capacity_mw: number;
-  headline_investment: number | null;
-  headline_irr_pct: number | null;
-  summary: string | null;
-  verified: boolean;
-  created_at: string;
-}
-
-const toJson = (p: ProjectRow) => ({
-  slug: p.slug,
-  title: p.title,
-  city: p.city,
-  countryCode: p.country_code,
-  technology: p.technology,
-  lifecycleStage: p.lifecycle_stage,
-  projectType: p.project_type,
-  capacityMw: p.capacity_mw,
-  headlineInvestment: p.headline_investment,
-  headlineIrrPct: p.headline_irr_pct,
-  summary: p.summary,
-  verified: p.verified,
-  createdAt: p.created_at,
-});
+import { teaserJson, type ProjectTeaser } from "@/lib/projectDisclosure";
 
 export default defineTool({
   name: "search_opportunities",
@@ -40,11 +10,11 @@ export default defineTool({
   description:
     "Search listed district heating and cooling projects on the marketplace. Filters are optional; figures are developer-stated and unverified.",
   inputSchema: {
-    query: z.string().trim().nullable().describe("Free text matched against title, city and summary."),
+    query: z.string().trim().nullable().describe("Free text matched against the anonymized teaser title."),
     countryCode: z.string().trim().length(2).nullable().describe("Two-letter country code, e.g. FR."),
     technology: z.string().trim().nullable().describe("Primary technology, e.g. waste_heat, geothermal."),
     lifecycleStage: z.string().trim().nullable().describe("Lifecycle stage, e.g. development, construction."),
-    minCapacityMw: z.number().nonnegative().nullable().describe("Minimum installed capacity in MW."),
+    minCapacityMw: z.number().nonnegative().nullable().describe("Minimum capacity band floor in MW; exact capacity is not disclosed."),
     limit: z.number().int().min(1).max(50).nullable().describe("Maximum results to return (default 10)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
@@ -54,29 +24,24 @@ export default defineTool({
     }
     const supabase = supabaseForUser(ctx);
     let q = supabase
-      .from("project")
-      .select(
-        "slug,title,city,country_code,technology,lifecycle_stage,project_type,capacity_mw,headline_investment,headline_irr_pct,summary,verified,created_at",
-      )
-      .eq("visibility", "listed")
+      .from("project_teaser")
+      .select("*")
       .order("created_at", { ascending: false })
       .limit(input.limit ?? 10);
 
     if (input.countryCode) q = q.eq("country_code", input.countryCode.toUpperCase());
     if (input.technology) q = q.eq("technology", input.technology as never);
     if (input.lifecycleStage) q = q.eq("lifecycle_stage", input.lifecycleStage as never);
-    if (input.minCapacityMw !== null && input.minCapacityMw !== undefined) {
-      q = q.gte("capacity_mw", input.minCapacityMw);
-    }
-    if (input.query) {
-      const like = `%${input.query}%`;
-      q = q.or(`title.ilike.${like},city.ilike.${like},summary.ilike.${like}`);
-    }
+    if (input.query) q = q.ilike("teaser_title", `%${input.query}%`);
 
     const { data, error } = await q;
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
 
-    const projects = ((data ?? []) as ProjectRow[]).map(toJson);
+    const projects = ((data ?? []) as ProjectTeaser[]).filter((p) => {
+      if (input.minCapacityMw == null) return true;
+      const floor = p.capacity_band?.startsWith("Under") ? 0 : Number(p.capacity_band?.match(/\d+/)?.[0] ?? 0);
+      return floor >= input.minCapacityMw;
+    }).map(teaserJson);
     return {
       content: [
         {
@@ -85,7 +50,7 @@ export default defineTool({
             ? projects
                 .map(
                   (p) =>
-                    `${p.title} (${p.slug}) - ${p.city}, ${p.countryCode} - ${p.capacityMw} MW - ${p.technology} - ${p.lifecycleStage}`,
+                    `${p.teaserTitle} (${p.slug}) - ${p.countryCode} - ${p.capacityBand ?? ""} - ${p.technology} - ${p.lifecycleStage}`,
                 )
                 .join("\n")
             : "No listed projects match these filters.",

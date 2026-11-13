@@ -1,12 +1,12 @@
 import type { Tables } from "@/integrations/supabase/types";
 import type { ProjectDetail } from "@/data/projectsData";
 
-const NOT_STATED = "Not stated";
+const NOT_STATED = "";
 
 /**
  * Builds the detail shape for a listing that exists only in the database.
  * Every field comes from that project's own record; anything the developer has not
- * entered stays empty or reads "Not stated". Never borrow from the sample content —
+ * entered stays empty. Never borrow from sample content -
  * an investor would read another project's figures as fact.
  */
 export function blankProjectDetail(row: Tables<"project">): ProjectDetail {

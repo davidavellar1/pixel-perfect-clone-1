@@ -6,3 +6,12 @@
 - [ ] Public avatars: blocked by workspace public-bucket policy; private owner-visible fallback
 - [ ] Legal document links: existing legal pages are missing; show acceptance history and support link instead
 - [ ] Account-deletion cleanup: platform policy prohibits auth.users reference or deletion trigger for user_profile
+
+# Payments
+- [ ] Enable Stripe after user confirmation; no payment integration changes yet
+
+# Disclosure fixes
+- [x] Gate investor-grade queries and locked DOM/hero figures
+- [x] Read teaser-only data for unapproved detail/listing viewers and update card metrics
+- [x] Restrict MCP output, redirect public project detail, and update robots
+- [x] Verify disclosure behavior, tests, and compilation without database changes

@@ -11,6 +11,7 @@ interface LockedTabOverlayProps {
   pending?: boolean;
   onExpressInterest?: () => void;
   description?: string;
+  locked?: boolean;
 }
 
 const LockedTabOverlay = ({
@@ -20,16 +21,16 @@ const LockedTabOverlay = ({
   pending = false,
   onExpressInterest,
   description,
+  locked = true,
 }: LockedTabOverlayProps) => {
   const location = useLocation();
   const redirect = encodeURIComponent(location.pathname + location.search);
 
+  if (!locked) return <>{children}</>;
+
   return (
-    <div className="relative">
-      <div className="pointer-events-none select-none blur-[6px] opacity-60 max-h-[520px] overflow-hidden" aria-hidden="true">
-        {children}
-      </div>
-      <div className="absolute inset-0 flex items-start justify-center bg-gradient-to-b from-background/40 via-background/80 to-background pt-16">
+    <div className="flex min-h-[360px] items-start justify-center pt-8">
+      <div className="flex w-full justify-center">
         <div className="max-w-md w-full rounded-xl border border-border bg-card p-8 text-center shadow-lg">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
             <Lock className="h-5 w-5 text-accent" />

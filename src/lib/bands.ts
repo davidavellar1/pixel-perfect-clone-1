@@ -18,3 +18,13 @@ export const capexBandRange = (value: number | null): Band | null =>
 
 export const capacityBand = (mw: number) => capacityBandRange(mw).label;
 export const capexBand = (value: number | null) => capexBandRange(value)?.label ?? null;
+
+/** Read public bands without reconstructing any exact source value. */
+export const publishedBandRange = (label: string | null | undefined, scale = 1): Band | null => {
+  if (!label) return null;
+  const numbers = label.match(/\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+  const first = numbers[0];
+  if (first == null) return null;
+  if (label.startsWith("Under")) return { label, min: 0, max: first * scale };
+  return { label, min: first * scale, max: numbers[1] == null ? null : numbers[1] * scale };
+};

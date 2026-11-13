@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { isGranted } from "@/lib/access";
-import { money, capacityBandRange, capexBandRange, type Band } from "@/lib/bands";
+import { money, capacityBandRange, capexBandRange, publishedBandRange, type Band } from "@/lib/bands";
 import { useProjectListings, type ProjectListing } from "@/hooks/useProjectListings";
 import { useBundles } from "@/hooks/useBundles";
 
@@ -141,9 +141,9 @@ const fmtM = (v: number) => Math.round(v / 1_000_000);
 const fmtDate = (d: string) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
 const toRow = (p: ProjectListing): Row => {
-  const granted = isGranted(p.accessState);
-  const mwBand = capacityBandRange(p.capacityMw || 0);
-  const cBand = capexBandRange(p.capex);
+  const granted = isGranted(p.accessState) && p.capacityBand === undefined;
+  const mwBand = publishedBandRange(p.capacityBand) ?? capacityBandRange(p.capacityMw || 0);
+  const cBand = publishedBandRange(p.capexBand, 1_000_000) ?? capexBandRange(p.capex);
   const completeness = [p.capacityMw, p.capex, p.targetIrr, p.equitySought, p.minTicket, p.instrument, p.offtakeLoadPct].filter((v) => v != null && v !== 0 && v !== "").length;
   return {
     id: p.id,
@@ -152,14 +152,14 @@ const toRow = (p: ProjectListing): Row => {
     tech: p.technology,
     country: p.country,
     stage: p.stage,
-    regime: "Not stated",
+    regime: "",
     mw: granted ? p.capacityMw || 0 : mid(mwBand),
     mwBand,
     capex: granted ? p.capex : null,
     capexBand: cBand,
     weight: granted ? p.capex || 1 : cBand ? mid(cBand) : 1,
     irr: granted ? p.targetIrr : null,
-    contr: p.contractedPct ?? 0,
+    contr: p.contractedPct ?? p.offtakeLoadPct ?? 0,
     signed: p.signedPct ?? 0,
     completeness,
     financialAsOf: p.financialAsOf ?? null,
@@ -230,14 +230,14 @@ const BundleBuilder = () => {
   const mwMin = mwExact + locked.reduce((a, p) => a + p.mwBand.min, 0);
   const mwOpen = locked.some((p) => p.mwBand.max == null);
   const mwMax = mwExact + locked.reduce((a, p) => a + (p.mwBand.max ?? p.mwBand.min), 0);
-  const mwLabel = !locked.length ? String(Math.round(mwExact)) : mwOpen ? `${Math.round(mwMin)}+` : `${Math.round(mwMin)}–${Math.round(mwMax)}`;
+  const mwLabel = !locked.length ? String(Math.round(mwExact)) : mwOpen ? `${Math.round(mwMin)}+` : `${Math.round(mwMin)}-${Math.round(mwMax)}`;
 
   const capExact = grantedRows.reduce((a, p) => a + (p.capex || 0), 0);
   const lockedCap = locked.filter((p) => p.capexBand);
   const capMin = capExact + lockedCap.reduce((a, p) => a + p.capexBand!.min, 0);
   const capOpen = lockedCap.some((p) => p.capexBand!.max == null);
   const capMax = capExact + lockedCap.reduce((a, p) => a + (p.capexBand!.max ?? p.capexBand!.min), 0);
-  const capLabel = !lockedCap.length ? `EUR ${fmtM(capExact)}` : capOpen ? `EUR ${fmtM(capMin)}+` : `EUR ${fmtM(capMin)}–${fmtM(capMax)}`;
+  const capLabel = !lockedCap.length ? `EUR ${fmtM(capExact)}` : capOpen ? `EUR ${fmtM(capMin)}+` : `EUR ${fmtM(capMin)}-${fmtM(capMax)}`;
 
   const irrRows = grantedRows.filter((p) => p.irr != null);
   const irrW = irrRows.reduce((a, p) => a + p.weight, 0);
@@ -268,7 +268,7 @@ const BundleBuilder = () => {
     return 1 - g.reduce((a, [, v]) => a + (v / total) * (v / total), 0);
   };
 
-  const regimeStated = chosen.some((p) => p.regime !== "Not stated");
+  const regimeStated = chosen.some((p) => Boolean(p.regime));
   const dscore = cap
     ? Math.round((regimeStated ? spread("country") * 0.4 + spread("regime") * 0.4 + spread("tech") * 0.2 : spread("country") * 0.67 + spread("tech") * 0.33) * 100)
     : 0;
@@ -278,7 +278,7 @@ const BundleBuilder = () => {
   const nTech = new Set(chosen.map((p) => p.tech)).size;
 
   const openSave = () => {
-    setSaveName(editing?.name || `Bundle – ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`);
+    setSaveName(editing?.name || `Bundle - ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`);
     setSaveNotes(editing?.notes || "");
     setSaveOpen(true);
   };
@@ -475,8 +475,8 @@ const BundleBuilder = () => {
                       <Chip tone="tech">{p.tech}</Chip>
                       <Chip>{p.country}</Chip>
                       <Chip>{p.stage}</Chip>
-                      <Chip>{p.regime}</Chip>
-                      {p.contr > 0 && <Chip tone="off">{Math.round(p.contr)}% contracted</Chip>}
+                      {p.regime && <Chip>{p.regime}</Chip>}
+                      {p.contr > 0 && <Chip tone="off">{Math.round(p.contr)}% committed load</Chip>}
                       {p.signed > 0 && <Chip tone="loi">+{Math.round(p.signed)}% signed</Chip>}
                       <Chip>{p.completeness}/7 data points</Chip>
                       {p.granted && <Chip>{p.financialAsOf ? `Figures as of ${fmtDate(p.financialAsOf)}` : "Not dated"}</Chip>}
@@ -485,7 +485,7 @@ const BundleBuilder = () => {
                   <span className="text-right">
                     <span className="block font-display text-[15px] font-semibold">{p.granted ? `${p.mw} MW` : p.mwBand.label}</span>
                     <span className="block text-xs text-muted-foreground">
-                      {p.granted ? (p.capex != null ? money(p.capex) : "—") : p.capexBand?.label ?? "—"}
+                      {p.granted ? (p.capex != null ? money(p.capex) : "-") : p.capexBand?.label ?? "-"}
                     </span>
                     {p.irr != null && <span className="mt-0.5 block font-display text-xs font-semibold text-accent">{p.irr.toFixed(1)}%</span>}
                     {mode === "strategy" && (
@@ -520,7 +520,7 @@ const BundleBuilder = () => {
                 <AggCard label="Aggregate capacity" value={mwLabel} unit="MW" />
                 <AggCard label="Aggregate capital" value={capLabel} unit="M" />
                 <div>
-                  <AggCard label="Blended target IRR" value={wIrr == null ? "—" : `${wIrr.toFixed(1)}%`} />
+                  <AggCard label="Blended target IRR" value={wIrr == null ? "-" : `${wIrr.toFixed(1)}%`} />
                   <p className="mt-1 px-1 text-[10px] text-muted-foreground">developer-stated, {irrRows.length} of {chosen.length} projects</p>
                 </div>
                 <AggCard label="Offtake committed" value={`${Math.round(wComm)}%`} />
@@ -530,7 +530,7 @@ const BundleBuilder = () => {
               {locked.length > 0 && (
                 <p className="mb-4 flex items-start gap-1.5 text-[11.5px] text-muted-foreground">
                   <Lock className="mt-0.5 h-3 w-3 flex-none" />
-                  {locked.length} project{locked.length === 1 ? " has" : "s have"} locked figures – request access on the project page to see them.
+                  {locked.length} project{locked.length === 1 ? " has" : "s have"} locked figures - request access on the project page to see them.
                 </p>
               )}
 
@@ -551,7 +551,7 @@ const BundleBuilder = () => {
                 <p className="mt-1 text-[11.5px] leading-relaxed text-[#aebbcd]">
                   {regimeStated
                     ? `Across ${nCountry} ${nCountry > 1 ? "countries" : "country"} and ${nRegime} regulatory ${nRegime > 1 ? "regimes" : "regime"}.`
-                    : `Across ${nCountry} ${nCountry > 1 ? "countries" : "country"} and ${nTech} ${nTech > 1 ? "technologies" : "technology"}; regulatory regime not stated.`}{" "}
+                    : `Across ${nCountry} ${nCountry > 1 ? "countries" : "country"} and ${nTech} ${nTech > 1 ? "technologies" : "technology"}; regulatory regime is not published.`}{" "}
                   Spreading across geographies and technologies reduces policy and demand correlation; {Math.round(wContr)}% of demand is
                   contracted, {Math.round(wComm - wContr)}% under signed connection agreements.
                 </p>
