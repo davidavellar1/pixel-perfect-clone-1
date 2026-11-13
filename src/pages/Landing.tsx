@@ -155,87 +155,6 @@ const css = `
   @media(max-width:820px){.lp .foot-grid{grid-template-columns:1fr 1fr}}
 `;
 
-const tzProjects = [
-  {
-    tech: "Waste heat",
-    type: "Modernization",
-    tc: "tz-amber",
-    sc: "#d6a23a",
-    stage: "Development",
-    gen: "4G",
-    loc: "France · Auvergne-Rhône-Alpes",
-    cap: "5-10 MW",
-    capex: "€10-15M",
-    off: "87%",
-    pub: true,
-  },
-  {
-    tech: "Geothermal",
-    type: "Expansion",
-    tc: "tz-blue",
-    sc: "#1872eb",
-    stage: "Construction",
-    gen: "4G",
-    loc: "Denmark · Hovedstaden",
-    cap: "25-50 MW",
-    capex: "€40-50M",
-    off: "91%",
-    pub: true,
-  },
-  {
-    tech: "Heat pump",
-    type: "New construction",
-    tc: "tz-green",
-    sc: "#1d9e75",
-    stage: "Development",
-    gen: "5G",
-    loc: "Netherlands · Noord-Holland",
-    cap: "10-25 MW",
-    capex: "€35-40M",
-    off: "44%",
-    pub: false,
-  },
-  {
-    tech: "Biomass",
-    type: "Expansion",
-    tc: "tz-blue",
-    sc: "#1872eb",
-    stage: "Construction",
-    gen: "3G",
-    loc: "Sweden · Stockholm",
-    cap: "25-50 MW",
-    capex: "€30-35M",
-    off: "88%",
-    pub: true,
-  },
-  {
-    tech: "Solar thermal",
-    type: "New construction",
-    tc: "tz-green",
-    sc: "#1f9d63",
-    stage: "Concept",
-    gen: "4G",
-    loc: "Finland · Uusimaa",
-    cap: "25-50 MW",
-    capex: "€50-60M",
-    off: "Early stage",
-    pub: true,
-  },
-  {
-    tech: "Waste heat",
-    type: "Modernization",
-    tc: "tz-amber",
-    sc: "#d6a23a",
-    stage: "Construction",
-    gen: "3G",
-    loc: "Germany · North Rhine-Westphalia",
-    cap: "10-25 MW",
-    capex: "€20-25M",
-    off: "92%",
-    pub: true,
-  },
-];
-
 const Check = () => (
   <svg viewBox="0 0 24 24">
     <path d="M20 6L9 17l-5-5" />
@@ -418,46 +337,7 @@ const Landing = () => {
                 </li>
               </ul>
             </div>
-            <div className="snap-card">
-              <div className="snap-tabs">
-                <span className="on">Overview</span>
-                <span>Technical</span>
-                <span>Financial</span>
-                <span>Regulatory</span>
-              </div>
-              <div className="snap-rows">
-                <div className="srow">
-                  <span className="k">Technology</span>
-                  <span className="v">Waste-heat recovery</span>
-                </div>
-                <div className="srow">
-                  <span className="k">Location</span>
-                  <span className="v">France · Auvergne-Rhône-Alpes</span>
-                </div>
-                <div className="srow">
-                  <span className="k">Capacity</span>
-                  <span className="v">5-10 MW</span>
-                </div>
-                <div className="srow">
-                  <span className="k">Contracted connections</span>
-                  <span className="v">87%</span>
-                </div>
-                <div className="srow">
-                  <span className="k">Heat-source type</span>
-                  <span className="v">Industrial waste heat</span>
-                </div>
-                <div className="srow">
-                  <span className="k">Financial case</span>
-                  <span className="v">Unlock after approval</span>
-                </div>
-                <div className="srow">
-                  <span className="k">Public co-financing</span>
-                  <span className="v" style={{ color: "#5bc88a" }}>
-                    Committed
-                  </span>
-                </div>
-              </div>
-            </div>
+
           </div>
         </section>
 

@@ -6,6 +6,15 @@ export function baseCaseReturn(state: ViewerAccess, cases: { name: string; equit
   return cases.find((row) => row.name === "base")?.equity_irr_pct ?? null;
 }
 
+export function bundleExactFigures(project: { accessState: ViewerAccess; capacityMw: number; capex: number | null; equitySought: number | null; minTicket: number | null }) {
+  if (!isGranted(project.accessState)) return null;
+  return { capacityMw: project.capacityMw, capex: project.capex, equitySought: project.equitySought, minTicket: project.minTicket };
+}
+
+export function publicFundingTotal(funding: { numericAmount: number | null }[]) {
+  return funding.reduce((sum, fund) => sum + (fund.numericAmount ?? 0), 0);
+}
+
 export function designLoadSegments(loads: number[]) {
   const shares = loads.map((load) => Number.isFinite(load) ? Math.max(0, Math.min(100, load)) : 0);
   return { shares, remainder: Math.max(0, 100 - shares.reduce((sum, share) => sum + share, 0)) };

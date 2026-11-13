@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 import { SLA_LAPSE_WORKING_DAYS, SLA_REMINDER_HOURS, workingDaysSince } from '@/lib/access'
+import { pendingAccessNotices } from '@/lib/accessNotices'
 const FEE_TAIL_WARN_DAYS = 30
 
 type NotificationInsert = {
@@ -70,7 +71,12 @@ export const Route = createFileRoute('/api/public/hooks/access-reminders')({
 
           if (row.state === 'pending' && !paused && workingDays >= SLA_LAPSE_WORKING_DAYS) {
             lapsed.push(row.id)
+            notifications.push(...pendingAccessNotices({ ...row, ownerId, workingDays, paused, title }))
             continue
+          }
+
+          if (row.state === 'pending') {
+            notifications.push(...pendingAccessNotices({ ...row, ownerId, workingDays, paused, title }))
           }
 
           if (row.state === 'pending' && !paused && hours >= SLA_REMINDER_HOURS && ownerId) {

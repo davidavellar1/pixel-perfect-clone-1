@@ -23,3 +23,4 @@
 - Use React Hook Form with Zod and stock form primitives for request validation so field names, errors and focus stay associated.
 - Keep the MCP SDK generated banner hyphen-only through the pinned dependency patch so strict source punctuation checks do not break generation.
 - Enforce semantic colour utilities and source punctuation in the dedicated frontend hygiene CI check to prevent styling regressions.
+- Scheduled access notices use a shared pure recipient builder so lapse always notifies both parties and escalation remains testable.

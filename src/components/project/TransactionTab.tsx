@@ -147,7 +147,7 @@ const TransactionTab = ({ grade, asOf }: { grade: InvestorGradeBundle; asOf?: st
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="rounded-xl border border-border bg-card p-6">
             <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              {p?.process_type === "competitive" ? "Competitive process" : p?.process_type === "bilateral" ? "Bilateral process" : "Process type not stated"}
+              {p?.process_type === "competitive" ? "Competitive process" : p?.process_type === "bilateral" ? "Bilateral process" : "The developer has not specified a process type"}
             </p>
             <ol className="relative space-y-5 border-l border-border pl-6">
               {timeline.filter(item => item.value != null).map((item) => (

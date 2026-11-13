@@ -1,7 +1,7 @@
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ProjectDetail } from "@/data/projectsData";
+import { ProjectDetail } from "@/lib/blankProject";
 import { MapPin, Heart, Share2, FileText, CheckSquare } from "lucide-react";
 import { asOfLine, committedBuildingPct, committedLoadPct, eur, type InvestorGradeBundle } from "@/data/investorGrade";
 

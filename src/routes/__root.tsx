@@ -98,12 +98,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: SITE_NAME },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      {
-        property: "og:image:alt",
-        content: "DHC Market - where district heating and cooling meets capital",
-      },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#0b1b2e" },
     ],

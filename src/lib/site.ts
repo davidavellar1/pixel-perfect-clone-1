@@ -4,7 +4,7 @@
  * or change the fallback below - nothing else needs to change.
  */
 export const SITE_URL = (
-  (import.meta.env.VITE_SITE_URL as string | undefined) || "https://dhc-deal-space.lovable.app"
+  (import.meta.env.VITE_SITE_URL as string | undefined) || "https://dhc-market-dev-test-view.lovable.app"
 ).replace(/\/+$/, "");
 
 export const SITE_NAME = "DHC Market";

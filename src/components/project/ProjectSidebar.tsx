@@ -1,7 +1,8 @@
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
-import { ProjectDetail } from "@/data/projectsData";
+import { ProjectDetail } from "@/lib/blankProject";
 import { Building2, CheckCircle } from "lucide-react";
+import { publicFundingTotal } from "@/lib/figureDisclosure";
 
 interface ProjectSidebarProps {
   project: ProjectDetail;
@@ -162,14 +163,11 @@ const ProjectSidebar = ({
               </div>
             ))}
           </div>
-          <p className="text-xs text-info mt-3 leading-relaxed">
-            €
-            {project.publicFunding
-              .reduce((sum, f) => sum + parseFloat(f.amount.replace(/[^0-9.]/g, "")), 0)
-              .toFixed(1)}
-            M in public co-financing reduces first-loss risk and lowers the cost of capital for
-            private investors.
-          </p>
+          {project.publicFunding.some((fund) => fund.numericAmount != null) && (
+            <p className="text-xs text-info mt-3 leading-relaxed">
+              Developer-stated public co-financing: {new Intl.NumberFormat("en-GB", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(publicFundingTotal(project.publicFunding))}.
+            </p>
+          )}
           <Button
             variant="outline"
             className="w-full mt-4 rounded-full border-info text-info hover:bg-info-soft"

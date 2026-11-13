@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { ProjectDetail } from "@/data/projectsData";
+import type { ProjectDetail } from "@/lib/blankProject";
 
 /**
  * Loads the live database detail for a project (financial, technical, sustainability
@@ -10,7 +10,7 @@ import type { ProjectDetail } from "@/data/projectsData";
  */
 
 const STACK_COLORS = [
-  "hsl(var(--primary))",
+  "var(--primary)",
   "hsl(152 69% 40%)",
   "hsl(271 60% 60%)",
   "hsl(271 40% 75%)",
@@ -160,6 +160,7 @@ export function useProjectRecord(projectId: string | undefined) {
       const funding = (fundingRes.data ?? []).map((row) => ({
         source: row.source,
         amount: money(row.amount) ?? "",
+        numericAmount: row.amount,
         status: row.status ?? "Indicative",
       }));
       if (funding.length) next.publicFunding = funding;
@@ -215,7 +216,7 @@ export function useProjectRecord(projectId: string | undefined) {
         number: row.sdg_number,
         title: row.title ?? `SDG ${row.sdg_number}`,
         description: row.note ?? "",
-        color: SDG_COLORS[row.sdg_number] ?? "hsl(var(--primary))",
+        color: SDG_COLORS[row.sdg_number] ?? "var(--primary)",
       }));
       if (sdgs.length) next.sdgs = sdgs;
 

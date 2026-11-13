@@ -15,7 +15,7 @@ import { isGranted } from "@/lib/access";
 import { money, capacityBandRange, capexBandRange, publishedBandRange, type Band } from "@/lib/bands";
 import { useProjectListings, type ProjectListing } from "@/hooks/useProjectListings";
 import { supabase } from "@/integrations/supabase/client";
-import { baseCaseReturn } from "@/lib/figureDisclosure";
+import { baseCaseReturn, bundleExactFigures } from "@/lib/figureDisclosure";
 import { useBundles } from "@/hooks/useBundles";
 
 const PALETTE = ["#2f80ed", "#1d9e75", "#d6a23a", "#6b3fa0", "#3aa0a0", "#c2762e", "#4a72c4"];
@@ -55,7 +55,7 @@ const Donut = ({ data, total }: { data: [string, number][]; total: number }) => 
   return (
     <div className="flex items-center gap-4">
       <svg width="80" height="80" viewBox="0 0 80 80">
-        <circle cx="40" cy="40" r="30" fill="none" stroke="hsl(var(--muted))" strokeWidth="14" />
+        <circle cx="40" cy="40" r="30" fill="none" stroke="var(--muted)" strokeWidth="14" />
         {data.map(([label, value], i) => {
           const len = (value / total) * C;
           const dash = `${len} ${C - len}`;
@@ -143,7 +143,7 @@ const fmtM = (v: number) => Math.round(v / 1_000_000);
 const fmtDate = (d: string) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
 const toRow = (p: ProjectListing): Row => {
-  const granted = isGranted(p.accessState) && p.capacityBand === undefined;
+  const granted = bundleExactFigures(p) !== null;
   const mwBand = publishedBandRange(p.capacityBand) ?? capacityBandRange(p.capacityMw || 0);
   const cBand = publishedBandRange(p.capexBand, 1_000_000) ?? capexBandRange(p.capex);
   const completeness = [p.capacityMw, p.capex, p.targetIrr, p.equitySought, p.minTicket, p.instrument, p.offtakeLoadPct].filter((v) => v != null && v !== 0 && v !== "").length;
@@ -251,9 +251,9 @@ const BundleBuilder = () => {
 
   const capExact = grantedRows.reduce((a, p) => a + (p.capex || 0), 0);
   const lockedCap = locked.filter((p) => p.capexBand);
-  const capMin = capExact + lockedCap.reduce((a, p) => a + p.capexBand!.min, 0);
-  const capOpen = lockedCap.some((p) => p.capexBand!.max == null);
-  const capMax = capExact + lockedCap.reduce((a, p) => a + (p.capexBand!.max ?? p.capexBand!.min), 0);
+  const capMin = capExact + lockedCap.reduce((a, p) => a + (p.capexBand?.min ?? 0), 0);
+  const capOpen = lockedCap.some((p) => p.capexBand?.max == null);
+  const capMax = capExact + lockedCap.reduce((a, p) => a + (p.capexBand?.max ?? p.capexBand?.min ?? 0), 0);
   const capLabel = !lockedCap.length ? `EUR ${fmtM(capExact)}` : capOpen ? `EUR ${fmtM(capMin)}+` : `EUR ${fmtM(capMin)}-${fmtM(capMax)}`;
 
   const irrRows = chosen.filter((p) => p.irr != null && (caseCapital[p.id] ?? 0) > 0);

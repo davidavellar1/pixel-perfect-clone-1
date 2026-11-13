@@ -8,7 +8,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { projectsData } from "@/data/projectsData";
+import { useProjectListings } from "@/hooks/useProjectListings";
 import { cn } from "@/lib/utils";
 import { FlowHeading, FlowSteps } from "./FlowSteps";
 
@@ -30,6 +30,7 @@ const AssistanceDialog = ({
   preselected: AssistanceAdvisor | null;
   onClose: () => void;
 }) => {
+  const { projects } = useProjectListings();
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("Financial");
   const [slug, setSlug] = useState("general");
@@ -48,7 +49,7 @@ const AssistanceDialog = ({
   const chosen = advisors.find((advisor) => advisor.name === selected) ?? suggestions[0];
   const projectLabel = slug === "general"
     ? "a general request"
-    : projectsData.find((item) => item.slug === slug)?.title ?? "your project";
+    : projects.find((item) => item.slug === slug)?.title ?? "your project";
 
   const advance = () => {
     if (step === 0) {
@@ -115,7 +116,7 @@ const AssistanceDialog = ({
                     <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="general">General / not project specific</SelectItem>
-                      {projectsData.map((item) => (
+                      {projects.map((item) => (
                         <SelectItem key={item.slug} value={item.slug}>{item.title}</SelectItem>
                       ))}
                     </SelectContent>

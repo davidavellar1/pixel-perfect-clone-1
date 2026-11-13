@@ -50,3 +50,11 @@
 - [x] Canonical links, locked account CTA and public skip link
 - [x] Remove unused landing, portfolio and demo code
 - [x] Verify navigation, recovery validation and mobile signup access
+
+# Independent review corrections
+- [x] Validate semantic tokens and workspace utilities
+- [x] Remove invented public examples and legacy project dataset
+- [x] Restore bilateral lapse notices and escalation
+- [x] Correct signature disclosure and granted bundle figures
+- [x] Fix numeric funding, metadata and case-only return entry
+- [x] Refresh types, run regression tests and verify preview

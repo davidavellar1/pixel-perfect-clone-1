@@ -59,7 +59,7 @@
 
 @theme inline {
   --shadow-card: 0 1px 2px rgb(15 27 45 / 0.04), 0 2px 8px rgb(15 27 45 / 0.03);
-  --container-workspace: 1240px;
+  --container-workspace: var(--workspace-width);
   --color-inverse-subtle: var(--inverse-subtle);
   --color-inverse-muted: var(--inverse-muted);
   --color-inverse-foreground: var(--inverse-foreground);
@@ -74,7 +74,7 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-warning-soft: var(--warning-soft);
   --color-warning: var(--warning);
-  --color-ladder-negotiation: #f5a623;
+  --color-ladder-negotiation: var(--ladder-negotiation);
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Space Grotesk", "Inter", sans-serif;
   --font-display: "Space Grotesk", "Inter", sans-serif;
@@ -160,6 +160,8 @@
 }
 
 :root {
+  --ladder-negotiation: #f5a623;
+  --workspace-width: 1240px;
   --inverse-subtle: #9fb0c4;
   --inverse-muted: #c5cedb;
   --inverse-foreground: #ffffff;
@@ -282,3 +284,5 @@
 }
 
 @utility workspace-container { width: 100%; max-width: var(--container-workspace); margin-inline: auto; }
+
+@utility max-w-workspace { max-width: var(--workspace-width); }

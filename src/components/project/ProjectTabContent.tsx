@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ProjectDetail } from "@/data/projectsData";
+import { ProjectDetail } from "@/lib/blankProject";
 import { ownershipRows } from "@/lib/figureDisclosure";
 import { asOfLine, eur } from "@/data/investorGrade";
 import ProjectCharts from "@/components/ProjectCharts";
@@ -74,7 +74,7 @@ const ProjectTabContent = ({
     return projectId ? (
       <ProjectDocuments projectId={projectId} dataRoomStatus={dataRoomStatus} />
     ) : (
-      <DocumentsTab project={project} dataRoomStatus={dataRoomStatus} onRequestDataRoom={onRequestDataRoom} />
+      <DocumentsTab />
     );
   }
   if (activeTab === "Q&A") return <ProjectQA projectId={projectId} userId={userId} isOwner={isOwner} />;
@@ -508,166 +508,8 @@ function SustainabilityTab({ project, asOf }: { project: ProjectDetail; asOf?: s
 }
 
 /* ─── Documents ─── */
-type DocItem = {
-  title: string;
-  meta: string;
-  icon: typeof FileText;
-  iconColor: string;
-  iconBg: string;
-  gated?: boolean;
-};
-
-const DOCUMENT_LIST: DocItem[] = [
-  {
-    title: "Information Memorandum",
-    meta: "PDF · 48 pages · Updated March 2025",
-    icon: FileText,
-    iconColor: "text-destructive",
-    iconBg: "bg-destructive-soft",
-  },
-  {
-    title: "EU Taxonomy Assessment Report",
-    meta: "PDF · 24 pages · Bureau Veritas · January 2025",
-    icon: BookOpen,
-    iconColor: "text-info",
-    iconBg: "bg-info-soft",
-  },
-  {
-    title: "Technical Feasibility Study (Summary)",
-    meta: "PDF · 32 pages · Rambøll · Q3 2023",
-    icon: ClipboardList,
-    iconColor: "text-warning-foreground",
-    iconBg: "bg-warning-soft",
-  },
-  {
-    title: "Financial Model (Excel)",
-    meta: "XLSX · Full project finance model · Data room access required",
-    icon: FileSpreadsheet,
-    iconColor: "text-muted-foreground",
-    iconBg: "bg-muted",
-    gated: true,
-  },
-  {
-    title: "Environmental Impact Assessment",
-    meta: "PDF · 112 pages · Data room access required",
-    icon: Leaf,
-    iconColor: "text-muted-foreground",
-    iconBg: "bg-muted",
-    gated: true,
-  },
-  {
-    title: "Legal Term Sheet",
-    meta: "PDF · Concession agreement terms · Data room access required",
-    icon: Scale,
-    iconColor: "text-muted-foreground",
-    iconBg: "bg-muted",
-    gated: true,
-  },
-  {
-    title: "EPC Contract Summary",
-    meta: "PDF · Vinci Energies fixed-price contract · Data room access required",
-    icon: FileSignature,
-    iconColor: "text-muted-foreground",
-    iconBg: "bg-muted",
-    gated: true,
-  },
-];
-
-function DocumentsTab({
-  project: _project,
-  dataRoomStatus = "none",
-  onRequestDataRoom,
-}: {
-  project: ProjectDetail;
-  dataRoomStatus?: DataRoomStatus;
-  onRequestDataRoom?: () => void;
-}) {
-  const openDocs = DOCUMENT_LIST.filter((d) => !d.gated);
-  const dataRoomDocs = DOCUMENT_LIST.filter((d) => d.gated);
-  const approved = dataRoomStatus === "approved";
-
-  return (
-    <div>
-      <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Open documents</h2>
-      <div className="border-t border-border mb-6" />
-      <div className="space-y-3">
-        {openDocs.map((doc) => {
-          const Icon = doc.icon;
-          return (
-            <div
-              key={doc.title}
-              className="flex items-center justify-between bg-card border border-border rounded-xl p-4 hover:border-primary/40 transition-colors"
-            >
-              <div className="flex items-center gap-4 min-w-0">
-                <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 ${doc.iconBg}`}>
-                  <Icon className={`w-5 h-5 ${doc.iconColor}`} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{doc.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 truncate">{doc.meta}</p>
-                </div>
-              </div>
-              <Button size="sm" className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 ml-3">
-                Download
-              </Button>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Confidential data room (T3) */}
-      <div className="mt-8 rounded-xl border border-dashed border-primary/30 bg-muted/30 p-6">
-        <div className="flex items-center gap-3 mb-2">
-          <Lock className="w-5 h-5 text-primary" />
-          <h3 className="text-base font-semibold text-foreground">Confidential data room</h3>
-          <span className="ml-auto rounded-full bg-primary/10 text-primary px-3 py-0.5 text-xs font-semibold">
-            Developer-approved
-          </span>
-        </div>
-        <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-          The financial model, EIA, term sheet, and EPC contract require the developer's approval before access.
-          Request access and the developer is notified to approve.
-        </p>
-
-        {approved ? (
-          <div className="space-y-3">
-            {dataRoomDocs.map((doc) => {
-              const Icon = doc.icon;
-              return (
-                <div
-                  key={doc.title}
-                  className="flex items-center justify-between bg-card border border-border rounded-xl p-4 hover:border-primary/40 transition-colors"
-                >
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 bg-primary/10">
-                      <Icon className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{doc.title}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{doc.meta}</p>
-                    </div>
-                  </div>
-                  <Button size="sm" className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 ml-3">
-                    Download
-                  </Button>
-                </div>
-              );
-            })}
-          </div>
-        ) : dataRoomStatus === "pending" ? (
-          <div className="flex items-center gap-2.5 rounded-lg border border-warning-border/60 bg-warning-soft  px-4 py-3 text-sm text-warning-foreground ">
-            <Clock className="w-4 h-4 shrink-0" />
-            <span>Your access request is with the developer. Nothing is released until they decide.</span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2.5 rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
-            <Clock className="w-4 h-4 shrink-0" />
-            <span>The data room opens only when the developer accepts your request in full. They decide this separately.</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+function DocumentsTab() {
+  return <p className="text-sm text-muted-foreground">The developer has not published documents for this listing.</p>;
 }
 
 export default ProjectTabContent;

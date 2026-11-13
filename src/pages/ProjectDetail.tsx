@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { toast as sonnerToast } from "sonner";
 import { useWatchlist } from "@/hooks/useWatchlist";
-import type { ProjectDetail as ProjectDetailData } from "@/data/projectsData";
+import type { ProjectDetail as ProjectDetailData } from "@/lib/blankProject";
 import type { Tables } from "@/integrations/supabase/types";
 import { useInvestorGrade } from "@/hooks/useInvestorGrade";
 import { useProjectRecord } from "@/hooks/useProjectRecord";

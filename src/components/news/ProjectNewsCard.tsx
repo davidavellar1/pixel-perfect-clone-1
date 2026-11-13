@@ -32,7 +32,7 @@ const ProjectNewsCard = ({ projectId, countryCode }: { projectId: string; countr
   if (items && items.length === 0) return null;
 
   return (
-    <section className="rounded-xl border border-border bg-card p-6" style={{ boxShadow: "var(--card-shadow)" }}>
+    <section className="rounded-xl border border-border bg-card p-6 shadow-card">
       <h3 className="mb-4 font-display text-base font-semibold text-foreground">Market news</h3>
       <ul className="space-y-4">
         {items === null

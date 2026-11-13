@@ -196,7 +196,6 @@ export default function SubmitProject() {
   const [capacityBand, setCapacityBand] = useState("");
   const [capex, setCapex] = useState("");
   const [capexBand, setCapexBand] = useState("");
-  const [targetIrr, setTargetIrr] = useState("");
   const [co2, setCo2] = useState("");
   const [renewableShare, setRenewableShare] = useState("");
   const [publishing, setPublishing] = useState(false);
@@ -385,13 +384,13 @@ export default function SubmitProject() {
         country_code: COUNTRY_CODES[country], city: city.trim(),
         lifecycle_stage: STAGE_VALUES[stage as keyof typeof STAGE_VALUES],
         project_type: projectType, technology, capacity_mw: Number(capacity), visibility: "listed",
-        headline_investment: num(capex), headline_irr_pct: num(targetIrr), headline_co2_tonnes: num(co2),
+        headline_investment: num(capex), headline_co2_tonnes: num(co2),
         technical_as_of: technicalAsOf || null, financial_as_of: financialAsOf || null, regulatory_as_of: regulatoryAsOf || null,
       },
       financial_summary:
-        capex || targetIrr || dscr1xConnections || irrZeroConnections || debtMarginBps || gearingPct || lockupDscr || dsraMonths
+        capex || dscr1xConnections || irrZeroConnections || debtMarginBps || gearingPct || lockupDscr || dsraMonths
           ? {
-              currency: "EUR", capex: num(capex), target_irr_pct: num(targetIrr),
+              currency: "EUR", capex: num(capex),
               dscr_1x_connections: num(dscr1xConnections), irr_zero_connections: num(irrZeroConnections),
               debt_margin_bps: num(debtMarginBps), gearing_pct: num(gearingPct),
               lockup_dscr: num(lockupDscr), dsra_months: num(dsraMonths),
@@ -704,20 +703,6 @@ export default function SubmitProject() {
               </Field>
 
               <AsOfField value={ladderAsOf} onChange={setLadderAsOf} />
-
-              <Field
-                label="Target equity IRR"
-                optional="(optional)"
-                hint="Always shown to investors as developer-stated. Sits below the fold, not in the card headline."
-              >
-                <div className="grid gap-2.5 sm:grid-cols-[1fr_150px]">
-                  <Input type="number" step="0.1" placeholder="e.g. 9.5" value={targetIrr} onChange={(e) => setTargetIrr(e.target.value)} />
-                  <WizardSelect value={early ? "Basis: indicative" : "Basis: modelled"}>
-                    <WizardOption>Basis: indicative</WizardOption><WizardOption>Basis: modelled</WizardOption>
-                    <WizardOption>Basis: committed</WizardOption><WizardOption>Basis: actual</WizardOption>
-                  </WizardSelect>
-                </div>
-              </Field>
 
               <Field
                 label="Public co-financing status"

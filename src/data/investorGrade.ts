@@ -88,7 +88,7 @@ export const pct = (value: number | null | undefined, digits = 1) =>
 export const asOfLine = (label: string, date: string | null | undefined) =>
   date
     ? `${label} as of ${new Date(date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
-    : `${label} as-of date not stated`;
+    : `${label} as-of date not given by the developer`;
 
 /** Total committed load share across the two committed tiers of the ladder. */
 export const committedLoadPct = (ladder: LadderRecord | null) =>

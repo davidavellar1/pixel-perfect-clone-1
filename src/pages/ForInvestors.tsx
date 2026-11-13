@@ -27,15 +27,6 @@ const reasons = [
   },
 ];
 
-const comparison = [
-  ["Regulatory regime", "Concession (FR)"],
-  ["Return profile", "Stable, contracted"],
-  ["Offtake committed", "87% (71% contracted)"],
-  ["Public co-financing", "ADEME grant, committed"],
-  ["EED Art. 26 status", "Aligned, 2025 threshold"],
-  ["Taxonomy", "Activity 4.15, aligned"],
-];
-
 const steps = [
   [
     "Browse anonymized",
@@ -43,7 +34,7 @@ const steps = [
   ],
   [
     "Express interest",
-    "Send a short request and a signed confidentiality agreement. The developer decides. They can also decline, and nothing is revealed if they do. Most answer within 3 working days.",
+    "Send a short request and a signed confidentiality agreement. The developer decides. They can also decline, and nothing is revealed if they do. A decision is typically sought within 3 working days.",
   ],
   [
     "Diligence",
@@ -79,9 +70,7 @@ const ForInvestors = () => (
         </div>
         <p className="mt-4 text-sm text-primary-foreground/50">
           Free to join. Browse anonymized; nothing is revealed until the developer accepts your
-          request, and the data room is approved separately. Ticket sizes range from about EUR 1M
-          minimum tickets up to whole-ticket infrastructure allocations, so smaller investors can
-          find a fit while infrastructure investors remain the primary audience.
+          request, and the data room is approved separately. Ticket bands are published by each developer.
         </p>
         <p className="mt-2 text-sm text-primary-foreground/50">{FEE_SENTENCE}</p>
       </div>
@@ -114,7 +103,7 @@ const ForInvestors = () => (
     </section>
 
     <section className="bg-card py-20">
-      <div className="container grid gap-11 md:grid-cols-2 md:items-center">
+      <div className="container">
         <div>
           <p className="eyebrow">Comparable, finally</p>
           <h2 className="mt-3 font-display text-3xl font-semibold">
@@ -127,34 +116,13 @@ const ForInvestors = () => (
             non-profit network against a French concession at a glance.
           </p>
         </div>
-        <div className="overflow-hidden rounded-lg border border-border bg-background shadow-card">
-          <div className="border-b border-border bg-secondary px-5 py-3 font-display text-xs font-semibold uppercase text-muted-foreground">
-            Structure and market, standardized
-          </div>
-          {comparison.map(([key, value], index) => (
-            <div
-              key={key}
-              className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3.5 text-sm last:border-0"
-            >
-              <span className="text-muted-foreground">{key}</span>
-              <span
-                className={
-                  index === 0
-                    ? "rounded-md bg-accent/10 px-2 py-1 font-display text-xs font-semibold text-accent"
-                    : "font-display font-semibold"
-                }
-              >
-                {value}
-              </span>
-            </div>
-          ))}
-        </div>
+
       </div>
     </section>
 
     <section className="bg-card pb-20">
       <div className="container">
-        <div className="grid overflow-hidden rounded-lg bg-foreground p-8 text-primary-foreground md:grid-cols-2 md:items-center md:gap-12 md:p-12">
+        <div className="overflow-hidden rounded-lg bg-foreground p-8 text-primary-foreground md:p-12">
           <div>
             <span className="inline-flex rounded-full bg-accent/15 px-3 py-1 font-display text-xs font-semibold text-accent">
               Headline tool
@@ -163,15 +131,13 @@ const ForInvestors = () => (
               Build a diversified position with the bundle builder
             </h2>
             <p className="mt-4 leading-7 text-primary-foreground/65">
-              Select multiple projects and see your aggregate capacity, capital, and blended target
-              IRR update live, with a de-risking score that rewards spreading capital across
-              geographies and regulatory regimes, not just adding correlated assets.
+              Select multiple projects and see your aggregate capacity, capital, and base-case IRR from disclosed developer-stated inputs. Locked listings retain published bands until the developer grants access.
             </p>
             <ul className="mt-5 space-y-3 text-sm text-primary-foreground/80">
               {[
-                "Aggregate MW, capital, and blended IRR as you select",
+                "Developer-stated capacity, capital, and blended IRR (base case) for granted listings",
                 "Diversification by country, regime, technology, and stage",
-                "Set a strategy by KPI and surface the best-fit projects",
+                "Compare listings against your own criteria",
               ].map((item) => (
                 <li key={item} className="flex gap-3">
                   <Check className="h-5 w-5 shrink-0 text-accent" />
@@ -180,31 +146,7 @@ const ForInvestors = () => (
               ))}
             </ul>
           </div>
-          <div className="mt-8 rounded-lg border border-primary-foreground/10 bg-primary-foreground/5 p-6 md:mt-0">
-            {[
-              ["Aggregate capacity", "86 MW"],
-              ["Aggregate capital", "€124M"],
-              ["Blended target IRR", "9.4%"],
-            ].map(([key, value]) => (
-              <div key={key} className="flex justify-between py-2.5 text-sm">
-                <span className="text-primary-foreground/50">{key}</span>
-                <strong className="font-display">{value}</strong>
-              </div>
-            ))}
-            <div
-              className="mt-4 flex h-16 items-end gap-1.5"
-              role="img"
-              aria-label="Bundle diversification chart"
-            >
-              {["h-4/5", "h-3/5", "h-2/5", "h-3/4", "h-1/3"].map((height, index) => (
-                <span key={index} className={`flex-1 rounded-t-sm bg-accent ${height}`} />
-              ))}
-            </div>
-            <div className="mt-4 flex items-baseline justify-between border-t border-primary-foreground/10 pt-4">
-              <span className="text-xs text-primary-foreground/50">De-risking via spread</span>
-              <strong className="font-display text-2xl text-success">78 / 100</strong>
-            </div>
-          </div>
+
         </div>
       </div>
     </section>
