@@ -64,6 +64,9 @@ export type Database = {
       }
       access_request: {
         Row: {
+          authority_affirmed: boolean | null
+          authority_text: string | null
+          client_signed_at: string | null
           decided_at: string | null
           decided_by: string | null
           decision_note: string | null
@@ -72,17 +75,23 @@ export type Database = {
             | null
           developer_question: string | null
           developer_question_at: string | null
+          electronic_signature_consent: boolean | null
+          fee_acknowledged: boolean | null
           fee_tail_expires_at: string | null
+          fee_text: string | null
+          fee_version: string | null
           id: string
           introduction_logged_at: string | null
           investor_reply: string | null
           investor_reply_at: string | null
           investor_user_id: string
+          nda_document_sha256: string | null
           nda_effective_at: string | null
           nda_ip: string | null
           nda_signed_at: string | null
           nda_signed_name: string | null
           nda_signed_role: string | null
+          nda_user_agent: string | null
           nda_version: string | null
           note: string | null
           project_id: string
@@ -94,6 +103,9 @@ export type Database = {
           submitted_at: string
         }
         Insert: {
+          authority_affirmed?: boolean | null
+          authority_text?: string | null
+          client_signed_at?: string | null
           decided_at?: string | null
           decided_by?: string | null
           decision_note?: string | null
@@ -102,17 +114,23 @@ export type Database = {
             | null
           developer_question?: string | null
           developer_question_at?: string | null
+          electronic_signature_consent?: boolean | null
+          fee_acknowledged?: boolean | null
           fee_tail_expires_at?: string | null
+          fee_text?: string | null
+          fee_version?: string | null
           id?: string
           introduction_logged_at?: string | null
           investor_reply?: string | null
           investor_reply_at?: string | null
           investor_user_id: string
+          nda_document_sha256?: string | null
           nda_effective_at?: string | null
           nda_ip?: string | null
           nda_signed_at?: string | null
           nda_signed_name?: string | null
           nda_signed_role?: string | null
+          nda_user_agent?: string | null
           nda_version?: string | null
           note?: string | null
           project_id: string
@@ -124,6 +142,9 @@ export type Database = {
           submitted_at?: string
         }
         Update: {
+          authority_affirmed?: boolean | null
+          authority_text?: string | null
+          client_signed_at?: string | null
           decided_at?: string | null
           decided_by?: string | null
           decision_note?: string | null
@@ -132,17 +153,23 @@ export type Database = {
             | null
           developer_question?: string | null
           developer_question_at?: string | null
+          electronic_signature_consent?: boolean | null
+          fee_acknowledged?: boolean | null
           fee_tail_expires_at?: string | null
+          fee_text?: string | null
+          fee_version?: string | null
           id?: string
           introduction_logged_at?: string | null
           investor_reply?: string | null
           investor_reply_at?: string | null
           investor_user_id?: string
+          nda_document_sha256?: string | null
           nda_effective_at?: string | null
           nda_ip?: string | null
           nda_signed_at?: string | null
           nda_signed_name?: string | null
           nda_signed_role?: string | null
+          nda_user_agent?: string | null
           nda_version?: string | null
           note?: string | null
           project_id?: string
@@ -1156,6 +1183,8 @@ export type Database = {
         Row: {
           auto_accept_qualified: boolean
           created_at: string
+          electronic_execution_consent: boolean
+          electronic_execution_consent_at: string | null
           id: string
           instruments_accepted: string[]
           min_ticket: number | null
@@ -1167,6 +1196,8 @@ export type Database = {
         Insert: {
           auto_accept_qualified?: boolean
           created_at?: string
+          electronic_execution_consent?: boolean
+          electronic_execution_consent_at?: string | null
           id?: string
           instruments_accepted?: string[]
           min_ticket?: number | null
@@ -1178,6 +1209,8 @@ export type Database = {
         Update: {
           auto_accept_qualified?: boolean
           created_at?: string
+          electronic_execution_consent?: boolean
+          electronic_execution_consent_at?: string | null
           id?: string
           instruments_accepted?: string[]
           min_ticket?: number | null
@@ -1352,6 +1385,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      nda_document_version: {
+        Row: {
+          body: string
+          effective_from: string
+          fee_text: string
+          retired_at: string | null
+          sha256: string
+          version: string
+        }
+        Insert: {
+          body: string
+          effective_from?: string
+          fee_text: string
+          retired_at?: string | null
+          sha256: string
+          version: string
+        }
+        Update: {
+          body?: string
+          effective_from?: string
+          fee_text?: string
+          retired_at?: string | null
+          sha256?: string
+          version?: string
+        }
+        Relationships: []
       }
       nda_signature: {
         Row: {
