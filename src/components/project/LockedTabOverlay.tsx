@@ -1,5 +1,5 @@
 import { Lock, TrendingUp, Building2 } from "lucide-react";
-import { useLocation } from "@/lib/router-compat";
+import { Link, useLocation } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 
 interface LockedTabOverlayProps {
@@ -61,19 +61,11 @@ const LockedTabOverlay = ({
                 {tabName} data is for members
               </h3>
               <p className="text-sm text-muted-foreground mb-6">
-                Sign in to view the full {tabName.toLowerCase()} details of this project.
+                Create an account to request access. The developer decides whether the {tabName.toLowerCase()} details unlock.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <a href={`/signin?redirect=${redirect}`} className="flex-1">
-                  <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 font-semibold">
-                    <TrendingUp className="h-4 w-4" /> Sign in as investor
-                  </Button>
-                </a>
-                <a href={`/developer-signup?redirect=${redirect}`} className="flex-1">
-                  <Button variant="outline" className="w-full font-medium">
-                    <Building2 className="h-4 w-4" /> Join as developer
-                  </Button>
-                </a>
+              <div className="flex flex-col gap-3">
+                <Button asChild className="w-full"><Link to={`/sign-up?redirect=${redirect}`}>Create a free account</Link></Button>
+                <Link to={`/sign-in?redirect=${redirect}`} className="text-sm text-accent underline">Sign in</Link>
               </div>
             </>
           )}

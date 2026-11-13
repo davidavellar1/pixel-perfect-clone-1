@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useNavigate, useSearchParams } from "@/lib/router-compat";
+import { useEffect, useState } from "react";
+import { funnelDestination } from "@/lib/funnel";
+import { Link, useNavigate, useSearchParams } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +30,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const safeRedirect = (value: string | null) => value?.startsWith("/") && !value.startsWith("//") ? value : "/app";
+const safeRedirect = funnelDestination;
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -38,6 +39,16 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const destination = safeRedirect(searchParams.get("redirect"));
+  useEffect(() => {
+    let cancelled = false;
+    const continueSignedIn = () => { if (!cancelled) navigate(destination); };
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) continueSignedIn();
+    });
+    supabase.auth.getSession().then(({ data }) => { if (data.session) continueSignedIn(); });
+    return () => { cancelled = true; subscription.unsubscribe(); };
+  }, [destination, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +80,7 @@ const SignIn = () => {
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}${safeRedirect(searchParams.get("redirect"))}`,
+        redirect_uri: `${window.location.origin}/sign-in?redirect=${encodeURIComponent(destination)}`,
       });
 
       if (result.error) throw result.error;
@@ -97,12 +108,12 @@ const SignIn = () => {
         style={{ background: "var(--hero-gradient)" }}
       >
         <div className="max-w-md">
-          <a href="/" className="flex items-center gap-2 mb-8">
+          <Link to="/" className="flex items-center gap-2 mb-8">
             <TrendingUp className="w-8 h-8 text-accent" />
             <span className="text-2xl font-bold text-primary-foreground font-serif">
               DHC<span className="text-accent">Market</span>
             </span>
-          </a>
+          </Link>
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-primary-foreground mb-6">
             Welcome Back
           </h1>
@@ -144,9 +155,9 @@ const SignIn = () => {
             </div>
 
             <div className="flex justify-end">
-              <a href="/forgot-password" className="text-sm text-primary hover:underline">
+              <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             <Button type="submit" className="w-full" size="lg" disabled={loading}>
@@ -179,7 +190,7 @@ const SignIn = () => {
                 Don't have an account?
               </p>
               <div className="flex justify-center gap-4">
-                 <a href="/sign-up" className="text-primary hover:underline font-medium">Create an account</a>
+                 <Link to={`/sign-up?redirect=${encodeURIComponent(safeRedirect(searchParams.get("redirect")))}`} className="text-primary hover:underline font-medium">Create an account</Link>
               </div>
             </div>
           </form>

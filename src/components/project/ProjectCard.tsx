@@ -41,7 +41,7 @@ const ProjectCard = ({ project, context, onWatchlistChange }: ProjectCardProps) 
     { label: "Capex", value: project.capexBand ?? capexBand(project.capex) ?? "" },
     { label: "Lifecycle stage", value: project.stage },
   ];
-  const href = context === "app" ? `/app/projects/${project.slug}` : "/sign-up?role=investor";
+  const href = context === "app" ? `/app/projects/${project.slug}` : "/sign-up";
   return <article className="flex min-h-[390px] flex-col overflow-hidden rounded-lg border border-border bg-card shadow-card transition-shadow hover:shadow-card-hover">
     <div className={cn("h-1.5", stripe[project.category] || "bg-primary")} />
     <div className="flex flex-1 flex-col p-5">

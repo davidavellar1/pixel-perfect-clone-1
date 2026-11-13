@@ -22,3 +22,10 @@
 - [x] Replace invented structure, compliance and chart data
 - [x] Correct fee wording and design-load ladder
 - [x] Test and verify without database changes
+
+# Funnel cleanup
+- [x] Consolidate legacy signup and marketing routes with preserved destinations
+- [x] Add legal placeholders and password recovery pages
+- [x] Canonical links, locked account CTA and public skip link
+- [x] Remove unused landing, portfolio and demo code
+- [x] Verify navigation, recovery validation and mobile signup access

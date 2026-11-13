@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import GoogleSignupButton from "@/components/auth/GoogleSignupButton";
 import type { SignupRole } from "@/lib/googleSignup";
 import { cn } from "@/lib/utils";
+import { funnelDestination } from "@/lib/funnel";
 import { SIGNUP_INTENTS, homePathFor, type SignupIntent } from "@/lib/navigation";
 
 // Every member gets the full workspace. This optional answer only picks the first page.
@@ -48,7 +49,7 @@ const SignUp = () => {
   const canSubmit = agreed && !loading;
   // Every new member can invest and list, so both profile records are created.
   const googleRoles: SignupRole[] = ["investor", "developer"];
-  const destination = homePathFor(intents);
+  const destination = funnelDestination(searchParams.get("redirect"), homePathFor(intents));
 
   const handleSubmit = async () => {
     if (!fullName.trim() || !email.trim() || password.length < 8) {
@@ -61,11 +62,11 @@ const SignUp = () => {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: `${window.location.origin}/sign-in?redirect=${encodeURIComponent(destination)}`,
           data: {
             full_name: fullName.trim(),
             company_name: organization.trim(),
@@ -77,9 +78,9 @@ const SignUp = () => {
       if (error) throw error;
       toast({
         title: "Account created",
-        description: "You are signed in. Welcome to DHC Market.",
+        description: data.session ? "You are signed in. Welcome to DHC Market." : "Check your email to confirm your account, then sign in to continue.",
       });
-      navigate(destination);
+      navigate(data.session ? destination : `/sign-in?redirect=${encodeURIComponent(destination)}`);
     } catch (err: any) {
       const message: string = err?.message || "Something went wrong. Please try again.";
       const alreadyRegistered = /already registered|already exists|User already/i.test(message);
@@ -90,7 +91,7 @@ const SignUp = () => {
           : message,
         variant: "destructive",
       });
-      if (alreadyRegistered) navigate("/signin");
+      if (alreadyRegistered) navigate(`/sign-in?redirect=${encodeURIComponent(destination)}`);
     } finally {
       setLoading(false);
     }
@@ -183,8 +184,8 @@ const SignUp = () => {
           <label className="mb-5 mt-5 flex cursor-pointer items-start gap-2 text-[12.5px] leading-relaxed text-muted-foreground">
             <Checkbox checked={agreed} onCheckedChange={(v) => setAgreed(v === true)} className="mt-0.5" />
             <span>
-              I agree to the <span className="text-accent">Terms of Service</span> and{" "}
-              <span className="text-accent">Privacy Policy</span>.
+              I agree to the <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-accent underline">Terms of Service</Link> and{" "}
+              <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-accent underline">Privacy Policy</Link>.
             </span>
           </label>
 
@@ -215,7 +216,7 @@ const SignUp = () => {
           </p>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link to="/signin" className="font-semibold text-accent">
+            <Link to={`/sign-in?redirect=${encodeURIComponent(destination)}`} className="font-semibold text-accent">
               Sign in
             </Link>
           </p>

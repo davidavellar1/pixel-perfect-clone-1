@@ -14,3 +14,5 @@
 - Resolve project entitlement before fetching exact records; shared disclosure helpers whitelist teaser output for listings, detail and MCP so private data is never masked after delivery.
 
 - Use saved numeric inputs for charts and granted base-case rows for bundle returns; never derive project figures or counterfactuals from display strings or illustrative models.
+
+- Canonical auth pages own signup and recovery; legacy URLs are redirects that preserve destinations, and retired marketing topics redirect to their canonical public pages.

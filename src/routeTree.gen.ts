@@ -16,10 +16,12 @@ import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as EcosystemRouteImport } from './routes/ecosystem'
 import { Route as ForDevelopersRouteImport } from './routes/for-developers'
 import { Route as ForInvestorsRouteImport } from './routes/for-investors'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as InvestorSignupRouteImport } from './routes/investor-signup'
 import { Route as InvestorsRouteImport } from './routes/investors'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PublicFundingRouteImport } from './routes/public-funding'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SignInRouteImport } from './routes/sign-in'
@@ -28,6 +30,7 @@ import { Route as SigninRouteImport } from './routes/signin'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SubmitProjectRouteImport } from './routes/submit-project'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAccessRequestsRouteImport } from './routes/app.access-requests'
@@ -94,6 +97,11 @@ const ForInvestorsRoute = ForInvestorsRouteImport.update({
   path: '/for-investors',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HowItWorksRoute = HowItWorksRouteImport.update({
   id: '/how-it-works',
   path: '/how-it-works',
@@ -112,6 +120,11 @@ const InvestorsRoute = InvestorsRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PublicFundingRoute = PublicFundingRouteImport.update({
@@ -152,6 +165,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SubmitProjectRoute = SubmitProjectRouteImport.update({
   id: '/submit-project',
   path: '/submit-project',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
@@ -316,10 +334,12 @@ export interface FileRoutesByFullPath {
   '/ecosystem': typeof EcosystemRoute
   '/for-developers': typeof ForDevelopersRoute
   '/for-investors': typeof ForInvestorsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/how-it-works': typeof HowItWorksRoute
   '/investor-signup': typeof InvestorSignupRoute
   '/investors': typeof InvestorsRoute
   '/mcp': typeof McpRoute
+  '/privacy': typeof PrivacyRoute
   '/public-funding': typeof PublicFundingRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sign-in': typeof SignInRoute
@@ -328,6 +348,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit-project': typeof SubmitProjectRoute
+  '/terms': typeof TermsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/app/access-requests': typeof AppAccessRequestsRoute
   '/app/advisors': typeof AppAdvisorsRoute
@@ -366,10 +387,12 @@ export interface FileRoutesByTo {
   '/ecosystem': typeof EcosystemRoute
   '/for-developers': typeof ForDevelopersRoute
   '/for-investors': typeof ForInvestorsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/how-it-works': typeof HowItWorksRoute
   '/investor-signup': typeof InvestorSignupRoute
   '/investors': typeof InvestorsRoute
   '/mcp': typeof McpRoute
+  '/privacy': typeof PrivacyRoute
   '/public-funding': typeof PublicFundingRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sign-in': typeof SignInRoute
@@ -378,6 +401,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit-project': typeof SubmitProjectRoute
+  '/terms': typeof TermsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/app/access-requests': typeof AppAccessRequestsRoute
   '/app/advisors': typeof AppAdvisorsRoute
@@ -418,10 +442,12 @@ export interface FileRoutesById {
   '/ecosystem': typeof EcosystemRoute
   '/for-developers': typeof ForDevelopersRoute
   '/for-investors': typeof ForInvestorsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/how-it-works': typeof HowItWorksRoute
   '/investor-signup': typeof InvestorSignupRoute
   '/investors': typeof InvestorsRoute
   '/mcp': typeof McpRoute
+  '/privacy': typeof PrivacyRoute
   '/public-funding': typeof PublicFundingRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sign-in': typeof SignInRoute
@@ -430,6 +456,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/submit-project': typeof SubmitProjectRoute
+  '/terms': typeof TermsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/app/access-requests': typeof AppAccessRequestsRoute
   '/app/advisors': typeof AppAdvisorsRoute
@@ -471,10 +498,12 @@ export interface FileRouteTypes {
     | '/ecosystem'
     | '/for-developers'
     | '/for-investors'
+    | '/forgot-password'
     | '/how-it-works'
     | '/investor-signup'
     | '/investors'
     | '/mcp'
+    | '/privacy'
     | '/public-funding'
     | '/robots.txt'
     | '/sign-in'
@@ -483,6 +512,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap.xml'
     | '/submit-project'
+    | '/terms'
     | '/.well-known/oauth-protected-resource'
     | '/app/access-requests'
     | '/app/advisors'
@@ -521,10 +551,12 @@ export interface FileRouteTypes {
     | '/ecosystem'
     | '/for-developers'
     | '/for-investors'
+    | '/forgot-password'
     | '/how-it-works'
     | '/investor-signup'
     | '/investors'
     | '/mcp'
+    | '/privacy'
     | '/public-funding'
     | '/robots.txt'
     | '/sign-in'
@@ -533,6 +565,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap.xml'
     | '/submit-project'
+    | '/terms'
     | '/.well-known/oauth-protected-resource'
     | '/app/access-requests'
     | '/app/advisors'
@@ -572,10 +605,12 @@ export interface FileRouteTypes {
     | '/ecosystem'
     | '/for-developers'
     | '/for-investors'
+    | '/forgot-password'
     | '/how-it-works'
     | '/investor-signup'
     | '/investors'
     | '/mcp'
+    | '/privacy'
     | '/public-funding'
     | '/robots.txt'
     | '/sign-in'
@@ -584,6 +619,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/sitemap.xml'
     | '/submit-project'
+    | '/terms'
     | '/.well-known/oauth-protected-resource'
     | '/app/access-requests'
     | '/app/advisors'
@@ -624,10 +660,12 @@ export interface RootRouteChildren {
   EcosystemRoute: typeof EcosystemRoute
   ForDevelopersRoute: typeof ForDevelopersRoute
   ForInvestorsRoute: typeof ForInvestorsRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   HowItWorksRoute: typeof HowItWorksRoute
   InvestorSignupRoute: typeof InvestorSignupRoute
   InvestorsRoute: typeof InvestorsRoute
   McpRoute: typeof McpRoute
+  PrivacyRoute: typeof PrivacyRoute
   PublicFundingRoute: typeof PublicFundingRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SignInRoute: typeof SignInRoute
@@ -636,6 +674,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SubmitProjectRoute: typeof SubmitProjectRoute
+  TermsRoute: typeof TermsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
@@ -695,6 +734,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForInvestorsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/how-it-works': {
       id: '/how-it-works'
       path: '/how-it-works'
@@ -721,6 +767,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/public-funding': {
@@ -777,6 +830,13 @@ declare module '@tanstack/react-router' {
       path: '/submit-project'
       fullPath: '/submit-project'
       preLoaderRoute: typeof SubmitProjectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/oauth-protected-resource': {
@@ -1056,10 +1116,12 @@ const rootRouteChildren: RootRouteChildren = {
   EcosystemRoute: EcosystemRoute,
   ForDevelopersRoute: ForDevelopersRoute,
   ForInvestorsRoute: ForInvestorsRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   HowItWorksRoute: HowItWorksRoute,
   InvestorSignupRoute: InvestorSignupRoute,
   InvestorsRoute: InvestorsRoute,
   McpRoute: McpRoute,
+  PrivacyRoute: PrivacyRoute,
   PublicFundingRoute: PublicFundingRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SignInRoute: SignInRoute,
@@ -1068,6 +1130,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SubmitProjectRoute: SubmitProjectRoute,
+  TermsRoute: TermsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,

@@ -3,7 +3,7 @@ import { ArrowRight, BadgeCheck, Building2, Check, FileSearch, Handshake, Landma
 import PublicShell from "@/components/public/PublicShell";
 import { Button } from "@/components/ui/button";
 
-type ExplainerKind = "ecosystem" | "public-funding" | "how-it-works";
+type ExplainerKind = "ecosystem" | "public-funding";
 
 const pages = {
   ecosystem: {
@@ -51,7 +51,6 @@ const pages = {
 } as const;
 
 const PublicExplainer = ({ kind }: { kind: ExplainerKind }) => {
-  if (kind === "how-it-works") return null;
   const page = pages[kind];
   return (
     <PublicShell>

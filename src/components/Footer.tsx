@@ -1,8 +1,9 @@
+import { Link } from "@/lib/router-compat";
 const columns: { title: string; links: { label: string; href: string }[] }[] = [
   {
     title: "For Investors",
     links: [
-      { label: "Browse projects", href: "/investors" },
+      { label: "Browse projects", href: "/for-investors" },
       { label: "Public funding", href: "/public-funding" },
       { label: "Ecosystem", href: "/ecosystem" },
       { label: "How it works", href: "/how-it-works" },
@@ -11,8 +12,8 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
   {
     title: "For Developers",
     links: [
-      { label: "List a project", href: "/developer-signup" },
-      { label: "Project portfolio", href: "/developers" },
+      { label: "List a project", href: "/sign-up" },
+      { label: "Project portfolio", href: "/for-developers" },
       { label: "Find advisors", href: "/ecosystem" },
       { label: "Public funding", href: "/public-funding" },
     ],
@@ -47,13 +48,13 @@ const Footer = () => {
                 {col.title}
               </h2>
               {col.links.map((link) => (
-                <a
+                <Link
                   key={link.label}
-                  href={link.href}
+                  to={link.href}
                   className="block py-1.5 text-sm text-[#b3c1d2] transition-colors hover:text-white"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </div>
           ))}

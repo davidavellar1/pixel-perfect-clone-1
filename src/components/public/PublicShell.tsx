@@ -36,6 +36,7 @@ const PublicNavLink = ({ to, label, mobile = false }: { to: string; label: strin
 
 const PublicShell = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-background">
+    <a href="#public-main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-background focus:px-4 focus:py-3 focus:text-foreground focus:ring-2 focus:ring-ring">Skip to content</a>
     <header className="sticky top-0 z-50 border-b border-white/[0.07] bg-[rgb(8_19_32/0.86)] backdrop-blur-xl">
       <div className="container flex h-[68px] items-center gap-[30px]">
         <Link to="/" className="shrink-0 font-display text-[21px] font-bold tracking-[-0.03em] text-white">
@@ -72,7 +73,7 @@ const PublicShell = ({ children }: { children: React.ReactNode }) => (
       </div>
     </header>
 
-    <main>{children}</main>
+    <main id="public-main" tabIndex={-1}>{children}</main>
 
     <Footer />
   </div>

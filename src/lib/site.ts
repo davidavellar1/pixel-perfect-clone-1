@@ -1,7 +1,7 @@
 /**
  * Public site settings used for canonical URLs, social previews and the sitemap.
  * To move to a custom domain, set VITE_SITE_URL (e.g. https://www.dhcmarket.eu)
- * or change the fallback below — nothing else needs to change.
+ * or change the fallback below - nothing else needs to change.
  */
 export const SITE_URL = (
   (import.meta.env.VITE_SITE_URL as string | undefined) || "https://dhc-deal-space.lovable.app"
@@ -38,8 +38,6 @@ export const PUBLIC_PATHS = [
   "/",
   "/for-investors",
   "/for-developers",
-  "/investors",
-  "/developers",
   "/how-it-works",
   "/public-funding",
   "/ecosystem",
