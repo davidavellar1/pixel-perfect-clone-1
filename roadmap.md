@@ -58,3 +58,13 @@
 - [x] Correct signature disclosure and granted bundle figures
 - [x] Fix numeric funding, metadata and case-only return entry
 - [x] Refresh types, run regression tests and verify preview
+
+# Incomplete migration history
+
+A rebuild from `drizzle/migrations/` alone will not reproduce the current database. Migration 0019 is missing. Out-of-band objects without migration definitions include `private.lock_access_request_evidence`, `private.block_logged_introduction_delete`, `private.can_read_project_object`, `public.record_legal_acceptance`, `public.access_event` and `private.log_access_event`.
+
+The access gate, data room fix, `project_teaser` view and signature evidence are archived in `drizzle/manual/0023_disclosure_gate_and_signature_evidence.sql`. This archive is not registered in the journal and must be applied by hand after a rebuild.
+
+Migration-history inspection also reports files 0020 to 0022 as unlisted and database bookkeeping as invalid, with no automatic repair available. A human must reconcile this history before anyone relies on a from-scratch rebuild.
+
+- [ ] Append the supplied auto-accept removal statement and correct the archive header: blocked by file protection covering `drizzle/manual/` as well as `drizzle/migrations/`.
