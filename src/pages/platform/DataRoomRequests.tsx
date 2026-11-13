@@ -10,7 +10,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -32,7 +32,7 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: "all", label: "All accepted investors" },
 ];
 
-const Info = ({ label, value }: { label: string; value: string }) => (
+const Info = ({ label, value }: { label: string; value: string | null | undefined }) => !value ? null : (
   <div>
     <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
     <p className="text-sm font-medium text-foreground">{value}</p>
@@ -41,7 +41,6 @@ const Info = ({ label, value }: { label: string; value: string }) => (
 
 const DataRoomRequests = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [params, setParams] = useSearchParams();
   const [projects, setProjects] = useState<Project[]>([]);
   const [requests, setRequests] = useState<AccessRequestRow[]>([]);
@@ -156,7 +155,7 @@ const DataRoomRequests = () => {
 
     if (error) {
       setSaving(false);
-      toast({ title: "The data room could not be opened", description: error.message, variant: "destructive" });
+      toast.error("The data room could not be opened", { description: error.message });
       return;
     }
 
@@ -173,7 +172,7 @@ const DataRoomRequests = () => {
       );
       if (grantError) {
         setSaving(false);
-        toast({ title: "Document access could not be recorded", description: grantError.message, variant: "destructive" });
+        toast.error("Document access could not be recorded", { description: grantError.message });
         return;
       }
     }
@@ -185,10 +184,7 @@ const DataRoomRequests = () => {
 
     setSaving(false);
     setDialog(null); setNote(""); setConfirmed(false);
-    toast({
-      title: "Data room opened",
-      description: `${gatedDocuments.length} confidential document${gatedDocuments.length === 1 ? "" : "s"} released to this investor.`,
-    });
+    toast.success("Data room opened", { description: `${gatedDocuments.length} confidential document${gatedDocuments.length === 1 ? "" : "s"} released to this investor.` });
     await load();
   };
 
@@ -202,7 +198,7 @@ const DataRoomRequests = () => {
       .eq("id", request.id);
     if (error) {
       setSaving(false);
-      toast({ title: "The data room could not be closed", description: error.message, variant: "destructive" });
+      toast.error("The data room could not be closed", { description: error.message });
       return;
     }
     if (gatedDocuments.length) {
@@ -218,7 +214,7 @@ const DataRoomRequests = () => {
     );
     setSaving(false);
     setDialog(null); setNote(""); setConfirmed(false);
-    toast({ title: "Data room closed", description: "The investor keeps identity and data tab access only." });
+    toast.success("Data room closed", { description: "The investor keeps identity and data tab access only." });
     await load();
   };
 
@@ -226,7 +222,7 @@ const DataRoomRequests = () => {
   const awaitingCount = withState.filter((entry) => entry.state === "granted").length;
 
   return (
-    <div className="max-w-7xl space-y-6">
+    <div className="max-w-workspace space-y-6">
       <div>
         <h1 className="font-display text-3xl font-bold text-foreground">Data room approvals</h1>
         <p className="mt-1 max-w-[80ch] text-muted-foreground">
@@ -314,14 +310,14 @@ const DataRoomRequests = () => {
                 </h3>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <Info label="Entity type" value={optionLabel(ENTITY_TYPES, answer?.entity_type ?? null)} />
-                  <Info label="Jurisdiction" value={answer?.jurisdiction || "Not stated"} />
-                  <Info label="Signatory" value={answer?.signatory_name || "Not stated"} />
+                  <Info label="Jurisdiction" value={answer?.jurisdiction || null} />
+                  <Info label="Signatory" value={answer?.signatory_name || null} />
                   <Info label="Ticket band" value={ticketBandLabel(answer?.ticket_band ?? null)} />
                   <Info label="Instrument" value={optionLabel(INSTRUMENTS_SOUGHT, answer?.instrument_sought ?? null)} />
                   <Info label="Capital source" value={optionLabel(CAPITAL_SOURCES, answer?.capital_source ?? null)} />
                   <Info label="Decision process" value={optionLabel(DECISION_PROCESSES, answer?.decision_process ?? null)} />
                   <Info label="Advisers receiving information" value={answer?.advisers_receiving_info || "None named"} />
-                  <Info label="Diligence focus" value={answer?.diligence_focus || "Not stated"} />
+                  <Info label="Diligence focus" value={answer?.diligence_focus || null} />
                 </div>
               </section>
 

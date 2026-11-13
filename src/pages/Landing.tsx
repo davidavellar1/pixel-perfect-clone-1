@@ -14,7 +14,7 @@ const css = `
   .lp .btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.25)}
   .lp .btn-ghost:hover{border-color:rgba(255,255,255,.55)}
   .lp .btn-dark{background:#0b1b2e;color:#fff}
-  .lp .btn-dark:hover{background:#0f2740}
+  .lp .btn-{background:#0f2740}
   .lp .eyebrow{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:#1872eb}
 
   .lp header.nav{position:sticky;top:0;z-index:50;background:rgba(8,19,32,.86);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07)}

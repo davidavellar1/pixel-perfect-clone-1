@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 type AdvisorRow = {
@@ -33,7 +33,6 @@ const ManageAdvisorsDialog = ({
   projectTitle: string;
   trigger: React.ReactNode;
 }) => {
-  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [advisors, setAdvisors] = useState<AdvisorRow[]>([]);
   const [links, setLinks] = useState<Record<string, LinkState>>({});
@@ -80,7 +79,7 @@ const ManageAdvisorsDialog = ({
 
     if (remove.error) {
       setSaving(false);
-      toast({ title: "Could not save", description: remove.error.message, variant: "destructive" });
+      toast.error("Could not save", { description: remove.error.message });
       return;
     }
 
@@ -95,13 +94,13 @@ const ManageAdvisorsDialog = ({
       );
       if (error) {
         setSaving(false);
-        toast({ title: "Could not save", description: error.message, variant: "destructive" });
+        toast.error("Could not save", { description: error.message });
         return;
       }
     }
 
     setSaving(false);
-    toast({ title: "Advisors updated", description: `${keep.length} advisor(s) shown on this listing.` });
+    toast.success("Advisors updated", { description: `${keep.length} advisor(s) shown on this listing.` });
     setOpen(false);
   };
 

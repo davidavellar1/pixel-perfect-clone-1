@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-import { ACCESS_STATE_LABEL, PIPELINE_STAGES, effectiveState, isGranted, normaliseStage, slaStatus, stageLabel } from "@/lib/access";
+import { ACCESS_STATE_LABEL, PIPELINE_STAGES, effectiveState, isGranted, normaliseStage, slaStatus, stageLabel, workingDaysSince } from "@/lib/access";
 
 type Interest = Tables<"project_interest">;
 type Project = Tables<"project">;
@@ -45,12 +45,11 @@ const addMonths = (date: Date, months: number) => { const d = new Date(date); d.
 const addDays = (date: Date, days: number) => { const d = new Date(date); d.setDate(d.getDate() + days); return d; };
 const fmtDate = (d: Date) => d.toLocaleDateString("en-GB");
 
-interface PassedDeal { id: string; projectTitle: string; reason: string; loggedAt: string; }
 
 const InvestorDashboard = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"interests" | "deals" | "watch" | "passed">("interests");
+  const [tab, setTab] = useState<"interests" | "deals" | "watch">("interests");
   const [interests, setInterests] = useState<Interest[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
@@ -66,8 +65,6 @@ const InvestorDashboard = () => {
 
   const [owners, setOwners] = useState<Record<string, string>>({});
   const [nextActions, setNextActions] = useState<Record<string, string>>({});
-  const [passedDeals, setPassedDeals] = useState<PassedDeal[]>([]);
-  const [passedForm, setPassedForm] = useState({ projectTitle: "", reason: "" });
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -150,9 +147,9 @@ const InvestorDashboard = () => {
   const funnel = stageOrder.map((stage) => ({ stage, label: stageLabel(stage), value: interests.filter((interest) => normaliseStage(interest.stage) === stage).length }));
   const maxFunnel = Math.max(1, ...funnel.map((item) => item.value));
 
-  // Funnel conversion and median time in stage (proxy: days since introduced_at to updated_at for interests currently past that stage).
+  // Elapsed working days are measured from the logged introduction, not from a stage transition.
   const overallConversion = interests.length ? (interests.filter((interest) => normaliseStage(interest.stage) === "closed").length / interests.length) * 100 : 0;
-  const stageDurations = interests.map((interest) => daysBetween(new Date(interest.updated_at), new Date(interest.introduced_at))).filter((n) => n >= 0).sort((a, b) => a - b);
+  const stageDurations = requests.flatMap(request => request.introduction_logged_at ? [workingDaysSince(request.introduction_logged_at, asOf)] : []).filter((n) => n >= 0).sort((a, b) => a - b);
   const medianDays = stageDurations.length ? stageDurations[Math.floor(stageDurations.length / 2)] : 0;
 
   const mandateDeployed = interests.filter((interest) => normaliseStage(interest.stage) === "closed").reduce((sum, interest) => sum + Number(interest.indicated_commitment || 0), 0);
@@ -179,14 +176,8 @@ const InvestorDashboard = () => {
   const setOwner = (id: string, value: string) => setOwners((prev) => ({ ...prev, [id]: value }));
   const setNextAction = (id: string, value: string) => setNextActions((prev) => ({ ...prev, [id]: value }));
 
-  const logPassedDeal = () => {
-    if (!passedForm.projectTitle.trim() || !passedForm.reason.trim()) return;
-    setPassedDeals((prev) => [{ id: crypto.randomUUID(), projectTitle: passedForm.projectTitle.trim(), reason: passedForm.reason.trim(), loggedAt: new Date().toISOString() }, ...prev]);
-    setPassedForm({ projectTitle: "", reason: "" });
-  };
-
   return (
-    <div className="max-w-[1240px]">
+    <div className="max-w-workspace">
       <DealsSwitch />
       <div className="mb-6"><h1 className="font-display text-[28px] font-semibold">Investing</h1><p className="mt-1 text-[15px] text-muted-foreground">Projects you have reviewed, asked to see, or are negotiating on.</p></div>
 
@@ -204,7 +195,7 @@ const InvestorDashboard = () => {
           <div className="flex items-baseline justify-between gap-3"><h2 className="font-display text-base font-semibold">Alerts</h2><Link to="/app/notifications" className="text-[13px] font-medium text-primary hover:underline">See all</Link></div>
           <div className="mt-3 space-y-2.5">
             {alerts === null ? <><Skeleton className="h-14 w-full" /><Skeleton className="h-14 w-full" /></> : !alerts.length ? <p className="py-6 text-center text-[13px] text-muted-foreground">No notifications for now.</p> : alerts.map((alert) => {
-              const body = <><span className={cn("mt-1.5 h-2 w-2 flex-none rounded-full", alert.read_at ? "bg-subtle-foreground" : "bg-primary")} aria-hidden="true" /><span><strong className="font-semibold">{alert.title}</strong>{alert.body ? <span className="block text-[#4f5d70]">{alert.body}</span> : null}<span className="mt-0.5 block text-xs text-[#4f5d70]">{new Date(alert.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span></span></>;
+              const body = <><span className={cn("mt-1.5 h-2 w-2 flex-none rounded-full", alert.read_at ? "bg-subtle-foreground" : "bg-primary")} aria-hidden="true" /><span><strong className="font-semibold">{alert.title}</strong>{alert.body ? <span className="block text-muted-foreground">{alert.body}</span> : null}<span className="mt-0.5 block text-xs text-muted-foreground">{new Date(alert.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span></span></>;
               return alert.link ? <Link key={alert.id} to={alert.link} className="flex gap-2.5 rounded-lg bg-background p-3 text-[13px] leading-snug transition-colors hover:bg-muted">{body}</Link> : <div key={alert.id} className="flex gap-2.5 rounded-lg bg-background p-3 text-[13px] leading-snug">{body}</div>;
             })}
           </div>
@@ -223,21 +214,21 @@ const InvestorDashboard = () => {
         ) : (
           <div className="relative overflow-x-auto rounded-lg border border-border">
             <table className="w-full min-w-[760px] border-collapse text-[13px]">
-              <thead><tr className="bg-background text-left text-[#4f5d70]"><th scope="col" className="px-3.5 py-3 font-semibold">Status</th><th scope="col" className="px-3.5 py-3 font-semibold">Project</th><th scope="col" className="px-3.5 py-3 font-semibold">Technology</th><th scope="col" className="px-3.5 py-3 font-semibold">Capacity</th><th scope="col" className="px-3.5 py-3 font-semibold">Location</th><th scope="col" className="px-3.5 py-3 font-semibold">Stage</th><th scope="col" className="px-3.5 py-3"><span className="sr-only">Open</span></th></tr></thead>
+              <thead><tr className="bg-background text-left text-muted-foreground"><th scope="col" className="px-3.5 py-3 font-semibold">Status</th><th scope="col" className="px-3.5 py-3 font-semibold">Project</th><th scope="col" className="px-3.5 py-3 font-semibold">Technology</th><th scope="col" className="px-3.5 py-3 font-semibold">Capacity</th><th scope="col" className="px-3.5 py-3 font-semibold">Location</th><th scope="col" className="px-3.5 py-3 font-semibold">Stage</th><th scope="col" className="px-3.5 py-3"><span className="sr-only">Open</span></th></tr></thead>
               <tbody>
                 {interests.map((interest) => {
                   const project = projectById.get(interest.project_id);
                   if (!project) return null;
                   const request = requests.find((item) => item.project_id === project.id);
                   const state = request ? effectiveState(request) : null;
-                  const chip = !state ? { label: "Interest logged", className: "bg-muted text-muted-foreground" } : isGranted(state) ? { label: state === "granted_full" ? "Data room open" : "Access granted", className: "bg-success-soft text-[#137347]" } : state === "pending" ? { label: "Request pending", className: "bg-[#e7f1fd] text-[#1f5fb8]" } : { label: ACCESS_STATE_LABEL[state].replace(/^Request /, "").replace(/^./, (c) => c.toUpperCase()), className: "bg-muted text-muted-foreground" };
+                  const chip = !state ? { label: "Interest logged", className: "bg-muted text-muted-foreground" } : isGranted(state) ? { label: state === "granted_full" ? "Data room open" : "Access granted", className: "bg-success-soft text-success" } : state === "pending" ? { label: "Request pending", className: "bg-info-soft text-info" } : { label: ACCESS_STATE_LABEL[state].replace(/^Request /, "").replace(/^./, (c) => c.toUpperCase()), className: "bg-muted text-muted-foreground" };
                   return <tr key={interest.id} className="border-t border-border">
                     <td className="px-3.5 py-3.5"><span className={cn("inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold", chip.className)}>{chip.label}</span></td>
                     <td className="px-3.5 py-3.5 font-semibold text-foreground">{project.title}</td>
-                    <td className="px-3.5 py-3.5 text-[#4f5d70]">{TECHNOLOGIES[project.technology] || project.technology}</td>
-                    <td className="px-3.5 py-3.5 text-[#4f5d70]">{project.capacity_mw != null ? `${project.capacity_mw} MW` : "-"}</td>
-                    <td className="px-3.5 py-3.5 text-[#4f5d70]">{[project.city, project.country_code].filter(Boolean).join(", ") || "-"}</td>
-                    <td className="px-3.5 py-3.5 text-[#4f5d70]">{stageLabel(normaliseStage(interest.stage))}{state === "pending" && request ? ` · ${slaStatus(request).workingDays} working days` : ""}</td>
+                    <td className="px-3.5 py-3.5 text-muted-foreground">{TECHNOLOGIES[project.technology] || project.technology}</td>
+                    <td className="px-3.5 py-3.5 text-muted-foreground">{project.capacity_mw != null ? `${project.capacity_mw} MW` : "-"}</td>
+                    <td className="px-3.5 py-3.5 text-muted-foreground">{[project.city, project.country_code].filter(Boolean).join(", ") || "-"}</td>
+                    <td className="px-3.5 py-3.5 text-muted-foreground">{stageLabel(normaliseStage(interest.stage))}{state === "pending" && request ? ` · ${slaStatus(request).workingDays} working days` : ""}</td>
                     <td className="px-3.5 py-3.5 text-right"><Button size="sm" variant="outline" onClick={() => navigate(`/app/projects/${project.slug}`)}>Open</Button></td>
                   </tr>;
                 })}
@@ -264,10 +255,10 @@ const InvestorDashboard = () => {
         </section>
         <section className="rounded-lg border border-border bg-card p-5">
           <h2 className="mb-4 font-display text-sm font-semibold">Pipeline by stage</h2>
-          <div className="space-y-2.5">{funnel.map((item) => <div key={item.stage} className="flex items-center gap-3"><span className="w-28 shrink-0 text-xs text-muted-foreground">{item.label}</span><div className="h-7 min-w-8 rounded-md bg-accent px-2.5 py-1 text-xs font-semibold text-accent-foreground" style={{ width: `${Math.max(8, item.value / maxFunnel * 100)}%` }}>{item.value}</div></div>)}</div>
+          <div className="space-y-2.5">{funnel.map((item) => <div key={item.stage} className="flex items-center gap-3"><span className="w-28 shrink-0 text-xs text-muted-foreground">{item.label}</span><div className={cn("h-7 rounded-md py-1 text-xs font-semibold", item.value ? "bg-accent px-2.5 text-accent-foreground" : "text-muted-foreground")} style={{ width: `${item.value / maxFunnel * 100}%` }}>{item.value}</div></div>)}</div>
           <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
             <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Conversion to close</p><p className="mt-1 font-display text-lg font-semibold">{overallConversion.toFixed(0)}%</p></div>
-            <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Median time in stage</p><p className="mt-1 font-display text-lg font-semibold">{medianDays}d</p></div>
+            <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Median working days since introduction</p><p className="mt-1 font-display text-lg font-semibold">{medianDays} working days</p></div>
           </div>
         </section>
       </div>
@@ -276,9 +267,9 @@ const InvestorDashboard = () => {
         <section className="rounded-lg border border-border bg-card p-5">
           <h2 className="mb-4 font-display text-sm font-semibold">Mandate capacity</h2>
           <div className="grid grid-cols-3 gap-3 text-center text-xs">
-            <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Committed</p><p className="mt-1 font-display text-lg font-semibold">€{(committedCapital / 1_000_000).toFixed(1)}M</p></div>
+            <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Committed, not deployed</p><p className="mt-1 font-display text-lg font-semibold">€{((committedCapital - mandateDeployed) / 1_000_000).toFixed(1)}M</p></div>
             <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Deployed</p><p className="mt-1 font-display text-lg font-semibold">€{(mandateDeployed / 1_000_000).toFixed(1)}M</p></div>
-            <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Stated ticket band</p><p className="mt-1 font-display text-lg font-semibold">{investorProfile?.ticket_band ? TICKETS[investorProfile.ticket_band] : ""}</p></div>
+            {investorProfile?.ticket_band && <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Stated ticket band</p><p className="mt-1 font-display text-lg font-semibold">{TICKETS[investorProfile.ticket_band]}</p></div>}
           </div>
           <p className="mt-3 text-[11px] text-muted-foreground">A stated ticket band is not total mandate capacity. Committed and deployed amounts use saved indicated commitments.</p>
         </section>
@@ -302,25 +293,10 @@ const InvestorDashboard = () => {
 
       </>}
       <div className="mb-5 flex gap-1.5 overflow-x-auto border-b border-border">
-        {([['interests', 'My interests'], ['deals', 'Deals'], ['watch', 'Watchlist'], ['passed', 'Passed deals']] as const).map(([id, label]) => <Button key={id} variant="ghost" onClick={() => setTab(id)} className={cn("rounded-none border-b-2", tab === id ? "border-accent text-accent" : "border-transparent text-muted-foreground")}>{label}</Button>)}
+        {([['interests', 'My interests'], ['deals', 'Deals'], ['watch', 'Watchlist']] as const).map(([id, label]) => <Button key={id} variant="ghost" onClick={() => setTab(id)} className={cn("rounded-none border-b-2", tab === id ? "border-accent text-accent" : "border-transparent text-muted-foreground")}>{label}</Button>)}
       </div>
 
-      {tab === "passed" ? (
-        <div className="space-y-4">
-          <div className="rounded-lg border border-border bg-card p-5">
-            <p className="mb-3 text-xs text-muted-foreground">Passed deals are logged locally in this browser session only. They are not saved to your account.</p>
-            <div className="grid gap-3 sm:grid-cols-[1fr_2fr_auto]">
-              <Input placeholder="Project name" value={passedForm.projectTitle} onChange={(event) => setPassedForm((prev) => ({ ...prev, projectTitle: event.target.value }))} />
-              <Textarea placeholder="Reason for passing" value={passedForm.reason} onChange={(event) => setPassedForm((prev) => ({ ...prev, reason: event.target.value }))} className="min-h-9" />
-              <Button onClick={logPassedDeal}>Log passed deal</Button>
-            </div>
-          </div>
-          <div className="overflow-hidden rounded-lg border border-border bg-card">
-            {!passedDeals.length && <p className="p-6 text-sm text-muted-foreground">No passed deals logged in this session.</p>}
-            {passedDeals.map((deal) => <div key={deal.id} className="border-b border-border px-6 py-4 last:border-0"><p className="font-semibold">{deal.projectTitle}</p><p className="mt-1 text-xs text-muted-foreground">Reason: {deal.reason}</p><p className="mt-1 text-[11px] text-muted-foreground">Logged {fmtDate(new Date(deal.loggedAt))} (this session only)</p></div>)}
-          </div>
-        </div>
-      ) : tab === "deals" ? (
+      {tab === "deals" ? (
         <div className="space-y-3">
           {!interests.length && <p className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">No active deals yet.</p>}
           {interests.map((interest) => {

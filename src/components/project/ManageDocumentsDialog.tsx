@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { FileText, Loader2, Trash2, Upload } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -28,7 +28,6 @@ const ManageDocumentsDialog = ({
   projectTitle: string;
   trigger: React.ReactNode;
 }) => {
-  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [docs, setDocs] = useState<DocumentRow[]>([]);
   const [loading, setLoading] = useState(false);
@@ -62,7 +61,7 @@ const ManageDocumentsDialog = ({
       .upload(path, file, { upsert: false, contentType: file.type || undefined });
     if (storageError) {
       setUploading(false);
-      toast({ title: "Upload failed", description: storageError.message, variant: "destructive" });
+      toast.error("Upload failed", { description: storageError.message });
       return;
     }
     const { data: authData } = await supabase.auth.getUser();
@@ -79,23 +78,23 @@ const ManageDocumentsDialog = ({
     setUploading(false);
     if (rowError) {
       await supabase.storage.from("project-documents").remove([path]);
-      toast({ title: "Upload failed", description: rowError.message, variant: "destructive" });
+      toast.error("Upload failed", { description: rowError.message });
       return;
     }
     setFile(null);
     setCategory("");
-    toast({ title: "Document added", description: `${file.name} is now attached to this listing.` });
+    toast.success("Document added", { description: `${file.name} is now attached to this listing.` });
     load();
   };
 
   const remove = async (doc: DocumentRow) => {
     const { error } = await supabase.from("document").delete().eq("id", doc.id);
     if (error) {
-      toast({ title: "Could not remove", description: error.message, variant: "destructive" });
+      toast.error("Could not remove", { description: error.message });
       return;
     }
     await supabase.storage.from("project-documents").remove([doc.storage_path]);
-    toast({ title: "Document removed" });
+    toast.success("Document removed");
     load();
   };
 
@@ -104,7 +103,7 @@ const ManageDocumentsDialog = ({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Documents — {projectTitle}</DialogTitle>
+          <DialogTitle>Documents - {projectTitle}</DialogTitle>
           <DialogDescription>
             Open documents are visible to investors you have accepted. Data room files are released only to investors you
             accept in full.

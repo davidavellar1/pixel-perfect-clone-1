@@ -69,7 +69,7 @@ const Ecosystem = () => {
     : null;
 
   return (
-    <div className="max-w-7xl space-y-6">
+    <div className="max-w-workspace space-y-6">
       <header>
         <h1 className="font-display text-3xl font-semibold text-foreground">Ecosystem</h1>
         <p className="mt-1 text-[15px] text-muted-foreground">

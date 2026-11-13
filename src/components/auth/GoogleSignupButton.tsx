@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { startGoogleSignup, type SignupRole } from "@/lib/googleSignup";
 
 const GoogleIcon = () => (
@@ -24,7 +24,6 @@ interface Props {
 }
 
 const GoogleSignupButton = ({ roles, fullName, company, intents, destination, disabled, label = "Sign up with Google", className }: Props) => {
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
@@ -33,11 +32,7 @@ const GoogleSignupButton = ({ roles, fullName, company, intents, destination, di
       const result = await startGoogleSignup({ roles, fullName, company, intents, destination });
       if (result.redirected) return;
     } catch (error: any) {
-      toast({
-        title: "Google sign-up failed",
-        description: error?.message || "Unable to continue with Google. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Google sign-up failed", { description: error?.message || "Unable to continue with Google. Please try again." });
     } finally {
       setLoading(false);
     }

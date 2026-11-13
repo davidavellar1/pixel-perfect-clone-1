@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, ExternalLink, Landmark, Minus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -100,9 +100,9 @@ const EligibilityDialog = ({
             <DialogTitle className="font-display text-lg font-semibold">
               {entry.name_en || entry.name}
             </DialogTitle>
-            <p className="mt-0.5 text-[13px] text-muted-foreground">Check eligibility · {types}</p>
+            <DialogDescription className="mt-0.5 text-[13px] text-muted-foreground">Check eligibility · {types}</DialogDescription>
           </div>
-          <span className="ml-auto rounded-full bg-[#e6f5ec] px-3 py-1 font-display text-[11.5px] font-semibold text-[#1c6e48]">
+          <span className="ml-auto rounded-full bg-success-soft px-3 py-1 font-display text-[11.5px] font-semibold text-success-foreground">
             Free
           </span>
         </div>
@@ -121,7 +121,7 @@ const EligibilityDialog = ({
               <ul className="space-y-1.5 text-[13px] text-foreground/80">
                 <li>
                   Countries:{" "}
-                  {entry.country_codes.map((c) => COUNTRY_NAMES[c] || c).join(", ") || "Not stated"}
+                  {entry.country_codes.map((c) => COUNTRY_NAMES[c] || c).join(", ") || null}
                 </li>
                 <li>
                   Stages:{" "}
@@ -202,7 +202,7 @@ const EligibilityDialog = ({
                     className="flex items-start gap-2.5 py-1.5 text-[13px] text-foreground/80"
                   >
                     {c.state === "meets" && (
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#1f9d63]" />
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
                     )}
                     {c.state === "fails" && (
                       <X className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
@@ -230,7 +230,7 @@ const EligibilityDialog = ({
                 )}
               >
                 {callLabel(call)}
-                {"call" in call ? ` – ${call.call.title}` : ""}
+                {"call" in call ? ` - ${call.call.title}` : ""}
               </p>
             </>
           )}
@@ -240,7 +240,7 @@ const EligibilityDialog = ({
           <Button
             variant="ghost"
             onClick={() => setStep(0)}
-            className={step === 0 || !projects.length ? "invisible" : ""}
+            hidden={step === 0 || !projects.length}
           >
             Back
           </Button>

@@ -6,7 +6,7 @@ import ProjectCharts from "@/components/ProjectCharts";
 import { FileText, Shield, CloudOff, Gauge, Zap, Activity, CheckCircle, XCircle, MinusCircle, BookOpen, ClipboardList, Lock, Clock, FileSpreadsheet, Leaf, Scale, FileSignature } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from "recharts";
 import { emptyInvestorGrade, type InvestorGradeBundle } from "@/data/investorGrade";
 import OfftakeLadderBar from "@/components/project/OfftakeLadderBar";
@@ -264,7 +264,7 @@ function FinancialTab({
               {project.capitalStack.map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center justify-center text-xs font-medium text-white"
+                  className="flex items-center justify-center text-xs font-medium text-inverse-foreground"
                   style={{ width: `${item.percentage}%`, backgroundColor: item.color }}
                 >
                   {item.label} {item.percentage}%
@@ -334,10 +334,10 @@ function FinancialTab({
                   <h4 className="text-sm font-bold text-foreground">{risk.title}</h4>
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                     risk.severity === "Low"
-                      ? "bg-emerald-100 text-emerald-700"
+                      ? "bg-success-soft text-success"
                       : risk.severity === "Medium"
-                      ? "bg-amber-100 text-amber-700"
-                      : "bg-red-100 text-red-700"
+                      ? "bg-warning-soft text-warning-foreground"
+                      : "bg-destructive-soft text-destructive"
                   }`}>
                     {risk.severity}
                   </span>
@@ -384,10 +384,10 @@ function SustainabilityTab({ project, asOf }: { project: ProjectDetail; asOf?: s
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {project.sustainabilityMetrics.map((metric, i) => {
               const icons = [
-                <CloudOff key="ico" className="w-5 h-5 text-emerald-600" />,
-                <Gauge key="ico" className="w-5 h-5 text-emerald-600" />,
-                <Zap key="ico" className="w-5 h-5 text-emerald-600" />,
-                <Activity key="ico" className="w-5 h-5 text-emerald-600" />,
+                <CloudOff key="ico" className="w-5 h-5 text-success" />,
+                <Gauge key="ico" className="w-5 h-5 text-success" />,
+                <Zap key="ico" className="w-5 h-5 text-success" />,
+                <Activity key="ico" className="w-5 h-5 text-success" />,
               ];
               return (
                 <div key={i} className="bg-muted/50 border border-border rounded-xl p-5">
@@ -435,10 +435,10 @@ function SustainabilityTab({ project, asOf }: { project: ProjectDetail; asOf?: s
             {project.energyMix.map((source, i) => (
               <div
                 key={source.source}
-                className="flex items-center justify-center text-xs font-medium text-white"
+                className="flex items-center justify-center text-xs font-medium text-inverse-foreground"
                 style={{
                   width: `${source.percentage}%`,
-                  backgroundColor: i === 0 ? "hsl(var(--primary))" : i === 1 ? "hsl(152 69% 50%)" : "hsl(var(--muted-foreground))",
+                  backgroundColor: i === 0 ? "var(--primary)" : i === 1 ? "var(--success)" : "var(--muted-foreground)",
                 }}
               >
                 {source.source.split(" ")[0]} {source.percentage}%
@@ -449,7 +449,7 @@ function SustainabilityTab({ project, asOf }: { project: ProjectDetail; asOf?: s
             {project.energyMix.map((source, i) => (
               <div key={source.source} className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="w-3 h-3 rounded-sm" style={{
-                  backgroundColor: i === 0 ? "hsl(var(--primary))" : i === 1 ? "hsl(152 69% 50%)" : "hsl(var(--muted-foreground))",
+                  backgroundColor: i === 0 ? "var(--primary)" : i === 1 ? "var(--success)" : "var(--muted-foreground)",
                 }} />
                 {source.source} - {source.percentage}%
               </div>
@@ -467,7 +467,7 @@ function SustainabilityTab({ project, asOf }: { project: ProjectDetail; asOf?: s
             {project.sdgs.map((sdg) => (
               <div key={sdg.number} className="bg-muted/50 border border-border rounded-xl p-4 flex items-start gap-3 min-w-[180px]">
                 <div
-                  className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+                  className="w-9 h-9 rounded-lg flex items-center justify-center text-inverse-foreground font-bold text-sm flex-shrink-0"
                   style={{ backgroundColor: sdg.color }}
                 >
                   {sdg.number}
@@ -487,14 +487,14 @@ function SustainabilityTab({ project, asOf }: { project: ProjectDetail; asOf?: s
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">SFDR classification</h2>
           <div className="border-t border-border mb-6" />
-          <div className="bg-purple-50 border border-purple-200 rounded-xl p-6">
+          <div className="bg-info-soft border border-info rounded-xl p-6">
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-lg bg-purple-200 flex items-center justify-center text-purple-700 font-bold text-sm flex-shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-info-soft flex items-center justify-center text-info font-bold text-sm flex-shrink-0">
                 <Scale className="h-4 w-4" />
               </div>
               <div>
-                <h4 className="mb-1 text-sm font-bold text-purple-800">SFDR classification is the investor's to make</h4>
-                <p className="text-sm leading-relaxed text-purple-700">
+                <h4 className="mb-1 text-sm font-bold text-info">SFDR classification is the investor's to make</h4>
+                <p className="text-sm leading-relaxed text-info">
                   The platform does not classify this investment under SFDR. Project data and annual impact reporting are provided so that
                   each investor can reach its own classification under its own policy.
                 </p>
@@ -522,22 +522,22 @@ const DOCUMENT_LIST: DocItem[] = [
     title: "Information Memorandum",
     meta: "PDF · 48 pages · Updated March 2025",
     icon: FileText,
-    iconColor: "text-rose-600",
-    iconBg: "bg-rose-50",
+    iconColor: "text-destructive",
+    iconBg: "bg-destructive-soft",
   },
   {
     title: "EU Taxonomy Assessment Report",
     meta: "PDF · 24 pages · Bureau Veritas · January 2025",
     icon: BookOpen,
-    iconColor: "text-blue-600",
-    iconBg: "bg-blue-50",
+    iconColor: "text-info",
+    iconBg: "bg-info-soft",
   },
   {
     title: "Technical Feasibility Study (Summary)",
     meta: "PDF · 32 pages · Rambøll · Q3 2023",
     icon: ClipboardList,
-    iconColor: "text-orange-600",
-    iconBg: "bg-orange-50",
+    iconColor: "text-warning-foreground",
+    iconBg: "bg-warning-soft",
   },
   {
     title: "Financial Model (Excel)",
@@ -655,7 +655,7 @@ function DocumentsTab({
             })}
           </div>
         ) : dataRoomStatus === "pending" ? (
-          <div className="flex items-center gap-2.5 rounded-lg border border-amber-300/60 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-700 dark:text-amber-500">
+          <div className="flex items-center gap-2.5 rounded-lg border border-warning-border/60 bg-warning-soft  px-4 py-3 text-sm text-warning-foreground ">
             <Clock className="w-4 h-4 shrink-0" />
             <span>Your access request is with the developer. Nothing is released until they decide.</span>
           </div>

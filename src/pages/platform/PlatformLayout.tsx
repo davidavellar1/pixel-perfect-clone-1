@@ -1,127 +1,61 @@
-import { useEffect, useMemo, useState } from "react";
-import { useWatchlist } from "@/hooks/useWatchlist";
-import { Link, NavLink, Outlet, useLocation, useNavigate } from "@/lib/router-compat";
-import { NAV_GROUPS, homePathFor, type NavItem } from "@/lib/navigation";
-import { ChevronDown, ChevronLeft, ChevronsUpDown, HelpCircle, LogOut, Plus, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "@/lib/router-compat";
+import { NAV_GROUPS } from "@/lib/navigation";
+import { ChevronDown, ChevronsUpDown, HelpCircle, LogOut, Plus, Settings } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Sidebar, SidebarProvider, SidebarHeader, SidebarFooter, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuBadge, SidebarMenuSkeleton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { Button } from "@/components/ui/button";
-import { AppShellProvider } from "@/contexts/AppShellContext";
 import { supabase } from "@/integrations/supabase/client";
 import MandateStep from "@/components/settings/MandateStep";
 
-const isUnder = (pathname: string, prefix: string) => pathname === prefix || pathname.startsWith(`${prefix}/`);
+const activePath = (pathname: string, path: string) => path === "/app" ? pathname.replace(/\/$/, "") === path : pathname === path || pathname.startsWith(`${path}/`);
 
-const itemClass = (active: boolean, collapsed: boolean) =>
-  cn(
-    "flex h-10 w-full items-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
-    collapsed ? "justify-center px-0" : "justify-center px-0 md:justify-start md:gap-3 md:px-3",
-    active ? "bg-accent text-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-  );
-
-const Badge = ({ count, onAccent }: { count: number; onAccent?: boolean }) =>
-  count > 0 ? (
-    <span className={cn("ml-auto hidden rounded-full px-2 py-0.5 text-[10px] font-semibold md:inline", onAccent ? "bg-accent-foreground/15 text-accent-foreground" : "bg-accent/15 text-accent")}>{count}</span>
-  ) : null;
-
-const PlatformLayout = () => {
-  const { user, profile, intents, loading, signOut } = useAuth();
-  const navigate = useNavigate();
+function WorkspaceShell() {
+  const { user, profile, loading, signOut } = useAuth();
+  const { setOpenMobile } = useSidebar();
   const location = useLocation();
-  const homePath = homePathFor(intents);
-  const storageKey = `dhc-app-shell-collapsed-${user?.id || "guest"}`;
-  const [collapsed, setCollapsed] = useState(() => localStorage.getItem(storageKey) === "true");
+  const navigate = useNavigate();
   const { count: watchCount } = useWatchlist();
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingOnMine, setPendingOnMine] = useState(0);
-  const inDeals = isUnder(location.pathname, "/app/my-deals");
   const [dealsOpen, setDealsOpen] = useState(true);
-  useEffect(() => { if (inDeals) setDealsOpen(true); }, [inDeals]);
-  useEffect(() => { setCollapsed(localStorage.getItem(storageKey) === "true"); }, [storageKey]);
-  useEffect(() => { if (user) void supabase.from("notification").select("id", { count: "exact", head: true }).eq("user_id", user.id).is("read_at", null).then(({ count }) => setUnreadCount(count || 0)); }, [user]);
-  // Requests other members sent on this member's listings (RLS returns only those and their own).
-  useEffect(() => { if (user) void supabase.from("access_request").select("id", { count: "exact", head: true }).eq("state", "pending").neq("investor_user_id", user.id).then(({ count }) => setPendingOnMine(count || 0)); }, [user, location.pathname]);
-  const badgeCount = (badge?: string) => (badge === "watchlist" ? watchCount : badge === "notifications" ? unreadCount : badge === "listing" ? pendingOnMine : 0);
-  const toggleCollapsed = () => setCollapsed((value) => { const next = !value; localStorage.setItem(storageKey, String(next)); return next; });
+  useEffect(() => { setOpenMobile(false); if (location.pathname.startsWith("/app/my-deals")) setDealsOpen(true); }, [location.pathname, setOpenMobile]);
+  useEffect(() => {
+    if (!user) return;
+    void supabase.from("notification").select("id", { count: "exact", head: true }).eq("user_id", user.id).is("read_at", null).then(({ count }) => setUnreadCount(count ?? 0));
+    void supabase.from("access_request").select("id", { count: "exact", head: true }).eq("state", "pending").neq("investor_user_id", user.id).then(({ count }) => setPendingOnMine(count ?? 0));
+  }, [user?.id, location.pathname]);
+  const countFor = (badge?: string) => badge === "watchlist" ? watchCount : badge === "notifications" ? unreadCount : badge === "listing" ? pendingOnMine : 0;
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "Member";
-  const subtitle = profile?.company_name || user?.email || "";
-  const initials = displayName.slice(0, 2).toUpperCase();
-  const context = useMemo(() => ({ collapsed, toggleCollapsed }), [collapsed]);
-  const handleSignOut = async () => { await signOut(); navigate("/"); };
-
-  const sectionTitle = useMemo(() => {
-    for (const group of NAV_GROUPS) for (const item of group.items) {
-      const child = item.children?.find((c) => isUnder(location.pathname, c.to));
-      if (child) return `${item.label} / ${child.label}`;
-      if (!item.children && (item.to === "/app" ? location.pathname === "/app" || location.pathname === "/app/" : isUnder(location.pathname, item.to))) return item.label;
-    }
-    if (isUnder(location.pathname, "/app/settings")) return "Profile settings";
-    if (isUnder(location.pathname, "/app/submit-project")) return "List a project";
-    return "";
-  }, [location.pathname]);
-
-  const renderParent = (item: NavItem) => {
-    const Icon = item.icon;
-    const children = item.children || [];
-    if (collapsed) {
-      return <NavLink key={item.key} to={item.to} title={item.label} className={() => itemClass(inDeals, true)}><Icon className="h-[18px] w-[18px] shrink-0" /></NavLink>;
-    }
-    return <div key={item.key}>
-      {/* Phones show the icon rail only, so the parent links straight to its first page there. */}
-      <NavLink to={item.to} title={item.label} className={() => cn(itemClass(inDeals, false), "md:hidden")}><Icon className="h-[18px] w-[18px] shrink-0" /></NavLink>
-      <button type="button" aria-expanded={dealsOpen} aria-controls={`nav-${item.key}`} onClick={() => setDealsOpen((v) => !v)} className={cn("hidden h-10 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring md:flex", inDeals ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground")}>
-        <Icon className="h-[18px] w-[18px] shrink-0" /><span className="flex-1 truncate">{item.label}</span><ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform", dealsOpen && "rotate-180")} />
-      </button>
-      {dealsOpen && <div id={`nav-${item.key}`} className="ml-[21px] mt-1 hidden flex-col gap-0.5 border-l border-white/15 pl-2.5 md:flex">
-        {children.map((child) => <NavLink key={child.key} to={child.to} className={({ isActive }) => cn("flex h-[34px] items-center rounded-md px-3 text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring", isActive ? "bg-accent font-semibold text-accent-foreground" : "font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground")}>
-          {({ isActive }: { isActive: boolean }) => <><span className="flex-1 truncate">{child.label}</span><Badge count={badgeCount(child.badge)} onAccent={isActive} /></>}
-        </NavLink>)}
-      </div>}
-    </div>;
-  };
-
-  return <AppShellProvider value={context}>
-    <div className={cn("app-shell-grid grid min-h-screen bg-background transition-[grid-template-columns] duration-[220ms] ease-out", collapsed && "app-shell-collapsed")}>
-      <aside className="sticky top-0 z-40 flex h-screen min-w-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar">
-        <div className="flex h-[68px] shrink-0 items-center justify-between border-b border-sidebar-border px-4">
-          <Link to={homePath} className="min-w-0 font-display text-xl font-bold text-white" title="DHC Market">
-            <span className={cn("block w-[40px] text-center text-base", !collapsed && "md:hidden")}>D<span className="text-accent">M</span></span>{!collapsed && <span className="hidden md:block">DHC<span className="text-accent">Market</span></span>}
-          </Link>
-          <Button variant="outline" size="icon" onClick={toggleCollapsed} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} title={collapsed ? "Expand sidebar" : "Collapse sidebar"} className={cn("hidden h-[30px] w-[30px] shrink-0 border-accent text-accent transition-transform duration-[220ms] hover:bg-accent/10 md:inline-flex", collapsed && "rotate-180")}><ChevronLeft className="h-4 w-4" /></Button>
-        </div>
-        <nav aria-label="Workspace" className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-4">
-          {loading ? <div className="space-y-2 pt-5" aria-hidden="true">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 animate-pulse rounded-md bg-white/5" />)}</div> : NAV_GROUPS.map((group) => <div key={group.label}>
-            {!collapsed && <p className="hidden px-3 pb-2 pt-5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/50 md:block">{group.label}</p>}
-            <div className={cn("space-y-1", collapsed && "pt-3")}>
-              {group.items.map((item) => item.children ? renderParent(item) : <NavLink key={item.key} to={item.to} title={item.label} className={({ isActive }) => itemClass(isActive, collapsed)}>
-                {({ isActive }: { isActive: boolean }) => <>
-                  <item.icon className="h-[18px] w-[18px] shrink-0" />
-                  {!collapsed && <><span className="hidden truncate md:inline">{item.label}</span><Badge count={badgeCount(item.badge)} onAccent={isActive} /></>}
-                </>}
-              </NavLink>)}
-            </div>
-          </div>)}
-        </nav>
-        <div className="shrink-0 border-t border-sidebar-border p-3">
-          <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" aria-label="Account menu" className={cn("h-auto min-h-14 w-full justify-center px-0 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-sidebar-ring", !collapsed && "md:justify-start md:gap-3 md:px-1")}>
-            <Avatar className="h-9 w-9"><AvatarImage src={profile?.avatar_url ?? undefined} alt="Your avatar" className="object-cover" /><AvatarFallback className="bg-accent text-xs font-semibold text-accent-foreground">{initials}</AvatarFallback></Avatar>
-            {!collapsed && <><span className="hidden min-w-0 text-left md:block"><span className="block truncate text-sm font-medium text-sidebar-accent-foreground">{displayName}</span><span className="block truncate text-xs text-sidebar-foreground">{subtitle}</span></span><ChevronsUpDown className="ml-auto hidden shrink-0 md:block" /></>}
-          </Button></DropdownMenuTrigger><DropdownMenuContent side="top" align="start" sideOffset={8} className="w-60 max-w-[calc(100vw-24px)]"><DropdownMenuLabel><span className="block truncate">{displayName}</span><span className="block truncate text-xs font-normal text-muted-foreground">{user?.email}</span></DropdownMenuLabel><DropdownMenuSeparator /><DropdownMenuItem asChild><Link to="/app/settings"><Settings className="mr-2 h-4 w-4" />Profile settings</Link></DropdownMenuItem><DropdownMenuItem asChild><Link to="/app/support"><HelpCircle className="mr-2 h-4 w-4" />Help &amp; support</Link></DropdownMenuItem><DropdownMenuSeparator /><DropdownMenuItem onSelect={() => void handleSignOut()}><LogOut className="mr-2 h-4 w-4" />Sign out</DropdownMenuItem></DropdownMenuContent></DropdownMenu>
-        </div>
-      </aside>
-      <main className="min-w-0">
-        <div className="flex min-h-[60px] flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-5 py-2.5 lg:px-8">
-          <p className="min-w-0 truncate text-sm font-medium text-muted-foreground">{sectionTitle}</p>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex"><Link to="/app/opportunities">Browse opportunities</Link></Button>
-            <Button asChild size="sm"><Link to="/app/submit-project"><Plus className="h-4 w-4" />List a project</Link></Button>
-          </div>
-        </div>
-        <div className="mx-auto w-full max-w-[1240px] px-5 py-8 lg:px-8">{loading ? null : <MandateStep><Outlet /></MandateStep>}</div>
-      </main>
+  const section = NAV_GROUPS.flatMap(g => g.items).flatMap(i => i.children ?? [i]).find(i => activePath(location.pathname, i.to))?.label || (location.pathname.includes("settings") ? "Profile settings" : "Workspace");
+  return <>
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="border-b border-sidebar-border p-3"><SidebarMenu><SidebarMenuItem><SidebarMenuButton asChild tooltip="DHC Market" className="text-sidebar-accent-foreground"><Link to="/app"><span className="font-display font-bold">D</span><span className="font-display text-lg font-bold">DHC<span className="text-accent">Market</span></span></Link></SidebarMenuButton></SidebarMenuItem></SidebarMenu></SidebarHeader>
+      <SidebarContent><nav aria-label="Workspace">{NAV_GROUPS.map(group => <SidebarGroup key={group.label}><SidebarGroupLabel>{group.label}</SidebarGroupLabel><SidebarGroupContent><SidebarMenu>
+        {loading ? Array.from({ length: 3 }).map((_, i) => <SidebarMenuItem key={i}><SidebarMenuSkeleton showIcon /></SidebarMenuItem>) : group.items.map(item => item.children ?
+          <Collapsible key={item.key} open={dealsOpen} onOpenChange={setDealsOpen} asChild><SidebarMenuItem>
+            <CollapsibleTrigger asChild><SidebarMenuButton tooltip={item.label} isActive={location.pathname.startsWith("/app/my-deals")}><item.icon /><span>{item.label}</span><ChevronDown className="ml-auto" /></SidebarMenuButton></CollapsibleTrigger>
+            <CollapsibleContent><SidebarMenuSub>{item.children.map(child => <SidebarMenuSubItem key={child.key}><SidebarMenuSubButton asChild isActive={activePath(location.pathname, child.to)}><Link to={child.to}><span>{child.label}</span>{countFor(child.badge) > 0 && <span className="ml-auto text-xs">{countFor(child.badge)}</span>}</Link></SidebarMenuSubButton></SidebarMenuSubItem>)}</SidebarMenuSub></CollapsibleContent>
+          </SidebarMenuItem></Collapsible> :
+          <SidebarMenuItem key={item.key}><SidebarMenuButton asChild tooltip={item.label} isActive={activePath(location.pathname, item.to)}><Link to={item.to}><item.icon /><span>{item.label}</span></Link></SidebarMenuButton>{countFor(item.badge) > 0 && <SidebarMenuBadge>{countFor(item.badge)}</SidebarMenuBadge>}</SidebarMenuItem>)}
+      </SidebarMenu></SidebarGroupContent></SidebarGroup>)}</nav></SidebarContent>
+      <SidebarFooter className="border-t border-sidebar-border"><SidebarMenu><SidebarMenuItem><DropdownMenu><DropdownMenuTrigger asChild><SidebarMenuButton size="lg" tooltip="Account menu" aria-label="Account menu"><Avatar className="h-8 w-8"><AvatarImage src={profile?.avatar_url ?? undefined} alt="Your avatar" /><AvatarFallback className="bg-accent text-accent-foreground">{displayName.slice(0, 2).toUpperCase()}</AvatarFallback></Avatar><span className="min-w-0"><span className="block truncate">{displayName}</span><span className="block truncate text-xs">{profile?.company_name || user?.email}</span></span><ChevronsUpDown className="ml-auto" /></SidebarMenuButton></DropdownMenuTrigger>
+      <DropdownMenuContent side="top" align="start" className="w-60"><DropdownMenuLabel>{displayName}</DropdownMenuLabel><DropdownMenuSeparator /><DropdownMenuItem asChild><Link to="/app/settings"><Settings />Profile settings</Link></DropdownMenuItem><DropdownMenuItem asChild><Link to="/app/support"><HelpCircle />Help and support</Link></DropdownMenuItem><DropdownMenuSeparator /><DropdownMenuItem onSelect={() => void signOut().then(() => navigate("/"))}><LogOut />Sign out</DropdownMenuItem></DropdownMenuContent></DropdownMenu></SidebarMenuItem></SidebarMenu></SidebarFooter>
+    </Sidebar>
+    <div className="min-w-0 flex-1">
+      <header className="flex min-h-16 flex-wrap items-center justify-between gap-2 border-b border-border bg-card px-4 py-2"><div className="flex min-w-0 items-center gap-3"><SidebarTrigger className="min-h-11 min-w-11" /><p className="truncate text-sm text-muted-foreground">{section}</p></div><Button asChild size="sm"><Link to="/app/submit-project"><Plus />List a project</Link></Button></header>
+      <main className="workspace-container px-4 py-6 sm:px-6 lg:px-8">{loading ? null : <MandateStep><Outlet /></MandateStep>}</main>
     </div>
-  </AppShellProvider>;
-};
-export default PlatformLayout;
+  </>;
+}
+export default function PlatformLayout() {
+  const { user } = useAuth();
+  const key = `dhc-app-shell-collapsed-${user?.id ?? "guest"}`;
+  const [open, setOpen] = useState(true);
+  useEffect(() => { try { setOpen(localStorage.getItem(key) !== "true"); } catch { setOpen(true); } }, [key]);
+  return <SidebarProvider open={open} onOpenChange={value => { setOpen(value); try { localStorage.setItem(key, String(!value)); } catch { /* Storage may be unavailable. */ } }}><WorkspaceShell /></SidebarProvider>;
+}

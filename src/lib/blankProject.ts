@@ -1,8 +1,6 @@
 import type { Tables } from "@/integrations/supabase/types";
 import type { ProjectDetail } from "@/data/projectsData";
 
-const NOT_STATED = "";
-
 /**
  * Builds the detail shape for a listing that exists only in the database.
  * Every field comes from that project's own record; anything the developer has not
@@ -23,36 +21,36 @@ export function blankProjectDetail(row: Tables<"project">): ProjectDetail {
     technology: readable(row.technology),
     stage: readable(row.lifecycle_stage),
     type: "District heating and cooling",
-    targetIRR: NOT_STATED,
+    targetIRR: null,
     capex: row.headline_investment
       ? `€${(Number(row.headline_investment) / 1_000_000).toFixed(1)}M`
-      : NOT_STATED,
-    capacity: row.capacity_mw ? `${row.capacity_mw} MW` : NOT_STATED,
-    npv: NOT_STATED,
-    paybackPeriod: NOT_STATED,
+      : null,
+    capacity: row.capacity_mw ? `${row.capacity_mw} MW` : null,
+    npv: null,
+    paybackPeriod: null,
     summary: row.summary || row.description || "The developer has not published a summary yet.",
     summaryExtended: row.description || undefined,
     timeline: [],
     documents: [],
     co2Reduction: row.headline_co2_tonnes
       ? `${Number(row.headline_co2_tonnes).toLocaleString()} tonnes/yr`
-      : NOT_STATED,
-    householdsServed: row.households_served?.toLocaleString() || NOT_STATED,
+      : null,
+    householdsServed: row.households_served?.toLocaleString() || null,
     timelineRange: years.length ? years.join(" to ") : "To be confirmed",
-    equityRequired: NOT_STATED,
-    minTicket: NOT_STATED,
-    unleveragedIRR: NOT_STATED,
-    concessionTerm: NOT_STATED,
-    firstRevenue: NOT_STATED,
+    equityRequired: null,
+    minTicket: null,
+    unleveragedIRR: null,
+    concessionTerm: null,
+    firstRevenue: null,
     fundingProgress: 0,
-    fundingRemaining: NOT_STATED,
+    fundingRemaining: null,
     developer: {
       name: "Project developer",
       verified: row.verified,
-      hq: NOT_STATED,
-      founded: NOT_STATED,
-      dhcProjects: NOT_STATED,
-      totalCapacity: NOT_STATED,
+      hq: null,
+      founded: null,
+      dhcProjects: null,
+      totalCapacity: null,
     },
     advisors: [],
     technologyCards: [],

@@ -12,7 +12,7 @@ import ExpressInterestDialog, { type InterestFormDraft } from "@/components/proj
 import { Button } from "@/components/ui/button";
 import { Heart, Lock, CheckCircle2, Clock, ShieldX, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { toast as sonnerToast } from "sonner";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import type { ProjectDetail as ProjectDetailData } from "@/data/projectsData";
@@ -68,7 +68,6 @@ const HELPER_TEXT =
 const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [teaser, setTeaser] = useState<ProjectTeaser | null>(null);
   const [loadingProject, setLoadingProject] = useState(true);
   const [projectError, setProjectError] = useState<string | null>(null);
@@ -195,30 +194,22 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
   const openInterest = () => {
     if (!user) {
-      toast({
-        title: "Sign in required",
-        description: "Please sign in to send an expression of interest.",
-        variant: "destructive",
-      });
+      toast.error("Sign in required", { description: "Please sign in to send an expression of interest." });
       navigate(`/sign-in?redirect=${encodeURIComponent(context === "app" ? `/app/projects/${slug}` : `/projects/${slug}`)}`);
       return;
     }
     if (granted) {
-      toast({ title: "Access already granted", description: "The project detail is unlocked for you." });
+      toast.success("Access already granted", { description: "The project detail is unlocked for you." });
       return;
     }
     if (accessState === "pending") {
-      toast({ title: "Request pending", description: "The developer has your request and the signed agreement." });
+      toast.success("Request pending", { description: "The developer has your request and the signed agreement." });
       return;
     }
     if (accessState === "declined") {
       const reopen = request?.reopen_allowed_at;
       if (!reopen || new Date(reopen) > new Date()) {
-        toast({
-          title: "Resubmission not available",
-          description: `This developer declined the request. You may resubmit after ${formatDate(reopen)} unless the developer invites you.`,
-          variant: "destructive",
-        });
+        toast.error("Resubmission not available", { description: `This developer declined the request. You may resubmit after ${formatDate(reopen)} unless the developer invites you.` });
         return;
       }
     }
@@ -228,7 +219,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
   const handleSubmitInterest = async (draft: InterestFormDraft) => {
     if (!user || !projectId) {
-      toast({ title: "This listing is not connected yet", description: "Please choose a live marketplace listing.", variant: "destructive" });
+      toast.error("This listing is not connected yet", { description: "Please choose a live marketplace listing." });
       return;
     }
     if (!agreement || !signatureReady(draft, criteria, agreement)) {
@@ -270,7 +261,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
     if (error || !saved) {
       setSubmitting(false);
-      toast({ title: "Request could not be sent", description: error?.message || "Please try again.", variant: "destructive" });
+      toast.error("Request could not be sent", { description: error?.message || "Please try again." });
       return;
     }
 
@@ -302,7 +293,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     setSubmitting(false);
 
     if (answersError) {
-      toast({ title: "Request sent without the full answers", description: answersError.message, variant: "destructive" });
+      toast.error("Request sent without the full answers", { description: answersError.message });
     }
 
     setRequest(saved);
@@ -324,18 +315,18 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
       .select("*")
       .single();
     if (error) {
-      toast({ title: "Withdrawal failed", description: error.message, variant: "destructive" });
+      toast.error("Withdrawal failed", { description: error.message });
       return;
     }
     setRequest(data);
-    toast({ title: "Request withdrawn", description: "The developer has been notified that you withdrew before a decision." });
+    toast.success("Request withdrawn", { description: "The developer has been notified that you withdrew before a decision." });
   };
 
-  if (loadingProject || loadingAuth) return <div className="mx-auto max-w-[980px] px-5 py-20 text-muted-foreground">Loading project...</div>;
-  if (projectError) return <div role="alert" className="mx-auto max-w-[980px] px-5 py-20 text-destructive">{projectError}</div>;
+  if (loadingProject || loadingAuth) return <div className="mx-auto max-w-workspace px-5 py-20 text-muted-foreground">Loading project...</div>;
+  if (projectError) return <div role="alert" className="mx-auto max-w-workspace px-5 py-20 text-destructive">{projectError}</div>;
 
   if (!project) {
-    const notFound = <div className="mx-auto max-w-[980px] px-5 py-20 text-center"><h1 className="mb-4 font-display text-2xl font-semibold text-foreground">Project not found</h1><Button variant="outline" asChild><Link to={context === "app" ? "/app/opportunities" : "/sign-in?redirect=/app/opportunities"}>Back to opportunities</Link></Button></div>;
+    const notFound = <div className="mx-auto max-w-workspace px-5 py-20 text-center"><h1 className="mb-4 font-display text-2xl font-semibold text-foreground">Project not found</h1><Button variant="outline" asChild><Link to={context === "app" ? "/app/opportunities" : "/sign-in?redirect=/app/opportunities"}>Back to opportunities</Link></Button></div>;
     return context === "public" ? <PublicShell>{notFound}</PublicShell> : notFound;
   }
 
@@ -358,7 +349,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
   const body = (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto flex max-w-[980px] flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
+      <div className="mx-auto flex max-w-workspace flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
         <Link to={context === "app" ? "/app/opportunities" : "/sign-in?redirect=/app/opportunities"} className="text-sm font-medium text-muted-foreground hover:text-foreground">Back to opportunities</Link>
         <div className="flex items-center gap-2">
           {isOwner ? (
@@ -377,7 +368,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
                 <Heart className={`h-4 w-4 ${projectId && watchlist.has(projectId) ? "fill-current" : ""}`} />
                 {projectId && watchlist.has(projectId) ? "Saved" : "Save"}
               </Button>
-              <Button size="sm" onClick={openInterest} disabled={loadingAuth}>{ctaLabel}</Button>
+
             </>
           )}
         </div>
@@ -399,11 +390,11 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
         onToggleWatchlist={toggleWatchlist}
       />
 
-      <div className="mx-auto mt-6 max-w-[980px] px-5">
+      <div className="mx-auto mt-6 max-w-workspace px-5">
         {!granted && <MandateFit draft={mandatePrefill(investorProfile)} criteria={criteria} />}
         {granted && (
-          <div className="flex items-start gap-2.5 rounded-xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-sm text-emerald-900">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-emerald-600" />
+          <div className="flex items-start gap-2.5 rounded-xl border border-success-border bg-success-soft px-5 py-4 text-sm text-success">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-success" />
             <p>
               The developer accepted your request on {formatDate(request?.decided_at)}. The confidentiality agreement signed by{" "}
               {request?.nda_signed_name} took effect on {formatDate(request?.nda_effective_at)}, version {request?.nda_version}.
@@ -473,30 +464,12 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
           </div>
         )}
 
-        {!isOwner && (accessState === "teaser" || accessState === "withdrawn") && (
-          <div className="flex flex-col gap-4 rounded-xl bg-gradient-to-r from-primary to-primary/90 px-6 py-5 text-primary-foreground sm:flex-row sm:items-center">
-            <div className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-primary-foreground/10">
-              <Lock className="h-5 w-5 text-accent" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-display text-base font-semibold">Nothing is revealed until the developer accepts your request</h3>
-              <p className="mt-1 max-w-[62ch] text-sm text-primary-foreground/70">{HELPER_TEXT}</p>
-            </div>
-            <Button
-              onClick={openInterest}
-              disabled={loadingAuth}
-              className="bg-accent font-semibold text-accent-foreground hover:bg-accent/90"
-            >
-              <Send className="mr-2 h-4 w-4" />
-              Express interest
-            </Button>
-          </div>
-        )}
+
       </div>
 
       {/* Tab bar */}
-      <div className="sticky top-14 z-10 mt-6 border-b border-border bg-background">
-        <div className="mx-auto max-w-[980px] px-5">
+      <div className={`sticky ${context === "app" ? "top-0" : "top-14"} z-10 mt-6 border-b border-border bg-background`}>
+        <div className="mx-auto max-w-workspace px-5">
           <div className="-ml-5 flex flex-nowrap overflow-x-auto">
             {tabs.map((tab) => (
               <button
@@ -516,7 +489,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
       </div>
 
       {/* Main content */}
-      <div className="mx-auto max-w-[980px] px-5 py-10">
+      <div className="mx-auto max-w-workspace px-5 py-10">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <LockedTabOverlay

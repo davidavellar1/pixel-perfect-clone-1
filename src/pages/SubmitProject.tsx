@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import type React from "react";
+import { useMemo, useState, useId, Children, cloneElement, isValidElement } from "react";
 import { useNavigate } from "@/lib/router-compat";
 import { Check, Info, ShieldCheck, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { TablesInsert } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
-import { sel, todayISO, RowsEditor, MultiSelect, ErrorNote } from "@/components/submit/wizardFields";
+import { WizardSelect, WizardOption, todayISO, RowsEditor, MultiSelect, ErrorNote } from "@/components/submit/wizardFields";
 import {
   CASE_ORDER,
   CASE_LABEL,
@@ -76,9 +77,12 @@ const Field = ({
   hint?: string;
   error?: string;
   children: React.ReactNode;
-}) => (
+}) => {
+  const id = useId();
+  const errorId = `${id}-error`;
+  return (
   <div className="mb-5">
-    <Label className="mb-2 block text-sm font-semibold">
+    <Label id={`${id}-label`} htmlFor={id} className="mb-2 block text-sm font-semibold">
       {label}
       {required && <span className="ml-1 text-accent">*</span>}
       {optional && (
@@ -86,10 +90,11 @@ const Field = ({
       )}
     </Label>
     {hint && <p className="mb-2 text-xs text-muted-foreground">{hint}</p>}
-    {children}
-    <ErrorNote message={error} />
+    {Children.map(children, child => isValidElement(child) ? cloneElement(child as React.ReactElement<Record<string, unknown>>, { id, "aria-labelledby": `${id}-label`, "aria-describedby": error ? errorId : undefined, "aria-invalid": Boolean(error) }) : child)}
+    <ErrorNote id={errorId} message={error} />
   </div>
 );
+};
 
 const StepHead = ({
   n,
@@ -149,11 +154,11 @@ function RowList({
         <div key={r} className="mb-2 grid gap-2" style={{ gridTemplateColumns: columns }}>
           {placeholders.map((p, i) =>
             selectAt === i && selectOptions ? (
-              <select key={i} className={cn(sel, "py-2 text-xs")} defaultValue={selectOptions[0]}>
+              <WizardSelect key={i} value={selectOptions[0]}>
                 {selectOptions.map((o) => (
-                  <option key={o}>{o}</option>
+                  <WizardOption key={o}>{o}</WizardOption>
                 ))}
-              </select>
+              </WizardSelect>
             ) : (
               <Input key={i} placeholder={p} className="h-10 text-sm" />
             ),
@@ -505,7 +510,7 @@ export default function SubmitProject() {
                   <span
                     className={cn(
                       "flex h-6 w-6 flex-none items-center justify-center rounded-full border-2 border-border bg-card text-xs font-semibold text-muted-foreground",
-                      done && "border-emerald-600 bg-emerald-600 text-white",
+                      done && "border-success-border bg-success text-inverse-foreground",
                       on && "border-accent text-accent",
                     )}
                   >
@@ -522,7 +527,7 @@ export default function SubmitProject() {
             })}
           </div>
           {early && (
-            <p className="mt-4 rounded-lg bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-700">
+            <p className="mt-4 rounded-lg bg-warning-soft p-3 text-[11px] leading-relaxed text-warning-foreground">
               Transaction and process terms are skipped at this stage - there is no offer to structure yet.
             </p>
           )}
@@ -568,39 +573,39 @@ export default function SubmitProject() {
               </Field>
 
               <Field label="Project type" required>
-                <select className={sel} value={projectType} onChange={(e) => setProjectType(e.target.value as typeof projectType)}>
-                  <option value="greenfield">Greenfield (new construction)</option>
-                  <option value="brownfield">Brownfield</option>
-                  <option value="modernisation">Modernisation</option>
-                  <option value="expansion">Expansion</option>
-                </select>
+                <WizardSelect value={projectType} onChange={(e) => setProjectType(e.target.value as typeof projectType)}>
+                  <WizardOption value="greenfield">Greenfield (new construction)</WizardOption>
+                  <WizardOption value="brownfield">Brownfield</WizardOption>
+                  <WizardOption value="modernisation">Modernisation</WizardOption>
+                  <WizardOption value="expansion">Expansion</WizardOption>
+                </WizardSelect>
               </Field>
 
               <div className="grid gap-3.5 sm:grid-cols-2">
                 <Field label="Primary technology" required>
-                  <select className={sel} value={technology} onChange={(e) => setTechnology(e.target.value as typeof technology)}>
+                  <WizardSelect value={technology} onChange={(e) => setTechnology(e.target.value as typeof technology)}>
                     {TECHNOLOGIES.map(([label, value]) => (
-                      <option key={value} value={value}>{label}</option>
+                      <WizardOption key={value} value={value}>{label}</WizardOption>
                     ))}
-                  </select>
+                  </WizardSelect>
                 </Field>
                 <Field label="Network generation" required>
-                  <select className={sel}>
-                    <option>4G - low temperature (under 70 C)</option>
-                    <option>3G - high temperature (70-120 C)</option>
-                    <option>5G - ambient loop</option>
-                    <option>Transitioning</option>
-                  </select>
+                  <WizardSelect>
+                    <WizardOption>4G - low temperature (under 70 C)</WizardOption>
+                    <WizardOption>3G - high temperature (70-120 C)</WizardOption>
+                    <WizardOption>5G - ambient loop</WizardOption>
+                    <WizardOption>Transitioning</WizardOption>
+                  </WizardSelect>
                 </Field>
               </div>
 
               <div className="grid gap-3.5 sm:grid-cols-2">
                 <Field label="Country" required>
-                  <select className={sel} value={country} onChange={(e) => setCountry(e.target.value)}>
+                  <WizardSelect value={country} onChange={(e) => setCountry(e.target.value)}>
                     {COUNTRIES.map((c) => (
-                      <option key={c}>{c}</option>
+                      <WizardOption key={c}>{c}</WizardOption>
                     ))}
-                  </select>
+                  </WizardSelect>
                 </Field>
                 <Field label="Region (NUTS-2)" required>
                   <Input
@@ -638,12 +643,12 @@ export default function SubmitProject() {
                   placeholder="e.g. Industrial waste-heat recovery feeding an established metropolitan network"
                 />
                 {anonFlag ? (
-                  <div className="mt-2 flex gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-700">
+                  <div className="mt-2 flex gap-2 rounded-lg border border-warning-border bg-warning-soft p-3 text-xs text-warning-foreground">
                     <TriangleAlert className="mt-px h-4 w-4 flex-none" />
                     This looks like it may contain a name or city. Please keep the summary anonymous.
                   </div>
                 ) : (
-                  <div className="mt-2 flex gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-700">
+                  <div className="mt-2 flex gap-2 rounded-lg border border-success-border bg-success-soft p-3 text-xs text-success">
                     <ShieldCheck className="mt-px h-4 w-4 flex-none" />
                     No identifying names detected. Identity stays hidden until an investor expresses
                     interest.
@@ -653,16 +658,16 @@ export default function SubmitProject() {
 
               <div className="grid gap-3.5 sm:grid-cols-2">
                 <Field label="Capacity band" required hint="Exact MW revealed at interest.">
-                  <select className={sel} value={capacityBand} onChange={(e) => setCapacityBand(e.target.value)}>
-                    <option value="">Select a band</option>
-                    {CAPACITY_BANDS.map((b) => <option key={b} value={b}>{b}</option>)}
-                  </select>
+                  <WizardSelect value={capacityBand} onChange={(e) => setCapacityBand(e.target.value)}>
+                    <WizardOption value="">Select a band</WizardOption>
+                    {CAPACITY_BANDS.map((b) => <WizardOption key={b} value={b}>{b}</WizardOption>)}
+                  </WizardSelect>
                 </Field>
                 <Field label="Capex band" required hint="Exact figure revealed at interest.">
-                  <select className={sel} value={capexBand} onChange={(e) => setCapexBand(e.target.value)}>
-                    <option value="">Select a band</option>
-                    {CAPEX_BANDS.map((b) => <option key={b} value={b}>{b}</option>)}
-                  </select>
+                  <WizardSelect value={capexBand} onChange={(e) => setCapexBand(e.target.value)}>
+                    <WizardOption value="">Select a band</WizardOption>
+                    {CAPEX_BANDS.map((b) => <WizardOption key={b} value={b}>{b}</WizardOption>)}
+                  </WizardSelect>
                 </Field>
               </div>
 
@@ -707,10 +712,10 @@ export default function SubmitProject() {
               >
                 <div className="grid gap-2.5 sm:grid-cols-[1fr_150px]">
                   <Input type="number" step="0.1" placeholder="e.g. 9.5" value={targetIrr} onChange={(e) => setTargetIrr(e.target.value)} />
-                  <select className={cn(sel, "text-xs")} defaultValue={early ? "Basis: indicative" : "Basis: modelled"}>
-                    <option>Basis: indicative</option><option>Basis: modelled</option>
-                    <option>Basis: committed</option><option>Basis: actual</option>
-                  </select>
+                  <WizardSelect value={early ? "Basis: indicative" : "Basis: modelled"}>
+                    <WizardOption>Basis: indicative</WizardOption><WizardOption>Basis: modelled</WizardOption>
+                    <WizardOption>Basis: committed</WizardOption><WizardOption>Basis: actual</WizardOption>
+                  </WizardSelect>
                 </div>
               </Field>
 
@@ -719,9 +724,9 @@ export default function SubmitProject() {
                 required
                 hint="Amount and source are revealed only at interest."
               >
-                <select className={sel}>
-                  <option>None</option><option>In progress</option><option>Committed</option>
-                </select>
+                <WizardSelect>
+                  <WizardOption>None</WizardOption><WizardOption>In progress</WizardOption><WizardOption>Committed</WizardOption>
+                </WizardSelect>
               </Field>
             </section>
           )}
@@ -736,13 +741,12 @@ export default function SubmitProject() {
               </p>
 
               <Field label="Heat-source ownership" required>
-                <select
-                  className={sel}
+                <WizardSelect
                   onChange={(e) => setThirdParty(e.target.value === "Third-party supplied")}
                 >
-                  <option>Self-owned</option>
-                  <option>Third-party supplied</option>
-                </select>
+                  <WizardOption>Self-owned</WizardOption>
+                  <WizardOption>Third-party supplied</WizardOption>
+                </WizardSelect>
               </Field>
               {thirdParty && (
                 <Field
@@ -754,9 +758,9 @@ export default function SubmitProject() {
               )}
 
               <Field label="Site / land status" required>
-                <select className={sel}>
-                  <option>Contracted</option><option>In negotiation</option><option>Not yet</option>
-                </select>
+                <WizardSelect>
+                  <WizardOption>Contracted</WizardOption><WizardOption>In negotiation</WizardOption><WizardOption>Not yet</WizardOption>
+                </WizardSelect>
               </Field>
 
               <Field
@@ -766,9 +770,9 @@ export default function SubmitProject() {
                 <div className="grid gap-2.5 sm:grid-cols-[1fr_1fr_150px]">
                   <Input type="number" placeholder="Supply C" />
                   <Input type="number" placeholder="Return C" />
-                  <select className={cn(sel, "text-xs")}>
-                    <option>Designed</option><option>Modelled</option><option>Measured</option>
-                  </select>
+                  <WizardSelect>
+                    <WizardOption>Designed</WizardOption><WizardOption>Modelled</WizardOption><WizardOption>Measured</WizardOption>
+                  </WizardSelect>
                 </div>
               </Field>
 
@@ -779,9 +783,9 @@ export default function SubmitProject() {
               >
                 <div className="grid gap-2.5 sm:grid-cols-[1fr_150px]">
                   <Input type="number" placeholder="%" />
-                  <select className={cn(sel, "text-xs")}>
-                    <option>Designed</option><option>Modelled</option><option>Measured</option>
-                  </select>
+                  <WizardSelect>
+                    <WizardOption>Designed</WizardOption><WizardOption>Modelled</WizardOption><WizardOption>Measured</WizardOption>
+                  </WizardSelect>
                 </div>
               </Field>
 
@@ -838,10 +842,10 @@ export default function SubmitProject() {
                 </p>
                 <div className="grid gap-3.5 sm:grid-cols-2">
                   <Input placeholder="EPC contractor" value={epcContractor} onChange={(e) => setEpcContractor(e.target.value)} />
-                  <select className={sel} value={contractType} onChange={(e) => setContractType(e.target.value)}>
-                    <option value="">Contract type</option>
-                    <option>Lump-sum turnkey</option><option>EPC</option><option>EPCM</option><option>Multi-contract</option>
-                  </select>
+                  <WizardSelect value={contractType} onChange={(e) => setContractType(e.target.value)}>
+                    <WizardOption value="">Contract type</WizardOption>
+                    <WizardOption>Lump-sum turnkey</WizardOption><WizardOption>EPC</WizardOption><WizardOption>EPCM</WizardOption><WizardOption>Multi-contract</WizardOption>
+                  </WizardSelect>
                   <Input type="number" placeholder="Contract value (EUR)" value={contractValue} onChange={(e) => setContractValue(e.target.value)} />
                   <Input placeholder="LD rate (e.g. 0.1%/day)" value={ldRate} onChange={(e) => setLdRate(e.target.value)} />
                   <Input type="number" placeholder="LD cap (% of contract value)" value={ldCapPct} onChange={(e) => setLdCapPct(e.target.value)} />
@@ -877,9 +881,9 @@ export default function SubmitProject() {
                     At this stage we keep financials light and clearly indicative.
                   </p>
                   <Field label="Indicative capex range">
-                    <select className={sel}>
-                      {CAPEX_BANDS.map((b) => <option key={b}>{b}</option>)}
-                    </select>
+                    <WizardSelect>
+                      {CAPEX_BANDS.map((b) => <WizardOption key={b}>{b}</WizardOption>)}
+                    </WizardSelect>
                   </Field>
                   <Field label="Equity sought (indicative)">
                     <Input placeholder="e.g. ~8M EUR" />
@@ -915,10 +919,10 @@ export default function SubmitProject() {
                     />
                   </Field>
                   <Field label="Grant treatment" optional="(if a grant is present)">
-                    <select className={sel}>
-                      <option>Non-repayable</option><option>Clawback-conditional</option>
-                      <option>Milestone-conditional</option>
-                    </select>
+                    <WizardSelect>
+                      <WizardOption>Non-repayable</WizardOption><WizardOption>Clawback-conditional</WizardOption>
+                      <WizardOption>Milestone-conditional</WizardOption>
+                    </WizardSelect>
                   </Field>
                   <Field
                     label="Debt terms"
@@ -952,13 +956,13 @@ export default function SubmitProject() {
                     required
                     hint="What caps the upside. We tailor the sub-fields to your regime once you set it in Structure."
                   >
-                    <select className={sel}>
-                      <option>Ex-ante regulated allowed return</option>
-                      <option>Non-profit / break-even</option>
-                      <option>Market-based (no cap)</option>
-                      <option>Concession tariff ceiling</option>
-                      <option>Ex-post (clause-validity risk)</option>
-                    </select>
+                    <WizardSelect>
+                      <WizardOption>Ex-ante regulated allowed return</WizardOption>
+                      <WizardOption>Non-profit / break-even</WizardOption>
+                      <WizardOption>Market-based (no cap)</WizardOption>
+                      <WizardOption>Concession tariff ceiling</WizardOption>
+                      <WizardOption>Ex-post (clause-validity risk)</WizardOption>
+                    </WizardSelect>
                   </Field>
                   <Field
                     label="Revenue model"
@@ -1071,9 +1075,9 @@ export default function SubmitProject() {
 
               <div className="grid gap-3.5 sm:grid-cols-2">
                 <Field label="Instrument" required>
-                  <select className={sel} value={instrument} onChange={(e) => setInstrument(e.target.value as typeof instrument)}>
-                    {Object.entries(INSTRUMENT_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                  </select>
+                  <WizardSelect value={instrument} onChange={(e) => setInstrument(e.target.value as typeof instrument)}>
+                    {Object.entries(INSTRUMENT_LABEL).map(([k, v]) => <WizardOption key={k} value={k}>{v}</WizardOption>)}
+                  </WizardSelect>
                 </Field>
                 <Field label="Equity sought" required>
                   <Input type="number" placeholder="EUR" value={equitySought} onChange={(e) => setEquitySought(e.target.value)} />
@@ -1310,18 +1314,18 @@ export default function SubmitProject() {
                 required
                 hint="What the heat replaces. Every emissions figure depends on this."
               >
-                <select className={sel}>
-                  <option>Individual gas boilers</option><option>Coal CHP</option>
-                  <option>Individual electric heating</option><option>Oil heating</option>
-                  <option>Older district heating</option>
-                </select>
+                <WizardSelect>
+                  <WizardOption>Individual gas boilers</WizardOption><WizardOption>Coal CHP</WizardOption>
+                  <WizardOption>Individual electric heating</WizardOption><WizardOption>Oil heating</WizardOption>
+                  <WizardOption>Older district heating</WizardOption>
+                </WizardSelect>
               </Field>
               <Field label="GHG avoidance" optional="(optional, basis-flagged)">
                 <div className="grid gap-2.5 sm:grid-cols-[1fr_150px]">
                   <Input type="number" placeholder="tCO2e / yr" value={co2} onChange={(e) => setCo2(e.target.value)} />
-                  <select className={cn(sel, "text-xs")}>
-                    <option>Modelled</option><option>Measured</option>
-                  </select>
+                  <WizardSelect>
+                    <WizardOption>Modelled</WizardOption><WizardOption>Measured</WizardOption>
+                  </WizardSelect>
                 </div>
               </Field>
               <Field label="Renewable / waste-heat share" optional="(optional)">
@@ -1333,15 +1337,15 @@ export default function SubmitProject() {
                 hint="State which path to efficient DHC you meet and the applicable threshold year, not just 'compliant'."
               >
                 <div className="grid gap-3.5 sm:grid-cols-2">
-                  <select className={sel} value={eedPathYear} onChange={(e) => setEedPathYear(e.target.value)}>
-                    <option value="2025">Threshold year: 2025</option>
-                    <option value="2028">Threshold year: 2028</option>
-                    <option value="2035">Threshold year: 2035</option>
-                  </select>
-                  <select className={sel} value={eedPath} onChange={(e) => setEedPath(e.target.value as typeof eedPath)}>
-                    <option value="renewable_waste_heat_share">Path: renewable and waste-heat share</option>
-                    <option value="ghg_reduction">Path: GHG reduction</option>
-                  </select>
+                  <WizardSelect value={eedPathYear} onChange={(e) => setEedPathYear(e.target.value)}>
+                    <WizardOption value="2025">Threshold year: 2025</WizardOption>
+                    <WizardOption value="2028">Threshold year: 2028</WizardOption>
+                    <WizardOption value="2035">Threshold year: 2035</WizardOption>
+                  </WizardSelect>
+                  <WizardSelect value={eedPath} onChange={(e) => setEedPath(e.target.value as typeof eedPath)}>
+                    <WizardOption value="renewable_waste_heat_share">Path: renewable and waste-heat share</WizardOption>
+                    <WizardOption value="ghg_reduction">Path: GHG reduction</WizardOption>
+                  </WizardSelect>
                 </div>
               </Field>
               <Field
@@ -1376,9 +1380,9 @@ export default function SubmitProject() {
                 <Input type="number" step="0.01" placeholder="e.g. 0.82" />
               </Field>
               <Field label="Upstream / Scope 3 included?" optional="(optional)">
-                <select className={sel}>
-                  <option>No</option><option>Yes</option>
-                </select>
+                <WizardSelect>
+                  <WizardOption>No</WizardOption><WizardOption>Yes</WizardOption>
+                </WizardSelect>
               </Field>
             </section>
           )}
@@ -1394,11 +1398,11 @@ export default function SubmitProject() {
               </p>
 
               <Field label="Developer structure type" required>
-                <select className={sel}>
+                <WizardSelect>
                   {["Municipal utility", "Arms-length municipal", "Public-private partnership", "Private concession", "Fully private", "Cooperative", "ESCO", "Not-for-profit"].map((o) => (
-                    <option key={o}>{o}</option>
+                    <WizardOption key={o}>{o}</WizardOption>
                   ))}
-                </select>
+                </WizardSelect>
               </Field>
               <Field label="SPV name & incorporation" optional="(revealed at interest)">
                 <div className="grid gap-3.5 sm:grid-cols-2">
@@ -1424,14 +1428,14 @@ export default function SubmitProject() {
                 required
                 hint="Investors filter on this. It sets the revenue-constraint sub-fields in Financial."
               >
-                <select className={sel}>
-                  <option>Ex-ante cost-based regulated</option>
-                  <option>Non-profit / break-even</option>
-                  <option>Market-based + transparency</option>
-                  <option>Ex-post competition control</option>
-                  <option>Contractual / concession</option>
-                  <option>In transition</option>
-                </select>
+                <WizardSelect>
+                  <WizardOption>Ex-ante cost-based regulated</WizardOption>
+                  <WizardOption>Non-profit / break-even</WizardOption>
+                  <WizardOption>Market-based + transparency</WizardOption>
+                  <WizardOption>Ex-post competition control</WizardOption>
+                  <WizardOption>Contractual / concession</WizardOption>
+                  <WizardOption>In transition</WizardOption>
+                </WizardSelect>
               </Field>
               <Field label="Concession counterparty & term" optional="(if concession / PPP)">
                 <div className="grid gap-3.5 sm:grid-cols-2">
@@ -1502,7 +1506,7 @@ export default function SubmitProject() {
                 <label
                   className={cn(
                     "flex cursor-pointer items-start gap-3 rounded-lg border border-border p-3.5 text-sm leading-relaxed",
-                    mandate && "border-emerald-500 bg-emerald-50",
+                    mandate && "border-success-border bg-success-soft",
                   )}
                 >
                   <Checkbox

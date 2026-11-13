@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import NewsPreferencesDialog, { type NewsPrefs } from "@/components/news/NewsPreferencesDialog";
@@ -46,7 +46,6 @@ async function defaultCountries(userId: string): Promise<string[]> {
 
 const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
   const { user, roles } = useAuth();
-  const { toast } = useToast();
   const isAdmin = roles.includes("admin");
   const initialCc = initialCountry && isKnownCountry(initialCountry) ? initialCountry.toUpperCase() : "all";
 
@@ -138,17 +137,17 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
 
   const hide = async (id: string) => {
     const { error: err } = await supabase.from("news_item").update({ hidden: true }).eq("id", id);
-    if (err) { toast({ title: "Could not hide this item", description: err.message, variant: "destructive" }); return; }
+    if (err) { toast.error("Could not hide this item", { description: err.message }); return; }
     setItems((prev) => prev.filter((i) => i.id !== id));
-    toast({ title: "Hidden from all members" });
+    toast.success("Hidden from all members");
   };
 
   return (
-    <div className="max-w-7xl space-y-6 overflow-x-hidden">
+    <div className="max-w-workspace space-y-6 overflow-x-hidden">
       <header>
         <h1 className="font-display text-3xl font-semibold text-foreground">Market news</h1>
         <p className="mt-1 text-[15px] text-muted-foreground">
-          District heating and cooling news from the markets you follow — deals, policy, funding calls and project milestones, summarised in English.
+          District heating and cooling news from the markets you follow - deals, policy, funding calls and project milestones, summarised in English.
         </p>
         {prefs && (
           <p className="mt-2 text-xs text-muted-foreground">

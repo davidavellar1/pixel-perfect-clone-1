@@ -20,6 +20,17 @@
 - [ ] Full signed submission and developer decision verification: requires authorized test signatories on both sides
 - [x] Verify onboarding, fit, signing safeguards, settings and rule tests
 
+# Frontend hygiene
+- [x] Semantic token sweep and enforced colour/dash checks
+- [x] Null-safe financial, transaction and blank-project sections
+- [x] Light-only Sonner and removal of legacy toasts
+- [x] Current sidebar primitive, mobile drawer and per-user persistence
+- [x] Accessible validated expression-of-interest form and dialog navigation
+- [x] Labelled opportunity filters, sorting, clear actions and loading skeletons
+- [x] Truthful dashboard metrics and single project interest action
+- [x] Consistent workspace width and accessible wizard fields
+- [x] Regression tests, signed-in desktop/mobile checks and commit
+
 # Disclosure fixes
 - [x] Gate investor-grade queries and locked DOM/hero figures
 - [x] Read teaser-only data for unapproved detail/listing viewers and update card metrics

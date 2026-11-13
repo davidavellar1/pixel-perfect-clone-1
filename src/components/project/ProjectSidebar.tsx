@@ -23,8 +23,7 @@ const ProjectSidebar = ({
     <div className="space-y-6">
       {/* Key Investment Data */}
       <div
-        className="bg-card rounded-xl border border-border p-6"
-        style={{ boxShadow: "var(--card-shadow)" }}
+        className="bg-card rounded-xl border border-border p-6 shadow-card"
       >
         <h3 className="text-lg font-serif font-bold text-foreground mb-5">Key investment data</h3>
         <div className="space-y-0">
@@ -50,7 +49,7 @@ const ProjectSidebar = ({
           ))}
         </div>
 
-        {/* Funding progress — only once the developer has reported one */}
+        {/* Funding progress - only once the developer has reported one */}
         {project.fundingProgress > 0 && (
           <div className="mt-4 mb-4">
             <p className="text-xs text-primary mb-1">
@@ -66,21 +65,12 @@ const ProjectSidebar = ({
           </div>
         )}
 
-        {!isOwner && (
-          <Button
-            onClick={onRequestAccess}
-            disabled={loadingAuth}
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-full"
-          >
-            Express investment interest
-          </Button>
-        )}
+
       </div>
 
       {/* Project Developer */}
       <div
-        className="bg-card rounded-xl border border-border p-6"
-        style={{ boxShadow: "var(--card-shadow)" }}
+        className="bg-card rounded-xl border border-border p-6 shadow-card"
       >
         <h3 className="text-base font-serif font-bold text-foreground mb-4">Project developer</h3>
         <div className="flex items-center gap-3 mb-4">
@@ -103,7 +93,7 @@ const ProjectSidebar = ({
             { label: "Founded", value: project.developer.founded },
             { label: "DHC projects", value: project.developer.dhcProjects },
             { label: "Total capacity", value: project.developer.totalCapacity },
-          ].filter((row) => row.value && row.value !== "Not stated");
+          ].filter((row) => row.value);
           if (rows.length === 0) {
             return (
               <p className="text-sm text-muted-foreground">
@@ -130,8 +120,7 @@ const ProjectSidebar = ({
       {/* Advisors */}
       {project.advisors && project.advisors.length > 0 && (
         <div
-          className="bg-card rounded-xl border border-border p-6"
-          style={{ boxShadow: "var(--card-shadow)" }}
+          className="bg-card rounded-xl border border-border p-6 shadow-card"
         >
           <h3 className="text-base font-serif font-bold text-foreground mb-4">
             Advisors on this project
@@ -161,19 +150,19 @@ const ProjectSidebar = ({
 
       {/* Public Funding */}
       {project.publicFunding && project.publicFunding.length > 0 && (
-        <div className="bg-purple-50 rounded-xl border border-purple-200 p-6">
-          <h3 className="text-base font-serif font-bold text-purple-900 mb-4">Public funding</h3>
+        <div className="bg-info-soft rounded-xl border border-info p-6">
+          <h3 className="text-base font-serif font-bold text-info mb-4">Public funding</h3>
           <div className="space-y-3">
             {project.publicFunding.map((fund) => (
               <div key={fund.source} className="flex justify-between items-center">
-                <span className="text-sm text-purple-700">{fund.source}</span>
-                <span className="text-sm font-bold text-purple-900">
+                <span className="text-sm text-info">{fund.source}</span>
+                <span className="text-sm font-bold text-info">
                   {fund.amount} ✓ {fund.status}
                 </span>
               </div>
             ))}
           </div>
-          <p className="text-xs text-purple-600 mt-3 leading-relaxed">
+          <p className="text-xs text-info mt-3 leading-relaxed">
             €
             {project.publicFunding
               .reduce((sum, f) => sum + parseFloat(f.amount.replace(/[^0-9.]/g, "")), 0)
@@ -183,7 +172,7 @@ const ProjectSidebar = ({
           </p>
           <Button
             variant="outline"
-            className="w-full mt-4 rounded-full border-purple-300 text-purple-700 hover:bg-purple-100"
+            className="w-full mt-4 rounded-full border-info text-info hover:bg-info-soft"
             asChild
           >
             <Link to={context === "app" ? "/app/public-funding" : "/public-funding"}>

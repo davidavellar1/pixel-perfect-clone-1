@@ -4,9 +4,9 @@ import Support from "@/pages/platform/Support";
 export const Route = createFileRoute("/app/support")({
   head: () => ({
     meta: [
-      { title: "Support — DHC Market" },
+      { title: "Support - DHC Market" },
       { name: "description", content: "Get help from the DHC Market team." },
-      { property: "og:title", content: "Support — DHC Market" },
+      { property: "og:title", content: "Support - DHC Market" },
       { property: "og:description", content: "Get help from the DHC Market team." },
     ],
   }),

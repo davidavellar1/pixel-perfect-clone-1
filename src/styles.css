@@ -2,7 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+
 
 /*
  * Self-hosted fonts (SIL OFL, from Fontsource 5.3.0) instead of Google Fonts:
@@ -58,6 +58,22 @@
  */
 
 @theme inline {
+  --shadow-card: 0 1px 2px rgb(15 27 45 / 0.04), 0 2px 8px rgb(15 27 45 / 0.03);
+  --container-workspace: 1240px;
+  --color-inverse-subtle: var(--inverse-subtle);
+  --color-inverse-muted: var(--inverse-muted);
+  --color-inverse-foreground: var(--inverse-foreground);
+  --color-brand-hover: var(--brand-hover);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-border: var(--success-border);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-soft: var(--info-soft);
+  --color-info: var(--info);
+  --color-warning-border: var(--warning-border);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning: var(--warning);
   --color-ladder-negotiation: #f5a623;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Space Grotesk", "Inter", sans-serif;
@@ -95,8 +111,8 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar-background);
-  --color-sidebar-background: var(--sidebar-background);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-background: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
@@ -144,6 +160,20 @@
 }
 
 :root {
+  --inverse-subtle: #9fb0c4;
+  --inverse-muted: #c5cedb;
+  --inverse-foreground: #ffffff;
+  --brand-hover: #2670d6;
+  --destructive-soft: #fff1f2;
+  --success-foreground: #1c6e48;
+  --success-border: #c9e8d5;
+  --info-foreground: #1f5fb8;
+  --info-soft: #e7f1fd;
+  --info: #1f5fb8;
+  --warning-border: #f0dcb4;
+  --warning-foreground: #8a5b12;
+  --warning-soft: #fdf3e2;
+  --warning: #b7791f;
   --radius: 0.5rem;
 
   --navy-900: #081320;
@@ -202,7 +232,7 @@
   --chart-4: #d6a23a;
   --chart-5: #7d6bd8;
 
-  --sidebar-background: #081320;
+  --sidebar: #081320;
   --sidebar-foreground: #c5cedb;
   --sidebar-primary: #2f80ed;
   --sidebar-primary-foreground: #ffffff;
@@ -241,10 +271,6 @@
   max-width: 1180px;
 }
 
-.app-shell-grid { grid-template-columns: 74px minmax(0, 1fr); }
-@media (min-width: 768px) {
-  .app-shell-grid:not(.app-shell-collapsed) { grid-template-columns: 264px minmax(0, 1fr); }
-}
 
 @utility eyebrow {
   font-family: var(--font-display);
@@ -254,3 +280,5 @@
   text-transform: uppercase;
   color: var(--primary);
 }
+
+@utility workspace-container { width: 100%; max-width: var(--container-workspace); margin-inline: auto; }

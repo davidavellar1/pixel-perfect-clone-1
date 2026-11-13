@@ -76,14 +76,14 @@ export const DEVELOPER_STATED = "developer-stated";
 
 /** Formats a number as euros without fractional noise. */
 export const eur = (value: number | null | undefined) => {
-  if (value === null || value === undefined) return "Not stated";
+  if (value === null || value === undefined) return null;
   if (Math.abs(value) >= 1_000_000) return `EUR ${(value / 1_000_000).toFixed(1)}M`;
   if (Math.abs(value) >= 1_000) return `EUR ${Math.round(value / 1_000)}k`;
   return `EUR ${value.toLocaleString()}`;
 };
 
 export const pct = (value: number | null | undefined, digits = 1) =>
-  value === null || value === undefined ? "Not stated" : `${Number(value).toFixed(digits)}%`;
+  value === null || value === undefined ? null : `${Number(value).toFixed(digits)}%`;
 
 export const asOfLine = (label: string, date: string | null | undefined) =>
   date

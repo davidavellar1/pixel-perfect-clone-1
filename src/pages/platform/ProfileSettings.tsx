@@ -154,10 +154,10 @@ export default function ProfileSettings() {
   };
   const saveButton = (section: string, changed: boolean) => <Button type="submit" disabled={!changed || !!saving} className="mt-6 bg-accent text-accent-foreground hover:bg-accent/90">{saving === section ? "Saving…" : "Save changes"}</Button>;
   const jump = (id: string) => { setActive(id); document.getElementById(id)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" }); };
-  if (loading) return <div className="mx-auto max-w-[880px] space-y-6" aria-label="Loading profile settings"><Skeleton className="h-10 w-52" />{[0, 1, 2].map(n => <Skeleton key={n} className="h-64 w-full" />)}</div>;
-  if (error || !data) return <div role="alert" className="mx-auto max-w-[880px] space-y-4"><h1 className="font-display text-2xl font-semibold">Profile settings</h1><p className="break-words text-destructive">{error ?? "Couldn't load your profile."}</p><Button variant="outline" onClick={() => void retry()}>Retry</Button></div>;
+  if (loading) return <div className="workspace-container space-y-6" aria-label="Loading profile settings"><Skeleton className="h-10 w-52" />{[0, 1, 2].map(n => <Skeleton key={n} className="h-64 w-full" />)}</div>;
+  if (error || !data) return <div role="alert" className="workspace-container space-y-4"><h1 className="font-display text-2xl font-semibold">Profile settings</h1><p className="break-words text-destructive">{error ?? "Couldn't load your profile."}</p><Button variant="outline" onClick={() => void retry()}>Retry</Button></div>;
 
-  return <div className="mx-auto w-full max-w-[880px] space-y-6 text-foreground">
+  return <div className="workspace-container space-y-6 text-foreground">
     <header><h1 className="font-display text-3xl font-semibold">Profile settings</h1></header>
     <div className="grid min-w-0 gap-6 lg:grid-cols-[145px_minmax(0,1fr)]">
       <nav aria-label="Settings sections" className="hidden lg:block"><div className="sticky top-8 flex flex-col gap-1">{sections.map(s => <Button key={s.id} variant="ghost" onClick={() => jump(s.id)} className={cn("justify-start whitespace-normal text-left", active === s.id && "bg-accent/10 text-accent")}>{s.label}</Button>)}</div></nav>

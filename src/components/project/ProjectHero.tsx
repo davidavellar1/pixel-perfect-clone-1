@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ProjectDetail } from "@/data/projectsData";
@@ -37,7 +38,7 @@ const ProjectHero = ({ project, onRequestAccess, loadingAuth, grade, granted = f
   ].filter((metric): metric is { label: string; value: string } => Boolean(metric.value));
   return (
     <div className="border-b border-border bg-foreground text-primary-foreground">
-      <div className="mx-auto max-w-[980px] px-5 pb-14 pt-10">
+      <div className="mx-auto max-w-workspace px-5 pb-14 pt-10">
 
         {/* Title */}
         <h1 className="mb-3 font-display text-3xl font-semibold leading-tight text-primary-foreground md:text-4xl">
@@ -66,7 +67,7 @@ const ProjectHero = ({ project, onRequestAccess, loadingAuth, grade, granted = f
             Stage: {project.stage}
           </span>
           {project.publicSupport && (
-            <span className="text-xs font-medium px-3 py-1.5 rounded-full border border-green-200 bg-green-50 text-green-700 flex items-center gap-1.5">
+            <span className="text-xs font-medium px-3 py-1.5 rounded-full border border-success-border bg-success-soft text-success flex items-center gap-1.5">
               <CheckSquare className="w-3.5 h-3.5" />
               Public funding committed
             </span>
@@ -103,7 +104,12 @@ const ProjectHero = ({ project, onRequestAccess, loadingAuth, grade, granted = f
               {watchlisted ? "Saved to watchlist" : "Add to watchlist"}
             </Button>
           )}
-          <Button variant="hero-outline">
+          <Button variant="hero-outline" onClick={async () => {
+            try {
+              if (navigator.share) await navigator.share({ title: project.title, url: window.location.href });
+              else { await navigator.clipboard.writeText(window.location.href); toast.success("Project link copied"); }
+            } catch { /* Cancelled sharing does not change the listing. */ }
+          }}>
             <Share2 className="w-4 h-4 mr-2" />
             Share
           </Button>

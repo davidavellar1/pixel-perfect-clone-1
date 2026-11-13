@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { FileText, FileSpreadsheet, Lock, Clock, Download, Loader2 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -69,7 +69,6 @@ const ProjectDocuments = ({
   projectId: string;
   dataRoomStatus?: DataRoomStatus;
 }) => {
-  const { toast } = useToast();
   const [docs, setDocs] = useState<DocumentRow[] | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -96,11 +95,7 @@ const ProjectDocuments = ({
         .createSignedUrl(doc.storage_path, 120, { download: doc.name });
       setBusyId(null);
       if (error || !data?.signedUrl) {
-        toast({
-          title: "Download unavailable",
-          description: error?.message || "The developer has not released this file to you yet.",
-          variant: "destructive",
-        });
+        toast.error("Download unavailable", { description: error?.message || "The developer has not released this file to you yet." });
         return;
       }
       window.open(data.signedUrl, "_blank", "noopener,noreferrer");
@@ -159,7 +154,7 @@ const ProjectDocuments = ({
             The data room is open to you. The developer has not uploaded any confidential files yet.
           </p>
         ) : dataRoomStatus === "pending" ? (
-          <div className="flex items-center gap-2.5 rounded-lg border border-amber-300/60 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-700 dark:text-amber-500">
+          <div className="flex items-center gap-2.5 rounded-lg border border-warning-border/60 bg-warning-soft  px-4 py-3 text-sm text-warning-foreground ">
             <Clock className="w-4 h-4 shrink-0" />
             <span>Your access request is with the developer. Nothing is released until they decide.</span>
           </div>

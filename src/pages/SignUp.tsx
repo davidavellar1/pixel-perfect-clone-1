@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import GoogleSignupButton from "@/components/auth/GoogleSignupButton";
 import type { SignupRole } from "@/lib/googleSignup";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,6 @@ const brandPoints = [
 const SignUp = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { toast } = useToast();
   const requestedRole = searchParams.get("role");
   const [intents, setIntents] = useState<SignupIntent[]>(() => (requestedRole && ROLE_PARAM_INTENT[requestedRole] ? [ROLE_PARAM_INTENT[requestedRole]] : []));
   const toggleIntent = (value: SignupIntent) =>
@@ -53,11 +52,7 @@ const SignUp = () => {
 
   const handleSubmit = async () => {
     if (!fullName.trim() || !email.trim() || password.length < 8) {
-      toast({
-        title: "Check your details",
-        description: "Full name, a valid work email, and a password of at least 8 characters are required.",
-        variant: "destructive",
-      });
+      toast.error("Check your details", { description: "Full name, a valid work email, and a password of at least 8 characters are required." });
       return;
     }
     setLoading(true);
@@ -76,21 +71,14 @@ const SignUp = () => {
         },
       });
       if (error) throw error;
-      toast({
-        title: "Account created",
-        description: data.session ? "You are signed in. Welcome to DHC Market." : "Check your email to confirm your account, then sign in to continue.",
-      });
+      toast.success("Account created", { description: data.session ? "You are signed in. Welcome to DHC Market." : "Check your email to confirm your account, then sign in to continue." });
       navigate(data.session ? destination : `/sign-in?redirect=${encodeURIComponent(destination)}`);
     } catch (err: any) {
       const message: string = err?.message || "Something went wrong. Please try again.";
       const alreadyRegistered = /already registered|already exists|User already/i.test(message);
-      toast({
-        title: alreadyRegistered ? "You already have an account" : "Sign-up failed",
-        description: alreadyRegistered
+      toast.error(alreadyRegistered ? "You already have an account" : "Sign-up failed", { description: alreadyRegistered
           ? "This email is already registered. Please sign in instead, or use Forgot password."
-          : message,
-        variant: "destructive",
-      });
+          : message });
       if (alreadyRegistered) navigate(`/sign-in?redirect=${encodeURIComponent(destination)}`);
     } finally {
       setLoading(false);
@@ -100,10 +88,10 @@ const SignUp = () => {
   return (
     <div className="grid min-h-screen bg-background lg:grid-cols-[44%_1fr]">
       {/* Brand panel */}
-      <div className="relative hidden overflow-hidden bg-gradient-to-b from-[#0b1b2e] to-[#081320] p-12 text-primary-foreground lg:flex lg:flex-col">
+      <div className="relative hidden overflow-hidden bg-gradient-to-b from-navy-800 to-navy-900 p-12 text-primary-foreground lg:flex lg:flex-col">
         <div className="pointer-events-none absolute -right-40 -top-32 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgba(47,128,237,0.22),transparent_70%)]" />
         <Link to="/" className="relative z-10 font-display text-2xl font-bold">
-          DHC<span className="text-[#3ea0ff]">Market</span>
+          DHC<span className="text-accent">Market</span>
         </Link>
         <div className="relative z-10 my-auto">
           <h2 className="mb-6 max-w-[16ch] font-display text-3xl font-semibold leading-snug">
@@ -111,14 +99,14 @@ const SignUp = () => {
           </h2>
           <div className="flex flex-col gap-4">
             {brandPoints.map(({ icon: Icon, text }) => (
-              <div key={text} className="flex max-w-[42ch] items-start gap-3 text-sm leading-relaxed text-[#c5d2e2]">
-                <Icon className="mt-0.5 h-5 w-5 flex-none text-[#3ea0ff]" strokeWidth={1.8} />
+              <div key={text} className="flex max-w-[42ch] items-start gap-3 text-sm leading-relaxed text-inverse-muted">
+                <Icon className="mt-0.5 h-5 w-5 flex-none text-accent" strokeWidth={1.8} />
                 {text}
               </div>
             ))}
           </div>
         </div>
-        <div className="relative z-10 text-xs text-[#5d6f86]">
+        <div className="relative z-10 text-xs text-muted-foreground">
           Standardized DHC opportunities across Europe.
         </div>
       </div>
@@ -161,10 +149,10 @@ const SignUp = () => {
                     key={option.value}
                     className={cn(
                       "inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border px-3 text-[13px] transition-colors focus-within:ring-2 focus-within:ring-ring",
-                      checked ? "border-primary bg-primary/10 font-semibold text-[#1f5fb8]" : "border-border bg-card font-medium text-foreground hover:border-[#c2cedb]",
+                      checked ? "border-primary bg-primary/10 font-semibold text-info" : "border-border bg-card font-medium text-foreground hover:border-border",
                     )}
                   >
-                    <input type="checkbox" className="h-3.5 w-3.5 accent-[#2f80ed]" checked={checked} onChange={() => toggleIntent(option.value)} />
+                    <input type="checkbox" className="h-3.5 w-3.5 accent-primary" checked={checked} onChange={() => toggleIntent(option.value)} />
                     {option.label}
                   </label>
                 );
@@ -173,7 +161,7 @@ const SignUp = () => {
             <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground">This only sets the page you start on. Every member can invest and list.</p>
           </fieldset>
 
-          <div className="mt-5 flex gap-2.5 rounded-lg border border-[#c9e8d5] bg-[#e6f5ec] p-3.5 text-[12.5px] leading-relaxed text-[#1c6e48]">
+          <div className="mt-5 flex gap-2.5 rounded-lg border border-success-border bg-success-soft p-3.5 text-[12.5px] leading-relaxed text-success-foreground">
             <ShieldCheck className="mt-0.5 h-4 w-4 flex-none" />
             <span>
               After sign-up we verify your identity and organization. You can browse anonymized opportunities right
@@ -212,7 +200,7 @@ const SignUp = () => {
             label="Sign up with Google"
           />
           <p className="mt-2 text-center text-xs text-muted-foreground">
-            Accept the terms first. Google accounts work straight away — no email confirmation needed.
+            Accept the terms first. Google accounts work straight away - no email confirmation needed.
           </p>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{" "}

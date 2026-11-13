@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 type Question = Pick<
   Tables<"question">,
@@ -33,7 +33,6 @@ interface ProjectQAProps {
  * only with the investor who asked. Both sides are notified.
  */
 const ProjectQA = ({ projectId, userId, isOwner }: ProjectQAProps) => {
-  const { toast } = useToast();
   const [questions, setQuestions] = useState<Question[] | null>(null);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -70,11 +69,7 @@ const ProjectQA = ({ projectId, userId, isOwner }: ProjectQAProps) => {
   const submit = async () => {
     const body = draft.trim();
     if (body.length < 5) {
-      toast({
-        title: "Question too short",
-        description: "Please write at least a short sentence.",
-        variant: "destructive",
-      });
+      toast.error("Question too short", { description: "Please write at least a short sentence." });
       return;
     }
     if (!userId) return;
@@ -84,21 +79,13 @@ const ProjectQA = ({ projectId, userId, isOwner }: ProjectQAProps) => {
       .insert({ project_id: projectId, author_id: userId, body });
     setSending(false);
     if (error) {
-      toast({
-        title: "Question not sent",
-        description:
-          error.code === "42501"
+      toast.error("Question not sent", { description: error.code === "42501"
             ? "Questions can be asked once the developer has accepted your access request."
-            : "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+            : "Something went wrong. Please try again." });
       return;
     }
     setDraft("");
-    toast({
-      title: "Question sent",
-      description: "The developer has been notified. You'll get a notification when they answer.",
-    });
+    toast.success("Question sent", { description: "The developer has been notified. You'll get a notification when they answer." });
     void load();
   };
 
@@ -281,7 +268,6 @@ const AnswerCard = ({
   question: Question;
   onAnswered: () => void;
 }) => {
-  const { toast } = useToast();
   const [answer, setAnswer] = useState("");
   const [share, setShare] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -297,14 +283,10 @@ const AnswerCard = ({
     });
     setBusy(false);
     if (error) {
-      toast({
-        title: "Answer not saved",
-        description: "Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Answer not saved", { description: "Please try again." });
       return;
     }
-    toast({ title: "Answer sent", description: "The investor has been notified." });
+    toast.success("Answer sent", { description: "The investor has been notified." });
     onAnswered();
   };
 

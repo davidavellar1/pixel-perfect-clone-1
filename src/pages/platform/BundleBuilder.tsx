@@ -28,8 +28,8 @@ const Chip = ({ children, tone = "plain" }: { children: React.ReactNode; tone?: 
       "rounded-md px-2 py-0.5 font-display text-[11px] font-medium",
       tone === "plain" && "bg-muted text-muted-foreground",
       tone === "tech" && "bg-accent/10 text-accent",
-      tone === "off" && "bg-[#e6f5ec] text-[#1f9d63]",
-      tone === "loi" && "bg-[#fdf3e2] text-[#b7791f]",
+      tone === "off" && "bg-success-soft text-success",
+      tone === "loi" && "bg-warning-soft text-warning",
     )}
   >
     {children}
@@ -333,7 +333,7 @@ const BundleBuilder = () => {
   };
 
   return (
-    <div className="max-w-[1300px] min-w-0">
+    <div className="workspace-container min-w-0">
       <div>
         <h1 className="font-display text-2xl font-semibold text-foreground">Bundle builder</h1>
         <p className="mt-1 max-w-[78ch] text-sm leading-6 text-muted-foreground">
@@ -551,21 +551,21 @@ const BundleBuilder = () => {
                 </p>
               )}
 
-              <div className="mb-4 mt-4 rounded-xl bg-[linear-gradient(120deg,#0f2740,#0b1b2e)] px-4 py-4 text-white">
+              <div className="mb-4 mt-4 rounded-xl bg-[linear-gradient(120deg,#0f2740,#0b1b2e)] px-4 py-4 text-inverse-foreground">
                 <div className="flex items-baseline justify-between">
-                  <span className="font-display text-[11px] font-semibold uppercase tracking-wider text-[#9fb2c9]">
+                  <span className="font-display text-[11px] font-semibold uppercase tracking-wider text-inverse-muted">
                     De-risking via spread
                   </span>
-                  <span className="text-xs text-[#aebbcd]">{level}</span>
+                  <span className="text-xs text-inverse-muted">{level}</span>
                 </div>
-                <div className="my-2 h-[7px] overflow-hidden rounded bg-white/15">
+                <div className="my-2 h-[7px] overflow-hidden rounded bg-inverse-foreground/15">
                   <div className="h-full rounded bg-[linear-gradient(90deg,#3ea0ff,#1f9d63)]" style={{ width: `${dscore}%` }} />
                 </div>
                 <p className="font-display text-2xl font-bold">
                   {dscore}
-                  <span className="text-[13px] font-normal text-[#aebbcd]"> / 100</span>
+                  <span className="text-[13px] font-normal text-inverse-muted"> / 100</span>
                 </p>
-                <p className="mt-1 text-[11.5px] leading-relaxed text-[#aebbcd]">
+                <p className="mt-1 text-[11.5px] leading-relaxed text-inverse-muted">
                   {regimeStated
                     ? `Across ${nCountry} ${nCountry > 1 ? "countries" : "country"} and ${nRegime} regulatory ${nRegime > 1 ? "regimes" : "regime"}.`
                     : `Across ${nCountry} ${nCountry > 1 ? "countries" : "country"} and ${nTech} ${nTech > 1 ? "technologies" : "technology"}; regulatory regime is not published.`}{" "}

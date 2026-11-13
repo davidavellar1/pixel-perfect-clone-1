@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { NEWS_REGIONS, fullRegions } from "@/lib/news/regions";
 import { CATEGORY_LABEL, PREFERENCE_CATEGORIES, type NewsCategory } from "@/lib/news/format";
@@ -24,7 +24,6 @@ interface Props {
 }
 
 const NewsPreferencesDialog = ({ open, onOpenChange, userId, initial, onSaved }: Props) => {
-  const { toast } = useToast();
   const [countries, setCountries] = useState<Set<string>>(new Set(initial.countryCodes));
   const [includeEu, setIncludeEu] = useState(initial.includeEu);
   const [categories, setCategories] = useState<Set<NewsCategory>>(new Set(initial.categories));
@@ -57,10 +56,10 @@ const NewsPreferencesDialog = ({ open, onOpenChange, userId, initial, onSaved }:
     }, { onConflict: "user_id" });
     setSaving(false);
     if (error) {
-      toast({ title: "Could not save your markets", description: error.message, variant: "destructive" });
+      toast.error("Could not save your markets", { description: error.message });
       return;
     }
-    toast({ title: "Your markets are saved" });
+    toast.success("Your markets are saved");
     onSaved({ countryCodes: codes, includeEu, categories: cats });
     onOpenChange(false);
   };
@@ -106,7 +105,7 @@ const NewsPreferencesDialog = ({ open, onOpenChange, userId, initial, onSaved }:
             <Switch id="news-eu" checked={includeEu} onCheckedChange={setIncludeEu} />
           </div>
           <fieldset className="rounded-lg border border-border p-4">
-            <legend className="px-1 font-display text-sm font-semibold text-foreground">Topics (optional — none selected means all)</legend>
+            <legend className="px-1 font-display text-sm font-semibold text-foreground">Topics (optional - none selected means all)</legend>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               {PREFERENCE_CATEGORIES.map((c) => (
                 <label key={c} className="flex items-center gap-2 text-sm text-foreground">

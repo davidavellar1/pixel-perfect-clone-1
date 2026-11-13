@@ -18,3 +18,8 @@
 - Canonical auth pages own signup and recovery; legacy URLs are redirects that preserve destinations, and retired marketing topics redirect to their canonical public pages.
 - Gate evidence uses the displayed immutable agreement row; mandate uses compatible ticket bands with ambiguous legacy bands left for member confirmation.
 - Once-only mandate review is persisted in the investor profile and wraps workspace content; UI and scheduled decisions share the UTC working-day SLA.
+- Use the stock Sidebar provider with controlled per-user collapse persistence so mobile navigation has a labelled drawer and desktop retains an icon rail.
+- Use light-only Sonner for notifications; a single visual theme prevents OS-dependent toast contrast defects.
+- Use React Hook Form with Zod and stock form primitives for request validation so field names, errors and focus stay associated.
+- Keep the MCP SDK generated banner hyphen-only through the pinned dependency patch so strict source punctuation checks do not break generation.
+- Enforce semantic colour utilities and source punctuation in the dedicated frontend hygiene CI check to prevent styling regressions.

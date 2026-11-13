@@ -97,7 +97,7 @@ const SupportForm = ({ onSent }: { onSent: () => void }) => {
       toast.error("Your message wasn't sent. Please try again.");
       return;
     }
-    toast.success(`Message sent — we'll reply to ${user.email ?? "your account email"}`);
+    toast.success(`Message sent - we'll reply to ${user.email ?? "your account email"}`);
     setTopic("");
     setSubject("");
     setBody("");
@@ -418,7 +418,7 @@ const Support = () => {
   );
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] space-y-6">
+    <div className="mx-auto w-full max-w-workspace space-y-6">
       <header>
         <p className="text-xs font-semibold uppercase text-accent">Support</p>
         <h1 className="mt-2 font-display text-3xl font-semibold text-foreground">Support</h1>

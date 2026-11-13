@@ -119,7 +119,7 @@ export const geographyLabel = (p: FundingProgramme) => {
   const names = p.country_codes.map((c) => COUNTRY_NAMES[c] || c);
   const base =
     names.length > 3 ? `${names.slice(0, 3).join(", ")} +${names.length - 3}` : names.join(", ");
-  return p.regions.length ? `${base} (${p.regions.join(", ")})` : base || "Not stated";
+  return p.regions.length ? `${base} (${p.regions.join(", ")})` : base || "";
 };
 
 /** Date of a timestamp as written in its own offset (avoids showing the day before/after). */
@@ -221,7 +221,7 @@ export const factsOf = (p: FundingProgramme) => {
   const facts: string[] = [];
   if (p.max_aid_pct != null) facts.push(`Up to ${Number(p.max_aid_pct)}% of eligible costs`);
   if (p.min_amount_eur != null && p.max_amount_eur != null)
-    facts.push(`${formatEur(Number(p.min_amount_eur))}–${formatEur(Number(p.max_amount_eur))}`);
+    facts.push(`${formatEur(Number(p.min_amount_eur))}-${formatEur(Number(p.max_amount_eur))}`);
   else if (p.max_amount_eur != null) facts.push(`Up to ${formatEur(Number(p.max_amount_eur))}`);
   else if (p.min_amount_eur != null) facts.push(`From ${formatEur(Number(p.min_amount_eur))}`);
   if (p.budget_eur != null) facts.push(`Budget ${formatEur(Number(p.budget_eur))}`);
@@ -245,7 +245,7 @@ export const fitCriteria = (p: FundingProgramme, project: OwnProject): Criterion
         : {
             label,
             state: "fails",
-            detail: `${show(value)} – accepted: ${allowed.map(show).join(", ")}`,
+            detail: `${show(value)} - accepted: ${allowed.map(show).join(", ")}`,
           };
   return [
     p.country_codes.includes(project.country_code)

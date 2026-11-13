@@ -4,6 +4,7 @@ import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
+import { tokenRule } from "./eslint-hygiene.mjs";
 
 export default tseslint.config(
   { ignores: ["dist", ".output", ".vinxi"] },
@@ -37,4 +38,9 @@ export default tseslint.config(
     },
   },
   eslintPluginPrettier,
+  {
+    files: ["src/components/**/*.{ts,tsx}", "src/pages/**/*.{ts,tsx}"],
+    plugins: { hygiene: { rules: { "semantic-colours": tokenRule } } },
+    rules: { "hygiene/semantic-colours": "error" },
+  },
 );

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { TrendingUp } from "lucide-react";
 
 const GoogleIcon = () => (
@@ -35,7 +35,6 @@ const safeRedirect = funnelDestination;
 const SignIn = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,15 +61,11 @@ const SignIn = () => {
 
       if (error) throw error;
 
-      toast({ title: "Welcome back!", description: "You have signed in successfully." });
+      toast.success("Welcome back!", { description: "You have signed in successfully." });
       const redirectTo = safeRedirect(searchParams.get("redirect"));
       navigate(redirectTo);
     } catch (error: any) {
-      toast({
-        title: "Sign in failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error("Sign in failed", { description: error.message });
     } finally {
       setLoading(false);
     }
@@ -86,15 +81,11 @@ const SignIn = () => {
       if (result.error) throw result.error;
       if (result.redirected) return;
 
-      toast({ title: "Welcome back!", description: "You have signed in successfully." });
+      toast.success("Welcome back!", { description: "You have signed in successfully." });
       const redirectTo = safeRedirect(searchParams.get("redirect"));
       navigate(redirectTo);
     } catch (error: any) {
-      toast({
-        title: "Google sign in failed",
-        description: error.message || "Unable to sign in with Google. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Google sign in failed", { description: error.message || "Unable to sign in with Google. Please try again." });
     } finally {
       setLoading(false);
     }

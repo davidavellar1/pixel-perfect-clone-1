@@ -16,7 +16,6 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WatchlistProvider } from "@/hooks/useWatchlist";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { OG_IMAGE, SITE_NAME, SITE_URL, absoluteUrl, isNoIndexPath } from "@/lib/site";
 
@@ -85,13 +84,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "DHC Market — Deal space for infrastructure projects" },
+      { title: "DHC Market - Deal space for infrastructure projects" },
       {
         name: "description",
         content:
           "DHC Market connects project developers with investors: verified listings, staged data-room access and a transparent engagement workflow.",
       },
-      { property: "og:title", content: "DHC Market — Deal space for infrastructure projects" },
+      { property: "og:title", content: "DHC Market - Deal space for infrastructure projects" },
       {
         property: "og:description",
         content:
@@ -99,15 +98,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: SITE_NAME },
-      { property: "og:image", content: OG_IMAGE },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       {
         property: "og:image:alt",
-        content: "DHC Market – where district heating and cooling meets capital",
+        content: "DHC Market - where district heating and cooling meets capital",
       },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: OG_IMAGE },
       { name: "theme-color", content: "#0b1b2e" },
     ],
     links: [
@@ -181,7 +178,6 @@ function RootComponent() {
       <TooltipProvider>
         <AuthProvider>
           <WatchlistProvider>
-            <Toaster />
             <Sonner />
             {/* Required: nested routes render here. */}
             <Outlet />

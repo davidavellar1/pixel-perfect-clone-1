@@ -60,7 +60,7 @@ const Feedback = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[760px] space-y-6">
+    <div className="workspace-container space-y-6">
       <header>
         <p className="text-xs font-semibold uppercase text-accent">Support</p>
         <h1 className="mt-2 font-display text-3xl font-semibold text-foreground">Feedback</h1>
@@ -78,7 +78,7 @@ const Feedback = () => {
             <CheckCircle2 className="h-6 w-6 text-success" />
           </span>
           <p className="font-display text-lg font-semibold text-foreground">
-            Thanks — your feedback helps shape the platform.
+            Thanks - your feedback helps shape the platform.
           </p>
           <Button variant="outline" className="mt-5" onClick={reset}>
             Send more feedback
@@ -103,7 +103,7 @@ const Feedback = () => {
                     key={n}
                     type="button"
                     aria-pressed={rating === n}
-                    aria-label={`${n} out of 5 — ${RATING_LABEL[n]}`}
+                    aria-label={`${n} out of 5 - ${RATING_LABEL[n]}`}
                     onClick={() => setRating(rating === n ? null : n)}
                     className="rounded-md p-1.5 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >

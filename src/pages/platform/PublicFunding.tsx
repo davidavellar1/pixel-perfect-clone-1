@@ -122,7 +122,7 @@ const PublicFunding = () => {
   };
 
   return (
-    <div className="max-w-7xl min-w-0 space-y-6">
+    <div className="max-w-workspace min-w-0 space-y-6">
       <header>
         <h1 className="font-display text-3xl font-semibold text-foreground">
           Public Funding &amp; Blended Finance
@@ -247,7 +247,7 @@ const PublicFunding = () => {
       ) : !entries.length ? (
         <div className="rounded-lg border border-dashed border-border bg-card py-16 text-center">
           <p className="font-display font-semibold text-foreground">
-            The funding catalogue is being built – check back soon.
+            The funding catalogue is being built - check back soon.
           </p>
         </div>
       ) : filtered.length ? (

@@ -19,6 +19,14 @@ const oauthApi = () => (supabase.auth as unknown as { oauth: OAuthApi }).oauth;
 
 export const Route = createFileRoute("/.lovable/oauth/consent")({
   ssr: false,
+  head: () => ({ meta: [
+    { title: "Authorize agent access - DHC Market" },
+    { name: "description", content: "Review an agent integration's request to access your DHC Market account." },
+    { property: "og:title", content: "Authorize agent access - DHC Market" },
+    { property: "og:description", content: "Review an agent integration's request to access your DHC Market account." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   validateSearch: (s: Record<string, unknown>) => ({
     authorization_id: typeof s.authorization_id === "string" ? s.authorization_id : "",
   }),
@@ -84,7 +92,7 @@ function Consent() {
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           {clientName} will be able to browse listed projects, read your watchlist and access-request status, and save
-          projects to your watchlist — acting as you. You can revoke this at any time.
+          projects to your watchlist - acting as you. You can revoke this at any time.
         </p>
         {error && (
           <p role="alert" className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">

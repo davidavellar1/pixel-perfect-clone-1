@@ -11,7 +11,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -54,7 +54,7 @@ const StatePill = ({ state }: { state: AccessState }) => {
   );
 };
 
-const Info = ({ label, value }: { label: string; value: string }) => !value ? null : (
+const Info = ({ label, value }: { label: string; value: string | null | undefined }) => !value ? null : (
   <div>
     <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
     <p className="text-sm font-medium text-foreground">{value}</p>
@@ -63,7 +63,6 @@ const Info = ({ label, value }: { label: string; value: string }) => !value ? nu
 
 const AccessRequests = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [params, setParams] = useSearchParams();
   const [projects, setProjects] = useState<Project[]>([]);
   const [requests, setRequests] = useState<AccessRequestRow[]>([]);
@@ -139,7 +138,7 @@ const AccessRequests = () => {
     if (!selected || !user) return;
     const request = selected.request;
     if (choice === "declined" && !reason) {
-      toast({ title: "A reason is required", description: "Choose a decline reason before sending.", variant: "destructive" });
+      toast.error("A reason is required", { description: "Choose a decline reason before sending." });
       return;
     }
     setSaving(true);
@@ -189,22 +188,17 @@ const AccessRequests = () => {
     }
     setSaving(false);
     if (error) {
-      toast({ title: "Decision could not be saved", description: error.message, variant: "destructive" });
+      toast.error("Decision could not be saved", { description: error.message });
       return;
     }
-    toast({
-      title:
-        choice === "granted_full" ? "Accepted in full, data room opened"
+    toast.success(choice === "granted_full" ? "Accepted in full, data room opened"
         : choice === "granted" ? "Accepted, data room held back"
         : choice === "question" ? "Question sent, the request stays pending"
-        : "Request declined",
-      description:
-        choice === "granted" || choice === "granted_full"
+        : "Request declined", { description: choice === "granted" || choice === "granted_full"
           ? "The agreement is now operative and the introduction has been logged."
           : choice === "question"
           ? "The SLA clock is paused until the investor replies."
-          : "No identity was revealed to this investor.",
-    });
+          : "No identity was revealed to this investor." });
     setAction(null); setNote(""); setQuestion(""); setReason("");
     await load();
   };
@@ -245,7 +239,7 @@ const AccessRequests = () => {
   const pendingCount = withState.filter((entry) => entry.state === "pending").length;
 
   return (
-    <div className="max-w-7xl space-y-6">
+    <div className="max-w-workspace space-y-6">
       <div>
         <h1 className="font-display text-3xl font-bold text-foreground">Access requests</h1>
         <p className="mt-1 max-w-[80ch] text-muted-foreground">

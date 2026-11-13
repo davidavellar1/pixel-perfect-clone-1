@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { projectsData } from "@/data/projectsData";
 import { cn } from "@/lib/utils";
 import { FlowHeading, FlowSteps } from "./FlowSteps";
@@ -30,7 +30,6 @@ const AssistanceDialog = ({
   preselected: AssistanceAdvisor | null;
   onClose: () => void;
 }) => {
-  const { toast } = useToast();
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("Financial");
   const [slug, setSlug] = useState("general");
@@ -63,10 +62,7 @@ const AssistanceDialog = ({
       setStep(2);
       return;
     }
-    toast({
-      title: "Assistance request sent",
-      description: `We will introduce you to ${chosen?.name ?? "a vetted advisor"} for ${projectLabel}.`,
-    });
+    toast.success("Assistance request sent", { description: `We will introduce you to ${chosen?.name ?? "a vetted advisor"} for ${projectLabel}.` });
     onClose();
   };
 
@@ -74,12 +70,12 @@ const AssistanceDialog = ({
     <Dialog open onOpenChange={(value) => { if (!value) onClose(); }}>
       <DialogContent className="max-w-xl gap-0 p-0">
         <div className="flex items-center gap-3.5 border-b border-border px-6 py-5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f2ecfa]">
-            <Users className="h-5 w-5 text-[#6b3fa0]" />
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-info-soft">
+            <Users className="h-5 w-5 text-info" />
           </div>
           <div>
             <DialogTitle className="font-display text-lg font-semibold">Request assistance</DialogTitle>
-            <p className="mt-0.5 text-[13px] text-muted-foreground">Match with a vetted advisor</p>
+            <DialogDescription className="mt-0.5 text-[13px] text-muted-foreground">Match with a vetted advisor</DialogDescription>
           </div>
         </div>
 
@@ -189,7 +185,7 @@ const AssistanceDialog = ({
         </div>
 
         <div className="flex items-center justify-between border-t border-border bg-muted/40 px-6 py-4">
-          <Button variant="ghost" onClick={() => setStep(step - 1)} className={step === 0 ? "invisible" : ""}>
+          <Button variant="ghost" onClick={() => setStep(step - 1)} hidden={step === 0}>
             Back
           </Button>
           <Button onClick={advance} className="bg-accent text-accent-foreground hover:bg-accent/90">

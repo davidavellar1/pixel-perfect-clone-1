@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 
 type Card = { title: string; description: string };
@@ -32,7 +32,6 @@ const ManageTechnicalDialog = ({
   projectTitle: string;
   trigger: React.ReactNode;
 }) => {
-  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -87,7 +86,7 @@ const ManageTechnicalDialog = ({
     const deleteError = deletes.find((result) => result.error)?.error;
     if (deleteError) {
       setSaving(false);
-      toast({ title: "Could not save", description: deleteError.message, variant: "destructive" });
+      toast.error("Could not save", { description: deleteError.message });
       return;
     }
 
@@ -134,10 +133,10 @@ const ManageTechnicalDialog = ({
     const insertError = results.find((result) => result.error)?.error;
     setSaving(false);
     if (insertError) {
-      toast({ title: "Could not save", description: insertError.message, variant: "destructive" });
+      toast.error("Could not save", { description: insertError.message });
       return;
     }
-    toast({ title: "Technical detail saved", description: "The Technical tab now shows these figures." });
+    toast.success("Technical detail saved", { description: "The Technical tab now shows these figures." });
     setOpen(false);
   };
 

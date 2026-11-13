@@ -75,7 +75,7 @@ const Watchlist = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] space-y-6">
+    <div className="mx-auto w-full max-w-workspace space-y-6">
       <header>
         <p className="text-xs font-semibold uppercase text-accent">My workspace</p>
         <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">

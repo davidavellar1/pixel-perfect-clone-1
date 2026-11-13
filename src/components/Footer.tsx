@@ -31,27 +31,27 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
 
 const Footer = () => {
   return (
-    <footer className="border-t border-white/5 bg-navy-900 pb-9 pt-14 text-[#9fb0c4]">
+    <footer className="border-t border-inverse-foreground/5 bg-navy-900 pb-9 pt-14 text-muted-foreground">
       <div className="container">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
-            <div className="mb-3 font-display text-xl font-bold text-white">
+            <div className="mb-3 font-display text-xl font-bold text-inverse-foreground">
               DHC<span className="text-accent">Market</span>
             </div>
-            <p className="max-w-[260px] text-sm text-[#8295ac]">
+            <p className="max-w-[260px] text-sm text-inverse-subtle">
               Connecting district heating & cooling developers with private and public capital.
             </p>
           </div>
           {columns.map((col) => (
             <div key={col.title}>
-              <h2 className="mb-4 font-display text-xs font-semibold uppercase tracking-[0.14em] text-[#8a9bb2]">
+              <h2 className="mb-4 font-display text-xs font-semibold uppercase tracking-[0.14em] text-inverse-subtle">
                 {col.title}
               </h2>
               {col.links.map((link) => (
                 <Link
                   key={link.label}
                   to={link.href}
-                  className="block py-1.5 text-sm text-[#b3c1d2] transition-colors hover:text-white"
+                  className="block py-1.5 text-sm text-inverse-muted transition-colors hover:text-inverse-foreground"
                 >
                   {link.label}
                 </Link>
@@ -59,7 +59,7 @@ const Footer = () => {
             </div>
           ))}
         </div>
-        <div className="mt-10 border-t border-white/10 pt-5 text-center text-[13px] text-[#6f819a]">
+        <div className="mt-10 border-t border-inverse-foreground/10 pt-5 text-center text-[13px] text-inverse-subtle">
           © 2026 DHC Market. An information and connection platform. DHC Market does not provide
           investment advice, underwrite, or make investment decisions.
         </div>

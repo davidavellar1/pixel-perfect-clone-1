@@ -20,7 +20,7 @@ type Request = Tables<"access_request">;
 type Project = Tables<"project">;
 
 const VISIBILITY: Record<Project["visibility"], { label: string; className: string }> = {
-  listed: { label: "Listed", className: "bg-success-soft text-[#137347]" },
+  listed: { label: "Listed", className: "bg-success-soft text-success" },
   draft: { label: "Draft", className: "bg-muted text-muted-foreground" },
   archived: { label: "Archived", className: "bg-muted text-muted-foreground" },
 };
@@ -82,7 +82,7 @@ const DeveloperDashboard = () => {
   const stat = (value: number) => (loading ? "…" : String(value));
 
   return (
-    <div className="max-w-[1100px] space-y-5">
+    <div className="max-w-workspace space-y-5">
       <DealsSwitch />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -121,15 +121,15 @@ const DeveloperDashboard = () => {
               <>
                 {pending.slice(0, 3).map((request) => {
                   const sla = slaStatus(request);
-                  return <Link key={request.id} to={`/app/access-requests?request=${request.id}`} className="flex gap-2.5 rounded-lg bg-[#fdf3e1] p-3 text-[13px] leading-snug transition-colors hover:bg-[#fbe9c8]">
-                    <Clock className="mt-0.5 h-4 w-4 flex-none text-[#8a5a12]" aria-hidden="true" />
-                    <span><strong className="font-semibold">Access request</strong> on {projectById.get(request.project_id)?.title || "your listing"}<span className="mt-0.5 block text-xs text-[#4f5d70]">Pending {sla.workingDays} working day{sla.workingDays === 1 ? "" : "s"}</span></span>
+                  return <Link key={request.id} to={`/app/access-requests?request=${request.id}`} className="flex gap-2.5 rounded-lg bg-warning-soft p-3 text-[13px] leading-snug transition-colors hover:bg-warning-soft">
+                    <Clock className="mt-0.5 h-4 w-4 flex-none text-warning-foreground" aria-hidden="true" />
+                    <span><strong className="font-semibold">Access request</strong> on {projectById.get(request.project_id)?.title || "your listing"}<span className="mt-0.5 block text-xs text-muted-foreground">Pending {sla.workingDays} working day{sla.workingDays === 1 ? "" : "s"}</span></span>
                   </Link>;
                 })}
                 {roomReviews.slice(0, Math.max(0, 3 - pending.length)).map((request) => (
                   <Link key={request.id} to={`/app/data-room-requests?request=${request.id}`} className="flex gap-2.5 rounded-lg bg-surface-2 p-3 text-[13px] leading-snug transition-colors hover:bg-muted">
                     <Lock className="mt-0.5 h-4 w-4 flex-none text-primary" aria-hidden="true" />
-                    <span><strong className="font-semibold">Data room</strong> decision on {projectById.get(request.project_id)?.title || "your listing"}<span className="mt-0.5 block text-xs text-[#4f5d70]">Identity shared, full access not yet released</span></span>
+                    <span><strong className="font-semibold">Data room</strong> decision on {projectById.get(request.project_id)?.title || "your listing"}<span className="mt-0.5 block text-xs text-muted-foreground">Identity shared, full access not yet released</span></span>
                   </Link>
                 ))}
               </>
@@ -159,7 +159,7 @@ const DeveloperDashboard = () => {
           <div className="relative overflow-x-auto rounded-lg border border-border">
             <table className="w-full min-w-[820px] border-collapse text-[13px]">
               <thead>
-                <tr className="bg-background text-left text-[#4f5d70]">
+                <tr className="bg-background text-left text-muted-foreground">
                   <th scope="col" className="px-3.5 py-3 font-semibold">Status</th>
                   <th scope="col" className="px-3.5 py-3 font-semibold">Project</th>
                   <th scope="col" className="px-3.5 py-3 font-semibold">Technology</th>
@@ -179,11 +179,11 @@ const DeveloperDashboard = () => {
                     <tr key={project.id} className="border-t border-border">
                       <td className="px-3.5 py-3.5"><span className={cn("inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span></td>
                       <td className="px-3.5 py-3.5 font-semibold text-foreground">{project.title}</td>
-                      <td className="px-3.5 py-3.5 text-[#4f5d70]">{TECHNOLOGIES[project.technology] || project.technology}</td>
-                      <td className="px-3.5 py-3.5 text-[#4f5d70]">{project.capacity_mw != null ? `${project.capacity_mw} MW` : "—"}</td>
-                      <td className="px-3.5 py-3.5 text-[#4f5d70]">{[project.city, project.country_code].filter(Boolean).join(", ") || "—"}</td>
+                      <td className="px-3.5 py-3.5 text-muted-foreground">{TECHNOLOGIES[project.technology] || project.technology}</td>
+                      <td className="px-3.5 py-3.5 text-muted-foreground">{project.capacity_mw != null ? `${project.capacity_mw} MW` : "-"}</td>
+                      <td className="px-3.5 py-3.5 text-muted-foreground">{[project.city, project.country_code].filter(Boolean).join(", ") || "-"}</td>
                       <td className="px-3.5 py-3.5">{projectInterests}</td>
-                      <td className="px-3.5 py-3.5">{projectPending ? <span className="inline-block whitespace-nowrap rounded-full bg-[#fdf3e1] px-2.5 py-0.5 text-[11px] font-semibold text-[#8a5a12]">{projectPending} pending</span> : <span className="text-[#4f5d70]">—</span>}</td>
+                      <td className="px-3.5 py-3.5">{projectPending ? <span className="inline-block whitespace-nowrap rounded-full bg-warning-soft px-2.5 py-0.5 text-[11px] font-semibold text-warning-foreground">{projectPending} pending</span> : <span className="text-muted-foreground">-</span>}</td>
                       <td className="px-3.5 py-3.5">
                         <div className="flex items-center justify-end gap-1">
                           <Button size="sm" variant="outline" asChild><Link to={`/app/projects/${project.slug}`}>Open</Link></Button>

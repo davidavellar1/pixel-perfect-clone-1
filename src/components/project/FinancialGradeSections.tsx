@@ -1,8 +1,6 @@
 import { AlertTriangle, Percent, TrendingUp } from "lucide-react";
 import { CASE_LABEL, CASE_ORDER, asOfLine, pct, type CaseRecord, type MarginRecord } from "@/data/investorGrade";
 
-const NOT_STATED = "Not stated";
-
 /** Margin cards. First section of the Financial tab. */
 export const MarginSection = ({ margin, asOf }: { margin: MarginRecord | null; asOf?: string | null }) => (
   <div>
@@ -19,18 +17,18 @@ export const MarginSection = ({ margin, asOf }: { margin: MarginRecord | null; a
       </p>
     ) : (
       <>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
           {[
             { label: "Heat purchase price paid to host", value: margin.heat_purchase_price, index: margin.purchase_index },
             { label: "Customer tariff", value: margin.customer_tariff, index: margin.tariff_index },
             { label: "Gross spread", value: margin.gross_spread, index: margin.opex_per_kwh ? `Opex ${margin.opex_per_kwh} per kWh` : null },
-          ].map((card) => (
+          ].filter(card => card.value != null || card.index != null).map((card) => (
             <div key={card.label} className="rounded-xl border border-border bg-muted/50 p-5">
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{card.label}</p>
               <p className="mt-1 font-serif text-2xl font-bold text-foreground">
-                {card.value !== null && card.value !== undefined ? `${card.value} per kWh` : NOT_STATED}
+                {card.value !== null && card.value !== undefined ? `${card.value} per kWh` : null}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">{card.index ?? "Indexation not stated"}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{card.index}</p>
             </div>
           ))}
         </div>
@@ -38,7 +36,7 @@ export const MarginSection = ({ margin, asOf }: { margin: MarginRecord | null; a
           <p className="mt-3 text-sm text-muted-foreground">Purchase floor and cap: {margin.purchase_floor_cap}</p>
         )}
         {margin.indexation_mismatch_note && (
-          <div className="mt-4 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+          <div className="mt-4 flex gap-3 rounded-xl border border-warning-border bg-warning-soft p-5 text-sm text-warning-foreground">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>{margin.indexation_mismatch_note}</p>
           </div>
@@ -58,9 +56,9 @@ export const CasesSection = ({ cases, breakeven }: CasesProps) => {
   const ordered = CASE_ORDER.map((name) => cases.find((c) => c.name === name)).filter(Boolean) as CaseRecord[];
   const tone: Record<CaseRecord["name"], string> = {
     base: "bg-card",
-    downside: "bg-amber-50",
-    stress: "bg-rose-50",
-    upside: "bg-emerald-50",
+    downside: "bg-warning-soft",
+    stress: "bg-destructive-soft",
+    upside: "bg-success-soft",
   };
 
   return (
@@ -90,11 +88,11 @@ export const CasesSection = ({ cases, breakeven }: CasesProps) => {
                 {ordered.map((row) => (
                   <tr key={row.name} className={tone[row.name]}>
                     <td className="px-4 py-3.5 font-semibold text-foreground">{CASE_LABEL[row.name]}</td>
-                    <td className="px-4 py-3.5 text-foreground">{row.connections ?? NOT_STATED}</td>
-                    <td className="px-4 py-3.5 text-foreground">{row.power_price ?? NOT_STATED}</td>
+                    <td className="px-4 py-3.5 text-foreground">{row.connections ?? null}</td>
+                    <td className="px-4 py-3.5 text-foreground">{row.power_price ?? null}</td>
                     <td className="px-4 py-3.5 text-foreground">{pct(row.capex_variance_pct, 0)}</td>
-                    <td className="px-4 py-3.5 text-foreground">{pct(row.equity_irr_pct)} ({CASE_LABEL[row.name].toLowerCase()})</td>
-                    <td className="px-4 py-3.5 text-foreground">{row.min_dscr ?? NOT_STATED}x ({CASE_LABEL[row.name].toLowerCase()})</td>
+                    <td className="px-4 py-3.5 text-foreground">{row.equity_irr_pct == null ? null : `${pct(row.equity_irr_pct)} (${CASE_LABEL[row.name].toLowerCase()})`}</td>
+                    <td className="px-4 py-3.5 text-foreground">{row.min_dscr == null ? null : `${row.min_dscr}x (${CASE_LABEL[row.name].toLowerCase()})`}</td>
                   </tr>
                 ))}
               </tbody>
@@ -103,15 +101,15 @@ export const CasesSection = ({ cases, breakeven }: CasesProps) => {
         </div>
       )}
 
-      <div className="mt-4 rounded-xl border border-accent/30 bg-accent/5 p-5 text-sm">
-        <p className="mb-1 font-semibold text-foreground">Break-even</p>
+      {(breakeven.dscr1x != null || breakeven.irrZero != null) && <div className="mt-4 rounded-xl border border-accent/30 bg-accent/5 p-5 text-sm">
+        <p className="mb-1 font-semibold text-foreground">Break-even (base case)</p>
         <p className="text-muted-foreground">
-          Debt service cover reaches 1.00x at{" "}
-          <span className="font-semibold text-foreground">{breakeven.dscr1x ?? "an unstated number of"}</span> connections, and equity IRR
-          reaches zero at <span className="font-semibold text-foreground">{breakeven.irrZero ?? "an unstated number of"}</span> connections,
-          against {breakeven.contracted ?? "an unstated number of"} contracted connections today. Developer-stated.
+          {breakeven.dscr1x != null && <>Debt service cover (base case) reaches 1.00x at {breakeven.dscr1x} connections. </>}
+          {breakeven.irrZero != null && <>Equity IRR (base case) reaches zero at {breakeven.irrZero} connections. </>}
+          {breakeven.contracted != null && <>{breakeven.contracted} contracted connections today. </>}Developer-stated.
         </p>
-      </div>
+      </div>}
+
     </div>
   );
 };
