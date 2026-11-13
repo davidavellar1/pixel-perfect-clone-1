@@ -52,12 +52,7 @@ const benefits = [
   },
 ];
 
-const stats = [
-  { value: "200+", label: "Active Investors" },
-  { value: "9+", label: "Countries Covered" },
-  { value: "€500M+", label: "Capital Seeking Deployment" },
-  { value: "30 Days", label: "Avg. Time to First Interest" },
-];
+
 
 const steps = [
   {
@@ -115,19 +110,7 @@ const Developers = () => {
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="bg-card border-b border-border">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border">
-            {stats.map((stat) => (
-              <div key={stat.label} className="py-8 text-center">
-                <p className="text-2xl md:text-3xl font-bold text-primary font-serif">{stat.value}</p>
-                <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <section className="border-b border-border bg-card py-8"><p className="container text-center text-muted-foreground">Join the first cohort of DHC Market developers and investors.</p></section>
 
       {/* Benefits */}
       <section className="py-20">

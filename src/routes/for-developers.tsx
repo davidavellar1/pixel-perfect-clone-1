@@ -4,10 +4,12 @@ import AudiencePage from "@/pages/AudiencePage";
 export const Route = createFileRoute("/for-developers")({
   head: () => ({
     meta: [
-      { title: 'For developers — DHC Market' },
+      { title: 'For developers - DHC Market' },
       { name: "description", content: 'List your project, control who sees your data room and reach qualified capital.' },
-      { property: "og:title", content: 'For developers — DHC Market' },
+      { property: "og:title", content: 'For developers - DHC Market' },
       { property: "og:description", content: 'List your project, control who sees your data room and reach qualified capital.' },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => <AudiencePage audience="developer" />,

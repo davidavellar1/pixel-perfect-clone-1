@@ -16,9 +16,9 @@ import {
 const benefits = [
   {
     icon: TrendingUp,
-    title: "Attractive Risk-Adjusted Returns",
+    title: "Developer-stated project information",
     description:
-      "District energy projects deliver stable, infrastructure-grade returns with target IRRs of 8-12%, backed by long-term offtake agreements and regulatory support.",
+      "Review developer-stated district energy project information after the developer accepts your expression of interest.",
   },
   {
     icon: ShieldCheck,
@@ -52,12 +52,7 @@ const benefits = [
   },
 ];
 
-const stats = [
-  { value: "€500M+", label: "Project Pipeline" },
-  { value: "9+", label: "Countries" },
-  { value: "8-12%", label: "Target IRR Range" },
-  { value: "50+", label: "Listed Projects" },
-];
+
 
 const steps = [
   {
@@ -116,19 +111,7 @@ const Investors = () => {
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="bg-card border-b border-border">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border">
-            {stats.map((stat) => (
-              <div key={stat.label} className="py-8 text-center">
-                <p className="text-2xl md:text-3xl font-bold text-primary font-serif">{stat.value}</p>
-                <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <section className="border-b border-border bg-card py-8"><p className="container text-center text-muted-foreground">Join the first cohort of DHC Market developers and investors.</p></section>
 
       {/* Benefits */}
       <section className="py-20">

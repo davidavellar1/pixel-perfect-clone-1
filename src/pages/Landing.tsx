@@ -1,7 +1,7 @@
 import { Link } from "@/lib/router-compat";
 import PublicShell from "@/components/public/PublicShell";
 import ProjectCard from "@/components/project/ProjectCard";
-import { previewProjects } from "@/components/ProjectsSection";
+import { useProjectListings } from "@/hooks/useProjectListings";
 
 const css = `
   .lp{font-family:'Inter',sans-serif;color:#0f1b2d;background:#f4f6f9;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -243,6 +243,7 @@ const Check = () => (
 );
 
 const Landing = () => {
+  const { projects } = useProjectListings();
   return (
     <PublicShell>
       <div className="lp">
@@ -471,7 +472,7 @@ const Landing = () => {
               </p>
             </div>
             <div className="tz-grid">
-              {previewProjects.map((project) => (
+              {projects.slice(0, 3).map((project) => (
                 <ProjectCard key={project.id} project={project} context="public" />
               ))}
             </div>

@@ -12,3 +12,5 @@
 - Profile settings use owner-scoped typed Cloud queries, with personal-name synchronization in a database trigger so independent section saves cannot diverge.
 - Avatar records store owner-folder storage paths, not expiring links; resolve private signed URLs centrally in AuthContext for consistent account displays.
 - Resolve project entitlement before fetching exact records; shared disclosure helpers whitelist teaser output for listings, detail and MCP so private data is never masked after delivery.
+
+- Use saved numeric inputs for charts and granted base-case rows for bundle returns; never derive project figures or counterfactuals from display strings or illustrative models.

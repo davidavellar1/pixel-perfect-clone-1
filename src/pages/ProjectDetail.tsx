@@ -96,7 +96,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
   const projectId = databaseProject?.id ?? teaser?.id ?? undefined;
   const { grade } = useInvestorGrade(granted ? databaseProject?.id : null, accessState, isOwner);
-  const { overrides } = useProjectRecord(granted ? databaseProject?.id : undefined);
+  const { overrides, numericCapex } = useProjectRecord(granted ? databaseProject?.id : undefined);
   const baseProject = granted && databaseProject ? blankProjectDetail(databaseProject) : undefined;
   const project: ProjectDetailData | undefined = baseProject
     ? { ...baseProject, ...overrides }
@@ -506,7 +506,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
               onExpressInterest={openInterest}
             >
               <ProjectTabContent
-                project={project} projectId={granted ? projectId : undefined}
+                project={project} numericCapex={granted ? numericCapex : null} granted={granted} projectId={granted ? projectId : undefined}
                 activeTab={activeTab} dataRoomStatus={dataRoomStatus}
                 isOwner={isOwner} userId={user?.id ?? null}
                 grade={grade} asOf={asOf} breakeven={breakeven}

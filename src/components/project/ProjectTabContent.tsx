@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { ProjectDetail } from "@/data/projectsData";
+import { ownershipRows } from "@/lib/figureDisclosure";
+import { asOfLine, eur } from "@/data/investorGrade";
 import ProjectCharts from "@/components/ProjectCharts";
 import { FileText, Shield, CloudOff, Gauge, Zap, Activity, CheckCircle, XCircle, MinusCircle, BookOpen, ClipboardList, Lock, Clock, FileSpreadsheet, Leaf, Scale, FileSignature } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +27,8 @@ export interface AsOfDates {
 interface ProjectTabContentProps {
   project: ProjectDetail;
   activeTab: string;
+  numericCapex?: number | null;
+  granted?: boolean;
   projectId?: string;
   dataRoomStatus?: DataRoomStatus;
   onRequestDataRoom?: () => void;
@@ -37,6 +41,8 @@ interface ProjectTabContentProps {
 
 const ProjectTabContent = ({
   project,
+  numericCapex = null,
+  granted = false,
   activeTab,
   projectId,
   dataRoomStatus = "none",
@@ -47,21 +53,23 @@ const ProjectTabContent = ({
   isOwner = false,
   userId = null,
 }: ProjectTabContentProps) => {
-  if (activeTab === "Overview") return <OverviewTab project={project} grade={grade} />;
+  if (activeTab === "Overview") return <OverviewTab project={project} grade={grade} numericCapex={numericCapex} granted={granted} asOf={asOf.financial} />;
   if (activeTab === "Transaction") return <TransactionTab grade={grade} asOf={asOf.financial} />;
   if (activeTab === "Technical") return <TechnicalTab project={project} grade={grade} asOf={asOf.technical} />;
   if (activeTab === "Financial") {
     return (
       <FinancialTab
         project={project}
+        numericCapex={numericCapex}
+        granted={granted}
         grade={grade}
         asOf={asOf.financial}
         breakeven={{ ...breakeven, contracted: grade.ladder?.contracted_count ?? null }}
       />
     );
   }
-  if (activeTab === "Sustainability") return <SustainabilityTab project={project} />;
-  if (activeTab === "Structure & market") return <StructureMarketTab project={project} />;
+  if (activeTab === "Sustainability") return <SustainabilityTab project={project} asOf={asOf.technical} />;
+  if (activeTab === "Structure & market") return <StructureMarketTab project={project} grade={grade} asOf={asOf.regulatory} />;
   if (activeTab === "Documents") {
     return projectId ? (
       <ProjectDocuments projectId={projectId} dataRoomStatus={dataRoomStatus} />
@@ -74,7 +82,7 @@ const ProjectTabContent = ({
 };
 
 /* ─── Overview ─── */
-function OverviewTab({ project, grade }: { project: ProjectDetail; grade: InvestorGradeBundle }) {
+function OverviewTab({ project, grade, numericCapex, granted, asOf }: { project: ProjectDetail; grade: InvestorGradeBundle; numericCapex: number | null; granted: boolean; asOf?: string | null }) {
   return (
     <div className="space-y-10">
       <OfftakeLadderBar ladder={grade.ladder} />
@@ -126,14 +134,8 @@ function OverviewTab({ project, grade }: { project: ProjectDetail; grade: Invest
         )}
       </div>
 
-      {/* Charts — an illustrative model, only shown once a capex figure exists */}
-      {Number.isFinite(parseFloat(project.capex.replace(/[^0-9.]/g, ""))) && (
-        <ProjectCharts
-          projectTitle={project.title}
-          capexNum={parseFloat(project.capex.replace(/[^0-9.]/g, ""))}
-          technology={project.technology}
-        />
-      )}
+      {granted && numericCapex != null && <ProjectCharts capexNum={numericCapex} granted={granted} energyMix={project.energyMix ?? []} asOf={asOf} />}
+
     </div>
   );
 }
@@ -235,8 +237,12 @@ function FinancialTab({
   grade,
   asOf,
   breakeven,
+  numericCapex,
+  granted,
 }: {
   project: ProjectDetail;
+  numericCapex: number | null;
+  granted: boolean;
   grade: InvestorGradeBundle;
   asOf?: string | null;
   breakeven: { dscr1x: number | null; irrZero: number | null; contracted: number | null };
@@ -245,13 +251,14 @@ function FinancialTab({
     <div className="space-y-10">
       <MarginSection margin={grade.margin} asOf={asOf} />
       {/* Capital Stack */}
-      {project.capitalStack && project.capitalStack.length > 0 && (
+      {granted && project.capitalStack && project.capitalStack.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Capital stack</h2>
+          <p className="mb-3 text-xs text-muted-foreground">Developer-stated. {asOf ? asOfLine("Financial information", asOf) : "As-of date not provided"}.</p>
           <div className="border-t border-border mb-6" />
           <div className="bg-muted/50 border border-border rounded-xl p-6">
             <p className="text-xs font-semibold tracking-[0.1em] text-muted-foreground uppercase mb-4">
-              TOTAL PROJECT FINANCING - {project.capex}
+              TOTAL PROJECT FINANCING{numericCapex != null ? ` - ${eur(numericCapex)}` : ""}
             </p>
             <div className="flex rounded-lg overflow-hidden h-10 mb-6">
               {project.capitalStack.map((item) => (
@@ -346,225 +353,29 @@ function FinancialTab({
 }
 
 /* ─── Structure & Market ─── */
-function StructureMarketTab({ project }: { project: ProjectDetail }) {
-  const companyStructures = [
-    { icon: "🏛", title: "Municipal utility", desc: "100% publicly owned. No private equity.", highlighted: false },
-    { icon: "🤝", title: "Consumer cooperative", desc: "Non-profit, consumer-owned. Profits reinvested. Dominant in Denmark.", highlighted: false },
-    { icon: "🏢", title: "Arms-length municipal company", desc: "Municipality-owned but commercially run.", highlighted: false },
-    { icon: "🤝", title: "Public-private partnership", desc: "Joint SPV with public and private shareholders. Concession-backed.", highlighted: true },
-    { icon: "📜", title: "Private concession", desc: "Fully private operator under public concession. Common in France.", highlighted: false },
-    { icon: "💼", title: "Fully private / investor-owned", desc: "No public stake. Market-based returns.", highlighted: false },
-    { icon: "⚡", title: "ESCO model", desc: "Energy service company finances, builds, and operates under service contract.", highlighted: false },
-    { icon: "🏘", title: "Not-for-profit / housing association", desc: "Community-anchored, limited return.", highlighted: false },
-  ];
-
-  const ownershipData = [
-    { name: "City of Lyon", share: "20%", role: "Public shareholder", color: "bg-amber-100 text-amber-900 border-amber-300" },
-    { name: "Lyon Energy Partners", share: "60%", role: "Lead developer · Private", color: "bg-primary text-primary-foreground border-primary" },
-    { name: "Green Infrastructure Fund I", share: "20%", role: "Infrastructure fund", color: "bg-sky-100 text-sky-900 border-sky-300" },
-  ];
-
-  return (
-    <div className="space-y-10">
-      {/* Developer Company Structure */}
-      <div>
-        <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Developer company structure</h2>
-        <div className="border-t border-border mb-4" />
-        <p className="text-muted-foreground leading-relaxed mb-6">
-          The legal and ownership structure of a DHC developer directly affects investor governance rights, profit distribution, regulatory classification, and exit options.
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {companyStructures.map((item, i) => (
-            <div
-              key={i}
-              className={`relative border rounded-xl p-4 text-left transition-colors ${
-                item.highlighted
-                  ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                  : "border-border bg-card"
-              }`}
-            >
-              {item.highlighted && (
-                <span className="absolute -top-2.5 right-3 bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                  This project
-                </span>
-              )}
-              <span className="text-xl mb-2 block">{item.icon}</span>
-              <h4 className="text-sm font-bold text-foreground mb-1 leading-tight">{item.title}</h4>
-              <p className="text-xs text-muted-foreground leading-snug">{item.desc}</p>
-            </div>
-          ))}
-        </div>
+function StructureMarketTab({ project, grade, asOf }: { project: ProjectDetail; grade: InvestorGradeBundle; asOf?: string | null }) {
+  const owners = ownershipRows(grade.transaction?.post_money_ownership);
+  const date = grade.transaction?.as_of ?? asOf;
+  return <div className="space-y-10">
+    {owners.length > 0 && <section>
+      <h2 className="mb-3 font-display text-2xl font-semibold">Ownership structure - {project.title}</h2>
+      <p className="mb-5 text-xs text-muted-foreground">Developer-stated. {date ? asOfLine("Ownership", date) : "As-of date not provided"}.</p>
+      <div className="mb-5 flex h-10 overflow-hidden rounded-md" aria-label="Developer-stated ownership shares">
+        {owners.map((owner, index) => <div key={owner.name} style={{ width: `${owner.share}%` }} className={index % 2 ? "bg-accent" : "bg-primary"} title={`${owner.name}: ${owner.share}%`} />)}
       </div>
-
-      {/* Ownership Structure */}
-      <div>
-        <div className="border border-border rounded-xl p-6 bg-card">
-          <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase text-center mb-6">
-            Ownership Structure - {project.title} SPV
-          </p>
-
-          {/* Shareholders row */}
-          <div className="grid grid-cols-3 gap-6 mb-0 max-w-xl mx-auto">
-            {ownershipData.map((owner, i) => (
-              <div key={i} className="flex flex-col items-center text-center">
-                <span className="text-2xl font-bold text-foreground mb-2">{owner.share}</span>
-                <div className={`rounded-lg border px-4 py-4 w-full h-20 flex flex-col items-center justify-center ${owner.color}`}>
-                  <p className="text-sm font-semibold leading-tight">{owner.name}</p>
-                  <p className="text-xs opacity-80 mt-0.5">{owner.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Connector lines - vertical stubs down from each box */}
-          <div className="grid grid-cols-3 gap-6 max-w-xl mx-auto">
-            {ownershipData.map((_, i) => (
-              <div key={i} className="flex justify-center">
-                <div className="w-0.5 h-8 bg-muted-foreground/40" />
-              </div>
-            ))}
-          </div>
-          {/* Horizontal bar connecting all three */}
-          <div className="max-w-xl mx-auto px-[calc(100%/6)]">
-            <div className="h-0.5 bg-muted-foreground/40 w-full" />
-          </div>
-          {/* Center vertical stub down to SPV */}
-          <div className="flex justify-center">
-            <div className="w-0.5 h-8 bg-muted-foreground/40" />
-          </div>
-
-          {/* Project SPV */}
-          <div className="flex justify-center">
-            <div className="bg-primary text-primary-foreground rounded-xl px-8 py-5 text-center min-w-[280px]">
-              <p className="text-[10px] font-semibold tracking-widest uppercase opacity-70 mb-1">Project SPV</p>
-              <p className="text-sm font-bold">{project.title} SPV</p>
-              <p className="text-xs opacity-80 mt-0.5">Incorporated France · PPP / Joint Venture</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* National Regulatory Profile */}
-      <div>
-        <h2 className="text-2xl font-serif font-bold text-foreground mb-3">National regulatory profile - France</h2>
-        <div className="border-t border-border mb-6" />
-
-        <div className="border border-border rounded-xl overflow-hidden bg-card">
-          {/* Header */}
-          <div className="bg-primary/10 px-6 py-5 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">FR</div>
-              <div>
-                <h3 className="text-lg font-serif font-bold text-foreground">France</h3>
-                <p className="text-sm text-muted-foreground">Loi Énergie-Climat · CRE regulator</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-muted-foreground mb-1">Investor risk rating</p>
-              <span className="inline-block bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
-                Stable / predictable
-              </span>
-            </div>
-          </div>
-
-          {/* Grid of regulatory items */}
-          <div className="divide-y divide-border">
-            {[
-              ["Tariff-setting mechanism", "Regulated tariff with CPI-indexation under concession agreements", "Regulator", "CRE (Commission de Régulation de l'Énergie)"],
-              ["Price cap / ceiling", "Tariff ceiling set by concession contract; CPI-indexed annually", "Tariff revision cycle", "Annual · CPI-indexation permitted"],
-              ["Connection obligation", "Mandatory connection zones (périmètre de développement prioritaire) designated by local authorities", "Concession framework", "Strong - 20-30 year concessions standard; legally well-established"],
-              ["Market structure", "Mix of public régie, semi-public SEM, and private concessions; private share growing", "EU Taxonomy integration", "Advanced - green permit expediting for renewable DHC projects"],
-            ].map((row, i) => (
-              <div key={i} className="grid grid-cols-2 divide-x divide-border">
-                <div className="px-6 py-4">
-                  <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-1">{row[0]}</p>
-                  <p className="text-sm text-foreground">{row[1]}</p>
-                </div>
-                <div className="px-6 py-4">
-                  <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-1">{row[2]}</p>
-                  <p className="text-sm text-foreground">{row[3]}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Key investor note */}
-          <div className="mx-6 my-5 bg-muted/60 border border-border rounded-lg px-5 py-4">
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              <span className="font-semibold text-foreground">Key investor note:</span> France's DHC regulatory framework is among the most mature in Europe. Concession contracts provide long-term revenue visibility with CPI-indexed tariffs. The primary revenue constraint is the tariff ceiling defined in the concession agreement. Municipal connection obligations in designated priority zones reduce demand risk significantly.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* EU Market Regulatory Comparison */}
-      <div>
-        <h2 className="text-2xl font-serif font-bold text-foreground mb-3">EU market regulatory comparison</h2>
-        <div className="border-t border-border mb-6" />
-
-        <div className="border border-border rounded-xl overflow-hidden bg-card">
-          <div className="px-6 py-4 bg-muted/40 border-b border-border">
-            <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">Key regulatory parameters by country</p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px] text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/20">
-                  {["Country", "Tariff regime", "Regulator", "Price cap", "Concession framework", "Risk"].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {[
-                  { code: "DK", country: "Denmark", tariff: "Cost-reflective, non-profit", regulator: "Forsyningstilsynet", cap: "No hard cap; cost-plus", concession: "Strong · 30yr standard", risk: "Stable", riskColor: "bg-emerald-100 text-emerald-700" },
-                  { code: "NL", country: "Netherlands", tariff: "Price cap (gas parity)", regulator: "ACM", cap: "Yes - gas equivalent", concession: "Moderate · transitioning", risk: "Moderate", riskColor: "bg-amber-100 text-amber-700" },
-                  { code: "DE", country: "Germany", tariff: "Unregulated - competition law", regulator: "Bundeskartellamt", cap: "None", concession: "Variable by Bundesland", risk: "Moderate", riskColor: "bg-amber-100 text-amber-700" },
-                  { code: "SE", country: "Sweden", tariff: "Deregulated - market-based", regulator: "Energimarknadsinspektionen", cap: "None", concession: "Limited - no national framework", risk: "Moderate", riskColor: "bg-amber-100 text-amber-700" },
-                  { code: "FR", country: "France", tariff: "Concession-based · municipal", regulator: "CRE / Municipality", cap: "Set in concession", concession: "Strong · Délégation de Service Public", risk: "Stable", riskColor: "bg-emerald-100 text-emerald-700" },
-                  { code: "IT", country: "Italy", tariff: "Regulated · ARERA-approved", regulator: "ARERA", cap: "Yes - regulated tariff", concession: "Moderate · municipal concessions", risk: "Moderate", riskColor: "bg-amber-100 text-amber-700" },
-                  { code: "AT", country: "Austria", tariff: "Price-regulated · cost-based", regulator: "E-Control", cap: "Cost-plus ceiling", concession: "Strong · long-term municipal", risk: "Stable", riskColor: "bg-emerald-100 text-emerald-700" },
-                  { code: "PL", country: "Poland", tariff: "Cost-plus · regulator-approved", regulator: "URE", cap: "Yes - cost-plus ceiling", concession: "Moderate · developing", risk: "Moderate", riskColor: "bg-amber-100 text-amber-700" },
-                  { code: "CZ", country: "Czech Republic", tariff: "Price-regulated · ERÚ-approved", regulator: "ERÚ", cap: "Yes - price cap", concession: "Moderate · municipal licenses", risk: "Moderate", riskColor: "bg-amber-100 text-amber-700" },
-                  { code: "LT", country: "Lithuania", tariff: "Regulated · cost-plus", regulator: "VERT", cap: "Yes - regulated ceiling", concession: "Strong · state-owned networks", risk: "Stable", riskColor: "bg-emerald-100 text-emerald-700" },
-                  { code: "LV", country: "Latvia", tariff: "Regulated · cost-based", regulator: "SPRK", cap: "Yes - cost-based cap", concession: "Strong · municipal ownership", risk: "Stable", riskColor: "bg-emerald-100 text-emerald-700" },
-                  { code: "EE", country: "Estonia", tariff: "Regulated · competition-based", regulator: "Competition Authority", cap: "Yes - price regulation", concession: "Moderate · licensing system", risk: "Stable", riskColor: "bg-emerald-100 text-emerald-700" },
-                  { code: "FI", country: "Finland", tariff: "Largely unregulated", regulator: "Energy Authority", cap: "None", concession: "Limited - primarily municipal", risk: "Stable", riskColor: "bg-emerald-100 text-emerald-700" },
-                  { code: "GB", country: "United Kingdom", tariff: "Voluntary (Heat Trust) · Ofgem incoming", regulator: "Ofgem (from 2026)", cap: "Under development", concession: "Weak - being established", risk: "Transitional", riskColor: "bg-orange-100 text-orange-700" },
-                ].map((row, i) => (
-                  <tr
-                    key={i}
-                    className={row.code === "FR" ? "bg-primary/5" : ""}
-                  >
-                    <td className="px-4 py-3.5 whitespace-nowrap">
-                      <span className="text-[10px] font-bold text-muted-foreground tracking-wider mr-2">{row.code}</span>
-                      <span className="font-semibold text-foreground">{row.country}</span>
-                    </td>
-                    <td className="px-4 py-3.5 text-foreground">{row.tariff}</td>
-                    <td className="px-4 py-3.5 text-foreground">{row.regulator}</td>
-                    <td className="px-4 py-3.5 text-foreground">{row.cap}</td>
-                    <td className="px-4 py-3.5 text-foreground">{row.concession}</td>
-                    <td className="px-4 py-3.5">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${row.riskColor}`}>
-                        {row.risk}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+      <div className="grid gap-3 sm:grid-cols-2">{owners.map((owner) => <div key={owner.name} className="rounded-md border border-border bg-card p-4"><p className="font-semibold">{owner.name}</p><p className="text-sm text-muted-foreground">{owner.share}%</p></div>)}</div>
+    </section>}
+    {project.country && <section><h2 className="mb-3 font-display text-2xl font-semibold">National regulatory profile - {project.country}</h2>
+      {project.country === "France" && <p className="text-sm text-muted-foreground">French support bodies: ADEME and BPI France. District heating concession terms are project-specific.</p>}
+    </section>}
+  </div>;
 }
 
 /* ─── Sustainability & Compliance ─── */
-function SustainabilityTab({ project }: { project: ProjectDetail }) {
+function SustainabilityTab({ project, asOf }: { project: ProjectDetail; asOf?: string | null }) {
   return (
     <div className="space-y-10">
+      <p className="text-xs text-muted-foreground">Developer-stated. {asOf ? asOfLine("Sustainability information", asOf) : "As-of date not provided"}.</p>
       {/* Key Sustainability Metrics */}
       {project.sustainabilityMetrics && project.sustainabilityMetrics.length > 0 && (
         <div>
@@ -608,151 +419,12 @@ function SustainabilityTab({ project }: { project: ProjectDetail }) {
               </p>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Equivalent to removing approximately <strong className="text-foreground">{project.co2Detail.equivalentCars} cars from the road annually</strong>. Over the {project.concessionTerm.replace(" years", "-year")} concession, the project is projected to avoid over {project.co2Detail.lifetimeReduction} of CO₂ equivalent.
+              {project.co2Detail.equivalentCars && <>Developer-stated equivalent: {project.co2Detail.equivalentCars} cars annually. </>}{project.co2Detail.lifetimeReduction && <>Developer-stated lifetime reduction: {project.co2Detail.lifetimeReduction} of CO₂ equivalent.</>}
             </p>
           </div>
-          {/* CO2 Baseline vs Project Chart */}
-          {(() => {
-            const concessionYears = parseInt(project.concessionTerm) || 25;
-            const steps = Math.floor(concessionYears / 5);
-            const avoided = project.co2Detail.tonnes; // annual tCO₂e avoided
-            // Baseline = total annual emissions without the project; avoided is ~80% reduction
-            const baseline = Math.round(avoided / 0.8);
-            const withProject = baseline - avoided;
-            const chartData = Array.from({ length: steps }, (_, i) => ({
-              year: `Y${(i + 1) * 5}`,
-              baseline,
-              withProject,
-            }));
-            return (
-              <div className="mt-6 bg-muted/50 border border-border rounded-xl p-5">
-                <p className="text-sm font-semibold text-foreground mb-1">CO₂ emissions comparison</p>
-                <p className="text-xs text-muted-foreground mb-4">Annual emissions (tCO₂e / yr) - difference = {avoided.toLocaleString()} tCO₂e avoided</p>
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                    <XAxis dataKey="year" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                    <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                      formatter={(value: number) => [`${value.toLocaleString()} tCO₂e`, undefined]}
-                    />
-                    <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Bar dataKey="baseline" name="Baseline (no project)" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="withProject" name="With project" fill="hsl(152 69% 50%)" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            );
-          })()}
         </div>
       )}
-
-      {/* DNSH Assessment */}
-      {project.euTaxonomy && (
-        <div>
-          <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Do No Significant Harm (DNSH)</h2>
-          <div className="border-t border-border mb-6" />
-          <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
-            <p><span className="font-semibold text-foreground">Assessed by:</span> Bureau Veritas</p>
-            <p><span className="font-semibold text-foreground">Date:</span> January 2025</p>
-          </div>
-          <div className="border border-border rounded-xl overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-muted/60">
-                  <th className="text-left py-2.5 px-4 font-semibold text-foreground">Environmental objective</th>
-                  <th className="text-left py-2.5 px-4 font-semibold text-foreground">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {([
-                  { objective: "Climate change mitigation", status: "pass" },
-                  { objective: "Climate change adaptation", status: "pass" },
-                  { objective: "Water & marine resources", status: "pass" },
-                  { objective: "Circular economy transition", status: "pass" },
-                  { objective: "Pollution prevention & control", status: "pass" },
-                  { objective: "Biodiversity & ecosystems", status: "not-assessed" },
-                ] as { objective: string; status: "pass" | "not-pass" | "not-assessed" }[]).map((row, i) => (
-                  <tr key={i} className="border-t border-border">
-                    <td className="py-3 px-4 text-muted-foreground">{row.objective}</td>
-                    <td className="py-3 px-4">
-                      {row.status === "pass" ? (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: "hsl(152 69% 40%)" }}>
-                          <CheckCircle className="w-4 h-4" /> Pass
-                        </span>
-                      ) : row.status === "not-pass" ? (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-destructive">
-                          <XCircle className="w-4 h-4" /> Not pass
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                          <MinusCircle className="w-4 h-4" /> Not assessed
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* EU Regulatory Compliance */}
-      <div>
-        <h2 className="text-2xl font-serif font-bold text-foreground mb-3">EU regulatory compliance</h2>
-        <div className="border-t border-border mb-6" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[
-            {
-              icon: "✦",
-              iconBg: "bg-amber-50 text-amber-700",
-              title: "EU Taxonomy - Climate mitigation (Reg. 2020/852)",
-              description: "Substantial contribution confirmed under Annex I of the Climate Delegated Act. Independently verified by Bureau Veritas.",
-              footer: "✓ Verified · January 2025",
-            },
-            {
-              icon: "⚡",
-              iconBg: "bg-orange-50 text-orange-600",
-              title: "Energy Efficiency Directive, efficient district heating and cooling (Art. 26)",
-              description: "Article 26 is a share test, not a primary energy factor test. The project meets the Article 26 path on renewable and waste-heat share, with 85% of supply from renewable sources and recovered waste heat against the threshold applying from 2030.",
-              footer: "Article 26 path met on renewable and waste-heat share, threshold year 2030. Developer-stated.",
-            },
-            {
-              icon: "🌿",
-              iconBg: "bg-green-50 text-green-700",
-              title: "Renewable Energy Directive III, district heating and cooling targets (Art. 25)",
-              description: "The project's 85% renewable share substantially exceeds the RED III binding target of 49% renewable in district heating and cooling by 2030.",
-              footer: "Exceeds the 2030 target. Developer-stated.",
-            },
-            {
-              icon: "9",
-              iconBg: "bg-muted text-foreground font-bold",
-              title: "SFDR classification",
-              description: "SFDR classification is the investor's to make. The project data supports a climate change mitigation objective, and the developer provides the annual impact reporting an investor needs, but the platform does not assign an article to this investment.",
-              footer: "Classification determined by the investor.",
-            },
-          ].map((item, i) => (
-            <div key={i} className="border border-border rounded-xl p-5 bg-card flex gap-4">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 text-lg ${item.iconBg}`}>
-                {item.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-semibold text-foreground text-sm leading-snug">{item.title}</h3>
-                  <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-green-100 text-green-700 shrink-0">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    Compliant
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
-                <p className="text-sm text-green-700 font-medium mt-3">{item.footer}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {project.euTaxonomy && <section><h2 className="mb-3 font-display text-2xl font-semibold">EU Taxonomy activity 4.15 - district heating and cooling distribution</h2><p className="text-sm text-muted-foreground">Developer-stated objective: {project.euTaxonomy.objective}</p></section>}
 
       {/* Energy Mix */}
       {project.energyMix && project.energyMix.length > 0 && (
@@ -818,7 +490,7 @@ function SustainabilityTab({ project }: { project: ProjectDetail }) {
           <div className="bg-purple-50 border border-purple-200 rounded-xl p-6">
             <div className="flex items-start gap-3">
               <div className="w-9 h-9 rounded-lg bg-purple-200 flex items-center justify-center text-purple-700 font-bold text-sm flex-shrink-0">
-                9
+                <Scale className="h-4 w-4" />
               </div>
               <div>
                 <h4 className="mb-1 text-sm font-bold text-purple-800">SFDR classification is the investor's to make</h4>

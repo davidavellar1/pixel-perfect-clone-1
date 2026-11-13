@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { FlowCallout, FlowHeading, FlowSteps } from "./FlowSteps";
-import { FEE_PAYER_LINE, FEE_SENTENCE, calculateSuccessFee } from "@/lib/fee";
+import { FEE_PAYER_LINE, FEE_SENTENCE, FEE_RATE, calculateSuccessFee } from "@/lib/fee";
 
 export type DealForClose = {
   name: string;
@@ -55,7 +55,7 @@ const DealCloseDialog = ({ deal, onClose }: { deal: DealForClose | null; onClose
     }
     toast({
       title: "Fee invoice issued",
-      description: `1% of ${formatEur(numeric)} is payable by the investor. Visible to both parties in Deals.`,
+      description: FEE_SENTENCE,
     });
     onClose();
   };
@@ -94,9 +94,9 @@ const DealCloseDialog = ({ deal, onClose }: { deal: DealForClose | null; onClose
                   />
                 </div>
                 <div>
-                  <Label htmlFor="close-value">Realized transaction value</Label>
+                  <Label htmlFor="close-value">Amount invested</Label>
                   <p className="mt-1 text-[12.5px] text-muted-foreground">
-                    The basis for the 1% success fee. Confirmed by the counterparty.
+                    {FEE_SENTENCE}
                   </p>
                   <Input
                     id="close-value"
@@ -167,8 +167,8 @@ const DealCloseDialog = ({ deal, onClose }: { deal: DealForClose | null; onClose
               <FlowHeading title="Close confirmed, fee invoiced" />
               <div className="rounded-xl bg-[#0f2740] px-6 py-5 text-primary-foreground">
                 {[
-                  ["Realized transaction value", formatEur(numeric)],
-                  ["Success fee rate", "1.0%"],
+                  ["Amount invested", formatEur(numeric)],
+                  ["Success fee rate", `${FEE_RATE * 100}%`],
                   [FEE_PAYER_LINE.split(":")[0].trim(), FEE_PAYER_LINE.split(":")[1].trim()],
                 ].map(([label, amount]) => (
                   <div key={label} className="flex justify-between py-1.5 text-sm text-primary-foreground/75">

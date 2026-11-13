@@ -8,6 +8,8 @@ export const Route = createFileRoute("/for-investors")({
       { name: "description", content: 'How investors screen, request access and engage with infrastructure projects on DHC Market.' },
       { property: "og:title", content: 'Investing on DHC Market' },
       { property: "og:description", content: 'How investors screen, request access and engage with infrastructure projects on DHC Market.' },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => <ForInvestors />,

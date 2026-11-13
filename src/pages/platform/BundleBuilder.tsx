@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils";
 import { isGranted } from "@/lib/access";
 import { money, capacityBandRange, capexBandRange, publishedBandRange, type Band } from "@/lib/bands";
 import { useProjectListings, type ProjectListing } from "@/hooks/useProjectListings";
+import { supabase } from "@/integrations/supabase/client";
+import { baseCaseReturn } from "@/lib/figureDisclosure";
 import { useBundles } from "@/hooks/useBundles";
 
 const PALETTE = ["#2f80ed", "#1d9e75", "#d6a23a", "#6b3fa0", "#3aa0a0", "#c2762e", "#4a72c4"];
@@ -158,7 +160,7 @@ const toRow = (p: ProjectListing): Row => {
     capex: granted ? p.capex : null,
     capexBand: cBand,
     weight: granted ? p.capex || 1 : cBand ? mid(cBand) : 1,
-    irr: granted ? p.targetIrr : null,
+    irr: null,
     contr: p.contractedPct ?? p.offtakeLoadPct ?? 0,
     signed: p.signedPct ?? 0,
     completeness,
@@ -169,6 +171,9 @@ const toRow = (p: ProjectListing): Row => {
 
 const BundleBuilder = () => {
   const { projects, loading } = useProjectListings();
+  const [baseCases, setBaseCases] = useState<{ project_id: string; name: string; equity_irr_pct: number | null; created_at: string }[]>([]);
+  const [caseCapital, setCaseCapital] = useState<Record<string, number | null>>({});
+  const [caseDates, setCaseDates] = useState<Record<string, string | null>>({});
   const { bundles, saveBundle, renameBundle, deleteBundle } = useBundles();
   const [mode, setMode] = useState<"build" | "strategy">("build");
   const [selected, setSelected] = useState<string[]>([]);
@@ -192,7 +197,19 @@ const BundleBuilder = () => {
     if (!bundlesInit && bundles.length) { setBundlesOpen(true); setBundlesInit(true); }
   }, [bundles.length, bundlesInit]);
 
-  const rows = useMemo(() => projects.map(toRow), [projects]);
+  useEffect(() => {
+    let cancelled = false;
+    setBaseCases([]); setCaseDates({}); setCaseCapital({});
+    const ids = projects.filter((p) => isGranted(p.accessState)).map((p) => p.id);
+    if (!ids.length) return;
+    Promise.all([
+      supabase.from("project_case").select("project_id,name,equity_irr_pct,created_at").eq("name", "base").in("project_id", ids),
+      supabase.from("project").select("id,financial_as_of").in("id", ids),
+      supabase.from("financial_summary").select("project_id,capex").in("project_id", ids),
+    ]).then(([cases, dates, capital]) => { if (cancelled) return; setBaseCases(cases.data ?? []); setCaseCapital(Object.fromEntries((capital.data ?? []).map((p) => [p.project_id, p.capex]))); setCaseDates(Object.fromEntries((dates.data ?? []).map((p) => [p.id, p.financial_as_of]))); });
+    return () => { cancelled = true; };
+  }, [projects]);
+  const rows = useMemo(() => projects.map((p) => ({ ...toRow(p), irr: baseCaseReturn(p.accessState, baseCases.filter((c) => c.project_id === p.id)), financialAsOf: caseDates[p.id] ?? null })), [projects, baseCases, caseDates]);
   const listedIds = useMemo(() => new Set(rows.map((r) => r.id)), [rows]);
   const uniq = (key: "country" | "tech" | "stage") => [...new Set(rows.map((r) => r[key]))].sort();
 
@@ -239,9 +256,9 @@ const BundleBuilder = () => {
   const capMax = capExact + lockedCap.reduce((a, p) => a + (p.capexBand!.max ?? p.capexBand!.min), 0);
   const capLabel = !lockedCap.length ? `EUR ${fmtM(capExact)}` : capOpen ? `EUR ${fmtM(capMin)}+` : `EUR ${fmtM(capMin)}-${fmtM(capMax)}`;
 
-  const irrRows = grantedRows.filter((p) => p.irr != null);
-  const irrW = irrRows.reduce((a, p) => a + p.weight, 0);
-  const wIrr = irrW ? irrRows.reduce((a, p) => a + (p.irr as number) * p.weight, 0) / irrW : null;
+  const irrRows = chosen.filter((p) => p.irr != null && (caseCapital[p.id] ?? 0) > 0);
+  const irrW = irrRows.reduce((a, p) => a + (caseCapital[p.id] ?? 0), 0);
+  const wIrr = irrW ? irrRows.reduce((a, p) => a + (p.irr ?? 0) * (caseCapital[p.id] ?? 0), 0) / irrW : null;
 
   const cap = chosen.reduce((a, p) => a + p.weight, 0);
   const wContr = cap ? chosen.reduce((a, p) => a + p.contr * p.weight, 0) / cap : 0;
@@ -362,7 +379,7 @@ const BundleBuilder = () => {
             ))}
             <div>
               <p className="mb-2 text-xs font-semibold">
-                Minimum target IRR <span className="font-normal text-muted-foreground">(developer stated)</span>
+                Minimum target IRR (base case) <span className="font-normal text-muted-foreground">(developer stated)</span>
               </p>
               <div className="flex items-center gap-3">
                 <Slider value={[minIrr]} min={0} max={15} step={0.5} onValueChange={(v) => setMinIrr(v[0])} className="flex-1" />
@@ -487,7 +504,7 @@ const BundleBuilder = () => {
                     <span className="block text-xs text-muted-foreground">
                       {p.granted ? (p.capex != null ? money(p.capex) : "-") : p.capexBand?.label ?? "-"}
                     </span>
-                    {p.irr != null && <span className="mt-0.5 block font-display text-xs font-semibold text-accent">{p.irr.toFixed(1)}%</span>}
+                    {p.irr != null && <span className="mt-0.5 block font-display text-xs font-semibold text-accent">{p.irr.toFixed(1)}% IRR (base case), developer-stated{p.financialAsOf ? `, as of ${fmtDate(p.financialAsOf)}` : ", as-of date not provided"}</span>}
                     {mode === "strategy" && (
                       <>
                         <span className="mt-2 ml-auto block h-[5px] w-[72px] overflow-hidden rounded bg-muted sm:w-[120px]">
@@ -512,7 +529,7 @@ const BundleBuilder = () => {
 
           {!chosen.length ? (
             <p className="px-2 py-8 text-center text-[13px] leading-6 text-muted-foreground">
-              Select projects on the left to see aggregate capacity, capital, blended IRR, and diversification.
+              Select projects on the left to see aggregate capacity, capital, blended base-case IRR, and diversification.
             </p>
           ) : (
             <div>
@@ -520,8 +537,8 @@ const BundleBuilder = () => {
                 <AggCard label="Aggregate capacity" value={mwLabel} unit="MW" />
                 <AggCard label="Aggregate capital" value={capLabel} unit="M" />
                 <div>
-                  <AggCard label="Blended target IRR" value={wIrr == null ? "-" : `${wIrr.toFixed(1)}%`} />
-                  <p className="mt-1 px-1 text-[10px] text-muted-foreground">developer-stated, {irrRows.length} of {chosen.length} projects</p>
+                  {wIrr != null && <AggCard label="Blended target IRR (base case)" value={`${wIrr.toFixed(1)}%`} />}
+                  {wIrr != null && <p className="mt-1 px-1 text-[10px] text-muted-foreground">developer-stated, {irrRows.length} of {chosen.length} projects. {irrRows.map((p) => p.financialAsOf ? `${p.name}: as of ${fmtDate(p.financialAsOf)}` : `${p.name}: as-of date not provided`).join("; ")}</p>}
                 </div>
                 <AggCard label="Offtake committed" value={`${Math.round(wComm)}%`} />
                 {equityVals.length > 0 && <AggCard label="Equity sought" value={money(equityVals.reduce((a, v) => a + v, 0))} />}

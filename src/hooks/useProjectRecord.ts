@@ -55,7 +55,7 @@ function clean<T extends object>(input: T): Partial<T> {
 }
 
 export function useProjectRecord(projectId: string | undefined) {
-  const [result, setResult] = useState<{ id: string; overrides: Partial<ProjectDetail> } | null>(null);
+  const [result, setResult] = useState<{ id: string; overrides: Partial<ProjectDetail>; numericCapex: number | null } | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -246,7 +246,7 @@ export function useProjectRecord(projectId: string | undefined) {
       }));
       if (operatingParameters.length) next.operatingParameters = operatingParameters;
 
-      setResult({ id: projectId, overrides: next });
+      setResult({ id: projectId, overrides: next, numericCapex: financial?.capex ?? null });
       setLoading(false);
     })();
 
@@ -255,5 +255,5 @@ export function useProjectRecord(projectId: string | undefined) {
     };
   }, [projectId]);
 
-  return { overrides: result && result.id === projectId ? result.overrides : {}, loading };
+  return { overrides: result && result.id === projectId ? result.overrides : {}, numericCapex: result && result.id === projectId ? result.numericCapex : null, loading };
 }

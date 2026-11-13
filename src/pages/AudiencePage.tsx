@@ -12,7 +12,7 @@ const copy = {
     title: "Reach private capital across Europe, on your terms.",
     lead: "DHC Market puts your district heating or cooling project in front of pension funds, infrastructure funds, and other private investors actively looking for it, through one standardized, anonymized listing. A smooth path from listing to close, free for developers.",
     primary: "Start a listing",
-    note: "Always free for developers. The 1% success fee is paid by the investor, only if a deal closes.",
+    note: FEE_SENTENCE,
     coreTitle: "Direct access to investors, without the cold outreach",
     coreText: "Raising for a DHC project usually means chasing introductions one fund at a time. Here, your standardized profile reaches a vetted pool of private investors whose mandate fits your technology, geography, and size, and you stay anonymous until you decide to engage.",
     bullets: ["Reach pension funds, infrastructure funds, and co-investors in one place", "A guided submission turns your project into a profile investors can compare", "Anonymous until an investor executes the confidentiality agreement; you approve data room access only"],
@@ -24,13 +24,13 @@ const copy = {
       ["Anonymous until you choose", "Your project appears anonymized. Identity, location, and counterparties reveal only when an investor expresses genuine interest."],
       ["Ecosystem and public funding", "Tap advisory partners and check eligibility for public co-financing that can de-risk your raise. Supporting tools, not the price of entry."],
     ],
-    steps: [["Submit", "The stage-first wizard asks only for what your project's stage supports."], ["Get matched", "Reach investors whose mandate fits your technology, geography, and size."], ["Manage interest", "Track interest, answer questions, and grant data-room access on your terms."], ["Close", "Take it to financial close. The success fee is the investor's, never yours."]],
+    steps: [["Submit", "The stage-first wizard asks only for what your project's stage supports."], ["Get matched", "Reach investors whose mandate fits your technology, geography, and size."], ["Manage interest", "Track interest, answer questions, and grant data-room access on your terms."], ["Close", FEE_SENTENCE]],
     controlTitle: "Your project, your terms",
     controlText: "The platform is a neutral connector, not a fund or an adviser. It makes the right introductions while you control what is revealed and when.",
     controls: [["Gated reveal", "Anonymous at first. Identity reveals once an investor executes the confidentiality agreement, and the confidential data room opens only on your approval."], ["Protected introductions", "Every introduction is logged and attributed, so your connections cannot be circumvented."], ["Developer-stated figures", "Returns and figures remain clearly attributed to the project developer. The platform never rates them."]],
     fee: "Free",
     feeTitle: "Free for developers, end to end.",
-    feeText: "No charge to list, receive investor interest, use the ecosystem, or check public funding.",
+    feeText: FEE_SENTENCE,
     finalTitle: "Put your project in front of the right capital",
     finalText: "Join as a developer, list free, and reach the private capital looking for district energy opportunities.",
     finalCta: "Join as a developer",
@@ -40,7 +40,7 @@ const copy = {
     title: "Find comparable DHC opportunities across Europe.",
     lead: "DHC Market gives infrastructure funds, pension funds, family offices, and strategic investors one structured view of district heating and cooling projects, from first screen to direct developer engagement.",
     primary: "Join as an investor",
-    note: "Browse anonymized opportunities free. A 1% success fee applies only to realized transactions introduced through DHC Market.",
+    note: FEE_SENTENCE,
     coreTitle: "A relevant pipeline, without starting every search from zero",
     coreText: "DHC opportunities are fragmented across local markets and presented in inconsistent formats. DHC Market brings them into one comparable pipeline so your team can screen mandate fit quickly and focus diligence where it matters.",
     bullets: ["Filter by geography, technology, stage, capacity, and ticket size", "Compare every opportunity through the same technical and commercial structure", "Engage the developer directly after expressing interest"],
@@ -56,9 +56,9 @@ const copy = {
     controlTitle: "Your mandate, your decision",
     controlText: "DHC Market structures information and introductions. It does not underwrite projects, provide investment advice, or make investment decisions.",
     controls: [["Mandate-led discovery", "Search and matching focus attention on opportunities aligned with your stated strategy."], ["Direct engagement", "Once interest is expressed, engage the project developer without an opaque intermediary layer."], ["Clear attribution", "Forecasts and returns remain developer-stated, with named evidence and assessors where available."]],
-    fee: "1%",
+    fee: "Success-based",
     feeTitle: "Success-based, not subscription-based.",
-    feeText: "The investor pays 1% of realized transaction value only after both parties confirm a close introduced by DHC Market.",
+    feeText: FEE_SENTENCE,
     finalTitle: "Build your European DHC pipeline",
     finalText: "Join as an investor and start screening standardized district heating and cooling opportunities.",
     finalCta: "Join as an investor",
@@ -129,7 +129,7 @@ const AudiencePage = ({ audience }: { audience: Audience }) => {
       </section>
 
       <section className="bg-card pb-20">
-        <div className="container"><div className="flex flex-wrap items-center gap-7 rounded-lg bg-foreground p-8 text-primary-foreground md:px-11"><strong className="font-display text-4xl text-accent">{c.fee}</strong><div className="min-w-[220px] flex-1"><h2 className="font-display text-xl font-semibold">{c.feeTitle}</h2><p className="mt-1 text-sm text-primary-foreground/60">{c.feeText}</p><p className="mt-2 text-xs text-primary-foreground/50">{FEE_SENTENCE}</p></div><Button variant="hero" asChild><Link to={signUp}>{c.primary}</Link></Button></div></div>
+        <div className="container"><div className="flex flex-wrap items-center gap-7 rounded-lg bg-foreground p-8 text-primary-foreground md:px-11"><strong className="font-display text-4xl text-accent">{c.fee}</strong><div className="min-w-[220px] flex-1"><h2 className="font-display text-xl font-semibold">{c.feeTitle}</h2><p className="mt-1 text-sm text-primary-foreground/60">{c.feeText}</p></div><Button variant="hero" asChild><Link to={signUp}>{c.primary}</Link></Button></div></div>
       </section>
 
       <section className="bg-hero-gradient py-20 text-center text-primary-foreground">

@@ -50,7 +50,7 @@ const ProjectCard = ({ project, context, onWatchlistChange }: ProjectCardProps) 
         <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">{project.stage}</span>
         <span className="rounded-full bg-success/10 px-2.5 py-1 text-[10px] font-semibold text-success">{project.generation}</span>
         {pending && <span className="rounded-full bg-warning/15 px-2.5 py-1 text-[10px] font-semibold text-warning">Pending</span>}
-        {project.publicSupport && <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-[10px] font-semibold text-success"><Landmark className="h-3 w-3" />Public co-finance</span>}
+
       </div>
       <h3 className="line-clamp-2 h-12 font-display text-lg font-semibold leading-6 text-foreground">{title}</h3>
       <p className="mt-1 flex h-7 items-start gap-1.5 text-xs text-muted-foreground"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />{location}</p>

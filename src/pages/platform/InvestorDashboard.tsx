@@ -154,11 +154,6 @@ const InvestorDashboard = () => {
   const totalCapacity = engagedProjects.reduce((sum, project) => sum + Number(project.capacity_mw), 0);
   const totalCapex = engagedProjects.reduce((sum, project) => sum + Number(financeByProject.get(project.id)?.capex || project.headline_investment || 0), 0);
 
-  const irrRows = engagedProjects.filter((project) => project.headline_irr_pct != null);
-  const irrValues = irrRows.map((project) => Number(project.headline_irr_pct));
-  const irrMin = irrValues.length ? Math.min(...irrValues) : null;
-  const irrMax = irrValues.length ? Math.max(...irrValues) : null;
-
   const approvedRooms = requests.filter((request) => request.status === "approved").length;
   const activeDeals = interests.filter((interest) => ["data_room", "ioi", "loi", "closed"].includes(normaliseStage(interest.stage))).length;
   const funnel = stageOrder.map((stage) => ({ stage, label: stageLabel(stage), value: interests.filter((interest) => normaliseStage(interest.stage) === stage).length }));
@@ -185,7 +180,6 @@ const InvestorDashboard = () => {
   const kpis = [
     ["Capacity engaged", `${totalCapacity.toLocaleString()} MW`, `${interests.length} project${interests.length === 1 ? "" : "s"}`],
     ["Capex engaged", totalCapex ? `\u20ac${(totalCapex / 1_000_000).toFixed(1)}M` : "\u20ac0", "developer-stated"],
-    ["Target IRR range", irrValues.length ? `${irrMin!.toFixed(1)}% \u2013 ${irrMax!.toFixed(1)}%` : "Not available", "unverified, developer-stated"],
     ["Active deals", String(activeDeals), "due diligence or later"],
     ["Interests expressed", String(interests.length), `${watchlist.length} watchlisted`],
     ["Data rooms open", String(approvedRooms), `${requests.filter((request) => request.status === "requested").length} pending`],

@@ -15,3 +15,10 @@
 - [x] Read teaser-only data for unapproved detail/listing viewers and update card metrics
 - [x] Restrict MCP output, redirect public project detail, and update robots
 - [x] Verify disclosure behavior, tests, and compilation without database changes
+
+# Figure corrections
+- [x] Remove fabricated public figures and use real teasers
+- [x] Gate case-labelled bundle returns and remove legacy KPI
+- [x] Replace invented structure, compliance and chart data
+- [x] Correct fee wording and design-load ladder
+- [x] Test and verify without database changes

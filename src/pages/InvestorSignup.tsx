@@ -100,15 +100,15 @@ const InvestorSignup = () => {
             </span>
           </a>
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-primary-foreground mb-6">
-            Join 45+ Active Investors
+            Join the first investor cohort
           </h1>
           <p className="text-primary-foreground/60 text-lg mb-10 leading-relaxed">
-            Access verified district heating & cooling projects with attractive risk-adjusted returns.
+            Connect with district heating and cooling developers across Europe.
           </p>
           <ul className="space-y-4">
             {[
-              "Browse 120+ verified projects across Europe",
-              "Target 8-15% IRR on infrastructure assets",
+              "Browse anonymized opportunities across Europe",
+              "Review developer-stated detail after access is granted",
               "Co-invest alongside public funding programs",
               "Full due diligence and advisory support",
             ].map((item) => (
@@ -284,7 +284,7 @@ const InvestorSignup = () => {
               label="Sign up with Google"
             />
             <p className="text-center text-xs text-muted-foreground">
-              Accept the terms above first. Google accounts are ready to use immediately — no email confirmation needed.
+              Accept the terms above first. Google accounts are ready to use immediately - no email confirmation needed.
             </p>
 
             <p className="text-center text-sm text-muted-foreground">
