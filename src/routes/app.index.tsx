@@ -1,15 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Navigate } from "@/lib/router-compat";
-import { useAuth } from "@/contexts/AuthContext";
-import { homePathFor } from "@/lib/navigation";
+import WorkspaceOverview from "@/pages/platform/WorkspaceOverview";
 
 export const Route = createFileRoute("/app/")({
-  component: AppHome,
+  head: () => ({ meta: [
+    { title: "Workspace overview - DHC Market" },
+    { name: "description", content: "Your project access ladder, requests and European DHC opportunities." },
+    { property: "og:title", content: "Workspace overview - DHC Market" },
+    { property: "og:description", content: "Your project access ladder, requests and European DHC opportunities." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
+  component: WorkspaceOverview,
 });
-
-// The first page depends on what the member said brought them here, which is only known client-side.
-function AppHome() {
-  const { intents, loading } = useAuth();
-  if (loading) return null;
-  return <Navigate to={homePathFor(intents)} replace />;
-}

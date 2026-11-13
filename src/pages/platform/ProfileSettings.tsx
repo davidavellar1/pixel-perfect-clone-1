@@ -17,13 +17,15 @@ import { Chips, EnumSelect, Field } from "@/components/settings/SettingsFields";
 import { avatarError, COUNTRIES, DEVELOPER_TYPES, developerSchema, INVESTOR_TYPES, investorSchema, legalDocument, passwordSchema, profileSchema, REGIONS, STAGES, TECHNOLOGIES, TICKETS } from "@/lib/profileSettings";
 import { cn } from "@/lib/utils";
 import type { User } from "@supabase/supabase-js";
+import { CAPITAL_SOURCES, CONSTRUCTION_RISK, DECISION_PROCESSES, INSTRUMENTS_SOUGHT } from "@/lib/access";
 
 const emptyPersonal = { first_name: "", last_name: "", job_title: "", phone: "", linkedin_url: "", bio: "" };
-const emptyInvestor = { company_name: "", investor_type: null, investment_range: null, regions_of_interest: [], technologies_of_interest: [] } as import("zod").z.infer<typeof investorSchema>;
+const emptyInvestor = { company_name: "", investor_type: null, ticket_band: null, instrument_sought: null, construction_risk_appetite: null, capital_source: null, decision_process: null, regions_of_interest: [], technologies_of_interest: [] } as import("zod").z.infer<typeof investorSchema>;
 const emptyDeveloper = { company_name: "", position: "", developer_type: null, project_stages: [], countries_of_operation: [] } as import("zod").z.infer<typeof developerSchema>;
 const message = (err: unknown) => err instanceof Error ? err.message : (err as { message?: string })?.message ?? "Your changes weren't saved. Please try again.";
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 const listOptions = (values: string[]) => Object.fromEntries(values.map(v => [v, v]));
+const enumOptions = <T extends string>(values: { value: T; label: string }[]) => Object.fromEntries(values.map(v => [v.value, v.label])) as Record<T, string>;
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return <section id={id} className="min-w-0 scroll-mt-24 rounded-lg border border-border bg-card p-4 sm:p-6"><h2 className="mb-6 font-display text-xl font-semibold">{title}</h2>{children}</section>;
@@ -68,7 +70,7 @@ export default function ProfileSettings() {
     if (!data) return;
     const fallbackName = String(user?.user_metadata?.full_name ?? "").trim().split(/\s+/);
     const p = data.personal ? Object.fromEntries(Object.keys(emptyPersonal).map(key => [key, data.personal?.[key as keyof typeof emptyPersonal] ?? ""])) as typeof emptyPersonal : { ...emptyPersonal, first_name: fallbackName[0] ?? "", last_name: fallbackName.slice(1).join(" ") };
-    const i = data.investor ? { company_name: data.investor.company_name ?? "", investor_type: data.investor.investor_type, investment_range: data.investor.investment_range, regions_of_interest: data.investor.regions_of_interest ?? [], technologies_of_interest: data.investor.technologies_of_interest } : emptyInvestor;
+    const i = data.investor ? { company_name: data.investor.company_name ?? "", investor_type: data.investor.investor_type, ticket_band: data.investor.ticket_band, instrument_sought: data.investor.instrument_sought, construction_risk_appetite: data.investor.construction_risk_appetite, capital_source: data.investor.capital_source, decision_process: data.investor.decision_process, regions_of_interest: data.investor.regions_of_interest ?? [], technologies_of_interest: data.investor.technologies_of_interest } : emptyInvestor;
     const d = data.developer ? { company_name: data.developer.company_name ?? "", position: data.developer.position ?? "", developer_type: data.developer.developer_type, project_stages: (data.developer.project_stages ?? []).filter((s): s is keyof typeof STAGES => Object.hasOwn(STAGES, s)), countries_of_operation: data.developer.countries_of_operation ?? [] } : emptyDeveloper;
     setPersonal(p); setInvestor(i); setDeveloper(d); setBaseline({ personal: p, investor: i, developer: d });
   }, [loading]);
@@ -176,8 +178,14 @@ export default function ProfileSettings() {
         <Section id="investor" title="Investing preferences"><form noValidate onSubmit={e => { e.preventDefault(); void saveInvestor(); }} className="space-y-5">
           <p className="text-sm text-muted-foreground">Optional. Used to match you with relevant opportunities and funding{!data.investor ? "; nothing is saved here yet" : ""}.</p>
           <Field id="investor-company" label="Organisation name" error={errors.company_name}><Input id="investor-company" maxLength={200} value={investor.company_name} onChange={e => setInvestor(i => ({ ...i, company_name: e.target.value }))} className="h-11" aria-invalid={!!errors.company_name} aria-describedby={errors.company_name ? 'investor-company-error' : undefined} /></Field>
-          <div className="grid gap-5 sm:grid-cols-2"><EnumSelect id="investor-type" label="Investor type" error={errors.investor_type ? "Choose an investor type or leave it blank." : undefined} value={investor.investor_type} options={INVESTOR_TYPES} onChange={v => setInvestor(i => ({ ...i, investor_type: v }))} /><EnumSelect id="ticket" label="Typical ticket" error={errors.investment_range ? "Choose a typical ticket or leave it blank." : undefined} value={investor.investment_range} options={TICKETS} onChange={v => setInvestor(i => ({ ...i, investment_range: v }))} /></div>
+          <div className="grid gap-5 sm:grid-cols-2"><EnumSelect id="investor-type" label="Investor type" error={errors.investor_type ? "Choose an investor type or leave it blank." : undefined} value={investor.investor_type} options={INVESTOR_TYPES} onChange={v => setInvestor(i => ({ ...i, investor_type: v }))} /><EnumSelect id="ticket" label="Typical ticket" error={errors.ticket_band ? "Choose a typical ticket or leave it blank." : undefined} value={investor.ticket_band} options={TICKETS} onChange={v => setInvestor(i => ({ ...i, ticket_band: v }))} /></div>
           <Chips id="regions" label="Regions of interest" options={listOptions([...new Set([...REGIONS, ...investor.regions_of_interest])])} value={investor.regions_of_interest} onChange={v => setInvestor(i => ({ ...i, regions_of_interest: v }))} />
+          <div className="grid gap-5 sm:grid-cols-2">
+            <EnumSelect id="instrument-sought" label="Instrument sought" value={investor.instrument_sought} options={enumOptions(INSTRUMENTS_SOUGHT)} onChange={v => setInvestor(i => ({ ...i, instrument_sought: v }))} />
+            <EnumSelect id="construction-risk" label="Construction-risk appetite" value={investor.construction_risk_appetite} options={enumOptions(CONSTRUCTION_RISK)} onChange={v => setInvestor(i => ({ ...i, construction_risk_appetite: v }))} />
+            <EnumSelect id="capital-source" label="Capital source" value={investor.capital_source} options={enumOptions(CAPITAL_SOURCES)} onChange={v => setInvestor(i => ({ ...i, capital_source: v }))} />
+            <EnumSelect id="decision-process" label="Decision process" value={investor.decision_process} options={enumOptions(DECISION_PROCESSES)} onChange={v => setInvestor(i => ({ ...i, decision_process: v }))} />
+          </div>
           <Chips id="technologies" label="Technologies of interest" options={TECHNOLOGIES} value={investor.technologies_of_interest} onChange={v => setInvestor(i => ({ ...i, technologies_of_interest: v }))} />
           {saveButton('investor', investorDirty)}
         </form></Section>

@@ -26,7 +26,9 @@ import {
   addDays, addMonths, declineReasonLabel, effectiveState, formatDate, isDataRoomOpen, isGranted,
   slaStatus, REOPEN_BLOCK_DAYS, FEE_TAIL_MONTHS, type AccessCriteriaRow, type AccessRequestRow, type ViewerAccess,
 } from "@/lib/access";
-import { NDA_DOCUMENT_VERSION } from "@/lib/fee";
+import { mandatePrefill, signatureEvidence, signatureReady, type Agreement } from "@/lib/gateWorkflow";
+import MandateFit from "@/components/project/MandateFit";
+import { Textarea } from "@/components/ui/textarea";
 
 const tabs = [
   "Overview",
@@ -83,6 +85,24 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   const [request, setRequest] = useState<AccessRequestRow | null>(null);
   const [criteria, setCriteria] = useState<AccessCriteriaRow | null>(null);
   const [investorProfile, setInvestorProfile] = useState<Tables<"investor_profiles"> | null>(null);
+  const [agreement, setAgreement] = useState<Agreement | null>(null);
+  const [agreementError, setAgreementError] = useState<string | null>(null);
+  const [reply, setReply] = useState("");
+  const [replyBusy, setReplyBusy] = useState(false);
+  useEffect(() => {
+    void supabase.from("nda_document_version").select("*").is("retired_at", null).lte("effective_from", new Date().toISOString()).order("effective_from", { ascending: false }).limit(1).maybeSingle()
+      .then(({ data, error }) => { setAgreement(data); setAgreementError(error?.message || (!data ? "The agreement is unavailable. Please try again later." : null)); });
+  }, []);
+  const sendReply = async () => {
+    if (!request || !user || !reply.trim()) return;
+    setReplyBusy(true);
+    const { data, error } = await supabase.from("access_request").update({ investor_reply: reply.trim(), investor_reply_at: new Date().toISOString() })
+      .eq("id", request.id).eq("investor_user_id", user.id).eq("state", "pending").select("*").single();
+    setReplyBusy(false);
+    if (error) { sonnerToast.error("Reply was not saved. Please try again."); return; }
+    setRequest(data); setReply(""); sonnerToast.success("Reply sent. The developer has been notified.");
+  };
+
 
 
   const accessState: ViewerAccess = request ? effectiveState(request) : "teaser";
@@ -153,8 +173,8 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     let cancelled = false;
     if (user) supabase.from("investor_profiles").select("*").eq("user_id", user.id).maybeSingle()
       .then(({ data }) => { if (!cancelled) setInvestorProfile(data); });
-    supabase.from("listing_access_criteria").select("*").eq("project_id", projectId).maybeSingle()
-      .then(({ data }) => { if (!cancelled) setCriteria(data ?? null); });
+    supabase.from("listing_access_criteria").select("id,project_id,min_ticket,instruments_accepted,require_construction_risk_appetite,notify_users,created_at,updated_at,electronic_execution_consent,electronic_execution_consent_at").eq("project_id", projectId).maybeSingle()
+      .then(({ data }) => { if (!cancelled) setCriteria(data as AccessCriteriaRow | null); });
     return () => { cancelled = true; };
   }, [projectId, user?.id]);
 
@@ -211,14 +231,10 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
       toast({ title: "This listing is not connected yet", description: "Please choose a live marketplace listing.", variant: "destructive" });
       return;
     }
-    setSubmitting(true);
-    let ip: string | null = null;
-    try {
-      const response = await fetch("https://api.ipify.org?format=json");
-      ip = (await response.json())?.ip ?? null;
-    } catch {
-      ip = null;
+    if (!agreement || !signatureReady(draft, criteria, agreement)) {
+      sonnerToast.error("Complete the required answers and signing affirmations before sending."); return;
     }
+    setSubmitting(true);
     const now = new Date().toISOString();
     const { data: saved, error } = await supabase
       .from("access_request")
@@ -234,11 +250,10 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
           decision_note: null,
           decline_reason: null,
           scope_granted: null,
-          nda_version: NDA_DOCUMENT_VERSION,
+          ...signatureEvidence(draft, agreement, now),
           nda_signed_name: draft.signedName,
           nda_signed_role: draft.signatoryRole || null,
           nda_signed_at: now,
-          nda_ip: ip,
           // Signed at submission, operative only on acceptance.
           nda_effective_at: null,
           introduction_logged_at: null,
@@ -343,7 +358,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
   const body = (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto flex max-w-[980px] items-center justify-between gap-3 border-b border-border px-5 py-3">
+      <div className="mx-auto flex max-w-[980px] flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
         <Link to={context === "app" ? "/app/opportunities" : "/sign-in?redirect=/app/opportunities"} className="text-sm font-medium text-muted-foreground hover:text-foreground">Back to opportunities</Link>
         <div className="flex items-center gap-2">
           {isOwner ? (
@@ -385,6 +400,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
       />
 
       <div className="mx-auto mt-6 max-w-[980px] px-5">
+        {!granted && <MandateFit draft={mandatePrefill(investorProfile)} criteria={criteria} />}
         {granted && (
           <div className="flex items-start gap-2.5 rounded-xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-sm text-emerald-900">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-emerald-600" />
@@ -414,6 +430,12 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
                   Question from the developer: {request.developer_question}
                 </p>
               )}
+              {request?.developer_question && (request.investor_reply_at ?
+                <p className="mt-2 text-sm text-muted-foreground">Your reply: {request.investor_reply}</p> :
+                <div className="mt-3 space-y-2">
+                  <Textarea aria-label="Reply to the developer" value={reply} onChange={event => setReply(event.target.value)} maxLength={3000} />
+                  <Button disabled={replyBusy || !reply.trim()} onClick={sendReply}>{replyBusy ? "Sending..." : "Send reply"}</Button>
+                </div>)}
             </div>
             <Button variant="outline" onClick={handleWithdraw}>Withdraw request</Button>
           </div>
@@ -530,10 +552,9 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
         criteria={criteria}
         submitting={submitting}
         submitted={justSubmitted}
-        prefill={{
-          entityName: investorProfile?.company_name || "",
-          signatoryName: investorProfile?.full_name || "",
-        }}
+        agreement={agreement}
+        agreementError={agreementError}
+        prefill={mandatePrefill(investorProfile)}
         onSubmit={handleSubmitInterest}
         onClose={() => setJustSubmitted(false)}
       />

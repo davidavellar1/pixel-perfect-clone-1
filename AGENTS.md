@@ -16,3 +16,5 @@
 - Use saved numeric inputs for charts and granted base-case rows for bundle returns; never derive project figures or counterfactuals from display strings or illustrative models.
 
 - Canonical auth pages own signup and recovery; legacy URLs are redirects that preserve destinations, and retired marketing topics redirect to their canonical public pages.
+- Gate evidence uses the displayed immutable agreement row; mandate uses compatible ticket bands with ambiguous legacy bands left for member confirmation.
+- Once-only mandate review is persisted in the investor profile and wraps workspace content; UI and scheduled decisions share the UTC working-day SLA.

@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 const DAY_MS = 24 * 60 * 60 * 1000
-const REMINDER_AFTER_DAYS = 3
-const LAPSE_AFTER_DAYS = 14
+import { SLA_LAPSE_WORKING_DAYS, SLA_REMINDER_HOURS, workingDaysSince } from '@/lib/access'
 const FEE_TAIL_WARN_DAYS = 30
 
 type NotificationInsert = {
@@ -45,7 +44,7 @@ export const Route = createFileRoute('/api/public/hooks/access-reminders')({
         const { data: requests, error } = await supabaseAdmin
           .from('access_request')
           .select(
-            'id, project_id, investor_user_id, state, submitted_at, fee_tail_expires_at, project:project_id(slug, title, developer:developer_id(user_id))',
+            'id, project_id, investor_user_id, state, submitted_at, developer_question_at, investor_reply_at, fee_tail_expires_at, project:project_id(slug, title, developer:developer_id(user_id))',
           )
           .in('state', ['pending', 'granted', 'granted_full'])
 
@@ -64,21 +63,23 @@ export const Route = createFileRoute('/api/public/hooks/access-reminders')({
           const ownerId = project?.developer?.user_id
           const title = project?.title ?? 'your listing'
           const slug = project?.slug ?? ''
-          const submitted = row.submitted_at ? new Date(row.submitted_at).getTime() : now
-          const ageDays = Math.floor((now - submitted) / DAY_MS)
+          const clockStart = row.investor_reply_at || row.submitted_at
+          const paused = Boolean(row.developer_question_at && !row.investor_reply_at)
+          const workingDays = workingDaysSince(clockStart, new Date(now))
+          const hours = (now - new Date(clockStart).getTime()) / 3_600_000
 
-          if (row.state === 'pending' && ageDays >= LAPSE_AFTER_DAYS) {
+          if (row.state === 'pending' && !paused && workingDays >= SLA_LAPSE_WORKING_DAYS) {
             lapsed.push(row.id)
             continue
           }
 
-          if (row.state === 'pending' && ageDays >= REMINDER_AFTER_DAYS && ownerId) {
-            const bucket = Math.floor(ageDays / REMINDER_AFTER_DAYS)
+          if (row.state === 'pending' && !paused && hours >= SLA_REMINDER_HOURS && ownerId) {
+            const bucket = Math.floor(hours / SLA_REMINDER_HOURS)
             notifications.push({
               user_id: ownerId,
               kind: 'access_request_reminder',
               title: 'Access request still waiting',
-              body: `An access request on ${title} has been open for ${ageDays} days. It lapses automatically after ${LAPSE_AFTER_DAYS} days.`,
+              body: `An access request on ${title} has been open for ${workingDays} working days. It lapses without approval after ${SLA_LAPSE_WORKING_DAYS} working days.`,
               link: `/app/access-requests?request=${row.id}`,
               project_id: row.project_id,
               access_request_id: row.id,
@@ -109,14 +110,15 @@ export const Route = createFileRoute('/api/public/hooks/access-reminders')({
             .from('access_request')
             .update({ state: 'lapsed' })
             .in('id', lapsed)
-          if (lapseError) console.error('[access-reminders] lapse failed', lapseError.message)
+            .eq('state', 'pending')
+          if (lapseError) return Response.json({ success: false, error: 'Could not lapse requests' }, { status: 500 })
         }
 
         if (notifications.length) {
           const { error: insertError } = await supabaseAdmin
             .from('notification')
             .upsert(notifications, { onConflict: 'dedupe_key', ignoreDuplicates: true })
-          if (insertError) console.error('[access-reminders] notify failed', insertError.message)
+          if (insertError) return Response.json({ success: false, error: 'Could not save reminders' }, { status: 500 })
         }
 
         return Response.json({

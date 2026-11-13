@@ -25,6 +25,7 @@ export const LISTING_PATH = "/app/my-deals/listing";
 
 export const NAV_GROUPS: NavGroup[] = [
   { label: "Discover", items: [
+    { key: "overview", label: "Overview", to: "/app", icon: LayoutGrid },
     { key: "opportunities", label: "Opportunities", to: "/app/opportunities", icon: LayoutGrid },
     { key: "public-funding", label: "Public Funding", to: "/app/public-funding", icon: Landmark },
     { key: "news", label: "Market news", to: "/app/news", icon: Newspaper },
@@ -63,6 +64,5 @@ export const readIntents = (meta: Record<string, unknown> | undefined | null): S
   return Array.isArray(raw) ? raw.filter((v): v is SignupIntent => typeof v === "string" && valid.has(v as SignupIntent)) : [];
 };
 
-/** Members who only came to list a project start on Listing; everyone else starts on Opportunities. */
-export const homePathFor = (intents: SignupIntent[]) =>
-  intents.includes("listing") && !intents.includes("investing") ? LISTING_PATH : "/app/opportunities";
+/** Every member starts with the overview; intent never changes access. */
+export const homePathFor = (_intents: SignupIntent[]) => "/app";

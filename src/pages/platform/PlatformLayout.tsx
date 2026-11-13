@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { AppShellProvider } from "@/contexts/AppShellContext";
 import { supabase } from "@/integrations/supabase/client";
+import MandateStep from "@/components/settings/MandateStep";
 
 const isUnder = (pathname: string, prefix: string) => pathname === prefix || pathname.startsWith(`${prefix}/`);
 
@@ -54,7 +55,7 @@ const PlatformLayout = () => {
     for (const group of NAV_GROUPS) for (const item of group.items) {
       const child = item.children?.find((c) => isUnder(location.pathname, c.to));
       if (child) return `${item.label} / ${child.label}`;
-      if (!item.children && isUnder(location.pathname, item.to)) return item.label;
+      if (!item.children && (item.to === "/app" ? location.pathname === "/app" || location.pathname === "/app/" : isUnder(location.pathname, item.to))) return item.label;
     }
     if (isUnder(location.pathname, "/app/settings")) return "Profile settings";
     if (isUnder(location.pathname, "/app/submit-project")) return "List a project";
@@ -118,7 +119,7 @@ const PlatformLayout = () => {
             <Button asChild size="sm"><Link to="/app/submit-project"><Plus className="h-4 w-4" />List a project</Link></Button>
           </div>
         </div>
-        <div className="mx-auto w-full max-w-[1240px] px-5 py-8 lg:px-8">{loading ? null : <Outlet />}</div>
+        <div className="mx-auto w-full max-w-[1240px] px-5 py-8 lg:px-8">{loading ? null : <MandateStep><Outlet /></MandateStep>}</div>
       </main>
     </div>
   </AppShellProvider>;

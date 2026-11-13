@@ -19,7 +19,7 @@ import { FEE_SENTENCE } from "@/lib/fee";
 import {
   ACCESS_STATE_LABEL, CAPITAL_SOURCES, CONSTRUCTION_RISK, DECISION_PROCESSES, DECLINE_REASONS,
   ENTITY_TYPES, INSTRUMENTS_SOUGHT, addDays, addMonths, computeFit, declineReasonLabel, effectiveState,
-  fitPassesEverything, formatDate, optionLabel, slaStatus, ticketBandLabel, FEE_TAIL_MONTHS,
+  formatDate, optionLabel, slaStatus, ticketBandLabel, FEE_TAIL_MONTHS,
   REOPEN_BLOCK_DAYS, type AccessAnswersRow, type AccessCriteriaRow, type AccessRequestRow,
   type AccessState, type DeclineReason,
 } from "@/lib/access";
@@ -54,7 +54,7 @@ const StatePill = ({ state }: { state: AccessState }) => {
   );
 };
 
-const Info = ({ label, value }: { label: string; value: string }) => (
+const Info = ({ label, value }: { label: string; value: string }) => !value ? null : (
   <div>
     <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
     <p className="text-sm font-medium text-foreground">{value}</p>
@@ -96,11 +96,11 @@ const AccessRequests = () => {
       return;
     }
     const [{ data: requestRows }, { data: criteriaRows }] = await Promise.all([
-      supabase.from("access_request").select("*").in("project_id", ids).order("submitted_at", { ascending: false }),
-      supabase.from("listing_access_criteria").select("*").in("project_id", ids),
+      supabase.from("access_request").select("*").in("project_id", ids).order("submitted_at", { ascending: true }),
+      supabase.from("listing_access_criteria").select("id,project_id,min_ticket,instruments_accepted,require_construction_risk_appetite,notify_users,created_at,updated_at,electronic_execution_consent,electronic_execution_consent_at").in("project_id", ids),
     ]);
     setRequests(requestRows || []);
-    setCriteria(criteriaRows || []);
+    setCriteria(criteriaRows as AccessCriteriaRow[] || []);
     const requestIds = (requestRows || []).map((row) => row.id);
     if (requestIds.length) {
       const { data: answerRows } = await supabase.from("access_request_answers").select("*").in("access_request_id", requestIds);
@@ -317,7 +317,8 @@ const AccessRequests = () => {
           )}
 
           {selected && (
-            <article className="space-y-5 rounded-lg border border-border bg-card p-6 shadow-card">
+            <article className="flex flex-col rounded-lg border border-border bg-card shadow-card lg:sticky lg:top-4 lg:max-h-[calc(100dvh-2rem)]">
+              <div className="space-y-5 overflow-y-auto p-6">
               <header className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="font-display text-xl font-bold text-foreground">{answer?.entity_name || "Investor"}</h2>
@@ -346,11 +347,11 @@ const AccessRequests = () => {
                 </h3>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <Info label="Entity type" value={optionLabel(ENTITY_TYPES, answer?.entity_type ?? null)} />
-                  <Info label="Jurisdiction" value={answer?.jurisdiction || "Not stated"} />
-                  <Info label="Regulated status" value={answer?.regulated_status || "Not stated"} />
-                  <Info label="Signatory" value={answer?.signatory_name || "Not stated"} />
-                  <Info label="Signatory role" value={answer?.signatory_role || "Not stated"} />
-                  <Info label="Website" value={answer?.website || "Not stated"} />
+                  <Info label="Jurisdiction" value={answer?.jurisdiction || ""} />
+                  <Info label="Regulated status" value={answer?.regulated_status || ""} />
+                  <Info label="Signatory" value={answer?.signatory_name || ""} />
+                  <Info label="Signatory role" value={answer?.signatory_role || ""} />
+                  <Info label="Website" value={answer?.website || ""} />
                 </div>
               </section>
 
@@ -365,7 +366,7 @@ const AccessRequests = () => {
                   <Info label="Capital source" value={optionLabel(CAPITAL_SOURCES, answer?.capital_source ?? null)} />
                   <Info label="Decision process" value={optionLabel(DECISION_PROCESSES, answer?.decision_process ?? null)} />
                   <Info label="Earliest decision date" value={formatDate(answer?.earliest_decision_date ?? null)} />
-                  <Info label="Interest drivers" value={answer?.interest_drivers?.length ? answer.interest_drivers.join(", ") : "Not stated"} />
+                  <Info label="Interest drivers" value={answer?.interest_drivers?.length ? answer.interest_drivers.join(", ") : ""} />
                   <Info label="Would lead a club" value={answer?.would_lead_club ? "Yes" : "No"} />
                 </div>
                 {answer?.diligence_focus && (
@@ -402,9 +403,7 @@ const AccessRequests = () => {
                 </ul>
                 <p className="mt-3 text-xs text-muted-foreground">
                   The fit line is informational. It never blocks a request and never decides one for you.
-                  {rules?.auto_accept_qualified && fitPassesEverything(fit)
-                    ? " Auto-accept is switched on for this listing and this request passes every check."
-                    : ""}
+
                 </p>
               </section>
 
@@ -444,8 +443,9 @@ const AccessRequests = () => {
                 </section>
               )}
 
+              </div>
               {(selected.state === "pending" || selected.state === "lapsed") && (
-                <footer className="flex flex-wrap gap-2 border-t border-border pt-4">
+                <footer className="sticky bottom-0 z-20 flex shrink-0 flex-wrap gap-2 border-t border-border bg-card px-6 py-4">
                   <Button onClick={() => setAction("granted_full")}><CheckCheck className="h-4 w-4" /> Accept in full</Button>
                   <Button variant="outline" onClick={() => setAction("granted")}><Check className="h-4 w-4" /> Accept, hold data room</Button>
                   <Button variant="outline" onClick={() => setAction("question")}><MessageSquare className="h-4 w-4" /> Ask a question</Button>

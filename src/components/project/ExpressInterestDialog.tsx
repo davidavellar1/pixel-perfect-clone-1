@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Check, FileSignature, Info, Lock, ShieldAlert } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, FileSignature, Lock, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -8,10 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FEE_SENTENCE, FEE_BASE_NOTE, NDA_DOCUMENT_VERSION } from "@/lib/fee";
+import { AUTHORITY_TEXT, qualificationReady, signatureReady, type Agreement } from "@/lib/gateWorkflow";
+import MandateFit from "@/components/project/MandateFit";
 import {
   CAPITAL_SOURCES, CONSTRUCTION_RISK, DECISION_PROCESSES, ENTITY_TYPES, INSTRUMENTS_SOUGHT,
-  INTEREST_DRIVERS, NDA_TERMS, TICKET_BANDS, eurCompact,
+  INTEREST_DRIVERS, TICKET_BANDS,
   type AccessCriteriaRow, type CapitalSource, type ConstructionRiskAppetite, type DecisionProcess,
   type EntityType, type InstrumentSought, type TicketBand,
 } from "@/lib/access";
@@ -39,6 +40,7 @@ export interface InterestFormDraft {
   signedName: string;
   authority: boolean;
   feeAcknowledged: boolean;
+  electronicConsent: boolean;
 }
 
 const emptyDraft: InterestFormDraft = {
@@ -46,7 +48,7 @@ const emptyDraft: InterestFormDraft = {
   signatoryName: "", signatoryRole: "", ticketBand: "", instrumentSought: "", constructionRisk: "",
   capitalSource: "", decisionProcess: "", earliestDecisionDate: "", interestDrivers: [],
   diligenceFocus: "", wouldLeadClub: false, conflictsDeclared: "", conflictsDetail: "",
-  advisersReceivingInfo: "", signedName: "", authority: false, feeAcknowledged: false,
+  advisersReceivingInfo: "", signedName: "", authority: false, feeAcknowledged: false, electronicConsent: false,
 };
 
 interface Props {
@@ -55,6 +57,8 @@ interface Props {
   projectId: string;
   projectTitle: string;
   criteria: AccessCriteriaRow | null;
+  agreement: Agreement | null;
+  agreementError?: string | null;
   prefill?: Partial<InterestFormDraft>;
   submitting?: boolean;
   submitted?: boolean;
@@ -73,7 +77,7 @@ const Field = ({ label, children, hint }: { label: string; children: React.React
 );
 
 const ExpressInterestDialog = ({
-  open, onOpenChange, projectId, projectTitle, criteria, prefill, submitting, submitted, onSubmit, onClose,
+  open, onOpenChange, projectId, projectTitle, criteria, agreement, agreementError, prefill, submitting, submitted, onSubmit, onClose,
 }: Props) => {
   const storageKey = `dhc-interest-draft-${projectId}`;
   const [screen, setScreen] = useState(0);
@@ -91,7 +95,7 @@ const ExpressInterestDialog = ({
     }
     const existing = restored as unknown as Record<string, unknown>;
     const fill = Object.entries(prefill || {}).filter(([key, value]) => value && !existing[key]);
-    setDraft({ ...restored, ...Object.fromEntries(fill) } as InterestFormDraft);
+    setDraft({ ...restored, ...Object.fromEntries(fill), authority: false, feeAcknowledged: false, electronicConsent: false } as InterestFormDraft);
   }, [open, storageKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -102,22 +106,9 @@ const ExpressInterestDialog = ({
   const set = <K extends keyof InterestFormDraft>(key: K, value: InterestFormDraft[K]) =>
     setDraft((current) => ({ ...current, [key]: value }));
 
-  const minTicket = criteria?.min_ticket ? Number(criteria.min_ticket) : null;
-  const belowMinimum = useMemo(() => {
-    if (!minTicket || !draft.ticketBand) return false;
-    const floor = TICKET_BANDS.find((band) => band.value === draft.ticketBand)?.floor ?? 0;
-    return floor < minTicket;
-  }, [minTicket, draft.ticketBand]);
-
   const screenOneReady = draft.entityName.trim().length > 1 && Boolean(draft.entityType) && draft.signatoryName.trim().length > 1;
-  const screenTwoReady = Boolean(draft.ticketBand) && Boolean(draft.instrumentSought);
-  const canSubmit =
-    draft.signedName.trim().length > 2 &&
-    draft.authority &&
-    draft.feeAcknowledged &&
-    Boolean(draft.conflictsDeclared) &&
-    (draft.conflictsDeclared === "none" || draft.conflictsDetail.trim().length > 2) &&
-    !submitting;
+  const screenTwoReady = qualificationReady(draft, criteria);
+  const canSubmit = signatureReady(draft, criteria, agreement) && !submitting;
 
   const close = (next: boolean) => {
     onOpenChange(next);
@@ -154,7 +145,7 @@ const ExpressInterestDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={close}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="max-h-[90dvh] w-[calc(100%-1rem)] max-w-2xl overflow-x-hidden overflow-y-auto [&>*]:min-w-0">
         <DialogHeader>
           <DialogTitle className="font-serif text-xl">Express interest in {projectTitle}</DialogTitle>
           <DialogDescription>
@@ -225,12 +216,7 @@ const ExpressInterestDialog = ({
                 ))}
               </RadioGroup>
             </Field>
-            {belowMinimum && minTicket && (
-              <p className="flex items-start gap-2 rounded-lg border border-border bg-muted/50 px-4 py-3 text-xs text-muted-foreground">
-                <Info className="mt-0.5 h-3.5 w-3.5 flex-none" />
-                This listing seeks a minimum of {eurCompact(minTicket)}. You can still send the request.
-              </p>
-            )}
+            <MandateFit draft={draft} criteria={criteria} />
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Instrument sought">
                 <Select value={draft.instrumentSought} onValueChange={(value) => set("instrumentSought", value as InstrumentSought)}>
@@ -240,7 +226,7 @@ const ExpressInterestDialog = ({
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Construction-risk appetite">
+              <Field label="Construction-risk appetite" hint={criteria?.require_construction_risk_appetite ? "Required for this listing." : "Optional for this listing."}>
                 <Select value={draft.constructionRisk} onValueChange={(value) => set("constructionRisk", value as ConstructionRiskAppetite)}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
@@ -248,7 +234,7 @@ const ExpressInterestDialog = ({
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Capital source">
+              <Field label="Capital source" hint="Required.">
                 <Select value={draft.capitalSource} onValueChange={(value) => set("capitalSource", value as CapitalSource)}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
@@ -256,7 +242,7 @@ const ExpressInterestDialog = ({
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Decision process">
+              <Field label="Decision process" hint="Required.">
                 <Select value={draft.decisionProcess} onValueChange={(value) => set("decisionProcess", value as DecisionProcess)}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
@@ -317,7 +303,7 @@ const ExpressInterestDialog = ({
                 <Textarea value={draft.conflictsDetail} onChange={(event) => set("conflictsDetail", event.target.value)} placeholder="Competing holdings, roles or mandates" />
               </Field>
             )}
-            <Field label="Advisers who would receive information">
+            <Field label="Advisers who would receive information" hint={draft.conflictsDeclared === "declared" ? "Required when a conflict is declared. Only named advisers may receive information." : "Only named advisers may receive information."}>
               <Textarea value={draft.advisersReceivingInfo} onChange={(event) => set("advisersReceivingInfo", event.target.value)} placeholder="Named advisers, bound on the same terms" />
             </Field>
 
@@ -325,18 +311,11 @@ const ExpressInterestDialog = ({
               <p className="flex items-center gap-2 font-display text-sm font-semibold text-foreground">
                 <FileSignature className="h-4 w-4 text-accent" /> Confidentiality agreement
               </p>
-              {NDA_TERMS.map((term) => (
-                <div key={term.title}>
-                  <p className="text-sm font-semibold text-foreground">{term.title}</p>
-                  <p className="text-sm text-muted-foreground">{term.body}</p>
-                </div>
-              ))}
-              <div>
-                <p className="text-sm font-semibold text-foreground">Fee clause</p>
-                <p className="text-sm text-muted-foreground">{FEE_SENTENCE}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{FEE_BASE_NOTE}</p>
-              </div>
-              <p className="pt-1 text-xs text-muted-foreground">Document version {NDA_DOCUMENT_VERSION}</p>
+              {agreement ? <>
+                <p className="whitespace-pre-wrap break-words text-sm text-muted-foreground">{agreement.body}</p>
+                <p className="text-sm text-muted-foreground">{agreement.fee_text}</p>
+                <p className="text-xs text-muted-foreground">Document version {agreement.version}</p>
+              </> : <p role="alert" className="text-sm text-destructive">{agreementError || "Loading agreement. Signing is unavailable until it loads."}</p>}
             </div>
 
             <Field label="Type your full name to sign">
@@ -344,12 +323,17 @@ const ExpressInterestDialog = ({
             </Field>
             <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-muted-foreground">
               <Checkbox checked={draft.authority} onCheckedChange={(checked) => set("authority", checked === true)} />
-              I have authority to bind the entity named in this request and I accept the terms above.
+              {AUTHORITY_TEXT}
             </label>
             <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-muted-foreground">
               <Checkbox checked={draft.feeAcknowledged} onCheckedChange={(checked) => set("feeAcknowledged", checked === true)} />
-              I acknowledge the success fee. The introduction is logged only if the developer accepts this request.
+              {agreement?.fee_text}
             </label>
+            <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-muted-foreground">
+              <Checkbox checked={draft.electronicConsent} onCheckedChange={(checked) => set("electronicConsent", checked === true)} />
+              I agree to sign this agreement electronically
+            </label>
+            <p className="text-xs text-muted-foreground">This expression of interest is non-binding, is not an offer and creates no obligation to transact.</p>
             <p className="flex items-start gap-2 text-xs text-muted-foreground">
               <Lock className="mt-0.5 h-3.5 w-3.5 flex-none" />
               Your name, role, IP address, timestamp and document version are recorded with the signature. The agreement remains inoperative while the request is pending.

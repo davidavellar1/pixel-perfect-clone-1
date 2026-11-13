@@ -1100,44 +1100,80 @@ export type Database = {
       }
       investor_profiles: {
         Row: {
+          capital_source: Database["public"]["Enums"]["capital_source"] | null
           company_name: string | null
+          construction_risk_appetite:
+            | Database["public"]["Enums"]["construction_risk_appetite"]
+            | null
           created_at: string
+          decision_process:
+            | Database["public"]["Enums"]["decision_process"]
+            | null
           full_name: string
           id: string
+          instrument_sought:
+            | Database["public"]["Enums"]["instrument_sought"]
+            | null
           investment_range:
             | Database["public"]["Enums"]["investment_range"]
             | null
           investor_type: Database["public"]["Enums"]["investor_type"] | null
+          mandate_reviewed_at: string | null
           regions_of_interest: string[] | null
           technologies_of_interest: Database["public"]["Enums"]["technology"][]
+          ticket_band: Database["public"]["Enums"]["ticket_band"] | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          capital_source?: Database["public"]["Enums"]["capital_source"] | null
           company_name?: string | null
+          construction_risk_appetite?:
+            | Database["public"]["Enums"]["construction_risk_appetite"]
+            | null
           created_at?: string
+          decision_process?:
+            | Database["public"]["Enums"]["decision_process"]
+            | null
           full_name: string
           id?: string
+          instrument_sought?:
+            | Database["public"]["Enums"]["instrument_sought"]
+            | null
           investment_range?:
             | Database["public"]["Enums"]["investment_range"]
             | null
           investor_type?: Database["public"]["Enums"]["investor_type"] | null
+          mandate_reviewed_at?: string | null
           regions_of_interest?: string[] | null
           technologies_of_interest?: Database["public"]["Enums"]["technology"][]
+          ticket_band?: Database["public"]["Enums"]["ticket_band"] | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          capital_source?: Database["public"]["Enums"]["capital_source"] | null
           company_name?: string | null
+          construction_risk_appetite?:
+            | Database["public"]["Enums"]["construction_risk_appetite"]
+            | null
           created_at?: string
+          decision_process?:
+            | Database["public"]["Enums"]["decision_process"]
+            | null
           full_name?: string
           id?: string
+          instrument_sought?:
+            | Database["public"]["Enums"]["instrument_sought"]
+            | null
           investment_range?:
             | Database["public"]["Enums"]["investment_range"]
             | null
           investor_type?: Database["public"]["Enums"]["investor_type"] | null
+          mandate_reviewed_at?: string | null
           regions_of_interest?: string[] | null
           technologies_of_interest?: Database["public"]["Enums"]["technology"][]
+          ticket_band?: Database["public"]["Enums"]["ticket_band"] | null
           updated_at?: string
           user_id?: string
         }

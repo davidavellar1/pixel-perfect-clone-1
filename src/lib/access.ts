@@ -71,7 +71,7 @@ export const TICKET_BANDS: { value: TicketBand; label: string; floor: number }[]
 ];
 
 export const ticketBandLabel = (band: TicketBand | null) =>
-  TICKET_BANDS.find((entry) => entry.value === band)?.label || "Not stated";
+  TICKET_BANDS.find((entry) => entry.value === band)?.label || "";
 
 export const INSTRUMENTS_SOUGHT: { value: InstrumentSought; label: string }[] = [
   { value: "equity", label: "Equity" },
@@ -107,7 +107,7 @@ export const INTEREST_DRIVERS = [
 ];
 
 export const optionLabel = <T extends string>(options: { value: T; label: string }[], value: T | null) =>
-  options.find((entry) => entry.value === value)?.label || "Not stated";
+  options.find((entry) => entry.value === value)?.label || "";
 
 /* ------------------------------------------------------------------ pipeline */
 
@@ -206,12 +206,12 @@ export const workingDaysSince = (iso: string, now = new Date()) => {
   const start = new Date(iso);
   let days = 0;
   const cursor = new Date(start);
-  cursor.setHours(0, 0, 0, 0);
+  cursor.setUTCHours(0, 0, 0, 0);
   const end = new Date(now);
-  end.setHours(0, 0, 0, 0);
+  end.setUTCHours(0, 0, 0, 0);
   while (cursor < end) {
-    cursor.setDate(cursor.getDate() + 1);
-    const day = cursor.getDay();
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+    const day = cursor.getUTCDay();
     if (day !== 0 && day !== 6) days += 1;
   }
   return days;

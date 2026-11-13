@@ -22,13 +22,13 @@ const AccessStateBar = ({ state }: { state: ViewerAccess }) => {
   return (
     <div className="border-b border-border bg-card">
       <div className="mx-auto max-w-[980px] px-5 py-4">
-        <div className="flex max-w-3xl items-center gap-3 overflow-x-auto">
+        <div className="grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step, index) => {
             const number = index + 1;
             const done = number < current;
             const active = number === current && !halted;
             return (
-              <div key={step.title} className="flex min-w-[180px] flex-1 items-center gap-2.5 last:flex-none">
+              <div key={step.title} className="flex min-w-0 items-center gap-2.5">
                 <div
                   className={`flex h-6 w-6 flex-none items-center justify-center rounded-full border-2 font-display text-[11px] font-semibold ${
                     done

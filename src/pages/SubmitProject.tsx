@@ -273,7 +273,7 @@ export default function SubmitProject() {
   const [accessMinTicket, setAccessMinTicket] = useState("");
   const [instrumentsAccepted, setInstrumentsAccepted] = useState<string[]>([]);
   const [requireConstructionAppetite, setRequireConstructionAppetite] = useState(false);
-  const [autoAcceptQualified, setAutoAcceptQualified] = useState(false);
+  const [electronicConsent, setElectronicConsent] = useState(false);
   const [notifyUsers, setNotifyUsers] = useState("");
 
   // process
@@ -339,8 +339,8 @@ export default function SubmitProject() {
 
   const publish = async () => {
     setPublishError("");
-    if (!mandate) {
-      toast.error("Please accept the listing mandate to publish.");
+    if (!mandate || !electronicConsent) {
+      toast.error("Please accept the listing mandate and consent to electronic execution to publish.");
       return;
     }
     if (!user || !stage || !title.trim() || !city.trim() || !summary.trim() || Number(capacity) <= 0) {
@@ -457,7 +457,7 @@ export default function SubmitProject() {
         min_ticket: num(accessMinTicket),
         instruments_accepted: instrumentsAccepted,
         require_construction_risk_appetite: requireConstructionAppetite,
-        auto_accept_qualified: autoAcceptQualified,
+        electronic_execution_consent: electronicConsent,
         notify_users: notifyUsers.split(",").map((entry) => entry.trim()).filter(Boolean),
       },
     };
@@ -465,7 +465,7 @@ export default function SubmitProject() {
     const { error } = await supabase.rpc("publish_project", { payload: payload as never });
     setPublishing(false);
     if (error) {
-      setPublishError(error.message || "The listing could not be published. Nothing was saved — please try again.");
+      setPublishError(error.message || "The listing could not be published. Nothing was saved - please try again.");
       toast.error("The listing was not published. Nothing was saved, so you can retry safely.");
       return;
     }
@@ -1260,7 +1260,7 @@ export default function SubmitProject() {
               <h1 className="mb-2 text-[27px] font-semibold">Access criteria</h1>
               <p className="mb-6 text-[15px] leading-relaxed text-muted-foreground">
                 These criteria filter nothing. Every request still arrives in your inbox. They only drive the fit line
-                shown on each request, and the optional auto-accept below.
+                shown before submission and on each request. You decide every request.
               </p>
 
               <Field label="Minimum ticket" optional="(EUR)">
@@ -1286,17 +1286,6 @@ export default function SubmitProject() {
                 <label className="flex items-center gap-2 text-sm">
                   <Checkbox checked={requireConstructionAppetite} onCheckedChange={(v) => setRequireConstructionAppetite(Boolean(v))} />
                   Require an appetite for construction risk
-                </label>
-              </Field>
-
-              <Field label="Auto-accept qualified requests">
-                <label className="flex items-start gap-2 text-sm">
-                  <Checkbox checked={autoAcceptQualified} onCheckedChange={(v) => setAutoAcceptQualified(Boolean(v))} />
-                  <span>
-                    Off by default. Switching this on waives your manual review for requests that pass every fit check,
-                    so those investors gain access without you seeing the request first. The data room is never opened
-                    automatically.
-                  </span>
                 </label>
               </Field>
 
@@ -1523,6 +1512,10 @@ export default function SubmitProject() {
                   />
                   I have read and accept the listing mandate, and confirm I am authorized to list this
                   project.
+                </label>
+                <label className="mt-3 flex cursor-pointer items-start gap-3 text-sm leading-relaxed">
+                  <Checkbox checked={electronicConsent} onCheckedChange={(value) => setElectronicConsent(value === true)} />
+                  I consent to electronic execution of confidentiality agreements with investors requesting access to this listing.
                 </label>
               </div>
               <ErrorNote message={publishError} />

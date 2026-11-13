@@ -127,6 +127,13 @@
       "when": 1793987733092,
       "tag": "0017_avatar_initial_upload_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794605118823,
+      "tag": "0018_gate_mandate_and_notifications",
+      "breakpoints": true
     }
   ]
 }

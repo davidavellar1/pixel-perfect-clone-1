@@ -4,7 +4,7 @@ import { Building2, FolderOpen, Heart, Info, LockOpen, Send, TrendingUp } from "
 import { Skeleton } from "@/components/ui/skeleton";
 import StatTile from "@/components/platform/StatTile";
 import DealsSwitch from "@/components/platform/DealsSwitch";
-import { TECHNOLOGIES } from "@/lib/profileSettings";
+import { TECHNOLOGIES, TICKETS } from "@/lib/profileSettings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,15 +39,6 @@ const nextActionByStage: Partial<Record<Stage, string>> = {
   loi: "Move to close",
   closed: "Confirm the close with the developer",
 };
-
-// Mandate size is estimated from the investor's self-reported investment range and is not a verified figure.
-const mandateEstimateByRange: Record<string, number> = {
-  under_1m: 1_000_000,
-  "1m_5m": 5_000_000,
-  "5m_25m": 25_000_000,
-  "25m_100m": 100_000_000,
-  over_100m: 150_000_000,
-} as Record<string, number>;
 
 const daysBetween = (a: Date, b: Date) => Math.max(0, Math.round((a.getTime() - b.getTime()) / 86_400_000));
 const addMonths = (date: Date, months: number) => { const d = new Date(date); d.setMonth(d.getMonth() + months); return d; };
@@ -154,7 +145,7 @@ const InvestorDashboard = () => {
   const totalCapacity = engagedProjects.reduce((sum, project) => sum + Number(project.capacity_mw), 0);
   const totalCapex = engagedProjects.reduce((sum, project) => sum + Number(financeByProject.get(project.id)?.capex || project.headline_investment || 0), 0);
 
-  const approvedRooms = requests.filter((request) => request.status === "approved").length;
+  const approvedRooms = requests.filter((request) => request.state === "granted_full").length;
   const activeDeals = interests.filter((interest) => ["data_room", "ioi", "loi", "closed"].includes(normaliseStage(interest.stage))).length;
   const funnel = stageOrder.map((stage) => ({ stage, label: stageLabel(stage), value: interests.filter((interest) => normaliseStage(interest.stage) === stage).length }));
   const maxFunnel = Math.max(1, ...funnel.map((item) => item.value));
@@ -164,9 +155,7 @@ const InvestorDashboard = () => {
   const stageDurations = interests.map((interest) => daysBetween(new Date(interest.updated_at), new Date(interest.introduced_at))).filter((n) => n >= 0).sort((a, b) => a - b);
   const medianDays = stageDurations.length ? stageDurations[Math.floor(stageDurations.length / 2)] : 0;
 
-  const mandateSize = investorProfile?.investment_range ? mandateEstimateByRange[investorProfile.investment_range] || 0 : 0;
   const mandateDeployed = interests.filter((interest) => normaliseStage(interest.stage) === "closed").reduce((sum, interest) => sum + Number(interest.indicated_commitment || 0), 0);
-  const mandateRemaining = Math.max(0, mandateSize - committedCapital);
 
   const derisked = useMemo(() => {
     const committedFinanceIds = committedProjects.map((project) => financeByProject.get(project.id)?.id).filter((id): id is string => Boolean(id));
@@ -246,8 +235,8 @@ const InvestorDashboard = () => {
                     <td className="px-3.5 py-3.5"><span className={cn("inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold", chip.className)}>{chip.label}</span></td>
                     <td className="px-3.5 py-3.5 font-semibold text-foreground">{project.title}</td>
                     <td className="px-3.5 py-3.5 text-[#4f5d70]">{TECHNOLOGIES[project.technology] || project.technology}</td>
-                    <td className="px-3.5 py-3.5 text-[#4f5d70]">{project.capacity_mw != null ? `${project.capacity_mw} MW` : "—"}</td>
-                    <td className="px-3.5 py-3.5 text-[#4f5d70]">{[project.city, project.country_code].filter(Boolean).join(", ") || "—"}</td>
+                    <td className="px-3.5 py-3.5 text-[#4f5d70]">{project.capacity_mw != null ? `${project.capacity_mw} MW` : "-"}</td>
+                    <td className="px-3.5 py-3.5 text-[#4f5d70]">{[project.city, project.country_code].filter(Boolean).join(", ") || "-"}</td>
                     <td className="px-3.5 py-3.5 text-[#4f5d70]">{stageLabel(normaliseStage(interest.stage))}{state === "pending" && request ? ` · ${slaStatus(request).workingDays} working days` : ""}</td>
                     <td className="px-3.5 py-3.5 text-right"><Button size="sm" variant="outline" onClick={() => navigate(`/app/projects/${project.slug}`)}>Open</Button></td>
                   </tr>;
@@ -258,6 +247,7 @@ const InvestorDashboard = () => {
         )}
       </section>
 
+      {requests.length > 0 && <>
       <h2 className="mb-3 font-display text-lg font-semibold">Portfolio analytics</h2>
       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {kpis.map(([label, value, sub]) => <div key={label} className="rounded-lg border border-border border-l-[3px] border-l-accent bg-card px-4 py-3.5"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1.5 font-display text-xl font-semibold">{loading ? "..." : value}</p><p className="mt-1 text-[11px] text-muted-foreground">{sub}</p></div>)}
@@ -288,9 +278,9 @@ const InvestorDashboard = () => {
           <div className="grid grid-cols-3 gap-3 text-center text-xs">
             <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Committed</p><p className="mt-1 font-display text-lg font-semibold">€{(committedCapital / 1_000_000).toFixed(1)}M</p></div>
             <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Deployed</p><p className="mt-1 font-display text-lg font-semibold">€{(mandateDeployed / 1_000_000).toFixed(1)}M</p></div>
-            <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Remaining</p><p className="mt-1 font-display text-lg font-semibold">{mandateSize ? `\u20ac${(mandateRemaining / 1_000_000).toFixed(1)}M` : "Not available"}</p></div>
+            <div className="rounded-md bg-muted p-3"><p className="text-muted-foreground">Stated ticket band</p><p className="mt-1 font-display text-lg font-semibold">{investorProfile?.ticket_band ? TICKETS[investorProfile.ticket_band] : ""}</p></div>
           </div>
-          <p className="mt-3 text-[11px] text-muted-foreground">Mandate size is estimated from your stated investment range and is unverified, self-reported.</p>
+          <p className="mt-3 text-[11px] text-muted-foreground">A stated ticket band is not total mandate capacity. Committed and deployed amounts use saved indicated commitments.</p>
         </section>
         <section className="rounded-lg border border-border bg-card p-5">
           <div className="mb-1 flex items-center gap-1.5">
@@ -310,6 +300,7 @@ const InvestorDashboard = () => {
         </section>
       </div>
 
+      </>}
       <div className="mb-5 flex gap-1.5 overflow-x-auto border-b border-border">
         {([['interests', 'My interests'], ['deals', 'Deals'], ['watch', 'Watchlist'], ['passed', 'Passed deals']] as const).map(([id, label]) => <Button key={id} variant="ghost" onClick={() => setTab(id)} className={cn("rounded-none border-b-2", tab === id ? "border-accent text-accent" : "border-transparent text-muted-foreground")}>{label}</Button>)}
       </div>

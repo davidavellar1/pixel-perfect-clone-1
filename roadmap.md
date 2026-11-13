@@ -10,6 +10,16 @@
 # Payments
 - [ ] Enable Stripe after user confirmation; no payment integration changes yet
 
+# Gate workflow
+- [x] Oldest-first decision queue and sticky actions
+- [x] Investor replies, shared SLA and bilateral lapse notifications
+- [x] Remove auto-accept reads and controls
+- [x] Compatible mandate profile, once-only onboarding and editable prefill
+- [x] Informational fit before submission and truthful workspace overview
+- [x] Versioned agreement evidence, electronic consents and required qualification
+- [ ] Full signed submission and developer decision verification: requires authorized test signatories on both sides
+- [x] Verify onboarding, fit, signing safeguards, settings and rule tests
+
 # Disclosure fixes
 - [x] Gate investor-grade queries and locked DOM/hero figures
 - [x] Read teaser-only data for unapproved detail/listing viewers and update card metrics

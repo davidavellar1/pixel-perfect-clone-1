@@ -55,7 +55,7 @@ const DeveloperDashboard = () => {
       }
       const [interestResult, requestResult] = await Promise.all([
         supabase.from("project_interest").select("*").in("project_id", ids).order("introduced_at", { ascending: false }),
-        supabase.from("access_request").select("*").in("project_id", ids).order("submitted_at", { ascending: false }),
+        supabase.from("access_request").select("*").in("project_id", ids).order("submitted_at", { ascending: true }),
       ]);
       if (interestResult.error) throw interestResult.error;
       if (requestResult.error) throw requestResult.error;
