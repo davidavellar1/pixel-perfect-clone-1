@@ -1217,7 +1217,6 @@ export type Database = {
       }
       listing_access_criteria: {
         Row: {
-          auto_accept_qualified: boolean
           created_at: string
           electronic_execution_consent: boolean
           electronic_execution_consent_at: string | null
@@ -1230,7 +1229,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          auto_accept_qualified?: boolean
           created_at?: string
           electronic_execution_consent?: boolean
           electronic_execution_consent_at?: string | null
@@ -1243,7 +1241,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          auto_accept_qualified?: boolean
           created_at?: string
           electronic_execution_consent?: boolean
           electronic_execution_consent_at?: string | null
