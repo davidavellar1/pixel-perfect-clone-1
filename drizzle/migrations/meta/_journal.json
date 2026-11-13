@@ -134,6 +134,13 @@
       "when": 1794605118823,
       "tag": "0018_gate_mandate_and_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794611398207,
+      "tag": "0019_restrict_organization_read",
+      "breakpoints": true
     }
   ]
 }
