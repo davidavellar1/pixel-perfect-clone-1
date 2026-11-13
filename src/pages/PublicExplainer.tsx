@@ -11,7 +11,7 @@ const pages = {
     title: "Bring the right expertise into your project at the right time.",
     lead: "Connect with financial, legal, technical, and sustainability specialists who understand district heating and cooling projects across Europe.",
     primary: "Find specialist support",
-    primaryTo: "/sign-up?role=developer",
+    primaryTo: "/sign-up",
     sectionLabel: "Expertise around the transaction",
     sectionTitle: "Support from feasibility through financial close",
     sectionText: "DHC projects cross engineering, regulation, finance, procurement, and public policy. The ecosystem helps developers and investors find relevant support without turning the platform into an adviser.",
@@ -32,7 +32,7 @@ const pages = {
     title: "Find public co-financing that can strengthen the capital stack.",
     lead: "Explore relevant European and national grants, loans, guarantees, and blended-finance instruments using the facts already stored in each project listing.",
     primary: "Explore funding support",
-    primaryTo: "/sign-up?role=developer",
+    primaryTo: "/sign-up",
     sectionLabel: "A clearer route to public capital",
     sectionTitle: "Screen instruments without re-entering project data",
     sectionText: "Eligibility checks compare an instrument's published criteria with the selected project's geography, technology, stage, size, and sustainability facts. Results guide the next conversation, not a funding decision.",
@@ -58,25 +58,25 @@ const PublicExplainer = ({ kind }: { kind: ExplainerKind }) => {
         <div className="container">
           <span className="inline-flex rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 font-display text-xs font-semibold uppercase text-accent">{page.eyebrow}</span>
           <h1 className="mt-5 max-w-[20ch] font-display text-4xl font-semibold leading-tight md:text-5xl">{page.title}</h1>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-primary-foreground/70">{page.lead}</p>
-          <div className="mt-8 flex flex-wrap gap-3"><Button variant="hero" size="lg" asChild><Link to={page.primaryTo}>{page.primary}<ArrowRight /></Link></Button><Button variant="hero-outline" size="lg" asChild><Link to="/how-it-works">See how it works</Link></Button></div>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-inverse-subtle">{page.lead}</p>
+          <div className="mt-8 flex flex-wrap gap-3"><Button variant="hero" size="lg" asChild><Link to={page.primaryTo}>{page.primary}<ArrowRight /></Link></Button><Button variant="outline" size="lg" asChild className="public-secondary"><Link to="/how-it-works">See how it works</Link></Button></div>
         </div>
       </section>
 
       <section className="bg-card py-20">
         <div className="container">
-          <div className="mb-10 max-w-3xl"><p className="eyebrow">{page.sectionLabel}</p><h2 className="mt-3 font-display text-3xl font-semibold">{page.sectionTitle}</h2><p className="mt-4 leading-7 text-muted-foreground">{page.sectionText}</p></div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{page.cards.map(([title, text, Icon]) => <article key={title} className="rounded-lg border border-border bg-background p-6"><span className="flex h-11 w-11 items-center justify-center rounded-md bg-accent/10"><Icon className="h-5 w-5 text-accent" /></span><h3 className="mt-5 font-display font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}</div>
+          <div className="mb-10 max-w-3xl"><p className="eyebrow">{page.sectionLabel}</p><h2 className="mt-3 font-display text-3xl font-semibold md:text-4xl">{page.sectionTitle}</h2><p className="mt-4 leading-7 text-muted-foreground">{page.sectionText}</p></div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{page.cards.map(([title, text, Icon]) => <article key={title} className="rounded-lg border border-border bg-background p-6"><span className="flex h-11 w-11 items-center justify-center rounded-md bg-accent/10"><Icon className="h-5 w-5 text-accent" /></span><h3 className="mt-5 font-display font-semibold text-2xl">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}</div>
         </div>
       </section>
 
       <section className="bg-secondary py-20">
-        <div className="container"><div className="mb-10 text-center"><p className="eyebrow">How it works</p><h2 className="mt-3 font-display text-3xl font-semibold">From need to direct connection</h2></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{page.steps.map(([title, text], index) => <article key={title} className="rounded-lg border border-border bg-card p-6"><span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent font-display text-sm font-bold text-accent-foreground">{index + 1}</span><h3 className="mt-4 font-display font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}</div></div>
+        <div className="container"><div className="mb-10 text-center"><p className="eyebrow">How it works</p><h2 className="mt-3 font-display text-3xl font-semibold md:text-4xl">From need to direct connection</h2></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{page.steps.map(([title, text], index) => <article key={title} className="rounded-lg border border-border bg-card p-6"><span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent font-display text-sm font-bold text-accent-foreground">{index + 1}</span><h3 className="mt-4 font-display font-semibold text-2xl">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>)}</div></div>
       </section>
 
-      <section className="bg-card py-20"><div className="container"><div className="flex gap-4 rounded-lg border border-border border-l-4 border-l-accent bg-background p-7"><Check className="mt-0.5 h-6 w-6 shrink-0 text-accent" /><div><h2 className="font-display text-lg font-semibold">{page.noteTitle}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{page.note}</p></div></div></div></section>
+      <section className="bg-card py-20"><div className="container"><div className="flex gap-4 rounded-lg border border-border border-l-4 border-l-accent bg-background p-7"><Check className="mt-0.5 h-6 w-6 shrink-0 text-accent" /><div><h3 className="font-display text-2xl font-semibold">{page.noteTitle}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{page.note}</p></div></div></div></section>
 
-      <section className="bg-hero-gradient py-20 text-center text-primary-foreground"><div className="mx-auto max-w-3xl px-5"><Building2 className="mx-auto text-accent" /><h2 className="mt-4 font-display text-3xl font-semibold md:text-4xl">{page.finalTitle}</h2><p className="mx-auto mt-4 max-w-2xl text-primary-foreground/65">{page.finalText}</p><div className="mt-7 flex flex-wrap justify-center gap-3"><Button variant="hero" size="lg" asChild><Link to="/sign-up?role=developer">Join as a developer<ArrowRight /></Link></Button><Button variant="hero-outline" size="lg" asChild><Link to="/sign-up?role=investor">Join as an investor</Link></Button></div></div></section>
+      <section className="bg-hero-gradient py-20 text-center text-primary-foreground"><div className="mx-auto max-w-3xl px-5"><Building2 className="mx-auto text-accent" /><h2 className="mt-4 font-display text-3xl font-semibold md:text-4xl">{page.finalTitle}</h2><p className="mx-auto mt-4 max-w-2xl text-inverse-subtle">{page.finalText}</p><div className="mt-7 flex flex-wrap justify-center gap-3"><Button variant="hero" size="lg" asChild><Link to="/sign-up">Join as a developer<ArrowRight /></Link></Button><Button variant="outline" size="lg" asChild className="public-secondary"><Link to="/sign-up">Join as an investor</Link></Button></div></div></section>
     </PublicShell>
   );
 };

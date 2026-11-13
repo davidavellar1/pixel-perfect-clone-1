@@ -8,6 +8,8 @@ export const Route = createFileRoute("/how-it-works")({
       { name: "description", content: 'From listing to signed engagement: the steps developers and investors follow on DHC Market.' },
       { property: "og:title", content: 'How it works - DHC Market' },
       { property: "og:description", content: 'From listing to signed engagement: the steps developers and investors follow on DHC Market.' },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => <HowItWorks />,

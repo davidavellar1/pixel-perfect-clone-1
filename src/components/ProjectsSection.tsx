@@ -10,12 +10,12 @@ const ProjectsSection = () => {
   <section id="projects" className="bg-background py-20">
     <div className="container">
       <div className="mx-auto mb-10 max-w-[640px] text-center">
-        <h2 className="mb-3 font-display text-[34px] font-semibold tracking-[-0.02em] text-foreground">
+        <h2 className="mb-3 font-display text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-foreground">
           A glimpse of the marketplace
         </h2>
         <p className="text-base text-muted-foreground">
           A sample of live opportunities, shown anonymized. Create a free account to explore the full marketplace and
-          unlock standardized project detail.
+          see standardized project detail.
         </p>
       </div>
       <div className="mx-auto grid max-w-[1080px] gap-[18px] sm:grid-cols-2 lg:grid-cols-3">

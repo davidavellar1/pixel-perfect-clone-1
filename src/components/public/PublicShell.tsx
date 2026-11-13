@@ -23,10 +23,10 @@ const PublicNavLink = ({ to, label, mobile = false }: { to: string; label: strin
     to={to}
     className={({ isActive }) =>
       cn(
-        "font-medium transition-colors",
+        "public-navigation-control font-medium transition-colors",
         mobile
           ? cn("block py-3 text-base text-foreground", isActive && "text-primary")
-          : cn("text-[14.5px]", isActive ? "text-inverse-foreground" : "text-muted-foreground hover:text-inverse-foreground"),
+          : cn("text-[14.5px]", isActive ? "text-inverse-foreground" : "text-inverse-subtle hover:text-inverse-foreground"),
       )
     }
   >
@@ -35,9 +35,9 @@ const PublicNavLink = ({ to, label, mobile = false }: { to: string; label: strin
 );
 
 const PublicShell = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-h-screen bg-background">
+  <div className="public-shell min-h-screen bg-background">
     <a href="#public-main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-background focus:px-4 focus:py-3 focus:text-foreground focus:ring-2 focus:ring-ring">Skip to content</a>
-    <header className="sticky top-0 z-50 border-b border-inverse-foreground/[0.07] bg-[rgb(8_19_32/0.86)] backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-inverse-foreground/[0.07] bg-navy-900/85 backdrop-blur-xl">
       <div className="container flex h-[68px] items-center gap-[30px]">
         <Link to="/" className="shrink-0 font-display text-[21px] font-bold tracking-[-0.03em] text-inverse-foreground">
           DHC<span className="text-accent">Market</span>
@@ -59,8 +59,8 @@ const PublicShell = ({ children }: { children: React.ReactNode }) => (
               <Menu />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[320px]">
-            <Link to="/" className="font-display text-xl font-bold text-foreground">DHC<span className="text-accent">Market</span></Link>
+          <SheetContent side="right" className="w-[320px] [&_a:focus-visible]:outline-2 [&_a:focus-visible]:outline-ring [&_a:focus-visible]:outline-offset-2 [&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-ring [&_button:focus-visible]:outline-offset-2">
+            <Link to="/" className="public-navigation-control font-display text-xl font-bold text-foreground">DHC<span className="text-accent">Market</span></Link>
             <nav className="mt-8 border-y border-border py-2">
               {publicLinks.map((link) => <SheetClose asChild key={link.to}><PublicNavLink {...link} mobile /></SheetClose>)}
             </nav>

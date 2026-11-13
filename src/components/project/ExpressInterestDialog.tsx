@@ -356,7 +356,7 @@ const ExpressInterestDialog = ({
             <p className="text-xs text-muted-foreground">This expression of interest is non-binding, is not an offer and creates no obligation to transact.</p>
             <p className="flex items-start gap-2 text-xs text-muted-foreground">
               <Lock className="mt-0.5 h-3.5 w-3.5 flex-none" />
-              Your name, role, timestamp and document version are recorded with the signature. The agreement remains inoperative while the request is pending.
+              Your typed name, role if provided, timestamp, document version and hash, authority and fee acknowledgements, and electronic-signature consent are recorded. The agreement remains inoperative while the request is pending.
             </p>
             {draft.conflictsDeclared === "declared" && (
               <p className="flex items-start gap-2 text-xs text-warning">

@@ -47,7 +47,7 @@ const supportCards = [
 
 const SectionHeading = ({ label, title, description }: { label: string; title: string; description: string }) => (
   <div className="mx-auto mb-11 max-w-2xl text-center">
-    <p className="font-display text-xs font-semibold uppercase text-primary">{label}</p>
+    <p className="eyebrow">{label}</p>
     <h2 className="mt-3 font-display text-3xl font-semibold leading-tight text-foreground md:text-4xl">{title}</h2>
     <p className="mt-4 leading-7 text-muted-foreground">{description}</p>
   </div>
@@ -60,7 +60,7 @@ const JourneyColumn = ({ title, steps, investor = false }: { title: string; step
     </div>
     {steps.map(([stepTitle, detail]) => (
       <article key={stepTitle} className="flex-1 rounded-sm border border-border bg-card p-4">
-        <h3 className="font-display text-sm font-semibold text-card-foreground">{stepTitle}</h3>
+        <h3 className="font-display text-2xl font-semibold text-card-foreground">{stepTitle}</h3>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">{detail}</p>
       </article>
     ))}
@@ -77,7 +77,7 @@ const HowItWorks = () => (
         <h1 className="mx-auto mt-5 max-w-[18ch] font-display text-4xl font-semibold leading-tight md:text-5xl">
           One neutral platform where two sides meet.
         </h1>
-        <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-primary-foreground/70">
+        <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-inverse-subtle">
           DHC Market connects district heating and cooling developers with private investors, public co-financing, and advisory partners. It facilitates the introduction. It does not invest, advise, or hold any money. Here is how it works for both sides.
         </p>
       </div>
@@ -92,7 +92,7 @@ const HowItWorks = () => (
             <div className="h-px flex-1 bg-border md:h-auto md:w-px" />
             <div className="flex h-[72px] w-[72px] shrink-0 flex-col items-center justify-center rounded-full bg-foreground text-primary-foreground shadow-card-hover">
               <CirclePlus className="text-accent" />
-              <span className="mt-1 font-display text-[10px] font-semibold uppercase text-primary-foreground/65">Intro</span>
+              <span className="mt-1 font-display text-[10px] font-semibold uppercase text-inverse-subtle">Intro</span>
             </div>
             <div className="h-px flex-1 bg-border md:h-auto md:w-px" />
           </div>
@@ -103,13 +103,13 @@ const HowItWorks = () => (
 
     <section className="bg-background px-5 py-16 md:py-20">
       <div className="mx-auto max-w-5xl">
-        <SectionHeading label="Trust by design" title="Information reveals in four tiers" description="Nothing sensitive is exposed up front. Each tier unlocks more, and a developer's identity reveals only when that developer accepts the investor's request." />
+        <SectionHeading label="Trust by design" title="Information reveals in four tiers" description="Nothing sensitive is exposed up front. Each tier opens more information, and a developer's identity reveals only when that developer accepts the investor's request." />
         <div className="mx-auto flex max-w-4xl flex-col gap-3">
           {accessTiers.map((tier) => (
             <article key={tier.number} className="grid items-center gap-4 rounded-sm border border-border bg-card p-5 sm:grid-cols-[54px_1fr_auto]">
               <div className={`flex h-[54px] w-[54px] items-center justify-center rounded-sm font-display text-xl font-bold text-primary-foreground ${tier.tone}`}>{tier.number}</div>
               <div>
-                <h3 className="font-display font-semibold text-card-foreground">{tier.title}</h3>
+                <h3 className="font-display font-semibold text-card-foreground text-2xl">{tier.title}</h3>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">{tier.detail}</p>
               </div>
               <span className="hidden rounded-full bg-muted px-3 py-1.5 font-display text-xs font-semibold text-muted-foreground sm:inline-flex">{tier.gate}</span>
@@ -127,7 +127,7 @@ const HowItWorks = () => (
           {supportCards.map(({ title, description, icon: Icon, points }) => (
             <article key={title} className="rounded-sm border border-border bg-card p-7">
               <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-primary/10"><Icon className="text-primary" /></div>
-              <h3 className="mt-5 font-display text-xl font-semibold text-card-foreground">{title}</h3>
+              <h3 className="mt-5 font-display text-2xl font-semibold text-card-foreground">{title}</h3>
               <p className="mt-3 leading-7 text-muted-foreground">{description}</p>
               <ul className="mt-4 space-y-3">
                 {points.map((point) => <li key={point} className="flex gap-3 text-sm leading-6 text-foreground/80"><Check className="mt-1 h-4 w-4 shrink-0 text-primary" />{point}</li>)}
@@ -142,7 +142,7 @@ const HowItWorks = () => (
       <div className="mx-auto flex max-w-4xl gap-4 rounded-sm border border-border border-l-4 border-l-primary bg-background p-6 md:p-7">
         <Info className="mt-1 shrink-0 text-primary" />
         <div>
-          <h2 className="font-display text-lg font-semibold text-foreground">A neutral connector</h2>
+          <h3 className="font-display text-2xl font-semibold text-foreground">A neutral connector</h3>
           <p className="mt-2 leading-7 text-muted-foreground">The platform does not underwrite, rate, or recommend any project, and it never holds capital. All returns and risk figures are developer-stated or attributed to a named source. It is transaction infrastructure: it makes the right introductions, keeps them protected, and lets the two sides transact directly.</p>
         </div>
       </div>
@@ -151,10 +151,10 @@ const HowItWorks = () => (
     <section className="bg-hero-gradient px-5 py-16 text-center text-primary-foreground md:py-20">
       <div className="mx-auto max-w-3xl">
         <h2 className="font-display text-3xl font-semibold md:text-4xl">See it from your side</h2>
-        <p className="mt-4 text-lg text-primary-foreground/70">Whether you are raising for a project or sourcing one, the path is built for you.</p>
+        <p className="mt-4 text-lg text-inverse-subtle">Whether you are raising for a project or sourcing one, the path is built for you.</p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <Button size="lg" variant="hero-outline" asChild><Link to="/for-developers">I'm a developer</Link></Button>
-          <Button size="lg" variant="hero-outline" asChild><Link to="/for-investors">I'm an investor</Link></Button>
+          <Button size="lg" variant="outline" asChild className="public-secondary"><Link to="/for-developers">I'm a developer</Link></Button>
+          <Button size="lg" variant="outline" asChild className="public-secondary"><Link to="/for-investors">I'm an investor</Link></Button>
           <Button size="lg" variant="hero" asChild><Link to="/sign-up">Get started<ArrowRight /></Link></Button>
         </div>
       </div>

@@ -31,7 +31,7 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
 
 const Footer = () => {
   return (
-    <footer className="border-t border-inverse-foreground/5 bg-navy-900 pb-9 pt-14 text-muted-foreground">
+    <footer className="border-t border-inverse-foreground/5 bg-navy-900 pb-9 pt-14 text-inverse-subtle">
       <div className="container">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
@@ -44,9 +44,9 @@ const Footer = () => {
           </div>
           {columns.map((col) => (
             <div key={col.title}>
-              <h2 className="mb-4 font-display text-xs font-semibold uppercase tracking-[0.14em] text-inverse-subtle">
+              <h3 className="mb-4 font-display text-xs font-semibold uppercase tracking-[0.14em] text-inverse-subtle">
                 {col.title}
-              </h2>
+              </h3>
               {col.links.map((link) => (
                 <Link
                   key={link.label}

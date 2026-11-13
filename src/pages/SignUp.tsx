@@ -165,7 +165,7 @@ const SignUp = () => {
             <ShieldCheck className="mt-0.5 h-4 w-4 flex-none" />
             <span>
               After sign-up we verify your identity and organization. You can browse anonymized opportunities right
-              away; full project details unlock once verified and you express interest.
+              away; full project details open after the developer accepts your request.
             </span>
           </div>
 

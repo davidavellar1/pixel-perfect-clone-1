@@ -8,6 +8,8 @@ export const Route = createFileRoute("/public-funding")({
       { name: "description", content: 'How grants and public funding programmes fit alongside private capital on DHC Market.' },
       { property: "og:title", content: 'Public funding - DHC Market' },
       { property: "og:description", content: 'How grants and public funding programmes fit alongside private capital on DHC Market.' },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => <PublicExplainer kind="public-funding" />,

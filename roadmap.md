@@ -68,3 +68,9 @@ The access gate, data room fix, `project_teaser` view and signature evidence are
 Migration-history inspection also reports files 0020 to 0022 as unlisted and database bookkeeping as invalid, with no automatic repair available. A human must reconcile this history before anyone relies on a from-scratch rebuild.
 
 - [ ] Append the supplied auto-accept removal statement and correct the archive header: blocked by file protection covering `drizzle/manual/` as well as `drizzle/migrations/`.
+
+# Batch 8 public design audit
+- [x] Contrast, public focus, button consistency and heading scale
+- [x] Home alignment, listing states and verbatim fee line
+- [x] Signup destinations, public wording and evidence disclosure
+- [x] Verify IRR and numeric-money leftovers, hygiene and browser checks

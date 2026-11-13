@@ -280,7 +280,31 @@
   font-size: 0.78rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--primary);
+  color: var(--info);
+}
+
+@utility eyebrow-inverse { color: var(--accent); }
+
+/* Public navigation retains a distinct keyboard outline on every control. */
+.public-shell header :is(a, button):focus-visible,
+.public-shell footer :is(a, button):focus-visible,
+.public-navigation-control:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.public-shell :is(.bg-hero-gradient, .bg-navy-900, .bg-navy-800) .eyebrow {
+  color: var(--accent);
+}
+
+.public-secondary {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--foreground);
+}
+.public-shell :is(.bg-hero-gradient, .hero, .cta) .public-secondary {
+  border-color: var(--inverse-subtle);
+  color: var(--inverse-foreground);
 }
 
 @utility workspace-container { width: 100%; max-width: var(--container-workspace); margin-inline: auto; }
