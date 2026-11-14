@@ -17,7 +17,7 @@ const investorSteps = [
 
 const accessTiers = [
   { number: "0", title: "Public", detail: "Anonymized teaser cards, technology, country, capacity and capex bands. No identities, no exact figures.", gate: "Anyone", tone: "bg-muted-foreground" },
-  { number: "1", title: "Signed in", detail: "The full standardized overview, still anonymized: region not city, banded figures, no counterparties.", gate: "Free account", tone: "bg-primary/70" },
+  { number: "1", title: "Signed in", detail: "The full standardized overview, still anonymized: region not city, banded figures, no counterparties.", gate: "Free account", tone: "bg-primary" },
   { number: "2", title: "Request accepted by the developer", detail: "Developer, exact location, counterparties, every data tab and Q&A reveal. The agreement takes effect and the introduction is logged on acceptance.", gate: "Fee-binding", tone: "bg-primary" },
   { number: "3", title: "Data room", detail: "Confidential model, EIA, term sheet, and EPC, released only on the developer's approval.", gate: "Developer-approved", tone: "bg-foreground" },
 ];

@@ -52,7 +52,7 @@ const ProjectCard = ({ project, context, onWatchlistChange }: ProjectCardProps) 
         {pending && <span className="rounded-full bg-warning/15 px-2.5 py-1 text-[10px] font-semibold text-warning">Pending</span>}
 
       </div>
-      <h3 className="line-clamp-2 h-12 font-display text-lg font-semibold leading-6 text-foreground">{title}</h3>
+      <h3 className="line-clamp-2 min-h-[2lh] shrink-0 font-display text-lg font-semibold leading-6 text-foreground">{title}</h3>
       <p className="mt-1 flex h-7 items-start gap-1.5 text-xs text-muted-foreground"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />{location}</p>
       <p className="mt-2 flex h-6 items-center gap-1.5 text-xs text-muted-foreground"><Building2 className="h-3.5 w-3.5" />{project.technology}</p>
       <div className="mt-4 grid grid-cols-3 gap-3 border-y border-border py-4">{metrics.map((metric) => <Metric key={metric.label} {...metric} />)}</div>

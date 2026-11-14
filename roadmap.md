@@ -81,3 +81,8 @@ Migration-history inspection also reports files 0020 to 0022 as unlisted and dat
 - [x] Fit the signup action into the initial mobile screen
 - [x] Unify public secondary buttons and cap mobile stat type
 - [x] Measure browser contrast, check all home buttons and run hygiene
+
+# Batch 10 layout re-audit
+- [x] Reserve two computed title lines in shared project cards
+- [x] Use solid primary for the translucent public step badge
+- [x] Verify public and signed-in cards at 320, 375 and 1440 widths and run hygiene
