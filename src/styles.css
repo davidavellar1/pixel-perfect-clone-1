@@ -159,6 +159,10 @@
   }
 }
 
+.auth-error.text-destructive {
+  color: var(--auth-error-foreground);
+}
+
 :root {
   --ladder-negotiation: #f5a623;
   --workspace-width: 1240px;
@@ -167,6 +171,7 @@
   --inverse-foreground: #ffffff;
   --brand-hover: #1259bd;
   --destructive-soft: #fff1f2;
+  --auth-error-foreground: #b42318;
   --success-foreground: #1c6e48;
   --success-border: #c9e8d5;
   --info-foreground: #1f5fb8;

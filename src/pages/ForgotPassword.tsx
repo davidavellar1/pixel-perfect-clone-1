@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { recoveryPasswordError } from "@/lib/funnel";
+import { accountError } from "@/lib/authErrors";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -42,7 +43,7 @@ export default function ForgotPassword() {
         if (error) throw error;
         setMessage("If an account exists for this email, a password reset link will be sent. Check your inbox and spam folder.");
       }
-    } catch (error) { setError(error instanceof Error ? error.message : "Unable to complete your request. Please try again."); }
+    } catch (error) { setError(accountError(error).message); }
     finally { setLoading(false); }
   };
   return <PublicShell><section className="container max-w-lg py-16">
@@ -50,11 +51,11 @@ export default function ForgotPassword() {
     {message && <p role="status" className="mb-6 text-sm text-foreground">{message}</p>}
     <form onSubmit={submit} className="space-y-5">
       {recovering ? <>
-        <div><Label htmlFor="new-password">New password</Label><Input id="new-password" type="password" autoComplete="new-password" minLength={8} required value={password} onChange={e => setPassword(e.target.value)} aria-describedby="recovery-hint recovery-error" /></div>
-        <div><Label htmlFor="confirm-password">Confirm new password</Label><Input id="confirm-password" type="password" autoComplete="new-password" required value={confirm} onChange={e => setConfirm(e.target.value)} aria-describedby="recovery-error" /></div>
+        <div><Label htmlFor="new-password">New password</Label><Input id="new-password" type="password" autoComplete="new-password" minLength={8} required value={password} onChange={e => { setPassword(e.target.value); setError(""); }} aria-describedby="recovery-hint recovery-error" /></div>
+        <div><Label htmlFor="confirm-password">Confirm new password</Label><Input id="confirm-password" type="password" autoComplete="new-password" required value={confirm} onChange={e => { setConfirm(e.target.value); setError(""); }} aria-describedby="recovery-error" /></div>
         <p id="recovery-hint" className="text-xs text-muted-foreground">Use at least 8 characters.</p>
-      </> : <div><Label htmlFor="recovery-email">Email</Label><Input id="recovery-email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} aria-describedby="recovery-error" /></div>}
-      <p id="recovery-error" role={error ? "alert" : undefined} className="text-sm text-destructive">{error}</p>
+      </> : <div><Label htmlFor="recovery-email">Email</Label><Input id="recovery-email" type="email" autoComplete="email" required value={email} onChange={e => { setEmail(e.target.value); setError(""); }} aria-describedby="recovery-error" /></div>}
+      <p id="recovery-error" role={error ? "alert" : undefined} className="auth-error text-sm text-destructive">{error}</p>
       <Button type="submit" disabled={loading}>{loading ? "Please wait..." : recovering ? "Save new password" : "Send reset link"}</Button>
     </form>
     <Link to="/sign-in" className="mt-6 inline-block text-sm text-primary underline">Back to sign in</Link>

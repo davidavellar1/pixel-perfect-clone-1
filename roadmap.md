@@ -86,3 +86,8 @@ Migration-history inspection also reports files 0020 to 0022 as unlisted and dat
 - [x] Reserve two computed title lines in shared project cards
 - [x] Use solid primary for the translucent public step badge
 - [x] Verify public and signed-in cards at 320, 375 and 1440 widths and run hygiene
+
+# Batch 12 account error handling
+- [x] Inline signup and sign-in errors, retry-state cleanup and edit-to-clear behavior
+- [x] Keep password recovery alerts readable and use shared error classification
+- [x] Reproduce real rejected-email response, verify mobile action visibility and run tests and hygiene

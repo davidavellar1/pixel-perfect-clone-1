@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import GoogleSignupButton from "@/components/auth/GoogleSignupButton";
 import type { SignupRole } from "@/lib/googleSignup";
+import { accountError } from "@/lib/authErrors";
 import { cn } from "@/lib/utils";
 import { funnelDestination } from "@/lib/funnel";
 import { SIGNUP_INTENTS, homePathFor, type SignupIntent } from "@/lib/navigation";
@@ -44,6 +45,7 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<ReturnType<typeof accountError> | null>(null);
 
   const canSubmit = agreed && !loading;
   // Every new member can invest and list, so both profile records are created.
@@ -51,8 +53,9 @@ const SignUp = () => {
   const destination = funnelDestination(searchParams.get("redirect"), homePathFor(intents));
 
   const handleSubmit = async () => {
+    setSubmitError(null);
     if (!fullName.trim() || !email.trim() || password.length < 8) {
-      toast.error("Check your details", { description: "Full name, a valid work email, and a password of at least 8 characters are required." });
+      setSubmitError({ message: "Full name, a valid work email, and a password of at least 8 characters are required.", signIn: false });
       return;
     }
     setLoading(true);
@@ -73,13 +76,8 @@ const SignUp = () => {
       if (error) throw error;
       toast.success("Account created", { description: data.session ? "You are signed in. Welcome to DHC Market." : "Check your email to confirm your account, then sign in to continue." });
       navigate(data.session ? destination : `/sign-in?redirect=${encodeURIComponent(destination)}`);
-    } catch (err: any) {
-      const message: string = err?.message || "Something went wrong. Please try again.";
-      const alreadyRegistered = /already registered|already exists|User already/i.test(message);
-      toast.error(alreadyRegistered ? "You already have an account" : "Sign-up failed", { description: alreadyRegistered
-          ? "This email is already registered. Please sign in instead, or use Forgot password."
-          : message });
-      if (alreadyRegistered) navigate(`/sign-in?redirect=${encodeURIComponent(destination)}`);
+    } catch (err: unknown) {
+      setSubmitError(accountError(err));
     } finally {
       setLoading(false);
     }
@@ -129,11 +127,11 @@ const SignUp = () => {
           </div>
           <div className="mt-2 sm:mt-4">
             <Label htmlFor="email" className="mb-1.5 block text-[13.5px] font-semibold">Work email</Label>
-            <Input id="email" type="email" placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input id="email" type="email" placeholder="you@company.com" value={email} onChange={(e) => { setEmail(e.target.value); setSubmitError(null); }} aria-describedby={submitError ? "signup-error" : undefined} />
           </div>
           <div className="mt-2 sm:mt-4">
             <Label htmlFor="password" className="mb-1.5 block text-[13.5px] font-semibold">Password</Label>
-            <Input id="password" type="password" placeholder="Create a password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <Input id="password" type="password" placeholder="Create a password" value={password} onChange={(e) => { setPassword(e.target.value); setSubmitError(null); }} aria-describedby={submitError ? "signup-error" : undefined} />
             <p className="mt-1.5 text-xs text-muted-foreground">At least 8 characters.</p>
           </div>
 
@@ -177,6 +175,9 @@ const SignUp = () => {
             </span>
           </div>
 
+          {submitError && <p id="signup-error" role="alert" className="auth-error mb-2 text-sm text-destructive">
+            {submitError.signIn ? <>An account with this email already exists. <Link to="/sign-in" className="font-semibold underline">Sign in instead.</Link></> : submitError.message}
+          </p>}
           <Button
             className="h-12 w-full bg-accent font-display text-[15px] font-semibold hover:bg-accent/90"
             disabled={!canSubmit}

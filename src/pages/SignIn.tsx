@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
+import { accountError } from "@/lib/authErrors";
 import { TrendingUp } from "lucide-react";
 
 const GoogleIcon = () => (
@@ -38,6 +39,7 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const destination = safeRedirect(searchParams.get("redirect"));
   useEffect(() => {
     let cancelled = false;
@@ -51,6 +53,7 @@ const SignIn = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError("");
     setLoading(true);
 
     try {
@@ -64,8 +67,8 @@ const SignIn = () => {
       toast.success("Welcome back!", { description: "You have signed in successfully." });
       const redirectTo = safeRedirect(searchParams.get("redirect"));
       navigate(redirectTo);
-    } catch (error: any) {
-      toast.error("Sign in failed", { description: error.message });
+    } catch (error: unknown) {
+      setSubmitError(accountError(error).message);
     } finally {
       setLoading(false);
     }
@@ -128,7 +131,8 @@ const SignIn = () => {
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); setSubmitError(""); }}
+                aria-describedby={submitError ? "signin-error" : undefined}
                 placeholder="you@company.com"
               />
             </div>
@@ -140,7 +144,8 @@ const SignIn = () => {
                 type="password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); setSubmitError(""); }}
+                aria-describedby={submitError ? "signin-error" : undefined}
                 placeholder="Enter your password"
               />
             </div>
@@ -151,6 +156,7 @@ const SignIn = () => {
               </Link>
             </div>
 
+            {submitError && <p id="signin-error" role="alert" className="auth-error text-sm text-destructive">{submitError}</p>}
             <Button type="submit" className="w-full" size="lg" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
