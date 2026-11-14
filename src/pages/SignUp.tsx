@@ -94,9 +94,9 @@ const SignUp = () => {
           DHC<span className="text-accent">Market</span>
         </Link>
         <div className="relative z-10 my-auto rounded-lg bg-navy-900/80 p-6">
-          <h2 className="mb-6 max-w-[16ch] font-display text-3xl font-semibold leading-snug">
+          <p className="mb-6 max-w-[16ch] font-display text-2xl font-semibold leading-snug">
             Where DHC projects meet the right capital.
-          </h2>
+          </p>
           <div className="flex flex-col gap-4">
             {brandPoints.map(({ icon: Icon, text }) => (
               <div key={text} className="flex max-w-[42ch] items-start gap-3 text-sm leading-relaxed text-inverse-muted">
