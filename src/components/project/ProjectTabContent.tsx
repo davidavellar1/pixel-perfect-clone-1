@@ -53,6 +53,7 @@ const ProjectTabContent = ({
   isOwner = false,
   userId = null,
 }: ProjectTabContentProps) => {
+  if (!granted && !isOwner && activeTab !== "Overview") return <p className="text-sm text-muted-foreground">Opens when the developer accepts your request.</p>;
   if (activeTab === "Overview") return <OverviewTab project={project} grade={grade} numericCapex={numericCapex} granted={granted} asOf={asOf.financial} />;
   if (activeTab === "Transaction") return <TransactionTab grade={grade} asOf={asOf.financial} />;
   if (activeTab === "Technical") return <TechnicalTab project={project} grade={grade} asOf={asOf.technical} />;
@@ -85,7 +86,7 @@ const ProjectTabContent = ({
 function OverviewTab({ project, grade, numericCapex, granted, asOf }: { project: ProjectDetail; grade: InvestorGradeBundle; numericCapex: number | null; granted: boolean; asOf?: string | null }) {
   return (
     <div className="space-y-10">
-      <OfftakeLadderBar ladder={grade.ladder} />
+      {granted ? <OfftakeLadderBar ladder={grade.ladder} /> : <section><h2 className="mb-3 font-serif text-2xl font-bold text-foreground">Offtake commitment ladder</h2><p className="text-sm text-muted-foreground">Opens when the developer accepts your request.</p></section>}
       {/* Project Summary */}
       <div>
         <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Project summary</h2>
@@ -104,7 +105,7 @@ function OverviewTab({ project, grade, numericCapex, granted, asOf }: { project:
         <div className="border-t border-border mb-6" />
         {project.timeline.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground">
-            The developer has not published a timeline for this project yet.
+            {granted ? "The developer has not published a timeline for this project yet." : "Opens when the developer accepts your request."}
           </p>
         ) : (
         <div className="relative ml-4">
@@ -254,7 +255,7 @@ function FinancialTab({
       {granted && project.capitalStack && project.capitalStack.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Capital stack</h2>
-          <p className="mb-3 text-xs text-muted-foreground">Developer-stated. {asOf ? asOfLine("Financial information", asOf) : "As-of date not provided"}.</p>
+          <p className="mb-3 text-xs text-muted-foreground">Developer-stated.{asOf ? ` ${asOfLine("Financial information", asOf)}.` : ""}</p>
           <div className="border-t border-border mb-6" />
           <div className="bg-muted/50 border border-border rounded-xl p-6">
             <p className="text-xs font-semibold tracking-[0.1em] text-muted-foreground uppercase mb-4">
@@ -359,7 +360,7 @@ function StructureMarketTab({ project, grade, asOf }: { project: ProjectDetail; 
   return <div className="space-y-10">
     {owners.length > 0 && <section>
       <h2 className="mb-3 font-display text-2xl font-semibold">Ownership structure - {project.title}</h2>
-      <p className="mb-5 text-xs text-muted-foreground">Developer-stated. {date ? asOfLine("Ownership", date) : "As-of date not provided"}.</p>
+      <p className="mb-5 text-xs text-muted-foreground">Developer-stated.{date ? ` ${asOfLine("Ownership", date)}.` : ""}</p>
       <div className="mb-5 flex h-10 overflow-hidden rounded-md" aria-label="Developer-stated ownership shares">
         {owners.map((owner, index) => <div key={owner.name} style={{ width: `${owner.share}%` }} className={index % 2 ? "bg-accent" : "bg-primary"} title={`${owner.name}: ${owner.share}%`} />)}
       </div>
@@ -375,7 +376,7 @@ function StructureMarketTab({ project, grade, asOf }: { project: ProjectDetail; 
 function SustainabilityTab({ project, asOf }: { project: ProjectDetail; asOf?: string | null }) {
   return (
     <div className="space-y-10">
-      <p className="text-xs text-muted-foreground">Developer-stated. {asOf ? asOfLine("Sustainability information", asOf) : "As-of date not provided"}.</p>
+      <p className="text-xs text-muted-foreground">Developer-stated.{asOf ? ` ${asOfLine("Sustainability information", asOf)}.` : ""}</p>
       {/* Key Sustainability Metrics */}
       {project.sustainabilityMetrics && project.sustainabilityMetrics.length > 0 && (
         <div>

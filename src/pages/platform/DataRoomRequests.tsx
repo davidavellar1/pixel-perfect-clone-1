@@ -316,7 +316,7 @@ const DataRoomRequests = () => {
                   <Info label="Instrument" value={optionLabel(INSTRUMENTS_SOUGHT, answer?.instrument_sought ?? null)} />
                   <Info label="Capital source" value={optionLabel(CAPITAL_SOURCES, answer?.capital_source ?? null)} />
                   <Info label="Decision process" value={optionLabel(DECISION_PROCESSES, answer?.decision_process ?? null)} />
-                  <Info label="Advisers receiving information" value={answer?.advisers_receiving_info || "None named"} />
+                  <Info label="Advisers receiving information" value={answer?.advisers_receiving_info} />
                   <Info label="Diligence focus" value={answer?.diligence_focus || null} />
                 </div>
               </section>
@@ -326,20 +326,21 @@ const DataRoomRequests = () => {
                   <ShieldAlert className={cn("h-4 w-4", answer?.conflicts_declared ? "text-warning" : "text-muted-foreground")} />
                   Conflicts declared
                 </h3>
-                <p className="text-sm text-foreground">
-                  {answer?.conflicts_declared ? answer.conflicts_detail || "Declared, no detail given" : "No conflicts declared"}
-                </p>
+                {answer && <p className="text-sm text-foreground">
+                  {answer.conflicts_declared ? answer.conflicts_detail || "Declared" : "No conflicts declared"}
+                </p>}
               </section>
 
               <section className="rounded-lg border border-border bg-muted/40 p-5">
                 <h3 className="mb-2 flex items-center gap-2 font-display text-sm font-semibold text-foreground">
                   <ShieldCheck className="h-4 w-4 text-accent" /> Confidentiality agreement
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  Signed by {selected.request.nda_signed_name || "Not recorded"}
-                  {selected.request.nda_signed_role ? `, ${selected.request.nda_signed_role}` : ""} on{" "}
-                  {formatDate(selected.request.nda_signed_at)}, version {selected.request.nda_version || "Not recorded"}.
-                </p>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <Info label="Signed by" value={selected.request.nda_signed_name} />
+                  <Info label="Signatory role" value={selected.request.nda_signed_role} />
+                  <Info label="Signed on" value={formatDate(selected.request.nda_signed_at)} />
+                  <Info label="Document version" value={selected.request.nda_version} />
+                </div>
                 <p className="mt-1 text-sm font-medium text-foreground">
                   {selected.request.nda_effective_at
                     ? `In effect since ${formatDate(selected.request.nda_effective_at)}.`

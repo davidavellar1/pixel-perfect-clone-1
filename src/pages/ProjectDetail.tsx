@@ -392,7 +392,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
       <div className="mx-auto mt-6 max-w-workspace px-5">
         {!granted && <MandateFit draft={mandatePrefill(investorProfile)} criteria={criteria} />}
-        {granted && (
+        {granted && !isOwner && (
           <div className="flex items-start gap-2.5 rounded-xl border border-success-border bg-success-soft px-5 py-4 text-sm text-success">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-success" />
             <p>
@@ -509,7 +509,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
             </LockedTabOverlay>
           </div>
           <div className="lg:col-span-1">
-            <ProjectSidebar project={project} onRequestAccess={openInterest} loadingAuth={loadingAuth} isOwner={isOwner} context={context} />
+            <ProjectSidebar project={project} onRequestAccess={openInterest} loadingAuth={loadingAuth} isOwner={isOwner} granted={granted} context={context} />
             {context === "app" && databaseProject && (
               <div className="mt-6"><ProjectNewsCard projectId={databaseProject.id} countryCode={databaseProject.country_code} /></div>
             )}

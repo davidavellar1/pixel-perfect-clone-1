@@ -148,6 +148,13 @@
       "when": 1794611568223,
       "tag": "0020_restrict_nda_version_and_news_source_read",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794658223040,
+      "tag": "0021_protect_investor_notification_identity",
+      "breakpoints": true
     }
   ]
 }

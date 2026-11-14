@@ -91,3 +91,9 @@ Migration-history inspection also reports files 0020 to 0022 as unlisted and dat
 - [x] Inline signup and sign-in errors, retry-state cleanup and edit-to-clear behavior
 - [x] Keep password recovery alerts readable and use shared error classification
 - [x] Reproduce real rejected-email response, verify mobile action visibility and run tests and hygiene
+
+# Batch 14 developer gate findings
+- [x] Anonymize investor notices before acceptance and clarify data room approval
+- [x] Omit absent review values and distinguish gated data from absent data
+- [x] Move mandate review to Express interest only
+- [x] Verify notices in rolled-back transactions, owner workspace in browser, simulated locked tabs, tests and hygiene

@@ -17,13 +17,14 @@
 
 - Canonical auth pages own signup and recovery; legacy URLs are redirects that preserve destinations, and retired marketing topics redirect to their canonical public pages.
 - Gate evidence uses the displayed immutable agreement row; mandate uses compatible ticket bands with ambiguous legacy bands left for member confirmation.
-- Once-only mandate review is persisted in the investor profile and wraps workspace content; UI and scheduled decisions share the UTC working-day SLA.
+- Once-only mandate review is persisted in the investor profile and wraps Express interest only so listing workflows remain available; UI and scheduled decisions share the UTC working-day SLA.
 - Use the stock Sidebar provider with controlled per-user collapse persistence so mobile navigation has a labelled drawer and desktop retains an icon rail.
 - Use light-only Sonner for notifications; a single visual theme prevents OS-dependent toast contrast defects.
 - Use React Hook Form with Zod and stock form primitives for request validation so field names, errors and focus stay associated.
 - Keep the MCP SDK generated banner hyphen-only through the pinned dependency patch so strict source punctuation checks do not break generation.
 - Enforce semantic colour utilities and source punctuation in the dedicated frontend hygiene CI check to prevent styling regressions.
-- Scheduled access notices use a shared pure recipient builder so lapse always notifies both parties and escalation remains testable.
+- Scheduled access notices use a shared pure recipient builder with separate teaser and owner titles so lapse notifies both parties without disclosing identity before acceptance.
+- Database investor notifications resolve titles through a private entitlement-aware helper so state and Q&A notices disclose identity only after acceptance.
 - Button exposes its resolved variant as data-variant so public-only stylesheet rules can preserve variant colors and standardize secondary controls without changing workspace buttons.
 
 - Account forms use a shared error classifier and inline alerts with an auth-specific contrast token so failed requests stay visible without changing global destructive styling.

@@ -10,6 +10,7 @@ interface ProjectSidebarProps {
   loadingAuth: boolean;
   /** The signed-in developer owns this listing. */
   isOwner?: boolean;
+  granted?: boolean;
   context?: "public" | "app";
 }
 
@@ -18,6 +19,7 @@ const ProjectSidebar = ({
   onRequestAccess,
   loadingAuth,
   isOwner = false,
+  granted = false,
   context = "public",
 }: ProjectSidebarProps) => {
   return (
@@ -98,7 +100,7 @@ const ProjectSidebar = ({
           if (rows.length === 0) {
             return (
               <p className="text-sm text-muted-foreground">
-                The developer has not published a company profile yet.
+                {granted || isOwner ? "The developer has not published a company profile yet." : "Opens when the developer accepts your request."}
               </p>
             );
           }

@@ -42,10 +42,7 @@ const LockedTabOverlay = ({
                 {pending ? "Awaiting the developer's decision" : "The developer decides who sees this"}
               </h3>
               <p className="text-sm text-muted-foreground mb-6">
-                {pending
-                  ? `Your request is with the developer. The ${tabName.toLowerCase()} detail unlocks if they accept.`
-                  : description ||
-                    `The full ${tabName.toLowerCase()} detail reveals once the developer accepts your request.`}
+                Opens when the developer accepts your request.
               </p>
               <Button
                 onClick={onExpressInterest}

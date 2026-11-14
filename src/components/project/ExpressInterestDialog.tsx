@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AUTHORITY_TEXT, qualificationReady, signatureReady, type Agreement } from "@/lib/gateWorkflow";
 import MandateFit from "@/components/project/MandateFit";
+import MandateStep from "@/components/settings/MandateStep";
 import {
   CAPITAL_SOURCES, CONSTRUCTION_RISK, DECISION_PROCESSES, ENTITY_TYPES, INSTRUMENTS_SOUGHT,
   INTEREST_DRIVERS, TICKET_BANDS,
@@ -178,6 +179,7 @@ const ExpressInterestDialog = ({
           </DialogDescription>
         </DialogHeader>
 
+        {open && <MandateStep><div>
         <ol className="flex items-center gap-2">
           {SCREENS.map((title, index) => (
             <li key={title} className="flex flex-1 items-center gap-2">
@@ -383,6 +385,7 @@ const ExpressInterestDialog = ({
           )}
         </div>
         </form></Form>
+        </div></MandateStep>}
       </DialogContent>
     </Dialog>
   );

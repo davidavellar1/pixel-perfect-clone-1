@@ -361,7 +361,7 @@ const AccessRequests = () => {
                   <Info label="Decision process" value={optionLabel(DECISION_PROCESSES, answer?.decision_process ?? null)} />
                   <Info label="Earliest decision date" value={formatDate(answer?.earliest_decision_date ?? null)} />
                   <Info label="Interest drivers" value={answer?.interest_drivers?.length ? answer.interest_drivers.join(", ") : ""} />
-                  <Info label="Would lead a club" value={answer?.would_lead_club ? "Yes" : "No"} />
+                  <Info label="Would lead a club" value={answer ? (answer.would_lead_club ? "Yes" : "No") : null} />
                 </div>
                 {answer?.diligence_focus && (
                   <p className="mt-3 rounded-lg bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
@@ -375,12 +375,12 @@ const AccessRequests = () => {
                   <ShieldAlert className={cn("h-4 w-4", answer?.conflicts_declared ? "text-warning" : "text-muted-foreground")} />
                   Conflicts and advisers
                 </h3>
-                <p className="text-sm text-foreground">
-                  {answer?.conflicts_declared ? `Declared: ${answer.conflicts_detail || "no detail given"}` : "No conflicts declared"}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Advisers receiving information: {answer?.advisers_receiving_info || "None named"}
-                </p>
+                {answer && <p className="text-sm text-foreground">
+                  {answer.conflicts_declared ? `Declared${answer.conflicts_detail ? `: ${answer.conflicts_detail}` : ""}` : "No conflicts declared"}
+                </p>}
+                {answer?.advisers_receiving_info && <p className="mt-1 text-sm text-muted-foreground">
+                  Advisers receiving information: {answer.advisers_receiving_info}
+                </p>}
               </section>
 
               <section>
@@ -405,11 +405,12 @@ const AccessRequests = () => {
                 <h3 className="mb-2 flex items-center gap-2 font-display text-sm font-semibold text-foreground">
                   <ShieldCheck className="h-4 w-4 text-accent" /> Confidentiality agreement
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  Signed by {selected.request.nda_signed_name || "Not recorded"}
-                  {selected.request.nda_signed_role ? `, ${selected.request.nda_signed_role}` : ""} on{" "}
-                  {formatDate(selected.request.nda_signed_at)}, version {selected.request.nda_version || "Not recorded"}.
-                </p>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <Info label="Signed by" value={selected.request.nda_signed_name} />
+                  <Info label="Signatory role" value={selected.request.nda_signed_role} />
+                  <Info label="Signed on" value={formatDate(selected.request.nda_signed_at)} />
+                  <Info label="Document version" value={selected.request.nda_version} />
+                </div>
                 <p className="mt-1 text-sm font-medium text-foreground">
                   {selected.request.nda_effective_at
                     ? `In effect since ${formatDate(selected.request.nda_effective_at)}.`
@@ -417,7 +418,7 @@ const AccessRequests = () => {
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground">
                   {selected.request.introduction_logged_at
-                    ? `Introduction logged ${formatDate(selected.request.introduction_logged_at)}. Fee tail runs to ${formatDate(selected.request.fee_tail_expires_at)}.`
+                    ? `Introduction logged ${formatDate(selected.request.introduction_logged_at)}.${selected.request.fee_tail_expires_at ? ` Fee tail runs to ${formatDate(selected.request.fee_tail_expires_at)}.` : ""}`
                     : "No introduction has been logged. Submitting or declining a request logs nothing and starts no clock."}
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground">{FEE_SENTENCE}</p>
@@ -465,7 +466,7 @@ const AccessRequests = () => {
               {selected.state === "declined" && (
                 <p className="rounded-lg border border-border bg-background p-4 text-sm text-muted-foreground">
                   Declined {formatDate(selected.request.decided_at)}. Reason: {declineReasonLabel(selected.request.decline_reason)}.
-                  This investor may not resubmit before {formatDate(selected.request.reopen_allowed_at)} unless you invite them.
+                  {selected.request.reopen_allowed_at && <>This investor may not resubmit before {formatDate(selected.request.reopen_allowed_at)} unless you invite them.</>}
                 </p>
               )}
             </article>

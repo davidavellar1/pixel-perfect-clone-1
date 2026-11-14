@@ -56,6 +56,12 @@ export const Route = createFileRoute('/api/public/hooks/access-reminders')({
 
         const notifications: NotificationInsert[] = []
         const lapsed: string[] = []
+        const ids = [...new Set((requests ?? []).map(row => row.project_id))]
+        const { data: teasers, error: teaserError } = ids.length
+          ? await supabaseAdmin.from('project_teaser').select('id,teaser_title').in('id', ids)
+          : { data: [], error: null }
+        if (teaserError) return Response.json({ success: false, error: 'Could not load teaser titles' }, { status: 500 })
+        const teaserTitles = new Map((teasers ?? []).map(row => [row.id, row.teaser_title]))
 
         for (const row of requests ?? []) {
           const project = row.project as unknown as
@@ -63,6 +69,7 @@ export const Route = createFileRoute('/api/public/hooks/access-reminders')({
             | null
           const ownerId = project?.developer?.user_id
           const title = project?.title ?? 'your listing'
+          const teaserTitle = teaserTitles.get(row.project_id) || 'a listing'
           const slug = project?.slug ?? ''
           const clockStart = row.investor_reply_at || row.submitted_at
           const paused = Boolean(row.developer_question_at && !row.investor_reply_at)
@@ -71,12 +78,12 @@ export const Route = createFileRoute('/api/public/hooks/access-reminders')({
 
           if (row.state === 'pending' && !paused && workingDays >= SLA_LAPSE_WORKING_DAYS) {
             lapsed.push(row.id)
-            notifications.push(...pendingAccessNotices({ ...row, ownerId, workingDays, paused, title }))
+            notifications.push(...pendingAccessNotices({ ...row, ownerId, workingDays, paused, title, teaserTitle }))
             continue
           }
 
           if (row.state === 'pending') {
-            notifications.push(...pendingAccessNotices({ ...row, ownerId, workingDays, paused, title }))
+            notifications.push(...pendingAccessNotices({ ...row, ownerId, workingDays, paused, title, teaserTitle }))
           }
 
           if (row.state === 'pending' && !paused && hours >= SLA_REMINDER_HOURS && ownerId) {

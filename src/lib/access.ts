@@ -280,7 +280,7 @@ export const addDays = (iso: string, days: number) => {
 };
 
 export const formatDate = (value: string | null | undefined) =>
-  value ? new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Not recorded";
+  value ? new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
 
 /* ------------------------------------------------------------- NDA summary */
 

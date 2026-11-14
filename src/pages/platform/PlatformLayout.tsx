@@ -10,7 +10,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import MandateStep from "@/components/settings/MandateStep";
 
 const activePath = (pathname: string, path: string) => path === "/app" ? pathname.replace(/\/$/, "") === path : pathname === path || pathname.startsWith(`${path}/`);
 
@@ -48,7 +47,7 @@ function WorkspaceShell() {
     </Sidebar>
     <div className="min-w-0 flex-1">
       <header className="flex min-h-16 flex-wrap items-center justify-between gap-2 border-b border-border bg-card px-4 py-2"><div className="flex min-w-0 items-center gap-3"><SidebarTrigger className="min-h-11 min-w-11" /><p className="truncate text-sm text-muted-foreground">{section}</p></div><Button asChild size="sm"><Link to="/app/submit-project"><Plus />List a project</Link></Button></header>
-      <main className="workspace-container px-4 py-6 sm:px-6 lg:px-8">{loading ? null : <MandateStep><Outlet /></MandateStep>}</main>
+      <main className="workspace-container px-4 py-6 sm:px-6 lg:px-8">{loading ? null : <Outlet />}</main>
     </div>
   </>;
 }
