@@ -65,7 +65,7 @@ const PublicShell = ({ children }: { children: React.ReactNode }) => (
               {publicLinks.map((link) => <SheetClose asChild key={link.to}><PublicNavLink {...link} mobile /></SheetClose>)}
             </nav>
             <div className="mt-6 grid gap-3">
-              <Button variant="outline" asChild><Link to="/sign-in">Sign in</Link></Button>
+              <Button variant="outline" className="public-secondary" asChild><Link to="/sign-in">Sign in</Link></Button>
               <Button variant="hero" asChild><Link to="/sign-up">Get started</Link></Button>
             </div>
           </SheetContent>

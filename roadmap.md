@@ -74,3 +74,10 @@ Migration-history inspection also reports files 0020 to 0022 as unlisted and dat
 - [x] Home alignment, listing states and verbatim fee line
 - [x] Signup destinations, public wording and evidence disclosure
 - [x] Verify IRR and numeric-money leftovers, hygiene and browser checks
+
+# Batch 9 public re-audit
+- [x] Preserve home button variant colors and darken primary tokens
+- [x] Correct account links, checkbox naming and signup panel contrast
+- [x] Fit the signup action into the initial mobile screen
+- [x] Unify public secondary buttons and cap mobile stat type
+- [x] Measure browser contrast, check all home buttons and run hygiene

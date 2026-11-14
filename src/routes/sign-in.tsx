@@ -8,6 +8,8 @@ export const Route = createFileRoute("/sign-in")({
       { name: "description", content: 'Sign in to your DHC Market account to access opportunities, listings and data rooms.' },
       { property: "og:title", content: 'Sign in - DHC Market' },
       { property: "og:description", content: 'Sign in to your DHC Market account to access opportunities, listings and data rooms.' },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => <SignIn />,

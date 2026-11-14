@@ -146,7 +146,7 @@ const SignIn = () => {
             </div>
 
             <div className="flex justify-end">
-              <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+              <Link to="/forgot-password" className="text-sm text-primary underline">
                 Forgot password?
               </Link>
             </div>
@@ -167,7 +167,7 @@ const SignIn = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full"
+              className="public-secondary w-full"
               size="lg"
               disabled={loading}
               onClick={handleGoogleSignIn}
@@ -181,7 +181,7 @@ const SignIn = () => {
                 Don't have an account?
               </p>
               <div className="flex justify-center gap-4">
-                 <Link to={`/sign-up?redirect=${encodeURIComponent(safeRedirect(searchParams.get("redirect")))}`} className="text-primary hover:underline font-medium">Create an account</Link>
+                 <Link to={`/sign-up?redirect=${encodeURIComponent(safeRedirect(searchParams.get("redirect")))}`} className="text-primary underline font-medium">Create an account</Link>
               </div>
             </div>
           </form>

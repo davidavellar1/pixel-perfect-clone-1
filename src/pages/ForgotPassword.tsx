@@ -57,6 +57,6 @@ export default function ForgotPassword() {
       <p id="recovery-error" role={error ? "alert" : undefined} className="text-sm text-destructive">{error}</p>
       <Button type="submit" disabled={loading}>{loading ? "Please wait..." : recovering ? "Save new password" : "Send reset link"}</Button>
     </form>
-    <Link to="/sign-in" className="mt-6 inline-block text-sm text-accent underline">Back to sign in</Link>
+    <Link to="/sign-in" className="mt-6 inline-block text-sm text-primary underline">Back to sign in</Link>
   </section></PublicShell>;
 }

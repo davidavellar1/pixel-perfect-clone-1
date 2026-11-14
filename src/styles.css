@@ -165,7 +165,7 @@
   --inverse-subtle: #9fb0c4;
   --inverse-muted: #c5cedb;
   --inverse-foreground: #ffffff;
-  --brand-hover: #2670d6;
+  --brand-hover: #1259bd;
   --destructive-soft: #fff1f2;
   --success-foreground: #1c6e48;
   --success-border: #c9e8d5;
@@ -192,7 +192,7 @@
   --popover: #ffffff;
   --popover-foreground: #0f1b2d;
 
-  --primary: #1872eb; /* darkened from #2f80ed for WCAG AA with white text */
+  --primary: #1666d6;
   --primary-foreground: #ffffff;
 
   --secondary: #eef1f5;
@@ -297,12 +297,17 @@
   color: var(--accent);
 }
 
-.public-secondary {
+.public-secondary,
+.public-shell [data-variant="outline"],
+.public-shell [data-variant="secondary"],
+.public-shell [data-variant="hero-outline"] {
   background: transparent;
   border-color: var(--border);
   color: var(--foreground);
+  border-style: solid;
+  border-width: 1px;
 }
-.public-shell :is(.bg-hero-gradient, .hero, .cta) .public-secondary {
+.public-shell :is(header, .bg-hero-gradient, .bg-navy-900, .bg-navy-800, .bg-foreground, .hero, .snapshot, .cta) :is(.public-secondary, [data-variant="outline"], [data-variant="secondary"], [data-variant="hero-outline"]) {
   border-color: var(--inverse-subtle);
   color: var(--inverse-foreground);
 }

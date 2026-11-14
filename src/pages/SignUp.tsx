@@ -93,7 +93,7 @@ const SignUp = () => {
         <Link to="/" className="relative z-10 font-display text-2xl font-bold">
           DHC<span className="text-accent">Market</span>
         </Link>
-        <div className="relative z-10 my-auto">
+        <div className="relative z-10 my-auto rounded-lg bg-navy-900/80 p-6">
           <h2 className="mb-6 max-w-[16ch] font-display text-3xl font-semibold leading-snug">
             Where DHC projects meet the right capital.
           </h2>
@@ -106,18 +106,18 @@ const SignUp = () => {
             ))}
           </div>
         </div>
-        <div className="relative z-10 text-xs text-muted-foreground">
+        <div className="relative z-10 text-xs text-inverse-muted">
           Standardized DHC opportunities across Europe.
         </div>
       </div>
 
       {/* Form panel */}
-      <div className="flex items-center justify-center px-6 py-10 lg:px-8">
+      <div className="flex items-center justify-center px-6 py-3 sm:py-10 lg:px-8">
         <div className="w-full max-w-[430px]">
           <h1 className="mb-1.5 font-display text-[27px] font-semibold">Get started</h1>
-          <p className="mb-6 text-sm text-muted-foreground">One account to invest in projects, list your own, or both.</p>
+          <p className="mb-2 text-sm text-muted-foreground sm:mb-6">One account to invest in projects, list your own, or both.</p>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
             <div>
               <Label htmlFor="fullName" className="mb-1.5 block text-[13.5px] font-semibold">Full name</Label>
               <Input id="fullName" placeholder="Jane Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} />
@@ -127,17 +127,17 @@ const SignUp = () => {
               <Input id="org" placeholder="Company / fund" value={organization} onChange={(e) => setOrganization(e.target.value)} />
             </div>
           </div>
-          <div className="mt-4">
+          <div className="mt-2 sm:mt-4">
             <Label htmlFor="email" className="mb-1.5 block text-[13.5px] font-semibold">Work email</Label>
             <Input id="email" type="email" placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
-          <div className="mt-4">
+          <div className="mt-2 sm:mt-4">
             <Label htmlFor="password" className="mb-1.5 block text-[13.5px] font-semibold">Password</Label>
             <Input id="password" type="password" placeholder="Create a password" value={password} onChange={(e) => setPassword(e.target.value)} />
             <p className="mt-1.5 text-xs text-muted-foreground">At least 8 characters.</p>
           </div>
 
-          <fieldset className="mt-5 rounded-lg border border-border bg-muted/40 px-4 pb-4 pt-2">
+          <fieldset className="mt-2 rounded-lg border border-border bg-muted/40 px-4 pb-3 pt-2 sm:mt-5 sm:pb-4">
             <legend className="px-1 text-[13.5px] font-semibold">
               What brings you to DHC Market? <span className="font-normal text-muted-foreground">(optional)</span>
             </legend>
@@ -161,7 +161,7 @@ const SignUp = () => {
             <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground">This only sets the page you start on. Every member can invest and list.</p>
           </fieldset>
 
-          <div className="mt-5 flex gap-2.5 rounded-lg border border-success-border bg-success-soft p-3.5 text-[12.5px] leading-relaxed text-success-foreground">
+          <div className="mt-3 flex gap-2.5 rounded-lg border border-success-border bg-success-soft p-3 text-[12.5px] leading-relaxed text-success-foreground sm:mt-5 sm:p-3.5">
             <ShieldCheck className="mt-0.5 h-4 w-4 flex-none" />
             <span>
               After sign-up we verify your identity and organization. You can browse anonymized opportunities right
@@ -169,13 +169,13 @@ const SignUp = () => {
             </span>
           </div>
 
-          <label className="mb-5 mt-5 flex cursor-pointer items-start gap-2 text-[12.5px] leading-relaxed text-muted-foreground">
-            <Checkbox checked={agreed} onCheckedChange={(v) => setAgreed(v === true)} className="mt-0.5" />
-            <span>
-              I agree to the <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-accent underline">Terms of Service</Link> and{" "}
-              <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-accent underline">Privacy Policy</Link>.
+          <div className="mb-3 mt-3 flex items-start gap-2 text-[12.5px] leading-relaxed text-muted-foreground sm:mb-5 sm:mt-5">
+            <Checkbox id="signup-agreement" aria-labelledby="signup-agreement-text" checked={agreed} onCheckedChange={(v) => setAgreed(v === true)} className="mt-0.5" />
+            <span id="signup-agreement-text">
+              <Label htmlFor="signup-agreement" className="cursor-pointer text-[12.5px] font-normal">I agree to the</Label>{" "}<Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-primary underline">Terms of Service</Link> and{" "}
+              <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary underline">Privacy Policy</Link>.
             </span>
-          </label>
+          </div>
 
           <Button
             className="h-12 w-full bg-accent font-display text-[15px] font-semibold hover:bg-accent/90"
@@ -191,6 +191,7 @@ const SignUp = () => {
           </div>
 
           <GoogleSignupButton
+            className="public-secondary w-full"
             roles={googleRoles}
             fullName={fullName}
             company={organization}
@@ -204,7 +205,7 @@ const SignUp = () => {
           </p>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link to={`/sign-in?redirect=${encodeURIComponent(destination)}`} className="font-semibold text-accent">
+            <Link to={`/sign-in?redirect=${encodeURIComponent(destination)}`} className="font-semibold text-primary underline">
               Sign in
             </Link>
           </p>
