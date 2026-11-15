@@ -59,8 +59,8 @@ const JourneyColumn = ({ title, steps, investor = false }: { title: string; step
       {title}
     </div>
     {steps.map(([stepTitle, detail]) => (
-      <article key={stepTitle} className="flex-1 rounded-xl border border-border bg-card p-4">
-        <h3 className="font-display text-lg font-semibold text-card-foreground">{stepTitle}</h3>
+      <article key={stepTitle} className="flex-1 rounded-sm border border-border bg-card p-4">
+        <h3 className="font-display text-2xl font-semibold text-card-foreground">{stepTitle}</h3>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">{detail}</p>
       </article>
     ))}
@@ -106,10 +106,10 @@ const HowItWorks = () => (
         <SectionHeading label="Trust by design" title="Information reveals in four tiers" description="Nothing sensitive is exposed up front. Each tier opens more information, and a developer's identity reveals only when that developer accepts the investor's request." />
         <div className="mx-auto flex max-w-4xl flex-col gap-3">
           {accessTiers.map((tier) => (
-            <article key={tier.number} className="grid items-center gap-4 rounded-xl border border-border bg-card p-5 sm:grid-cols-[54px_1fr_auto]">
+            <article key={tier.number} className="grid items-center gap-4 rounded-sm border border-border bg-card p-5 sm:grid-cols-[54px_1fr_auto]">
               <div className={`flex h-[54px] w-[54px] items-center justify-center rounded-sm font-display text-xl font-bold text-primary-foreground ${tier.tone}`}>{tier.number}</div>
               <div>
-                <h3 className="font-display font-semibold text-card-foreground text-lg">{tier.title}</h3>
+                <h3 className="font-display font-semibold text-card-foreground text-2xl">{tier.title}</h3>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">{tier.detail}</p>
               </div>
               <span className="hidden rounded-full bg-muted px-3 py-1.5 font-display text-xs font-semibold text-muted-foreground sm:inline-flex">{tier.gate}</span>
@@ -125,7 +125,7 @@ const HowItWorks = () => (
         <SectionHeading label="More than a listing" title="A full ecosystem around every project" description="Connecting capital is the core, but a DHC deal needs more than an introduction. The platform surfaces the public funding and the partners that get a project to close." />
         <div className="grid gap-5 md:grid-cols-2">
           {supportCards.map(({ title, description, icon: Icon, points }) => (
-            <article key={title} className="rounded-xl border border-border bg-card p-7">
+            <article key={title} className="rounded-sm border border-border bg-card p-7">
               <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-primary/10"><Icon className="text-primary" /></div>
               <h3 className="mt-5 font-display text-2xl font-semibold text-card-foreground">{title}</h3>
               <p className="mt-3 leading-7 text-muted-foreground">{description}</p>
@@ -139,7 +139,7 @@ const HowItWorks = () => (
     </section>
 
     <section className="bg-card px-5 pb-16 md:pb-20">
-      <div className="mx-auto flex max-w-4xl gap-4 rounded-xl border border-border border-l-4 border-l-primary bg-background p-6 md:p-7">
+      <div className="mx-auto flex max-w-4xl gap-4 rounded-sm border border-border border-l-4 border-l-primary bg-background p-6 md:p-7">
         <Info className="mt-1 shrink-0 text-primary" />
         <div>
           <h3 className="font-display text-2xl font-semibold text-foreground">A neutral connector</h3>
