@@ -90,7 +90,7 @@ const ForInvestors = () => (
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {reasons.map(({ icon: Icon, title, text }) => (
-            <article key={title} className="rounded-lg border border-border bg-card p-6">
+            <article key={title} className="rounded-xl border border-border bg-card p-6">
               <span className="flex h-11 w-11 items-center justify-center rounded-md bg-accent/10">
                 <Icon className="h-5 w-5 text-accent" />
               </span>
@@ -122,7 +122,7 @@ const ForInvestors = () => (
 
     <section className="bg-card pb-20">
       <div className="container">
-        <div className="overflow-hidden rounded-lg bg-foreground p-8 text-primary-foreground md:p-12">
+        <div className="overflow-hidden rounded-xl bg-foreground p-8 text-primary-foreground md:p-12">
           <div>
             <span className="inline-flex rounded-full bg-accent/15 px-3 py-1 font-display text-xs font-semibold text-accent">
               Headline tool
@@ -159,7 +159,7 @@ const ForInvestors = () => (
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map(([title, text], index) => (
-            <article key={title} className="rounded-lg border border-border bg-secondary p-6">
+            <article key={title} className="rounded-xl border border-border bg-secondary p-6">
               <span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent font-display text-sm font-bold text-accent-foreground">
                 {index + 1}
               </span>
@@ -173,7 +173,7 @@ const ForInvestors = () => (
 
     <section className="bg-card pb-20">
       <div className="container">
-        <div className="flex gap-4 rounded-lg border border-border border-l-4 border-l-accent bg-secondary p-7">
+        <div className="flex gap-4 rounded-xl border border-border border-l-4 border-l-accent bg-secondary p-7">
           <Info className="mt-0.5 h-6 w-6 shrink-0 text-accent" />
           <div>
             <h3 className="font-display text-2xl font-semibold">

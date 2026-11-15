@@ -97,3 +97,10 @@ Migration-history inspection also reports files 0020 to 0022 as unlisted and dat
 - [x] Omit absent review values and distinguish gated data from absent data
 - [x] Move mandate review to Express interest only
 - [x] Verify notices in rolled-back transactions, owner workspace in browser, simulated locked tabs, tests and hygiene
+
+# Public marketing design review
+- [x] Correct large button sizing and focus thickness while preserving variants
+- [x] Add label-only project structure and rebuild assurance items
+- [x] Tokenize home CSS, remove unused styles and tighten hero spacing
+- [x] Standardize public card radii and reduce journey/tier headings
+- [x] Re-read changes, verify desktop/mobile pages and run hygiene
