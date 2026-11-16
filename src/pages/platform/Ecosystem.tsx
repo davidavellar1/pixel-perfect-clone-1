@@ -73,7 +73,7 @@ const Ecosystem = () => {
       <header>
         <h1 className="font-display text-3xl font-semibold text-foreground">Ecosystem</h1>
         <p className="mt-1 text-[15px] text-muted-foreground">
-          Connect with vetted financial, legal, and technical advisors to bring projects to bankable standard.
+          Financial, legal, and technical advisors listed on DHC Market.
         </p>
       </header>
 
@@ -152,6 +152,7 @@ const Ecosystem = () => {
         </div>
         <Button
           className="h-11 shrink-0 bg-accent px-6 text-accent-foreground hover:bg-accent/90"
+          disabled={advisorsAll.length === 0}
           onClick={() => requestAssistance()}
         >
           Request assistance for a project

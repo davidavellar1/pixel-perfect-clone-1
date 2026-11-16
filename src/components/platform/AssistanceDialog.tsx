@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
 import { useProjectListings } from "@/hooks/useProjectListings";
 import { cn } from "@/lib/utils";
 import { FlowHeading, FlowSteps } from "./FlowSteps";
@@ -63,8 +62,6 @@ const AssistanceDialog = ({
       setStep(2);
       return;
     }
-    toast.success("Assistance request sent", { description: `We will introduce you to ${chosen?.name ?? "a vetted advisor"} for ${projectLabel}.` });
-    onClose();
   };
 
   return (
@@ -76,7 +73,7 @@ const AssistanceDialog = ({
           </div>
           <div>
             <DialogTitle className="font-display text-lg font-semibold">Request assistance</DialogTitle>
-            <DialogDescription className="mt-0.5 text-[13px] text-muted-foreground">Match with a vetted advisor</DialogDescription>
+            <DialogDescription className="mt-0.5 text-[13px] text-muted-foreground">Contact a listed advisor</DialogDescription>
           </div>
         </div>
 
@@ -176,7 +173,7 @@ const AssistanceDialog = ({
             <>
               <FlowHeading
                 title={`Send request to ${chosen?.name ?? "the advisor"}`}
-                lede="We introduce you and share your note. You are free to engage any advisor; using ours is optional."
+                lede="Contact requests are not available yet. No request has been recorded."
               />
               <div className="rounded-xl border border-border bg-muted/40 p-4 text-[12.5px] leading-6 text-muted-foreground">
                 <b className="text-foreground">Disclosure.</b> Advisory partners may pay DHC Market a referral fee for a qualified introduction. This does not affect the fees you pay your advisor, and never influences how we connect investors and developers to each other.
@@ -189,7 +186,7 @@ const AssistanceDialog = ({
           <Button variant="ghost" onClick={() => setStep(step - 1)} hidden={step === 0}>
             Back
           </Button>
-          <Button onClick={advance} className="bg-accent text-accent-foreground hover:bg-accent/90">
+          <Button onClick={advance} disabled={step === 2} className="bg-accent text-accent-foreground hover:bg-accent/90">
             {LABELS[step]}
           </Button>
         </div>

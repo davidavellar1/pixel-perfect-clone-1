@@ -155,6 +155,13 @@
       "when": 1794658223040,
       "tag": "0021_protect_investor_notification_identity",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1794834941398,
+      "tag": "0022_gate_project_and_redact_teaser_sort",
+      "breakpoints": true
     }
   ]
 }

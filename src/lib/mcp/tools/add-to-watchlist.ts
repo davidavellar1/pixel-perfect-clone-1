@@ -15,15 +15,14 @@ export default defineTool({
     }
     const supabase = supabaseForUser(ctx);
     const { data: project, error: projectError } = await supabase
-      .from("project")
-      .select("id,title")
+      .from("project_teaser")
+      .select("id,teaser_title")
       .eq("slug", slug)
-      .eq("visibility", "listed")
       .maybeSingle();
     if (projectError) return { content: [{ type: "text", text: projectError.message }], isError: true };
-    if (!project) throw new ToolError(`No listed project found for slug "${slug}".`);
+    if (!project?.id) throw new ToolError(`No listed project found for slug "${slug}".`);
 
-    const row = project as unknown as { id: string; title: string };
+    const row = { id: project.id, title: project.teaser_title ?? slug };
     const { error } = await supabase
       .from("watchlist_item")
       .upsert({ user_id: userId, project_id: row.id }, { onConflict: "user_id,project_id" });

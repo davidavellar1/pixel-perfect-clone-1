@@ -188,13 +188,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "access_request_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
       access_request_answers: {
@@ -445,13 +438,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "bundle_item_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
       capital_stack_item: {
@@ -562,13 +548,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: true
             referencedRelation: "project"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "construction_package_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: true
-            referencedRelation: "project_teaser"
             referencedColumns: ["id"]
           },
         ]
@@ -689,13 +668,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "document_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
       document_access_grant: {
@@ -770,13 +742,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "project"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "energy_mix_item_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
             referencedColumns: ["id"]
           },
         ]
@@ -860,13 +825,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: true
             referencedRelation: "project"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "financial_summary_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: true
-            referencedRelation: "project_teaser"
             referencedColumns: ["id"]
           },
         ]
@@ -1260,13 +1218,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "listing_access_criteria_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: true
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
       margin_profile: {
@@ -1321,13 +1272,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: true
             referencedRelation: "project"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "margin_profile_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: true
-            referencedRelation: "project_teaser"
             referencedColumns: ["id"]
           },
         ]
@@ -1410,13 +1354,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "milestone_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
       nda_document_version: {
@@ -1483,13 +1420,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "project"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "nda_signature_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
             referencedColumns: ["id"]
           },
         ]
@@ -1724,13 +1654,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "notification_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
       offtake_ladder: {
@@ -1784,13 +1707,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "offtake_ladder_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: true
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
       operating_parameter: {
@@ -1830,13 +1746,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "project"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "operating_parameter_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
             referencedColumns: ["id"]
           },
         ]
@@ -2021,13 +1930,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "project_advisor_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
       project_case: {
@@ -2075,13 +1977,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "project_case_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
       project_interest: {
@@ -2118,13 +2013,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "project"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "project_interest_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
             referencedColumns: ["id"]
           },
         ]
@@ -2187,13 +2075,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: true
             referencedRelation: "project"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "project_process_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: true
-            referencedRelation: "project_teaser"
             referencedColumns: ["id"]
           },
         ]
@@ -2297,13 +2178,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "project_transaction_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: true
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
       public_funding: {
@@ -2386,13 +2260,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "question_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
       revenue_stream: {
@@ -2467,13 +2334,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "project"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "risk_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
             referencedColumns: ["id"]
           },
         ]
@@ -2561,13 +2421,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "sustainability_profile_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: true
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
       technology_card: {
@@ -2604,13 +2457,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "project"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "technology_card_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
             referencedColumns: ["id"]
           },
         ]
@@ -2729,13 +2575,6 @@ export type Database = {
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "watchlist_item_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_teaser"
-            referencedColumns: ["id"]
-          },
         ]
       }
     }
@@ -2815,6 +2654,26 @@ export type Database = {
         }[]
       }
       project_owner_user_id: { Args: { _project_id: string }; Returns: string }
+      project_teaser_rows: {
+        Args: never
+        Returns: {
+          capacity_band: string
+          capex_band: string
+          country_code: string
+          created_at: string
+          id: string
+          instrument: Database["public"]["Enums"]["transaction_instrument"]
+          lifecycle_stage: Database["public"]["Enums"]["lifecycle_stage"]
+          min_ticket_band: string
+          min_ticket_sort: number
+          offtake_committed_load_pct: number
+          project_type: Database["public"]["Enums"]["project_type"]
+          slug: string
+          teaser_title: string
+          technology: Database["public"]["Enums"]["technology"]
+          transaction_terms_published: boolean
+        }[]
+      }
       publish_project: { Args: { payload: Json }; Returns: Json }
       record_legal_acceptance: {
         Args: {

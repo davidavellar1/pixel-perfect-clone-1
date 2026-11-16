@@ -1,3 +1,26 @@
+# Phases 0 to 11
+- [x] Phase 0: close direct project reads, secure the teaser projection and audit consumers
+- [x] Phase 0B: deactivate unapproved advisors and disable unrecorded assistance submissions
+- [ ] Phase 1: typed absence, field provenance and publish payload coverage
+- [ ] Phase 2: stage-aware wizard, drafts, editing and promotion
+- [ ] Phase 3: low-completion listing pages, following and private Q&A
+- [ ] Phase 4: evidence filters and null-safe financial-close sorts
+- [ ] Phase 5: independent subscription gate, sourced country/benchmark libraries and PDFs
+- [ ] Phase 6: bilateral overview work queue
+- [ ] Phase 7: funding coverage, verification, programme detail and contact requests
+- [ ] Phase 8: consented advisor directory and recorded contact pathway
+- [ ] Phase 9: scoped news placement and source health
+- [ ] Phase 10: portfolio view with factual aggregates and sequential interests
+- [ ] Phase 11: investing and listing pipeline/closed dashboards
+
+Stop at the first unsafe or externally blocked prerequisite and report it explicitly. The uploaded brief contains conflicting subscription/access wording; resolve that before phase 3 changes the gate. Phase 5 also needs the annual price and currency. No invented country sources, advisor agreements or closed-position figures.
+
+Current checkpoint: phases 0 and 0B applied and verified. Anonymous exact-project queries return zero rows while all nine teasers remain available; ticket sort returns only band ordinals. Opportunities, Overview, Bundle builder and the empty advisor directory opened under the requesting member's session.
+
+Phase 0 audit: owner-scoped readers are DeveloperDashboard, AccessRequests, DataRoomRequests and funding.useOwnProjects. Accepted-only readers are loadDisclosedProject, useProjectListings, BundleBuilder and MCP get_project. MarketNews and MCP add_to_watchlist were switched to teasers. InvestorDashboard still asks for exact rows for pending/watchlisted IDs: database RLS now filters them, but its pending-row presentation needs to use teasers during the later dashboard rebuild. News ingestion is privileged server-side matching, not a member read.
+
+Stopped before phase 1: it mandates visible absence messages, whereas the locked convention requires omission. Later phases also disagree on whether payment alone opens exact project figures and whether free members may express interest. Obtain the user's decision before changing those product rules. Phases 1 to 11 remain unimplemented.
+
 # Profile settings
 - [x] Account menu and first-name/avatar display
 - [x] Profile schema, backfill, and avatar storage access

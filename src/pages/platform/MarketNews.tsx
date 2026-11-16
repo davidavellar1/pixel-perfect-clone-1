@@ -37,8 +37,8 @@ async function defaultCountries(userId: string): Promise<string[]> {
   ]);
   [...(wl ?? []), ...(ar ?? [])].forEach((r) => ids.add(r.project_id));
   if (ids.size) {
-    const { data } = await supabase.from("project").select("country_code").in("id", [...ids]);
-    (data ?? []).forEach((p) => codes.add(p.country_code.trim().toUpperCase()));
+    const { data } = await supabase.from("project_teaser").select("country_code").in("id", [...ids]);
+    (data ?? []).forEach((p) => { if (p.country_code) codes.add(p.country_code.trim().toUpperCase()); });
   }
   const known = [...codes].filter(isKnownCountry);
   return known.length ? known : ALL_COUNTRY_CODES;
@@ -110,8 +110,8 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
     setHasMore(rows.length === PAGE);
     const ids = [...new Set(rows.flatMap((r) => r.related_project_ids))];
     if (ids.length) {
-      const { data: ps } = await supabase.from("project").select("id, slug, title").in("id", ids);
-      setProjects((prev) => { const next = new Map(prev); (ps ?? []).forEach((p) => next.set(p.id, { slug: p.slug, title: p.title })); return next; });
+      const { data: ps } = await supabase.from("project_teaser").select("id, slug, teaser_title").in("id", ids);
+      setProjects((prev) => { const next = new Map(prev); (ps ?? []).forEach((p) => { if (p.id && p.slug && p.teaser_title) next.set(p.id, { slug: p.slug, title: p.teaser_title }); }); return next; });
     }
     setLoading(false);
   }, [prefs, countryFilter, includeEu, category]);
