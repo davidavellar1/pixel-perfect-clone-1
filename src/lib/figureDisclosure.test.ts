@@ -25,6 +25,9 @@ describe("Truthful project figures", () => {
     assert.deepEqual(ownershipRows([{ holder: "Municipal utility", pct: 45 }]), [{ name: "Municipal utility", share: 45 }]);
     assert.deepEqual(ownershipRows(null), []);
   });
+  it("accepts numeric editor strings but rejects missing and invalid ownership shares", () => {
+    assert.deepEqual(ownershipRows([{ holder: "Sponsor", pct: "45" }, { holder: "Blank", pct: "" }, { holder: "Invalid", pct: "abc" }]), [{ name: "Sponsor", share: 45 }]);
+  });
   it("charges 80000 on an invested amount of 8000000", () => {
     assert.equal(calculateSuccessFee(8_000_000), 80_000);
   });

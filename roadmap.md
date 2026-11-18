@@ -1,4 +1,7 @@
 # Phases 0 to 11
+- [ ] Submission data closure: remove retired inputs and panels, wire row collections through atomic publishing, and verify saved values
+- [ ] Absence provenance: shared stage specification, recorded asked fields, resolver and coverage checks
+- [ ] Calculations: simple payback with actual/projected inputs; emissions require sourced country factors; lifetime/cars and committed-capital definitions remain unavailable
 - [x] Phase 0: close direct project reads, secure the teaser projection and audit consumers
 - [x] Phase 0B: deactivate unapproved advisors and disable unrecorded assistance submissions
 - [ ] Phase 1: typed absence, field provenance and publish payload coverage

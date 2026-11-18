@@ -29,3 +29,5 @@
 - Button exposes its resolved variant as data-variant so public-only stylesheet rules can preserve variant colors and standardize secondary controls without changing workspace buttons.
 
 - Account forms use a shared error classifier and inline alerts with an auth-specific contrast token so failed requests stay visible without changing global destructive styling.
+- Resolve missing project values centrally using recorded question evidence; legacy records without evidence resolve safely without attributing nonresponse.
+- Pure named financial computes return their numeric inputs with the result so readers can inspect arithmetic without platform modelling.

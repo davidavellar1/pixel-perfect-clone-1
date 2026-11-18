@@ -25,7 +25,8 @@ export function ownershipRows(value: unknown) {
   return value.flatMap((entry: unknown) => {
     if (!entry || typeof entry !== "object") return [];
     const row = entry as Record<string, unknown>;
-    return typeof row.holder === "string" && typeof row.pct === "number"
-      ? [{ name: row.holder, share: row.pct }] : [];
+    const share = typeof row.pct === "number" ? row.pct : typeof row.pct === "string" && row.pct.trim() ? Number(row.pct) : NaN;
+    return typeof row.holder === "string" && row.holder.trim() && Number.isFinite(share) && share >= 0 && share <= 100
+      ? [{ name: row.holder, share }] : [];
   });
 }

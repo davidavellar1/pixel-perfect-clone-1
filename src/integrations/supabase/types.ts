@@ -1791,6 +1791,7 @@ export type Database = {
       }
       project: {
         Row: {
+          asked_fields: string[] | null
           capacity_mw: number | null
           city: string
           country_code: string
@@ -1798,6 +1799,7 @@ export type Database = {
           description: string | null
           developer_id: string
           financial_as_of: string | null
+          form_version: string | null
           headline_co2_tonnes: number | null
           headline_investment: number | null
           headline_irr_pct: number | null
@@ -1808,6 +1810,7 @@ export type Database = {
           longitude: number | null
           network_length_km: number | null
           project_type: Database["public"]["Enums"]["project_type"]
+          public_cofinancing_status: string | null
           regulatory_as_of: string | null
           slug: string
           summary: string | null
@@ -1821,6 +1824,7 @@ export type Database = {
           visibility: Database["public"]["Enums"]["project_visibility"]
         }
         Insert: {
+          asked_fields?: string[] | null
           capacity_mw?: number | null
           city: string
           country_code: string
@@ -1828,6 +1832,7 @@ export type Database = {
           description?: string | null
           developer_id: string
           financial_as_of?: string | null
+          form_version?: string | null
           headline_co2_tonnes?: number | null
           headline_investment?: number | null
           headline_irr_pct?: number | null
@@ -1838,6 +1843,7 @@ export type Database = {
           longitude?: number | null
           network_length_km?: number | null
           project_type: Database["public"]["Enums"]["project_type"]
+          public_cofinancing_status?: string | null
           regulatory_as_of?: string | null
           slug: string
           summary?: string | null
@@ -1851,6 +1857,7 @@ export type Database = {
           visibility?: Database["public"]["Enums"]["project_visibility"]
         }
         Update: {
+          asked_fields?: string[] | null
           capacity_mw?: number | null
           city?: string
           country_code?: string
@@ -1858,6 +1865,7 @@ export type Database = {
           description?: string | null
           developer_id?: string
           financial_as_of?: string | null
+          form_version?: string | null
           headline_co2_tonnes?: number | null
           headline_investment?: number | null
           headline_irr_pct?: number | null
@@ -1868,6 +1876,7 @@ export type Database = {
           longitude?: number | null
           network_length_km?: number | null
           project_type?: Database["public"]["Enums"]["project_type"]
+          public_cofinancing_status?: string | null
           regulatory_as_of?: string | null
           slug?: string
           summary?: string | null
@@ -2685,6 +2694,11 @@ export type Database = {
       }
     }
     Enums: {
+      absence_reason:
+        | "not_asked"
+        | "does_not_exist_yet"
+        | "not_applicable"
+        | "not_provided"
       access_decline_reason:
         | "ticket_too_small"
         | "wrong_instrument"
@@ -2936,6 +2950,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      absence_reason: [
+        "not_asked",
+        "does_not_exist_yet",
+        "not_applicable",
+        "not_provided",
+      ],
       access_decline_reason: [
         "ticket_too_small",
         "wrong_instrument",

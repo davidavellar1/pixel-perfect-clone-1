@@ -162,6 +162,13 @@
       "when": 1794834941398,
       "tag": "0022_gate_project_and_redact_teaser_sort",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1795033999242,
+      "tag": "0023_submission_question_evidence_and_rows",
+      "breakpoints": true
     }
   ]
 }
