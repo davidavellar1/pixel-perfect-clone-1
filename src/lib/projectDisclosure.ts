@@ -35,6 +35,7 @@ export const teaserProjectDetail = (row: ProjectTeaser) => {
       latitude: null, longitude: null, network_length_km: null, households_served: null,
       summary: null, description: null, timeline_start: null, timeline_end: null,
       financial_as_of: null, technical_as_of: null, regulatory_as_of: null,
+      asked_fields: null, form_version: null, public_cofinancing_status: null,
       created_at: row.created_at ?? "", updated_at: row.created_at ?? "",
     }),
     title: `${row.teaser_title ?? readable(row.technology)}, ${country}`,

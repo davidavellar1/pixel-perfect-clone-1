@@ -1,5 +1,5 @@
 import type React from "react";
-import { useMemo, useState, useId, Children, cloneElement, isValidElement } from "react";
+import { useMemo, useState, useId, useEffect, createContext, useContext, useRef, Children, cloneElement, isValidElement } from "react";
 import { useNavigate } from "@/lib/router-compat";
 import { Check, Info, ShieldCheck, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,17 +10,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import type { TablesInsert } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { WizardSelect, WizardOption, todayISO, RowsEditor, MultiSelect, ErrorNote } from "@/components/submit/wizardFields";
 import {
   CASE_ORDER,
   CASE_LABEL,
   INSTRUMENT_LABEL,
-  DEFAULT_RESERVED_MATTERS,
-  DEFAULT_EXIT_ROUTES,
   type CaseRecord,
 } from "@/data/investorGrade";
+import { FORM_VERSION, isFieldAsked, recordedQuestionKeys } from "@/lib/submissionFields";
+import { BASIS_FLAGS } from "@/lib/projectAbsence";
 import { FEE_SENTENCE } from "@/lib/fee";
 
 /* ---------------------------------- data ---------------------------------- */
@@ -54,14 +53,14 @@ const TECHNOLOGIES = [
   ["Solar thermal", "solar_thermal"], ["Biomass / CHP", "biomass_chp"], ["Thermal storage", "thermal_storage"], ["Hybrid", "hybrid"],
 ] as const;
 
-const CAPACITY_BANDS = ["Under 10 MW", "10-25 MW", "25-50 MW", "50+ MW"];
-const CAPEX_BANDS = ["Under 15M EUR", "15-30M EUR", "30-50M EUR", "50M+ EUR"];
 
 type CaseRow = { enabled: boolean; connections: string; powerPrice: string; capexVariancePct: string; equityIrrPct: string; minDscr: string };
 const blankCase = (enabled: boolean): CaseRow => ({ enabled, connections: "", powerPrice: "", capexVariancePct: "", equityIrrPct: "", minDscr: "" });
 const caseHasValue = (c: CaseRow) => [c.connections, c.powerPrice, c.capexVariancePct, c.equityIrrPct, c.minDscr].some((v) => v.trim() !== "");
 
 /* ------------------------------- primitives ------------------------------- */
+
+const QuestionContext = createContext<{ stage: string; record: (label: string) => void }>({ stage: "", record: () => {} });
 
 const Field = ({
   label,
@@ -78,7 +77,11 @@ const Field = ({
   error?: string;
   children: React.ReactNode;
 }) => {
+  const question = useContext(QuestionContext);
+  const visible = isFieldAsked(label, question.stage.toLowerCase());
+  useEffect(() => { if (visible) question.record(label); }, [label, visible, question]);
   const id = useId();
+  if (!visible) return null;
   const errorId = `${id}-error`;
   return (
   <div className="mb-5">
@@ -132,75 +135,52 @@ const AsOfField = ({ value, onChange }: { value: string; onChange: (v: string) =
   </Field>
 );
 
-function RowList({
-  columns,
-  addLabel,
-  placeholders,
-  selectAt,
-  selectOptions,
-  initial = 2,
-}: {
-  columns: string;
-  addLabel: string;
-  placeholders: string[];
-  selectAt?: number;
-  selectOptions?: string[];
-  initial?: number;
-}) {
-  const [rows, setRows] = useState(Array.from({ length: initial }, (_, i) => i));
-  return (
-    <div>
-      {rows.map((r) => (
-        <div key={r} className="mb-2 grid gap-2" style={{ gridTemplateColumns: columns }}>
-          {placeholders.map((p, i) =>
-            selectAt === i && selectOptions ? (
-              <WizardSelect key={i} value={selectOptions[0]}>
-                {selectOptions.map((o) => (
-                  <WizardOption key={o}>{o}</WizardOption>
-                ))}
-              </WizardSelect>
-            ) : (
-              <Input key={i} placeholder={p} className="h-10 text-sm" />
-            ),
-          )}
-        </div>
-      ))}
-      <button
-        type="button"
-        onClick={() => setRows((prev) => [...prev, (prev.at(-1) ?? 0) + 1])}
-        className="mt-1 rounded-lg border border-dashed border-border px-3.5 py-2 text-xs font-medium text-accent hover:bg-accent/5"
-      >
-        + {addLabel}
-      </button>
-    </div>
-  );
-}
-
 /* --------------------------------- page ----------------------------------- */
 
 export default function SubmitProject() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const shownQuestions = useRef(new Set<string>());
   const [cur, setCur] = useState(0);
   const [stage, setStage] = useState("");
   const [summary, setSummary] = useState("");
   const [mandate, setMandate] = useState(false);
-  const [thirdParty, setThirdParty] = useState(false);
   const [country, setCountry] = useState("France");
-  const [region, setRegion] = useState("");
   const [title, setTitle] = useState("");
   const [city, setCity] = useState("");
   const [projectType, setProjectType] = useState<"greenfield" | "brownfield" | "expansion" | "modernisation">("greenfield");
   const [technology, setTechnology] = useState<"waste_heat_recovery" | "geothermal" | "large_heat_pump" | "solar_thermal" | "biomass_chp" | "thermal_storage" | "hybrid">("waste_heat_recovery");
   const [capacity, setCapacity] = useState("");
-  const [capacityBand, setCapacityBand] = useState("");
   const [capex, setCapex] = useState("");
-  const [capexBand, setCapexBand] = useState("");
   const [co2, setCo2] = useState("");
   const [renewableShare, setRenewableShare] = useState("");
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState("");
 
+  const [siteLand, setSiteLand] = useState("");
+  const [supplyTemperature, setSupplyTemperature] = useState("");
+  const [returnTemperature, setReturnTemperature] = useState("");
+  const [temperatureBasis, setTemperatureBasis] = useState("");
+  const [annualHeat, setAnnualHeat] = useState("");
+  const [baseline, setBaseline] = useState("");
+  const [co2Basis, setCo2Basis] = useState("");
+  const [ghgIntensity, setGhgIntensity] = useState("");
+  const [developerStructure, setDeveloperStructure] = useState("");
+  const [regulatoryRegime, setRegulatoryRegime] = useState("");
+  const [concessionCounterparty, setConcessionCounterparty] = useState("");
+  const [grantTreatment, setGrantTreatment] = useState("");
+  const [networkLength, setNetworkLength] = useState("");
+  const [households, setHouseholds] = useState("");
+  const [concessionTerm, setConcessionTerm] = useState("");
+  const [purchaseFloorCap, setPurchaseFloorCap] = useState("");
+  const [publicCofinancing, setPublicCofinancing] = useState("");
+  const [milestones, setMilestones] = useState<Record<string, string>[]>([]);
+  const [capitalStack, setCapitalStack] = useState<Record<string, string>[]>([]);
+  const [revenueStreams, setRevenueStreams] = useState<Record<string, string>[]>([]);
+  const [energyMix, setEnergyMix] = useState<Record<string, string>[]>([]);
+  const [technologyCards, setTechnologyCards] = useState<Record<string, string>[]>([]);
+  const [operatingParameters, setOperatingParameters] = useState<Record<string, string>[]>([]);
+  const [risks, setRisks] = useState<Record<string, string>[]>([]);
   // offtake commitment ladder
   const [ladderAsOf, setLadderAsOf] = useState(todayISO());
   const [totalBuildings, setTotalBuildings] = useState("");
@@ -238,10 +218,6 @@ export default function SubmitProject() {
   const [indexationMismatchNote, setIndexationMismatchNote] = useState("");
   const [dscr1xConnections, setDscr1xConnections] = useState("");
   const [irrZeroConnections, setIrrZeroConnections] = useState("");
-  const [debtMarginBps, setDebtMarginBps] = useState("");
-  const [gearingPct, setGearingPct] = useState("");
-  const [lockupDscr, setLockupDscr] = useState("");
-  const [dsraMonths, setDsraMonths] = useState("");
   const [cases, setCases] = useState<Record<CaseRecord["name"], CaseRow>>({
     base: blankCase(true), downside: blankCase(true), stress: blankCase(false), upside: blankCase(false),
   });
@@ -254,22 +230,6 @@ export default function SubmitProject() {
   const [minTicket, setMinTicket] = useState("");
   const [clubAllowed, setClubAllowed] = useState(false);
   const [clubMaxParticipants, setClubMaxParticipants] = useState("");
-  const [boardSeatThreshold, setBoardSeatThreshold] = useState("");
-  const [observerThreshold, setObserverThreshold] = useState("");
-  const [reservedMatters, setReservedMatters] = useState<string[]>(DEFAULT_RESERVED_MATTERS);
-  const [preEmption, setPreEmption] = useState(true);
-  const [rofr, setRofr] = useState(true);
-  const [tagAlong, setTagAlong] = useState(true);
-  const [dragAlongThreshold, setDragAlongThreshold] = useState("");
-  const [distributionPolicy, setDistributionPolicy] = useState("");
-  const [firstDistributionYear, setFirstDistributionYear] = useState("");
-  const [exitRoutes, setExitRoutes] = useState<string[]>([]);
-  const [expectedHoldYears, setExpectedHoldYears] = useState("");
-  const [preMoneyEquity, setPreMoneyEquity] = useState("");
-  const [sponsorCashFunded, setSponsorCashFunded] = useState("");
-  const [postMoneyOwnership, setPostMoneyOwnership] = useState<Record<string, string>[]>([{ holder: "", pct: "" }]);
-  const [useOfProceeds, setUseOfProceeds] = useState<Record<string, string>[]>([{ item: "", amount: "" }]);
-  const [drawdownTranches, setDrawdownTranches] = useState<Record<string, string>[]>([{ tranche: "", amount: "", trigger: "" }]);
   const [targetEquityIrrPct, setTargetEquityIrrPct] = useState("");
   const [downsideEquityIrrPct, setDownsideEquityIrrPct] = useState("");
 
@@ -281,16 +241,6 @@ export default function SubmitProject() {
   const [notifyUsers, setNotifyUsers] = useState("");
 
   // process
-  const [processAsOf, setProcessAsOf] = useState(todayISO());
-  const [processType, setProcessType] = useState<"bilateral" | "competitive">("bilateral");
-  const [ioiDeadline, setIoiDeadline] = useState("");
-  const [managementMeetingsWindow, setManagementMeetingsWindow] = useState("");
-  const [loiDeadline, setLoiDeadline] = useState("");
-  const [exclusivityDays, setExclusivityDays] = useState("");
-  const [targetClose, setTargetClose] = useState("");
-  const [conditionsPrecedent, setConditionsPrecedent] = useState<Record<string, string>[]>([{ condition: "" }]);
-  const [adviserDisclosed, setAdviserDisclosed] = useState(false);
-  const [partiesUnderNda, setPartiesUnderNda] = useState("");
 
   // regulatory / structure
   const [regulatoryAsOf, setRegulatoryAsOf] = useState(todayISO());
@@ -311,7 +261,6 @@ export default function SubmitProject() {
       { key: "technical", label: "Technical", tag: "" },
       { key: "financial", label: "Financial", tag: "" },
       { key: "transaction", label: "Transaction", tag: "" },
-      { key: "process", label: "Process", tag: "" },
       { key: "access", label: "Access criteria", tag: "" },
       { key: "sustainability", label: "Sustainability", tag: "" },
       { key: "structure", label: "Structure & market", tag: "" },
@@ -335,11 +284,6 @@ export default function SubmitProject() {
   const filledCaseCount = CASE_ORDER.filter((name) => name !== "base" ? cases[name].enabled && caseHasValue(cases[name]) : true).length;
   const downsideProvided = caseHasValue(cases.downside) && cases.downside.enabled;
   const casesInvalid = lateStage && !downsideProvided;
-
-  const toggleReservedMatter = (o: string) =>
-    setReservedMatters((prev) => (prev.includes(o) ? prev.filter((x) => x !== o) : [...prev, o]));
-  const toggleExitRoute = (o: string) =>
-    setExitRoutes((prev) => (prev.includes(o) ? prev.filter((x) => x !== o) : [...prev, o]));
 
   const publish = async () => {
     setPublishError("");
@@ -385,15 +329,18 @@ export default function SubmitProject() {
         lifecycle_stage: STAGE_VALUES[stage as keyof typeof STAGE_VALUES],
         project_type: projectType, technology, capacity_mw: Number(capacity), visibility: "listed",
         headline_investment: num(capex), headline_co2_tonnes: num(co2),
+        network_length_km: num(networkLength), households_served: num(households), public_cofinancing_status: publicCofinancing || null,
+        timeline_start: milestones.map(r => r.target_date).filter(Boolean).sort()[0] || null,
+        timeline_end: milestones.map(r => r.target_date).filter(Boolean).sort().at(-1) || null,
+        asked_fields: recordedQuestionKeys([...shownQuestions.current], stage.toLowerCase()), form_version: FORM_VERSION,
         technical_as_of: technicalAsOf || null, financial_as_of: financialAsOf || null, regulatory_as_of: regulatoryAsOf || null,
       },
       financial_summary:
-        capex || dscr1xConnections || irrZeroConnections || debtMarginBps || gearingPct || lockupDscr || dsraMonths
+        capex || dscr1xConnections || irrZeroConnections || concessionTerm || capitalStack.some(r => r.label) || revenueStreams.some(r => r.stream)
           ? {
               currency: "EUR", capex: num(capex),
               dscr_1x_connections: num(dscr1xConnections), irr_zero_connections: num(irrZeroConnections),
-              debt_margin_bps: num(debtMarginBps), gearing_pct: num(gearingPct),
-              lockup_dscr: num(lockupDscr), dsra_months: num(dsraMonths),
+              concession_term_years: num(concessionTerm),
             }
           : null,
       sustainability_profile:
@@ -426,7 +373,7 @@ export default function SubmitProject() {
               as_of: financialAsOf || null, heat_purchase_price: num(heatPurchasePrice), purchase_index: purchaseIndex || null,
               customer_tariff: num(customerTariff), tariff_index: tariffIndex || null,
               gross_spread: num(grossSpread), opex_per_kwh: num(opexPerKwh),
-              indexation_mismatch_note: indexationMismatchNote || null,
+              indexation_mismatch_note: indexationMismatchNote || null, purchase_floor_cap: purchaseFloorCap || null,
             }
           : null,
       cases: caseRows,
@@ -436,27 +383,18 @@ export default function SubmitProject() {
             as_of: transactionAsOf || null, instrument,
             equity_sought: num(equitySought), stake_offered_pct: num(stakeOfferedPct), min_ticket: num(minTicket),
             club_max_participants: clubAllowed && clubMaxParticipants ? Number(clubMaxParticipants) : null,
-            board_seat_threshold: num(boardSeatThreshold), observer_threshold: num(observerThreshold),
-            reserved_matters: reservedMatters, pre_emption: preEmption, rofr, tag_along: tagAlong,
-            drag_along_threshold: num(dragAlongThreshold), distribution_policy: distributionPolicy || null,
-            first_distribution_year: num(firstDistributionYear), exit_routes: exitRoutes,
-            expected_hold_years: num(expectedHoldYears), pre_money_equity: num(preMoneyEquity),
-            sponsor_cash_funded: num(sponsorCashFunded),
-            post_money_ownership: postMoneyOwnership.filter((r) => r.holder || r.pct),
-            use_of_proceeds: useOfProceeds.filter((r) => r.item || r.amount),
-            drawdown_tranches: drawdownTranches.filter((r) => r.tranche || r.amount),
             target_equity_irr_pct: num(targetEquityIrrPct), downside_equity_irr_pct: num(downsideEquityIrrPct),
           },
-      project_process: early
-        ? null
-        : {
-            as_of: processAsOf || null, process_type: processType,
-            ioi_deadline: ioiDeadline || null, management_meetings_window: managementMeetingsWindow || null,
-            loi_deadline: loiDeadline || null, exclusivity_days: num(exclusivityDays),
-            target_close: targetClose || null,
-            conditions_precedent: conditionsPrecedent.map((r) => r.condition).filter(Boolean),
-            adviser_disclosed: adviserDisclosed, parties_under_nda: num(partiesUnderNda),
-          },
+      milestones: milestones.filter(r => r.label).map(r => ({ ...r, target_date: r.target_date || null, status: r.status || "upcoming" })),
+      capital_stack: early ? [] : capitalStack.filter(r => r.label).map(r => ({ ...r, amount: num(r.amount || "") })),
+      revenue_streams: early ? [] : revenueStreams.filter(r => r.stream).map(r => ({ ...r, pct_of_revenue: num(r.pct_of_revenue || "") })),
+      energy_mix: energyMix.filter(r => r.source).map(r => ({ ...r, share_pct: num(r.share_pct || "") })),
+      technology_cards: technologyCards.filter(r => r.title),
+      operating_parameters: [
+        ...operatingParameters.filter(r => r.parameter),
+        ...Object.entries({ "Site / land status": siteLand, "Supply temperature": supplyTemperature, "Return temperature": returnTemperature, "Temperature basis": temperatureBasis, "Annual heat output (GWh/year)": annualHeat, "Baseline / counterfactual": baseline, "GHG basis": co2Basis, "GHG intensity (tCO2e/MWh)": ghgIntensity, "Developer structure": developerStructure, "Regulatory regime": regulatoryRegime, "Concession counterparty": concessionCounterparty, "EED threshold year": eedPathYear, "EED path": eedPath }).filter(([, value]) => value).map(([parameter, value]) => ({ parameter, value, benchmark: null })),
+      ],
+      risks: risks.filter(r => r.category).map(r => ({ ...r, severity: r.severity || "medium" })),
       listing_access_criteria: {
         min_ticket: num(accessMinTicket),
         instruments_accepted: instrumentsAccepted,
@@ -479,6 +417,7 @@ export default function SubmitProject() {
 
 
   return (
+    <QuestionContext.Provider value={{ stage, record: label => shownQuestions.current.add(label) }}>
     <div className="bg-background">
       {/* progress */}
       <div className="h-[3px] bg-border">
@@ -554,7 +493,7 @@ export default function SubmitProject() {
                     <button
                       key={s.id}
                       type="button"
-                      onClick={() => setStage(s.id)}
+                      onClick={() => { shownQuestions.current.clear(); setStage(s.id); }}
                       className={cn(
                         "min-w-[130px] flex-1 rounded-lg border border-border bg-card p-3.5 text-left transition",
                         stage === s.id && "border-accent bg-accent/10",
@@ -588,14 +527,7 @@ export default function SubmitProject() {
                     ))}
                   </WizardSelect>
                 </Field>
-                <Field label="Network generation" required>
-                  <WizardSelect>
-                    <WizardOption>4G - low temperature (under 70 C)</WizardOption>
-                    <WizardOption>3G - high temperature (70-120 C)</WizardOption>
-                    <WizardOption>5G - ambient loop</WizardOption>
-                    <WizardOption>Transitioning</WizardOption>
-                  </WizardSelect>
-                </Field>
+
               </div>
 
               <div className="grid gap-3.5 sm:grid-cols-2">
@@ -606,13 +538,7 @@ export default function SubmitProject() {
                     ))}
                   </WizardSelect>
                 </Field>
-                <Field label="Region (NUTS-2)" required>
-                  <Input
-                    value={region}
-                    onChange={(e) => setRegion(e.target.value)}
-                    placeholder="e.g. Auvergne-Rhone-Alpes"
-                  />
-                </Field>
+
               </div>
               <Field label="City" required>
                 <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Lyon" />
@@ -656,18 +582,8 @@ export default function SubmitProject() {
               </Field>
 
               <div className="grid gap-3.5 sm:grid-cols-2">
-                <Field label="Capacity band" required hint="Exact MW revealed at interest.">
-                  <WizardSelect value={capacityBand} onChange={(e) => setCapacityBand(e.target.value)}>
-                    <WizardOption value="">Select a band</WizardOption>
-                    {CAPACITY_BANDS.map((b) => <WizardOption key={b} value={b}>{b}</WizardOption>)}
-                  </WizardSelect>
-                </Field>
-                <Field label="Capex band" required hint="Exact figure revealed at interest.">
-                  <WizardSelect value={capexBand} onChange={(e) => setCapexBand(e.target.value)}>
-                    <WizardOption value="">Select a band</WizardOption>
-                    {CAPEX_BANDS.map((b) => <WizardOption key={b} value={b}>{b}</WizardOption>)}
-                  </WizardSelect>
-                </Field>
+
+
               </div>
 
               <Field
@@ -709,7 +625,7 @@ export default function SubmitProject() {
                 required
                 hint="Amount and source are revealed only at interest."
               >
-                <WizardSelect>
+                <WizardSelect value={publicCofinancing} onChange={e => setPublicCofinancing(e.target.value)}>
                   <WizardOption>None</WizardOption><WizardOption>In progress</WizardOption><WizardOption>Committed</WizardOption>
                 </WizardSelect>
               </Field>
@@ -725,25 +641,11 @@ export default function SubmitProject() {
                 Where the heat comes from, how it is delivered, and how the network performs.
               </p>
 
-              <Field label="Heat-source ownership" required>
-                <WizardSelect
-                  onChange={(e) => setThirdParty(e.target.value === "Third-party supplied")}
-                >
-                  <WizardOption>Self-owned</WizardOption>
-                  <WizardOption>Third-party supplied</WizardOption>
-                </WizardSelect>
-              </Field>
-              {thirdParty && (
-                <Field
-                  label="Third-party supply terms"
-                  hint="Contract in place, length, and what happens if the host exits."
-                >
-                  <Input placeholder="e.g. 15-yr supply agreement with industrial host, renewable" />
-                </Field>
-              )}
+
+
 
               <Field label="Site / land status" required>
-                <WizardSelect>
+                <WizardSelect value={siteLand} onChange={e => setSiteLand(e.target.value)}>
                   <WizardOption>Contracted</WizardOption><WizardOption>In negotiation</WizardOption><WizardOption>Not yet</WizardOption>
                 </WizardSelect>
               </Field>
@@ -753,26 +655,15 @@ export default function SubmitProject() {
                 optional={early ? "(design target)" : "(optional)"}
               >
                 <div className="grid gap-2.5 sm:grid-cols-[1fr_1fr_150px]">
-                  <Input type="number" placeholder="Supply C" />
-                  <Input type="number" placeholder="Return C" />
-                  <WizardSelect>
-                    <WizardOption>Designed</WizardOption><WizardOption>Modelled</WizardOption><WizardOption>Measured</WizardOption>
+                  <Input type="number" placeholder="Supply C" value={supplyTemperature} onChange={e => setSupplyTemperature(e.target.value)} />
+                  <Input type="number" placeholder="Return C" value={returnTemperature} onChange={e => setReturnTemperature(e.target.value)} />
+                  <WizardSelect value={temperatureBasis} onChange={e => setTemperatureBasis(e.target.value)}>
+                    {BASIS_FLAGS.map(value => <WizardOption key={value} value={value}>{value}</WizardOption>)}
                   </WizardSelect>
                 </div>
               </Field>
 
-              <Field
-                label="Network heat loss"
-                optional="(optional)"
-                hint="EU range roughly 8-15%. Mark whether designed or measured."
-              >
-                <div className="grid gap-2.5 sm:grid-cols-[1fr_150px]">
-                  <Input type="number" placeholder="%" />
-                  <WizardSelect>
-                    <WizardOption>Designed</WizardOption><WizardOption>Modelled</WizardOption><WizardOption>Measured</WizardOption>
-                  </WizardSelect>
-                </div>
-              </Field>
+
 
               <Field
                 label="Installed capacity (exact MW)"
@@ -786,32 +677,22 @@ export default function SubmitProject() {
                 optional="(optional)"
                 hint="Used with emissions to derive GHG intensity."
               >
-                <Input type="number" placeholder="GWh / yr" />
+                <Input type="number" placeholder="GWh / yr" value={annualHeat} onChange={e => setAnnualHeat(e.target.value)} />
               </Field>
-              <Field label="Total heated area" optional="(optional)">
-                <Input type="number" placeholder="m2" />
-              </Field>
-              <Field label="Building / demand mix" optional="(optional)">
-                <Input placeholder="e.g. apartment 54%, municipal 31%, commercial 15%" />
-              </Field>
-              <Field label="Asset design lifespan" optional="(optional)">
-                <Input type="number" placeholder="years" />
-              </Field>
-              <Field label="Thermal storage" optional="(optional)">
-                <Input placeholder="e.g. water tank, 2,500 m3, daily load-shifting" />
-              </Field>
+
+
+
+
+              <Field label="Network length" optional="(km)"><Input type="number" value={networkLength} onChange={e => setNetworkLength(e.target.value)} /></Field>
+              <Field label="Households served" optional="(optional)"><Input type="number" value={households} onChange={e => setHouseholds(e.target.value)} /></Field>
+              <Field label="Technology detail" optional="(optional)"><RowsEditor rows={technologyCards} onChange={setTechnologyCards} columns={[{ key: "title", placeholder: "Technology" }, { key: "description", placeholder: "Description" }]} addLabel="Add technology" /></Field>
+              <Field label="Operating parameters" optional="(optional)"><RowsEditor rows={operatingParameters} onChange={setOperatingParameters} columns={[{ key: "parameter", placeholder: "Parameter" }, { key: "value", placeholder: "Value" }, { key: "benchmark", placeholder: "Context" }]} addLabel="Add parameter" /></Field>
               <Field
                 label="Development timeline"
                 optional="(optional)"
                 hint="Phases shown as a tracker on the project page."
               >
-                <RowList
-                  columns="1.2fr .9fr .6fr 1.6fr"
-                  addLabel="Add milestone"
-                  placeholders={["Phase", "", "Year", "Short note"]}
-                  selectAt={1}
-                  selectOptions={["Completed", "In progress", "Planned"]}
-                />
+                <RowsEditor rows={milestones} onChange={setMilestones} columns={[{ key: "label", placeholder: "Phase" }, { key: "target_date", placeholder: "Date", type: "date" }, { key: "status", placeholder: "completed / in_progress / upcoming" }, { key: "description", placeholder: "Short note" }]} addLabel="Add milestone" />
               </Field>
 
               <div className={cn("rounded-xl border p-5", lateStage ? "border-border bg-card" : "border-dashed border-border bg-muted/30 opacity-70")}>
@@ -865,19 +746,12 @@ export default function SubmitProject() {
                   <p className="mb-6 text-[15px] leading-relaxed text-muted-foreground">
                     At this stage we keep financials light and clearly indicative.
                   </p>
-                  <Field label="Indicative capex range">
-                    <WizardSelect>
-                      {CAPEX_BANDS.map((b) => <WizardOption key={b}>{b}</WizardOption>)}
-                    </WizardSelect>
-                  </Field>
-                  <Field label="Equity sought (indicative)">
-                    <Input placeholder="e.g. ~8M EUR" />
-                  </Field>
+
+
                   <div className="rounded-xl border border-dashed border-border bg-muted/40 p-5 text-center text-sm leading-relaxed text-muted-foreground">
                     <b className="text-foreground">Detailed financials are skipped at this stage.</b>
                     <br />
-                    Capital stack, debt terms, and DSCR will be asked for once the project reaches
-                    development. Investors see these fields marked "not yet available at this stage",
+                    Capital stack and base-case DSCR inputs are collected from development,
                     so an early project never looks incomplete.
                   </div>
                   <div className="mt-5">
@@ -896,76 +770,39 @@ export default function SubmitProject() {
                     label="Capital stack"
                     hint="Each tranche: amount and counterparty. Shown as a stacked bar; counterparties revealed at interest."
                   >
-                    <RowList
-                      columns="1.2fr 1fr 1.4fr"
-                      addLabel="Add tranche"
-                      placeholders={["Tranche (e.g. Equity)", "Amount EUR", "Counterparty"]}
-                      initial={3}
-                    />
+                    <RowsEditor rows={capitalStack} onChange={setCapitalStack} columns={[{ key: "label", placeholder: "Tranche" }, { key: "amount", placeholder: "Amount EUR", type: "number" }, { key: "provider", placeholder: "Counterparty" }]} addLabel="Add tranche" />
                   </Field>
+                  <Field label="Purchase floor / cap" optional="(optional)"><Input value={purchaseFloorCap} onChange={e => setPurchaseFloorCap(e.target.value)} /></Field>
+                  <Field label="Three named risks" optional="(optional)"><RowsEditor rows={risks} onChange={setRisks} columns={[{ key: "category", placeholder: "Risk" }, { key: "severity", placeholder: "low / medium / high" }, { key: "description", placeholder: "Description" }, { key: "mitigation", placeholder: "Mitigation" }]} addLabel="Add risk" /></Field>
                   <Field label="Grant treatment" optional="(if a grant is present)">
-                    <WizardSelect>
+                    <WizardSelect value={grantTreatment} onChange={e => setGrantTreatment(e.target.value)}>
                       <WizardOption>Non-repayable</WizardOption><WizardOption>Clawback-conditional</WizardOption>
                       <WizardOption>Milestone-conditional</WizardOption>
                     </WizardSelect>
                   </Field>
-                  <Field
-                    label="Debt terms"
-                    optional="(if available)"
-                    hint="Tenor, margin, fixed vs floating, hedged %."
-                  >
-                    <Input placeholder="e.g. 18-yr, EURIBOR+180bps, 70% hedged" />
-                  </Field>
+
                   <div className="grid gap-3.5 sm:grid-cols-3">
-                    <Field label="Debt margin" optional="(bps)">
-                      <Input type="number" placeholder="e.g. 180" value={debtMarginBps} onChange={(e) => setDebtMarginBps(e.target.value)} />
-                    </Field>
-                    <Field label="Gearing" optional="(%)">
-                      <Input type="number" placeholder="e.g. 65" value={gearingPct} onChange={(e) => setGearingPct(e.target.value)} />
-                    </Field>
-                    <Field label="Lock-up DSCR" optional="(x)">
-                      <Input type="number" step="0.01" placeholder="e.g. 1.15" value={lockupDscr} onChange={(e) => setLockupDscr(e.target.value)} />
-                    </Field>
-                    <Field label="DSRA" optional="(months)">
-                      <Input type="number" placeholder="e.g. 6" value={dsraMonths} onChange={(e) => setDsraMonths(e.target.value)} />
-                    </Field>
-                    <Field label="DSCR at 1x connections" optional="(x)">
+
+
+
+
+                    <Field label="DSCR 1x connections (base case)" optional="(count)">
                       <Input type="number" step="0.01" value={dscr1xConnections} onChange={(e) => setDscr1xConnections(e.target.value)} />
                     </Field>
-                    <Field label="Equity IRR at zero connections" optional="(%)">
+                    <Field label="Zero IRR connections (base case)" optional="(count)">
                       <Input type="number" step="0.1" value={irrZeroConnections} onChange={(e) => setIrrZeroConnections(e.target.value)} />
                     </Field>
                   </div>
-                  <Field
-                    label="Revenue ceiling / return constraint"
-                    required
-                    hint="What caps the upside. We tailor the sub-fields to your regime once you set it in Structure."
-                  >
-                    <WizardSelect>
-                      <WizardOption>Ex-ante regulated allowed return</WizardOption>
-                      <WizardOption>Non-profit / break-even</WizardOption>
-                      <WizardOption>Market-based (no cap)</WizardOption>
-                      <WizardOption>Concession tariff ceiling</WizardOption>
-                      <WizardOption>Ex-post (clause-validity risk)</WizardOption>
-                    </WizardSelect>
-                  </Field>
+
                   <Field
                     label="Revenue model"
                     required
                     hint="Streams and their share of revenue. Counterparties revealed at interest."
                   >
-                    <RowList
-                      columns="1.5fr .6fr 1.2fr"
-                      addLabel="Add stream"
-                      placeholders={["Stream (e.g. Concession tariff)", "% of revenue", "Counterparty"]}
-                    />
+                    <RowsEditor rows={revenueStreams} onChange={setRevenueStreams} columns={[{ key: "stream", placeholder: "Stream" }, { key: "pct_of_revenue", placeholder: "%", type: "number" }, { key: "counterparty", placeholder: "Counterparty" }]} addLabel="Add stream" />
                   </Field>
-                  <Field label="Offtake terms" optional="(optional)">
-                    <Input placeholder="e.g. take-or-pay, 80% volume floor, 20-yr" />
-                  </Field>
-                  <Field label="Offtaker credit quality" optional="(optional)">
-                    <Input placeholder="e.g. municipal anchor plus investment-grade commercial offtakers" />
-                  </Field>
+
+
 
                   <div className="my-6 rounded-xl border border-border bg-card p-5">
                     <h4 className="mb-3 text-sm font-semibold">Margin and pricing</h4>
@@ -1086,82 +923,33 @@ export default function SubmitProject() {
               </Field>
 
               <div className="grid gap-3.5 sm:grid-cols-2">
-                <Field label="Board seat threshold" optional="(% stake)">
-                  <Input type="number" value={boardSeatThreshold} onChange={(e) => setBoardSeatThreshold(e.target.value)} />
-                </Field>
-                <Field label="Observer threshold" optional="(% stake)">
-                  <Input type="number" value={observerThreshold} onChange={(e) => setObserverThreshold(e.target.value)} />
-                </Field>
+
+
               </div>
 
-              <Field label="Reserved matters" hint="Prefilled with a standard list; adjust as needed.">
-                <MultiSelect options={DEFAULT_RESERVED_MATTERS} selected={reservedMatters} onToggle={toggleReservedMatter} />
-              </Field>
 
-              <Field label="Transfer rights">
-                <div className="grid gap-2.5 sm:grid-cols-3">
-                  <label className="flex items-center gap-2 text-sm"><Checkbox checked={preEmption} onCheckedChange={(v) => setPreEmption(Boolean(v))} />Pre-emption</label>
-                  <label className="flex items-center gap-2 text-sm"><Checkbox checked={rofr} onCheckedChange={(v) => setRofr(Boolean(v))} />ROFR</label>
-                  <label className="flex items-center gap-2 text-sm"><Checkbox checked={tagAlong} onCheckedChange={(v) => setTagAlong(Boolean(v))} />Tag along</label>
-                </div>
-                <Input className="mt-2.5" type="number" placeholder="Drag along threshold (% stake)" value={dragAlongThreshold} onChange={(e) => setDragAlongThreshold(e.target.value)} />
-              </Field>
+
+
 
               <div className="grid gap-3.5 sm:grid-cols-2">
-                <Field label="Distribution policy" optional="(optional)">
-                  <Input value={distributionPolicy} onChange={(e) => setDistributionPolicy(e.target.value)} placeholder="e.g. annual, post-DSRA" />
-                </Field>
-                <Field label="First distribution year" optional="(optional)">
-                  <Input type="number" value={firstDistributionYear} onChange={(e) => setFirstDistributionYear(e.target.value)} />
-                </Field>
+
+
               </div>
 
-              <Field label="Exit routes" hint="Select all that plausibly apply.">
-                <MultiSelect options={DEFAULT_EXIT_ROUTES} selected={exitRoutes} onToggle={toggleExitRoute} />
-              </Field>
 
-              <Field label="Expected hold period" optional="(years)">
-                <Input type="number" value={expectedHoldYears} onChange={(e) => setExpectedHoldYears(e.target.value)} />
-              </Field>
+
+
 
               <div className="grid gap-3.5 sm:grid-cols-2">
-                <Field label="Pre-money equity" optional="(EUR)">
-                  <Input type="number" value={preMoneyEquity} onChange={(e) => setPreMoneyEquity(e.target.value)} />
-                </Field>
-                <Field label="Sponsor cash already funded" optional="(EUR)">
-                  <Input type="number" value={sponsorCashFunded} onChange={(e) => setSponsorCashFunded(e.target.value)} />
-                </Field>
+
+
               </div>
 
-              <Field label="Post-money ownership" optional="(optional)" hint="Holder and resulting share.">
-                <RowsEditor
-                  columns={[{ key: "holder", placeholder: "Holder" }, { key: "pct", placeholder: "%", type: "number" }]}
-                  rows={postMoneyOwnership}
-                  onChange={setPostMoneyOwnership}
-                  addLabel="Add holder"
-                  minRows={1}
-                />
-              </Field>
 
-              <Field label="Use of proceeds" optional="(optional)">
-                <RowsEditor
-                  columns={[{ key: "item", placeholder: "Item" }, { key: "amount", placeholder: "Amount EUR", type: "number" }]}
-                  rows={useOfProceeds}
-                  onChange={setUseOfProceeds}
-                  addLabel="Add line"
-                  minRows={1}
-                />
-              </Field>
 
-              <Field label="Drawdown tranches" optional="(optional)">
-                <RowsEditor
-                  columns={[{ key: "tranche", placeholder: "Tranche" }, { key: "amount", placeholder: "Amount EUR", type: "number" }, { key: "trigger", placeholder: "Trigger" }]}
-                  rows={drawdownTranches}
-                  onChange={setDrawdownTranches}
-                  addLabel="Add tranche"
-                  minRows={1}
-                />
-              </Field>
+
+
+
 
               <div className="grid gap-3.5 sm:grid-cols-2">
                 <Field label={`Target equity IRR (${CASE_LABEL.base})`} optional="(%)">
@@ -1173,72 +961,6 @@ export default function SubmitProject() {
               </div>
 
               <AsOfField value={transactionAsOf} onChange={setTransactionAsOf} />
-            </section>
-          )}
-
-          {/* STEP: process */}
-          {curKey === "process" && (
-            <section>
-              <StepHead n={cur + 1} total={STEPS.length} title="Process" pill="Revealed at interest" pillTone="t2" />
-              <h1 className="mb-2 text-[27px] font-semibold">Process</h1>
-              <p className="mb-6 text-[15px] leading-relaxed text-muted-foreground">
-                How the process is run and the key dates investors should plan around.
-              </p>
-
-              <Field label="Process type" required>
-                <div className="flex gap-2">
-                  {(["bilateral", "competitive"] as const).map((v) => (
-                    <button
-                      key={v}
-                      type="button"
-                      onClick={() => setProcessType(v)}
-                      className={cn("flex-1 rounded-lg border border-border bg-card p-3 text-sm capitalize", processType === v && "border-accent bg-accent/10")}
-                    >
-                      {v}
-                    </button>
-                  ))}
-                </div>
-              </Field>
-
-              <div className="grid gap-3.5 sm:grid-cols-2">
-                <Field label="IOI deadline" optional="(optional)">
-                  <Input type="date" value={ioiDeadline} onChange={(e) => setIoiDeadline(e.target.value)} />
-                </Field>
-                <Field label="LOI deadline" optional="(optional)">
-                  <Input type="date" value={loiDeadline} onChange={(e) => setLoiDeadline(e.target.value)} />
-                </Field>
-                <Field label="Management meeting window" optional="(optional)">
-                  <Input placeholder="e.g. weeks 3-5" value={managementMeetingsWindow} onChange={(e) => setManagementMeetingsWindow(e.target.value)} />
-                </Field>
-                <Field label="Exclusivity" optional="(days)">
-                  <Input type="number" value={exclusivityDays} onChange={(e) => setExclusivityDays(e.target.value)} />
-                </Field>
-                <Field label="Target close" optional="(optional)">
-                  <Input type="date" value={targetClose} onChange={(e) => setTargetClose(e.target.value)} />
-                </Field>
-                <Field label="Parties with access" optional="(count)">
-                  <Input type="number" value={partiesUnderNda} onChange={(e) => setPartiesUnderNda(e.target.value)} />
-                </Field>
-              </div>
-
-              <Field label="Conditions precedent" optional="(optional)">
-                <RowsEditor
-                  columns={[{ key: "condition", placeholder: "Condition" }]}
-                  rows={conditionsPrecedent}
-                  onChange={setConditionsPrecedent}
-                  addLabel="Add condition"
-                  minRows={1}
-                />
-              </Field>
-
-              <Field label="Adviser disclosed">
-                <label className="flex items-center gap-2 text-sm">
-                  <Checkbox checked={adviserDisclosed} onCheckedChange={(v) => setAdviserDisclosed(Boolean(v))} />
-                  A financial or legal adviser is named in the data room
-                </label>
-              </Field>
-
-              <AsOfField value={processAsOf} onChange={setProcessAsOf} />
             </section>
           )}
 
@@ -1299,7 +1021,7 @@ export default function SubmitProject() {
                 required
                 hint="What the heat replaces. Every emissions figure depends on this."
               >
-                <WizardSelect>
+                <WizardSelect value={baseline} onChange={e => setBaseline(e.target.value)}>
                   <WizardOption>Individual gas boilers</WizardOption><WizardOption>Coal CHP</WizardOption>
                   <WizardOption>Individual electric heating</WizardOption><WizardOption>Oil heating</WizardOption>
                   <WizardOption>Older district heating</WizardOption>
@@ -1308,8 +1030,8 @@ export default function SubmitProject() {
               <Field label="GHG avoidance" optional="(optional, basis-flagged)">
                 <div className="grid gap-2.5 sm:grid-cols-[1fr_150px]">
                   <Input type="number" placeholder="tCO2e / yr" value={co2} onChange={(e) => setCo2(e.target.value)} />
-                  <WizardSelect>
-                    <WizardOption>Modelled</WizardOption><WizardOption>Measured</WizardOption>
+                  <WizardSelect value={co2Basis} onChange={e => setCo2Basis(e.target.value)}>
+                    {BASIS_FLAGS.map(value => <WizardOption key={value} value={value}>{value}</WizardOption>)}
                   </WizardSelect>
                 </div>
               </Field>
@@ -1338,37 +1060,14 @@ export default function SubmitProject() {
                 optional="(optional)"
                 hint="Named sources and their share. Shown as a donut and bar on the project page."
               >
-                <RowList
-                  columns="1.7fr .5fr"
-                  addLabel="Add source"
-                  placeholders={["Source (e.g. Industrial waste heat)", "%"]}
-                  initial={3}
-                />
+                <RowsEditor rows={energyMix} onChange={setEnergyMix} columns={[{ key: "source", placeholder: "Source" }, { key: "share_pct", placeholder: "%", type: "number" }]} addLabel="Add source" />
               </Field>
-              <Field
-                label="Annual emissions: baseline vs project"
-                optional="(optional)"
-                hint="Drives the CO2 comparison chart and the avoidance figure."
-              >
-                <div className="grid gap-3.5 sm:grid-cols-2">
-                  <Input type="number" placeholder="Counterfactual tCO2e/yr" />
-                  <Input type="number" placeholder="With-project tCO2e/yr" />
-                </div>
-              </Field>
+
               <Field label="GHG intensity" optional="(optional)">
-                <Input type="number" step="0.01" placeholder="tCO2e / MWh" />
+                <Input type="number" step="0.01" placeholder="tCO2e / MWh" value={ghgIntensity} onChange={e => setGhgIntensity(e.target.value)} />
               </Field>
-              <Field
-                label="Primary Energy Factor (PEF)"
-                optional="(optional)"
-              >
-                <Input type="number" step="0.01" placeholder="e.g. 0.82" />
-              </Field>
-              <Field label="Upstream / Scope 3 included?" optional="(optional)">
-                <WizardSelect>
-                  <WizardOption>No</WizardOption><WizardOption>Yes</WizardOption>
-                </WizardSelect>
-              </Field>
+
+
             </section>
           )}
 
@@ -1383,37 +1082,20 @@ export default function SubmitProject() {
               </p>
 
               <Field label="Developer structure type" required>
-                <WizardSelect>
+                <WizardSelect value={developerStructure} onChange={e => setDeveloperStructure(e.target.value)}>
                   {["Municipal utility", "Arms-length municipal", "Public-private partnership", "Private concession", "Fully private", "Cooperative", "ESCO", "Not-for-profit"].map((o) => (
                     <WizardOption key={o}>{o}</WizardOption>
                   ))}
                 </WizardSelect>
               </Field>
-              <Field label="SPV name & incorporation" optional="(revealed at interest)">
-                <div className="grid gap-3.5 sm:grid-cols-2">
-                  <Input placeholder="SPV name" />
-                  <Input placeholder="Incorporation country" />
-                </div>
-              </Field>
-              <Field
-                label="Ownership / shareholders"
-                optional="(optional)"
-                hint="Named shareholders, share, and type. Shown as an ownership chart on the project page."
-              >
-                <RowList
-                  columns="1.5fr .5fr 1fr"
-                  addLabel="Add shareholder"
-                  placeholders={["Shareholder", "%", ""]}
-                  selectAt={2}
-                  selectOptions={["Public", "Private / developer", "Fund"]}
-                />
-              </Field>
+
+
               <Field
                 label="Regulatory regime type"
                 required
                 hint="Investors filter on this. It sets the revenue-constraint sub-fields in Financial."
               >
-                <WizardSelect>
+                <WizardSelect value={regulatoryRegime} onChange={e => setRegulatoryRegime(e.target.value)}>
                   <WizardOption>Ex-ante cost-based regulated</WizardOption>
                   <WizardOption>Non-profit / break-even</WizardOption>
                   <WizardOption>Market-based + transparency</WizardOption>
@@ -1424,17 +1106,11 @@ export default function SubmitProject() {
               </Field>
               <Field label="Concession counterparty & term" optional="(if concession / PPP)">
                 <div className="grid gap-3.5 sm:grid-cols-2">
-                  <Input placeholder="Counterparty (e.g. local authority)" />
-                  <Input placeholder="Term (e.g. 25 yrs, to 2052)" />
+                  <Input placeholder="Counterparty (e.g. local authority)" value={concessionCounterparty} onChange={e => setConcessionCounterparty(e.target.value)} />
+                  <Input type="number" aria-label="Concession term in years" value={concessionTerm} onChange={e => setConcessionTerm(e.target.value)} placeholder="Term in years" />
                 </div>
               </Field>
-              <Field
-                label="Local-authority support"
-                optional="(optional but strong signal)"
-                hint="Digging / wayleaves, planning status, municipal buildings committed."
-              >
-                <Input placeholder="e.g. Wayleaves granted; 14 municipal buildings committed" />
-              </Field>
+
 
               <AsOfField value={regulatoryAsOf} onChange={setRegulatoryAsOf} />
             </section>
@@ -1451,16 +1127,14 @@ export default function SubmitProject() {
 
               <div className="mb-5 overflow-hidden rounded-xl border border-border bg-card">
                 {[
-                  ["Stage", stage || "Not provided"],
-                  ["Project title", title || "Not provided"],
-                  ["Location shown", country ? `${country}${region ? ` - ${region}` : ""}` : "Not provided"],
-                  ["Capacity band", capacityBand || "Not provided"],
-                  ["Capex band", capexBand || "Not provided"],
+                  ["Stage", stage || ""],
+                  ["Project title", title || ""],
+                  ["Location shown", country ? country : ""],
                   [
                     "Offtake commitment",
                     totalBuildings
                       ? `${Number(contractedCount || 0) + Number(signedCount || 0)} of ${totalBuildings} buildings - ${(Number(contractedLoadPct || 0) + Number(signedLoadPct || 0)).toFixed(0)}% of design load`
-                      : "Not provided",
+                      : "",
                   ],
                   ["Identity", "Hidden until interest"],
                 ].map(([k, v]) => (
@@ -1539,5 +1213,6 @@ export default function SubmitProject() {
         </main>
       </div>
     </div>
+    </QuestionContext.Provider>
   );
 }

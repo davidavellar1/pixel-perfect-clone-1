@@ -17,15 +17,6 @@ const STACK_COLORS = [
   "hsl(199 89% 48%)",
 ];
 
-const SDG_COLORS: Record<number, string> = {
-  7: "hsl(45 93% 47%)",
-  9: "hsl(14 80% 50%)",
-  11: "hsl(33 90% 50%)",
-  12: "hsl(38 70% 45%)",
-  13: "hsl(152 69% 35%)",
-  17: "hsl(217 60% 35%)",
-};
-
 function money(value: number | null | undefined): string | undefined {
   if (value === null || value === undefined) return undefined;
   const n = Number(value);
@@ -55,7 +46,7 @@ function clean<T extends object>(input: T): Partial<T> {
 }
 
 export function useProjectRecord(projectId: string | undefined) {
-  const [result, setResult] = useState<{ id: string; overrides: Partial<ProjectDetail>; numericCapex: number | null } | null>(null);
+  const [result, setResult] = useState<{ id: string; overrides: Partial<ProjectDetail>; numericCapex: number | null; breakeven: { dscr1x: number | null; irrZero: number | null } } | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -106,7 +97,7 @@ export function useProjectRecord(projectId: string | undefined) {
       const financial = financialRes.data;
       const sustainability = sustainabilityRes.data;
 
-      const [stackRes, revenueRes, fundingRes, sdgRes] = await Promise.all([
+      const [stackRes, revenueRes, fundingRes, transactionRes] = await Promise.all([
         financial
           ? supabase.from("capital_stack_item").select("*").eq("financial_summary_id", financial.id).order("sort_order")
           : Promise.resolve({ data: null }),
@@ -116,9 +107,7 @@ export function useProjectRecord(projectId: string | undefined) {
         financial
           ? supabase.from("public_funding").select("*").eq("financial_summary_id", financial.id)
           : Promise.resolve({ data: null }),
-        sustainability
-          ? supabase.from("sdg_alignment").select("*").eq("sustainability_profile_id", sustainability.id).order("sdg_number")
-          : Promise.resolve({ data: null }),
+        supabase.from("project_transaction").select("equity_sought,min_ticket").eq("project_id", projectId).maybeSingle(),
       ]);
 
       if (cancelled) return;
@@ -126,11 +115,9 @@ export function useProjectRecord(projectId: string | undefined) {
       const next: Partial<ProjectDetail> = {
         ...clean({
           capex: money(financial?.capex),
-          npv: money(financial?.npv),
-          equityRequired: money(financial?.equity_required),
-          minTicket: money(financial?.min_ticket),
+          equityRequired: money(transactionRes.data?.equity_sought),
+          minTicket: money(transactionRes.data?.min_ticket),
           fundingRemaining: money(financial?.funding_remaining),
-          paybackPeriod: financial?.payback_years ? `${Number(financial.payback_years)} years` : undefined,
           concessionTerm: financial?.concession_term_years ? `${financial.concession_term_years} years` : undefined,
           firstRevenue: financial?.first_revenue_year ? String(financial.first_revenue_year) : undefined,
           fundingProgress:
@@ -204,21 +191,7 @@ export function useProjectRecord(projectId: string | undefined) {
               : "Taxonomy objective reported by the developer; alignment not yet confirmed.",
           };
         }
-        if (sustainability.sfdr_article) {
-          next.sfdr = {
-            article: `Article ${sustainability.sfdr_article}`,
-            description: "Classification reported by the lead investor under SFDR.",
-          };
-        }
       }
-
-      const sdgs = (sdgRes.data ?? []).map((row) => ({
-        number: row.sdg_number,
-        title: row.title ?? `SDG ${row.sdg_number}`,
-        description: row.note ?? "",
-        color: SDG_COLORS[row.sdg_number] ?? "var(--primary)",
-      }));
-      if (sdgs.length) next.sdgs = sdgs;
 
       const advisors = (advisorsRes.data ?? [])
         .map((row) => {
@@ -247,7 +220,7 @@ export function useProjectRecord(projectId: string | undefined) {
       }));
       if (operatingParameters.length) next.operatingParameters = operatingParameters;
 
-      setResult({ id: projectId, overrides: next, numericCapex: financial?.capex ?? null });
+      setResult({ id: projectId, overrides: next, numericCapex: financial?.capex ?? null, breakeven: { dscr1x: financial?.dscr_1x_connections ?? null, irrZero: financial?.irr_zero_connections ?? null } });
       setLoading(false);
     })();
 
@@ -256,5 +229,5 @@ export function useProjectRecord(projectId: string | undefined) {
     };
   }, [projectId]);
 
-  return { overrides: result && result.id === projectId ? result.overrides : {}, numericCapex: result && result.id === projectId ? result.numericCapex : null, loading };
+  return { breakeven: result && result.id === projectId ? result.breakeven : { dscr1x: null, irrZero: null }, overrides: result && result.id === projectId ? result.overrides : {}, numericCapex: result && result.id === projectId ? result.numericCapex : null, loading };
 }

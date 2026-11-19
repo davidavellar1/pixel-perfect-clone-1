@@ -34,7 +34,7 @@ const ProjectSidebar = ({
             { label: "Total capex", value: project.capex },
             { label: "Equity required", value: project.equityRequired },
             { label: "Min. ticket", value: project.minTicket },
-            { label: "Payback period", value: project.paybackPeriod },
+            { label: "Simple payback, undiscounted", value: project.paybackPeriod },
             { label: "Concession term", value: project.concessionTerm },
             { label: "First revenue", value: project.firstRevenue },
           ].filter((item) => Boolean(item.value)).map((item, i) => (

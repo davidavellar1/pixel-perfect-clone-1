@@ -1,13 +1,8 @@
-import { useState } from "react";
 import { ProjectDetail } from "@/lib/blankProject";
 import { ownershipRows } from "@/lib/figureDisclosure";
 import { asOfLine, eur } from "@/data/investorGrade";
 import ProjectCharts from "@/components/ProjectCharts";
-import { FileText, Shield, CloudOff, Gauge, Zap, Activity, CheckCircle, XCircle, MinusCircle, BookOpen, ClipboardList, Lock, Clock, FileSpreadsheet, Leaf, Scale, FileSignature } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from "recharts";
+import { CloudOff, Gauge, Zap, Activity } from "lucide-react";
 import { emptyInvestorGrade, type InvestorGradeBundle } from "@/data/investorGrade";
 import OfftakeLadderBar from "@/components/project/OfftakeLadderBar";
 import TransactionTab from "@/components/project/TransactionTab";
@@ -366,9 +361,6 @@ function StructureMarketTab({ project, grade, asOf }: { project: ProjectDetail; 
       </div>
       <div className="grid gap-3 sm:grid-cols-2">{owners.map((owner) => <div key={owner.name} className="rounded-md border border-border bg-card p-4"><p className="font-semibold">{owner.name}</p><p className="text-sm text-muted-foreground">{owner.share}%</p></div>)}</div>
     </section>}
-    {project.country && <section><h2 className="mb-3 font-display text-2xl font-semibold">National regulatory profile - {project.country}</h2>
-      {project.country === "France" && <p className="text-sm text-muted-foreground">French support bodies: ADEME and BPI France. District heating concession terms are project-specific.</p>}
-    </section>}
   </div>;
 }
 
@@ -459,51 +451,6 @@ function SustainabilityTab({ project, asOf }: { project: ProjectDetail; asOf?: s
         </div>
       )}
 
-      {/* SDGs */}
-      {project.sdgs && project.sdgs.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Sustainable Development Goals</h2>
-          <div className="border-t border-border mb-6" />
-          <div className="flex flex-wrap gap-4">
-            {project.sdgs.map((sdg) => (
-              <div key={sdg.number} className="bg-muted/50 border border-border rounded-xl p-4 flex items-start gap-3 min-w-[180px]">
-                <div
-                  className="w-9 h-9 rounded-lg flex items-center justify-center text-inverse-foreground font-bold text-sm flex-shrink-0"
-                  style={{ backgroundColor: sdg.color }}
-                >
-                  {sdg.number}
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-foreground">{sdg.title}</p>
-                  <p className="text-xs text-muted-foreground">{sdg.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* SFDR */}
-      {project.sfdr && (
-        <div>
-          <h2 className="text-2xl font-serif font-bold text-foreground mb-3">SFDR classification</h2>
-          <div className="border-t border-border mb-6" />
-          <div className="bg-info-soft border border-info rounded-xl p-6">
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-lg bg-info-soft flex items-center justify-center text-info font-bold text-sm flex-shrink-0">
-                <Scale className="h-4 w-4" />
-              </div>
-              <div>
-                <h4 className="mb-1 text-sm font-bold text-info">SFDR classification is the investor's to make</h4>
-                <p className="text-sm leading-relaxed text-info">
-                  The platform does not classify this investment under SFDR. Project data and annual impact reporting are provided so that
-                  each investor can reach its own classification under its own policy.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

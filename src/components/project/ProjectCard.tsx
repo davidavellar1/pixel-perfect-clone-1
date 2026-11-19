@@ -1,4 +1,4 @@
-import { ArrowRight, Building2, Heart, Landmark, Lock, MapPin } from "lucide-react";
+import { ArrowRight, Building2, Heart, Lock, MapPin } from "lucide-react";
 import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -48,7 +48,7 @@ const ProjectCard = ({ project, context, onWatchlistChange }: ProjectCardProps) 
       <div className="flex min-h-[54px] flex-wrap content-start gap-1.5">
         <span className="rounded-full bg-secondary px-2.5 py-1 text-[10px] font-semibold text-secondary-foreground">{project.category}</span>
         <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">{project.stage}</span>
-        <span className="rounded-full bg-success/10 px-2.5 py-1 text-[10px] font-semibold text-success">{project.generation}</span>
+        {project.generation && <span className="rounded-full bg-success/10 px-2.5 py-1 text-[10px] font-semibold text-success">{project.generation}</span>}
         {pending && <span className="rounded-full bg-warning/15 px-2.5 py-1 text-[10px] font-semibold text-warning">Pending</span>}
 
       </div>

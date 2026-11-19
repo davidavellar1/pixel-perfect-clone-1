@@ -115,7 +115,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
   const projectId = databaseProject?.id ?? teaser?.id ?? undefined;
   const { grade } = useInvestorGrade(granted ? databaseProject?.id : null, accessState, isOwner);
-  const { overrides, numericCapex } = useProjectRecord(granted ? databaseProject?.id : undefined);
+  const { overrides, numericCapex, breakeven } = useProjectRecord(granted ? databaseProject?.id : undefined);
   const baseProject = granted && databaseProject ? blankProjectDetail(databaseProject) : undefined;
   const project: ProjectDetailData | undefined = baseProject
     ? { ...baseProject, ...overrides }
@@ -338,14 +338,6 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     technical: databaseProject?.technical_as_of ?? null,
     regulatory: databaseProject?.regulatory_as_of ?? null,
   };
-
-  const breakeven = { dscr1x: null as number | null, irrZero: null as number | null };
-
-  const ctaLabel = granted
-    ? "Access granted"
-    : accessState === "pending"
-    ? "Request pending"
-    : "Express interest";
 
   const body = (
     <div className="min-h-screen bg-background">
