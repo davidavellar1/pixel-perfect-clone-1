@@ -21,6 +21,7 @@ import {
 import { FORM_VERSION, isFieldAsked, recordedQuestionKeys } from "@/lib/submissionFields";
 import { BASIS_FLAGS } from "@/lib/projectAbsence";
 import { FEE_SENTENCE } from "@/lib/fee";
+import { PublicFundingEditor, type FundingLine } from "@/components/submit/PublicFundingEditor";
 
 /* ---------------------------------- data ---------------------------------- */
 
@@ -168,7 +169,7 @@ export default function SubmitProject() {
   const [developerStructure, setDeveloperStructure] = useState("");
   const [regulatoryRegime, setRegulatoryRegime] = useState("");
   const [concessionCounterparty, setConcessionCounterparty] = useState("");
-  const [grantTreatment, setGrantTreatment] = useState("");
+  const [publicFunding, setPublicFunding] = useState<FundingLine[]>([]);
   const [networkLength, setNetworkLength] = useState("");
   const [households, setHouseholds] = useState("");
   const [concessionTerm, setConcessionTerm] = useState("");
@@ -336,7 +337,7 @@ export default function SubmitProject() {
         technical_as_of: technicalAsOf || null, financial_as_of: financialAsOf || null, regulatory_as_of: regulatoryAsOf || null,
       },
       financial_summary:
-        capex || dscr1xConnections || irrZeroConnections || concessionTerm || capitalStack.some(r => r.label) || revenueStreams.some(r => r.stream)
+        capex || dscr1xConnections || irrZeroConnections || concessionTerm || capitalStack.some(r => r.label) || revenueStreams.some(r => r.stream) || publicFunding.length
           ? {
               currency: "EUR", capex: num(capex),
               dscr_1x_connections: num(dscr1xConnections), irr_zero_connections: num(irrZeroConnections),
@@ -395,6 +396,7 @@ export default function SubmitProject() {
         ...Object.entries({ "Site / land status": siteLand, "Supply temperature": supplyTemperature, "Return temperature": returnTemperature, "Temperature basis": temperatureBasis, "Annual heat output (GWh/year)": annualHeat, "Baseline / counterfactual": baseline, "GHG basis": co2Basis, "GHG intensity (tCO2e/MWh)": ghgIntensity, "Developer structure": developerStructure, "Regulatory regime": regulatoryRegime, "Concession counterparty": concessionCounterparty, "EED threshold year": eedPathYear, "EED path": eedPath }).filter(([, value]) => value).map(([parameter, value]) => ({ parameter, value, benchmark: null })),
       ],
       risks: risks.filter(r => r.category).map(r => ({ ...r, severity: r.severity || "medium" })),
+      public_funding: early ? [] : publicFunding.filter(r => r.programme).map(r => ({ ...r, amount: num(r.amount), expected_decision_date: r.expected_decision_date || null })),
       listing_access_criteria: {
         min_ticket: num(accessMinTicket),
         instruments_accepted: instrumentsAccepted,
@@ -774,12 +776,7 @@ export default function SubmitProject() {
                   </Field>
                   <Field label="Purchase floor / cap" optional="(optional)"><Input value={purchaseFloorCap} onChange={e => setPurchaseFloorCap(e.target.value)} /></Field>
                   <Field label="Three named risks" optional="(optional)"><RowsEditor rows={risks} onChange={setRisks} columns={[{ key: "category", placeholder: "Risk" }, { key: "severity", placeholder: "low / medium / high" }, { key: "description", placeholder: "Description" }, { key: "mitigation", placeholder: "Mitigation" }]} addLabel="Add risk" /></Field>
-                  <Field label="Grant treatment" optional="(if a grant is present)">
-                    <WizardSelect value={grantTreatment} onChange={e => setGrantTreatment(e.target.value)}>
-                      <WizardOption>Non-repayable</WizardOption><WizardOption>Clawback-conditional</WizardOption>
-                      <WizardOption>Milestone-conditional</WizardOption>
-                    </WizardSelect>
-                  </Field>
+                  <Field label="Public funding" optional="(optional)"><PublicFundingEditor rows={publicFunding} onChange={setPublicFunding} /></Field>
 
                   <div className="grid gap-3.5 sm:grid-cols-3">
 

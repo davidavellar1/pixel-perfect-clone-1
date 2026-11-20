@@ -148,7 +148,7 @@ export function useProjectRecord(projectId: string | undefined) {
         source: row.source,
         amount: money(row.amount) ?? "",
         numericAmount: row.amount,
-        status: row.status ?? "Indicative",
+        status: row.funding_status?.replaceAll("_", " ") ?? row.status ?? "",
       }));
       if (funding.length) next.publicFunding = funding;
 
@@ -171,26 +171,16 @@ export function useProjectRecord(projectId: string | undefined) {
       if (timeline.length) next.timeline = timeline;
 
       if (sustainability) {
+        if (sustainability.renewable_share_pct != null) next.sustainabilityMetrics = [{ label: "Renewable / waste-heat share", value: `${sustainability.renewable_share_pct}%`, context: "Developer-stated" }];
         if (sustainability.co2_tonnes_per_year) {
           next.co2Reduction = `${Number(sustainability.co2_tonnes_per_year).toLocaleString()} tonnes/yr`;
           next.co2Detail = {
             tonnes: Number(sustainability.co2_tonnes_per_year),
-            equivalentCars: sustainability.equivalent_cars
-              ? Number(sustainability.equivalent_cars).toLocaleString()
-              : "",
-            lifetimeReduction: sustainability.lifetime_reduction_tonnes
-              ? `${Number(sustainability.lifetime_reduction_tonnes).toLocaleString()} tonnes`
-              : "",
+            equivalentCars: "",
+            lifetimeReduction: "",
           };
         }
-        if (sustainability.eu_taxonomy_objective) {
-          next.euTaxonomy = {
-            objective: sustainability.eu_taxonomy_objective,
-            description: sustainability.eu_taxonomy_aligned
-              ? "Assessed as aligned with the EU Taxonomy for Sustainable Finance (Regulation 2020/852) for this objective."
-              : "Taxonomy objective reported by the developer; alignment not yet confirmed.",
-          };
-        }
+        next.euTaxonomy = { objective: "District heating and cooling distribution", description: "EU Taxonomy activity 4.15" };
       }
 
       const advisors = (advisorsRes.data ?? [])

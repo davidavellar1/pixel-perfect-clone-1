@@ -10,6 +10,7 @@ import ConstructionPackageSection from "@/components/project/ConstructionPackage
 import { CasesSection, MarginSection } from "@/components/project/FinancialGradeSections";
 import ProjectDocuments from "@/components/project/ProjectDocuments";
 import ProjectQA from "@/components/project/ProjectQA";
+import { absenceCopy, resolveProjectField } from "@/lib/projectAbsence";
 
 export type DataRoomStatus = "none" | "pending" | "approved";
 
@@ -100,7 +101,7 @@ function OverviewTab({ project, grade, numericCapex, granted, asOf }: { project:
         <div className="border-t border-border mb-6" />
         {project.timeline.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground">
-            {granted ? "The developer has not published a timeline for this project yet." : "Opens when the developer accepts your request."}
+            {granted ? absenceCopy(resolveProjectField("milestone.label", project.stage, null, project.askedFields) as { kind: "absence"; reason: "not_asked" | "not_provided" }, project.stage) : "Opens when the developer accepts your request."}
           </p>
         ) : (
         <div className="relative ml-4">
@@ -147,7 +148,7 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
         <div className="border-t border-border mb-4" />
         {project.technologyCards.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground">
-            The developer has not published technology detail for this project yet.
+            {absenceCopy(resolveProjectField("technology_card.title", project.stage, null, project.askedFields) as { kind: "absence"; reason: "not_asked" | "not_provided" }, project.stage)}
           </p>
         ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -194,7 +195,7 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
         <div className="border-t border-border mb-6" />
         {project.timeline.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground">
-            The developer has not published a timeline for this project yet.
+            {absenceCopy(resolveProjectField("milestone.label", project.stage, null, project.askedFields) as { kind: "absence"; reason: "not_asked" | "not_provided" }, project.stage)}
           </p>
         ) : (
         <div className="relative ml-4">
@@ -417,7 +418,7 @@ function SustainabilityTab({ project, asOf }: { project: ProjectDetail; asOf?: s
           </div>
         </div>
       )}
-      {project.euTaxonomy && <section><h2 className="mb-3 font-display text-2xl font-semibold">EU Taxonomy activity 4.15 - district heating and cooling distribution</h2><p className="text-sm text-muted-foreground">Developer-stated objective: {project.euTaxonomy.objective}</p></section>}
+      {project.euTaxonomy && <section><h2 className="mb-3 font-display text-2xl font-semibold">EU Taxonomy activity 4.15 - district heating and cooling distribution</h2></section>}
 
       {/* Energy Mix */}
       {project.energyMix && project.energyMix.length > 0 && (

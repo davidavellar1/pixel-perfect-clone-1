@@ -2191,29 +2191,53 @@ export type Database = {
       }
       public_funding: {
         Row: {
+          administering_body: string | null
           amount: number | null
+          clawback_treatment: string | null
           created_at: string
+          expected_decision_date: string | null
           financial_summary_id: string
+          funding_status:
+            | Database["public"]["Enums"]["public_funding_status"]
+            | null
           id: string
+          instrument_type: string | null
           programme: string | null
+          programme_id: string | null
           source: string
           status: string | null
         }
         Insert: {
+          administering_body?: string | null
           amount?: number | null
+          clawback_treatment?: string | null
           created_at?: string
+          expected_decision_date?: string | null
           financial_summary_id: string
+          funding_status?:
+            | Database["public"]["Enums"]["public_funding_status"]
+            | null
           id?: string
+          instrument_type?: string | null
           programme?: string | null
+          programme_id?: string | null
           source: string
           status?: string | null
         }
         Update: {
+          administering_body?: string | null
           amount?: number | null
+          clawback_treatment?: string | null
           created_at?: string
+          expected_decision_date?: string | null
           financial_summary_id?: string
+          funding_status?:
+            | Database["public"]["Enums"]["public_funding_status"]
+            | null
           id?: string
+          instrument_type?: string | null
           programme?: string | null
+          programme_id?: string | null
           source?: string
           status?: string | null
         }
@@ -2223,6 +2247,13 @@ export type Database = {
             columns: ["financial_summary_id"]
             isOneToOne: false
             referencedRelation: "financial_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_funding_programme_id_fkey"
+            columns: ["programme_id"]
+            isOneToOne: false
+            referencedRelation: "funding_programme"
             referencedColumns: ["id"]
           },
         ]
@@ -2803,6 +2834,12 @@ export type Database = {
         | "operational"
       project_type: "greenfield" | "brownfield" | "expansion" | "modernisation"
       project_visibility: "draft" | "listed" | "archived"
+      public_funding_status:
+        | "intending"
+        | "applied"
+        | "decision_pending"
+        | "awarded"
+        | "declined"
       request_status: "requested" | "approved" | "denied" | "withdrawn"
       risk_severity: "low" | "medium" | "high"
       technology:
@@ -3076,6 +3113,13 @@ export const Constants = {
       ],
       project_type: ["greenfield", "brownfield", "expansion", "modernisation"],
       project_visibility: ["draft", "listed", "archived"],
+      public_funding_status: [
+        "intending",
+        "applied",
+        "decision_pending",
+        "awarded",
+        "declined",
+      ],
       request_status: ["requested", "approved", "denied", "withdrawn"],
       risk_severity: ["low", "medium", "high"],
       technology: [

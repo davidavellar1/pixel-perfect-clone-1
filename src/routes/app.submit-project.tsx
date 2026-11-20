@@ -8,6 +8,8 @@ export const Route = createFileRoute("/app/submit-project")({
       { name: "description", content: 'Publish a new project listing with teaser, transaction terms and access criteria.' },
       { property: "og:title", content: 'Submit a project - DHC Market' },
       { property: "og:description", content: 'Publish a new project listing with teaser, transaction terms and access criteria.' },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => <SubmitProject />,

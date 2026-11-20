@@ -1,5 +1,6 @@
 import type { Tables } from "@/integrations/supabase/types";
 export interface ProjectDetail {
+  askedFields?: string[] | null;
   slug: string;
   badge: string;
   title: string;
@@ -13,7 +14,6 @@ export interface ProjectDetail {
   targetIRR: string | null;
   capex: string | null;
   capacity: string | null;
-  npv: string | null;
   paybackPeriod: string | null;
   summary: string;
   summaryExtended?: string;
@@ -47,11 +47,9 @@ export interface ProjectDetail {
   co2Detail?: { tonnes: number; equivalentCars: string; lifetimeReduction: string };
   euTaxonomy?: { objective: string; description: string };
   sdgs?: { number: number; title: string; description: string; color: string }[];
-  sfdr?: { article: string; description: string };
   energyMix?: { source: string; percentage: number }[];
   operatingParameters?: { parameter: string; value: string; benchmark: string }[];
   sustainabilityMetrics?: { label: string; value: string; context: string }[];
-  badges: string[];
 }
 
 
@@ -66,6 +64,7 @@ export function blankProjectDetail(row: Tables<"project">): ProjectDetail {
   const years = [row.timeline_start?.slice(0, 4), row.timeline_end?.slice(0, 4)].filter(Boolean);
 
   return {
+    askedFields: row.asked_fields,
     slug: row.slug,
     title: row.title,
     badge: readable(row.project_type),
@@ -80,7 +79,6 @@ export function blankProjectDetail(row: Tables<"project">): ProjectDetail {
       ? `€${(Number(row.headline_investment) / 1_000_000).toFixed(1)}M`
       : null,
     capacity: row.capacity_mw ? `${row.capacity_mw} MW` : null,
-    npv: null,
     paybackPeriod: null,
     summary: row.summary || row.description || "The developer has not published a summary yet.",
     summaryExtended: row.description || undefined,
@@ -90,7 +88,7 @@ export function blankProjectDetail(row: Tables<"project">): ProjectDetail {
       ? `${Number(row.headline_co2_tonnes).toLocaleString()} tonnes/yr`
       : null,
     householdsServed: row.households_served?.toLocaleString() || null,
-    timelineRange: years.length ? years.join(" to ") : "To be confirmed",
+    timelineRange: years.length ? years.join(" to ") : null,
     equityRequired: null,
     minTicket: null,
     unleveragedIRR: null,
@@ -108,6 +106,5 @@ export function blankProjectDetail(row: Tables<"project">): ProjectDetail {
     },
     advisors: [],
     technologyCards: [],
-    badges: [],
   };
 }

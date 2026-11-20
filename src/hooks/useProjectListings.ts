@@ -60,14 +60,18 @@ export const useProjectListings = () => {
     const requestMap = new Map((requestsResult.data || []).map((row) => [row.project_id, row]));
     const watched = new Set((watchResult.data || []).map((row) => row.project_id));
     const grantedIds = ids.filter((id) => { const request = requestMap.get(id); return request && ["granted", "granted_full"].includes(effectiveState(request)); });
-    const [exactProjects, financials, transactions] = grantedIds.length ? await Promise.all([
-      supabase.from("project").select("id,title,capacity_mw,financial_as_of").in("id", grantedIds),
+    const [exactProjects, financials, transactions, cases, ladders] = grantedIds.length ? await Promise.all([
+      supabase.from("project").select("id,title,capacity_mw,financial_as_of,public_cofinancing_status").in("id", grantedIds),
       supabase.from("financial_summary").select("project_id,capex").in("project_id", grantedIds),
       supabase.from("project_transaction").select("project_id,equity_sought,min_ticket").in("project_id", grantedIds),
-    ]) : [{ data: [] }, { data: [] }, { data: [] }];
+      supabase.from("project_case").select("project_id,equity_irr_pct").eq("name", "base").in("project_id", grantedIds),
+      supabase.from("offtake_ladder").select("project_id,contracted_load_pct,signed_connection_load_pct").in("project_id", grantedIds),
+    ]) : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }, { data: [] }];
     const exactMap = new Map((exactProjects.data ?? []).map((row) => [row.id, row]));
     const financialMap = new Map((financials.data ?? []).map((row) => [row.project_id, row]));
     const transactionMap = new Map((transactions.data ?? []).map((row) => [row.project_id, row]));
+    const caseMap = new Map((cases.data ?? []).map(row => [row.project_id, row]));
+    const ladderMap = new Map((ladders.data ?? []).map(row => [row.project_id, row]));
     setProjects(validRows.map((row) => {
       const id = row.id ?? "";
       const country = countryName(row.country_code);
@@ -79,14 +83,14 @@ export const useProjectListings = () => {
         id, slug: row.slug ?? "", title: exact?.title ?? `${row.teaser_title ?? ""}, ${country}`,
         teaserTitle: row.teaser_title ?? "", city: "", region: country, country,
         category: readable(row.project_type), technology: readable(row.technology),
-        stage: readable(row.lifecycle_stage), generation: "DHC", publicSupport: false,
-        capacityMw: exact?.capacity_mw ?? 0, capex: financial?.capex ?? null, targetIrr: null, equitySought: transaction?.equity_sought ?? null, minTicket: transaction?.min_ticket ?? null,
+        stage: readable(row.lifecycle_stage), generation: "", publicSupport: exact?.public_cofinancing_status === "Committed" || exact?.public_cofinancing_status === "In progress",
+        capacityMw: exact?.capacity_mw ?? 0, capex: financial?.capex ?? null, targetIrr: caseMap.get(id)?.equity_irr_pct ?? null, equitySought: transaction?.equity_sought ?? null, minTicket: transaction?.min_ticket ?? null,
         capacityBand: row.capacity_band, capexBand: row.capex_band,
         minTicketBand: row.min_ticket_band, minTicketSort: row.min_ticket_sort,
         transactionTermsPublished: row.transaction_terms_published ?? false,
         instrument: row.instrument, offtakeLoadPct: row.offtake_committed_load_pct,
         accessState: access ? effectiveState(access) : "teaser", watchlisted: watched.has(id),
-        contractedPct: null, signedPct: null, financialAsOf: exact?.financial_as_of ?? null,
+        contractedPct: ladderMap.get(id)?.contracted_load_pct ?? null, signedPct: ladderMap.get(id)?.signed_connection_load_pct ?? null, financialAsOf: exact?.financial_as_of ?? null,
       };
     }));
     setLoading(false);

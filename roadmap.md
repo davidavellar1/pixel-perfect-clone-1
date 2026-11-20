@@ -1,7 +1,10 @@
 # Phases 0 to 11
-- [ ] Submission data closure: remove retired inputs and panels, wire row collections through atomic publishing, and verify saved values
-- [ ] Absence provenance: shared stage specification, recorded asked fields, resolver and coverage checks
-- [ ] Calculations: simple payback with actual/projected inputs; emissions require sourced country factors; lifetime/cars and committed-capital definitions remain unavailable
+- [x] Remove retired inputs/panels; add atomic timeline, capital, revenue, risk, technical and structured public-funding writes
+- [x] Add recorded asked_fields/form_version, stage specification, central resolver and core absence tests
+- [ ] Complete absence coverage, conditional-field stamps, completeness counter and mechanical tab provenance enforcement
+- [ ] Complete publish/readback verification and rollback-only failure tests
+- [ ] Integrate simple payback: pure formula tested; operational actuals and projected revenue/opex sources are not yet present
+- [ ] Emissions, lifetime/cars and committed-capital calculations: blocked by absent sourced country factors and unspecified lifetime/car/commitment definitions
 - [x] Phase 0: close direct project reads, secure the teaser projection and audit consumers
 - [x] Phase 0B: deactivate unapproved advisors and disable unrecorded assistance submissions
 - [ ] Phase 1: typed absence, field provenance and publish payload coverage
@@ -22,7 +25,7 @@ Current checkpoint: phases 0 and 0B applied and verified. Anonymous exact-projec
 
 Phase 0 audit: owner-scoped readers are DeveloperDashboard, AccessRequests, DataRoomRequests and funding.useOwnProjects. Accepted-only readers are loadDisclosedProject, useProjectListings, BundleBuilder and MCP get_project. MarketNews and MCP add_to_watchlist were switched to teasers. InvestorDashboard still asks for exact rows for pending/watchlisted IDs: database RLS now filters them, but its pending-row presentation needs to use teasers during the later dashboard rebuild. News ingestion is privileged server-side matching, not a member read.
 
-Stopped before phase 1: it mandates visible absence messages, whereas the locked convention requires omission. Later phases also disagree on whether payment alone opens exact project figures and whether free members may express interest. Obtain the user's decision before changing those product rules. Phases 1 to 11 remain unimplemented.
+Phase 1 partial checkpoint: migrations 0023 and 0024 add recorded questions and atomic row writes including structured public funding. Retired governance/capitalisation/process panels, NPV and SFDR/SDG displays are removed. Break-even values, transaction ticket/equity and renewable share are wired. Sixteen targeted tests and hygiene passed; the signed-in wizard accepted timeline, capital and funding inputs without publishing. Full save/readback is not verified. Absence coverage, conditional question tracking, completeness and mechanical provenance enforcement remain unfinished. Generation tags are omitted rather than invented until a sourced classification rule is available. Phases 2 to 11 have not started.
 
 # Profile settings
 - [x] Account menu and first-name/avatar display
