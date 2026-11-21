@@ -1,5 +1,5 @@
 import type React from "react";
-import { useMemo, useState, useId, useEffect, createContext, useContext, useRef, Children, cloneElement, isValidElement } from "react";
+import { useMemo, useState, useId, useContext, useRef, Children, cloneElement, isValidElement } from "react";
 import { useNavigate } from "@/lib/router-compat";
 import { Check, Info, ShieldCheck, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,8 @@ import {
   INSTRUMENT_LABEL,
   type CaseRecord,
 } from "@/data/investorGrade";
-import { FORM_VERSION, isFieldAsked, recordedQuestionKeys } from "@/lib/submissionFields";
+import { FORM_VERSION, isFieldAsked, recordedQuestionKeys, recordQuestionEvidence, questionEvidenceForStage } from "@/lib/submissionFields";
+import { AskedQuestions, QuestionEvidenceContext, useQuestionEvidence } from "@/components/submit/QuestionEvidence";
 import { BASIS_FLAGS } from "@/lib/projectAbsence";
 import { FEE_SENTENCE } from "@/lib/fee";
 import { PublicFundingEditor, type FundingLine } from "@/components/submit/PublicFundingEditor";
@@ -61,8 +62,6 @@ const caseHasValue = (c: CaseRow) => [c.connections, c.powerPrice, c.capexVarian
 
 /* ------------------------------- primitives ------------------------------- */
 
-const QuestionContext = createContext<{ stage: string; record: (label: string) => void }>({ stage: "", record: () => {} });
-
 const Field = ({
   label,
   required,
@@ -70,6 +69,7 @@ const Field = ({
   hint,
   error,
   children,
+  questionKeys,
 }: {
   label: string;
   required?: boolean;
@@ -77,10 +77,11 @@ const Field = ({
   hint?: string;
   error?: string;
   children: React.ReactNode;
+  questionKeys?: readonly string[];
 }) => {
-  const question = useContext(QuestionContext);
-  const visible = isFieldAsked(label, question.stage.toLowerCase());
-  useEffect(() => { if (visible) question.record(label); }, [label, visible, question]);
+  const question = useContext(QuestionEvidenceContext);
+  const visible = questionKeys !== undefined || isFieldAsked(label, question.stage.toLowerCase());
+  useQuestionEvidence(questionKeys ?? recordedQuestionKeys([label], question.stage.toLowerCase()), visible);
   const id = useId();
   if (!visible) return null;
   const errorId = `${id}-error`;
@@ -141,7 +142,7 @@ const AsOfField = ({ value, onChange }: { value: string; onChange: (v: string) =
 export default function SubmitProject() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const shownQuestions = useRef(new Set<string>());
+  const shownQuestions = useRef(new Map<string, Set<string>>());
   const [cur, setCur] = useState(0);
   const [stage, setStage] = useState("");
   const [summary, setSummary] = useState("");
@@ -250,6 +251,10 @@ export default function SubmitProject() {
 
   const early = stage === "Concept" || stage === "Feasibility";
   const lateStage = stage === "Development" || stage === "Construction" || stage === "Operational";
+  const questionContext = useMemo(() => ({
+    stage,
+    record: (keys: readonly string[]) => recordQuestionEvidence(shownQuestions.current, stage, keys),
+  }), [stage]);
   const anonFlag = useMemo(
     () => /\b(Lyon|Copenhagen|Aarhus|Paris|Berlin|SAS|GmbH|A\/S|Energie|Stadtwerke)\b/.test(summary),
     [summary],
@@ -333,7 +338,7 @@ export default function SubmitProject() {
         network_length_km: num(networkLength), households_served: num(households), public_cofinancing_status: publicCofinancing || null,
         timeline_start: milestones.map(r => r.target_date).filter(Boolean).sort()[0] || null,
         timeline_end: milestones.map(r => r.target_date).filter(Boolean).sort().at(-1) || null,
-        asked_fields: recordedQuestionKeys([...shownQuestions.current], stage.toLowerCase()), form_version: FORM_VERSION,
+        asked_fields: questionEvidenceForStage(shownQuestions.current, stage), form_version: FORM_VERSION,
         technical_as_of: technicalAsOf || null, financial_as_of: financialAsOf || null, regulatory_as_of: regulatoryAsOf || null,
       },
       financial_summary:
@@ -369,7 +374,7 @@ export default function SubmitProject() {
             }
           : null,
       margin_profile:
-        heatPurchasePrice || customerTariff || grossSpread || opexPerKwh
+        heatPurchasePrice || purchaseIndex || customerTariff || tariffIndex || grossSpread || opexPerKwh || indexationMismatchNote || purchaseFloorCap
           ? {
               as_of: financialAsOf || null, heat_purchase_price: num(heatPurchasePrice), purchase_index: purchaseIndex || null,
               customer_tariff: num(customerTariff), tariff_index: tariffIndex || null,
@@ -406,20 +411,26 @@ export default function SubmitProject() {
       },
     };
 
-    const { error } = await supabase.rpc("publish_project", { payload: payload as never });
-    setPublishing(false);
-    if (error) {
-      setPublishError(error.message || "The listing could not be published. Nothing was saved - please try again.");
-      toast.error("The listing was not published. Nothing was saved, so you can retry safely.");
-      return;
+    try {
+      const { error } = await supabase.rpc("publish_project", { payload: payload as never });
+      if (error) {
+        setPublishError(error.message || "The listing could not be published. Nothing was saved - please try again.");
+        toast.error("The listing was not published. Nothing was saved, so you can retry safely.");
+        return;
+      }
+      toast.success("Listing published. It now appears in My Listings and the marketplace.");
+      navigate("/app/my-deals/listing");
+    } catch {
+      setPublishError("The publication result could not be confirmed. Check My Listings before trying again.");
+      toast.error("The publication result could not be confirmed.");
+    } finally {
+      setPublishing(false);
     }
-    toast.success("Listing published. It now appears in My Listings and the marketplace.");
-    navigate("/app/my-deals/listing");
   };
 
 
   return (
-    <QuestionContext.Provider value={{ stage, record: label => shownQuestions.current.add(label) }}>
+    <QuestionEvidenceContext.Provider value={questionContext}>
     <div className="bg-background">
       {/* progress */}
       <div className="h-[3px] bg-border">
@@ -495,7 +506,7 @@ export default function SubmitProject() {
                     <button
                       key={s.id}
                       type="button"
-                      onClick={() => { shownQuestions.current.clear(); setStage(s.id); }}
+                      onClick={() => setStage(s.id)}
                       className={cn(
                         "min-w-[130px] flex-1 rounded-lg border border-border bg-card p-3.5 text-left transition",
                         stage === s.id && "border-accent bg-accent/10",
@@ -698,6 +709,7 @@ export default function SubmitProject() {
               </Field>
 
               <div className={cn("rounded-xl border p-5", lateStage ? "border-border bg-card" : "border-dashed border-border bg-muted/30 opacity-70")}>
+                <AskedQuestions enabled={lateStage} keys={["construction_package.epc_contractor", "construction_package.contract_type", "construction_package.contract_value", "construction_package.ld_rate", "construction_package.ld_cap_pct", "construction_package.security", "construction_package.contingency_amount", "construction_package.contingency_pct", "construction_package.schedule_float_months", "construction_package.permits_status", "construction_package.interface_risk", "construction_package.om_contract", "construction_package.epc_named_in_dataroom"]} />
                 <h4 className="mb-1 text-sm font-semibold">
                   Construction package
                   {!lateStage && <span className="ml-1.5 text-xs font-normal text-muted-foreground">(optional at this stage)</span>}
@@ -802,6 +814,7 @@ export default function SubmitProject() {
 
 
                   <div className="my-6 rounded-xl border border-border bg-card p-5">
+                    <AskedQuestions keys={["margin_profile.heat_purchase_price", "margin_profile.purchase_index", "margin_profile.customer_tariff", "margin_profile.tariff_index", "margin_profile.gross_spread", "margin_profile.opex_per_kwh", "margin_profile.indexation_mismatch_note"]} />
                     <h4 className="mb-3 text-sm font-semibold">Margin and pricing</h4>
                     <div className="grid gap-3.5 sm:grid-cols-2">
                       <Input type="number" placeholder="Heat purchase price (EUR/kWh)" value={heatPurchasePrice} onChange={(e) => setHeatPurchasePrice(e.target.value)} />
@@ -845,6 +858,7 @@ export default function SubmitProject() {
                             return (
                               <tr key={name} className="border-t border-border">
                                 <td className="p-2 font-medium">
+                                  <AskedQuestions enabled={locked || c.enabled} keys={["connections", "power_price", "capex_variance_pct", "equity_irr_pct", "min_dscr"].map(key => `project_case.${name}.${key}`)} />
                                   <label className="flex items-center gap-1.5">
                                     {!locked && (
                                       <Checkbox
@@ -915,7 +929,7 @@ export default function SubmitProject() {
                   Club investment allowed
                 </label>
                 {clubAllowed && (
-                  <Input type="number" placeholder="Maximum participants" value={clubMaxParticipants} onChange={(e) => setClubMaxParticipants(e.target.value)} />
+                  <><AskedQuestions keys={["project_transaction.club_max_participants"]} /><Input type="number" placeholder="Maximum participants" value={clubMaxParticipants} onChange={(e) => setClubMaxParticipants(e.target.value)} /></>
                 )}
               </Field>
 
@@ -971,7 +985,7 @@ export default function SubmitProject() {
                 shown before submission and on each request. You decide every request.
               </p>
 
-              <Field label="Minimum ticket" optional="(EUR)">
+              <Field label="Minimum ticket" optional="(EUR)" questionKeys={["listing_access_criteria.min_ticket"]}>
                 <Input type="number" min="0" placeholder="e.g. 3000000" value={accessMinTicket} onChange={(e) => setAccessMinTicket(e.target.value)} />
               </Field>
 
@@ -1210,6 +1224,6 @@ export default function SubmitProject() {
         </main>
       </div>
     </div>
-    </QuestionContext.Provider>
+    </QuestionEvidenceContext.Provider>
   );
 }

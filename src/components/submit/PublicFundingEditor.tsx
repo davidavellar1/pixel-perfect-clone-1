@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { WizardSelect, WizardOption } from "./wizardFields";
+import { AskedQuestions } from "./QuestionEvidence";
+import { fundingQuestionKeys } from "@/lib/submissionFields";
 export const FUNDING_STATUSES = ["intending", "applied", "decision_pending", "awarded", "declined"] as const;
 export type FundingLine = { programme_id: string; programme: string; administering_body: string; instrument_type: string; amount: string; funding_status: string; expected_decision_date: string; clawback_treatment: string };
 const blank = (): FundingLine => ({ programme_id: "", programme: "", administering_body: "", instrument_type: "", amount: "", funding_status: "intending", expected_decision_date: "", clawback_treatment: "" });
@@ -18,6 +20,7 @@ export function PublicFundingEditor({ rows, onChange }: { rows: FundingLine[]; o
     {rows.map((row, i) => {
       const matched = programmes.find(p => p.id === row.programme_id);
       return <fieldset key={i} className="space-y-3 border-b border-border pb-4"><legend className="mb-2 text-sm font-semibold">Public funding {i + 1}</legend>
+        <AskedQuestions keys={fundingQuestionKeys(row.funding_status, row.instrument_type, !matched)} />
         <Label>Programme<WizardSelect value={row.programme_id || "custom"} onChange={e => { const p = programmes.find(p => p.id === e.target.value); update(i, { programme_id: p?.id ?? "", programme: p?.name ?? "", administering_body: p?.administering_body ?? "", instrument_type: p?.instrument_types.length === 1 ? p.instrument_types[0] ?? "" : "" }); }}><WizardOption value="custom">Programme outside the catalogue</WizardOption>{programmes.map(p => <WizardOption key={p.id} value={p.id}>{p.name}</WizardOption>)}</WizardSelect></Label>
         {!matched && <><Input aria-label={`Custom programme ${i + 1}`} placeholder="Programme" value={row.programme} onChange={e => update(i, { programme: e.target.value })} /><Input aria-label={`Administering body ${i + 1}`} placeholder="Administering body" value={row.administering_body} onChange={e => update(i, { administering_body: e.target.value })} /></>}
         {matched && <p className="text-xs text-muted-foreground">{matched.administering_body}</p>}

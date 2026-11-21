@@ -31,3 +31,4 @@
 - Account forms use a shared error classifier and inline alerts with an auth-specific contrast token so failed requests stay visible without changing global destructive styling.
 - Resolve missing project values centrally using recorded question evidence; legacy records without evidence resolve safely without attributing nonresponse.
 - Pure named financial computes return their numeric inputs with the result so readers can inspect arithmetic without platform modelling.
+- Submission evidence is recorded by mounted controls with lifecycle-specific histories and explicit conditional keys, so hidden questions cannot be labelled unanswered.

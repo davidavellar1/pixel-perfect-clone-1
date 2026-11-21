@@ -2,6 +2,7 @@
 - [x] Remove retired inputs/panels; add atomic timeline, capital, revenue, risk, technical and structured public-funding writes
 - [x] Add recorded asked_fields/form_version, stage specification, central resolver and core absence tests
 - [ ] Complete absence coverage, conditional-field stamps, completeness counter and mechanical tab provenance enforcement
+- [x] Conditional stamps: separate lifecycle histories, ticket fields, club limits, enabled cases, margin/construction controls and funding decision/clawback questions
 - [ ] Complete publish/readback verification and rollback-only failure tests
 - [ ] Integrate simple payback: pure formula tested; operational actuals and projected revenue/opex sources are not yet present
 - [ ] Emissions, lifetime/cars and committed-capital calculations: blocked by absent sourced country factors and unspecified lifetime/car/commitment definitions

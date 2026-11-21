@@ -1,5 +1,5 @@
 import { stageName } from "./projectAbsence";
-export const FORM_VERSION = "2026-11-question-evidence-1";
+export const FORM_VERSION = "2026-11-question-evidence-2";
 type FieldSpec = { keys: readonly string[]; stages?: readonly string[]; required?: boolean };
 const late = ["development", "construction", "operational"];
 export const SUBMISSION_FIELDS: Record<string, FieldSpec> = {
@@ -25,15 +25,15 @@ export const SUBMISSION_FIELDS: Record<string, FieldSpec> = {
   "Capital stack": { keys: ["capital_stack_item.label", "capital_stack_item.amount", "capital_stack_item.provider"], stages: late },
   "Purchase floor / cap": { keys: ["margin_profile.purchase_floor_cap"], stages: late },
   "Three named risks": { keys: ["risk.category", "risk.severity", "risk.description", "risk.mitigation"], stages: late },
-  "Public funding": { keys: ["public_funding.programme_id", "public_funding.amount", "public_funding.funding_status"], stages: late },
+  "Public funding": { keys: ["public_funding.programme"], stages: late },
   "DSCR 1x connections (base case)": { keys: ["financial_summary.dscr_1x_connections"], stages: late },
   "Zero IRR connections (base case)": { keys: ["financial_summary.irr_zero_connections"], stages: late },
   "Revenue model": { keys: ["revenue_stream.stream", "revenue_stream.pct_of_revenue", "revenue_stream.counterparty"], stages: late },
   Instrument: { keys: ["project_transaction.instrument"], stages: late, required: true },
   "Equity sought": { keys: ["project_transaction.equity_sought"], stages: late, required: true },
   "Stake offered": { keys: ["project_transaction.stake_offered_pct"], stages: late },
-  "Minimum ticket": { keys: ["project_transaction.min_ticket", "listing_access_criteria.min_ticket"] },
-  "Club deal": { keys: ["project_transaction.club_max_participants"], stages: late },
+  "Minimum ticket": { keys: ["project_transaction.min_ticket"], stages: late },
+  "Club deal": { keys: [], stages: late },
   "Target equity IRR (base case)": { keys: ["project_transaction.target_equity_irr_pct"], stages: late },
   "Downside equity IRR (downside case)": { keys: ["project_transaction.downside_equity_irr_pct"], stages: late },
   "Instruments accepted": { keys: ["listing_access_criteria.instruments_accepted"] },
@@ -58,4 +58,25 @@ export function isFieldAsked(label: string, stage: string) {
 }
 export function recordedQuestionKeys(labels: readonly string[], stage: string) {
   return [...new Set(fieldsForStage(stage).filter(([label]) => labels.includes(label)).flatMap(([, spec]) => spec.keys))];
+}
+
+export function fundingQuestionKeys(status: string, instrument: string, custom: boolean): string[] {
+  return [
+    "public_funding.programme_id", "public_funding.programme", "public_funding.amount", "public_funding.funding_status",
+    ...(custom ? ["public_funding.administering_body"] : []),
+    "public_funding.instrument_type",
+    ...(["applied", "decision_pending"].includes(status) ? ["public_funding.expected_decision_date"] : []),
+    ...(status === "awarded" && instrument === "grant" ? ["public_funding.clawback_treatment"] : []),
+  ];
+}
+
+/** Separate lifecycle histories prevent questions from a different stage leaking in. */
+export function recordQuestionEvidence(history: Map<string, Set<string>>, stage: string, keys: readonly string[]) {
+  const normalized = stageName(stage.toLowerCase());
+  const asked = history.get(normalized) ?? new Set<string>();
+  keys.forEach(key => asked.add(key));
+  history.set(normalized, asked);
+}
+export function questionEvidenceForStage(history: Map<string, Set<string>>, stage: string) {
+  return [...(history.get(stageName(stage.toLowerCase())) ?? [])].sort();
 }
