@@ -3,10 +3,12 @@
 ## Active priority: migration replay reconciliation
 - [x] Confirm all three unlisted files have live objects and exact production checksum matches
 - [x] Confirm all 40 registered migration checksums match production and identify the three duplicate prefixes
+- [x] Extend source coverage to 55 live tables, 66 functions, 118 policies and 50 direct database-reference files; identify 14 tables without an explicit registered baseline
 - [ ] Reconcile journal and unique numbering: blocked because main-history inspection reports invalid bookkeeping and offers no supported repair plan
 - [ ] Rebuild an empty isolated database and obtain an empty table/policy diff: blocked by history repair and unavailable supported Cloud scratch target
 
 Further phase work is paused. Detailed audit: `.lovable/reviews/migration-rebuild-audit.md`. No migration files, journal entries or production objects were changed during this audit.
+App-wide source inventory: `.lovable/reviews/migration-replay-source-sweep.md`. Source coverage is not a scratch/live diff or full journey verification.
 
 ## Active request: Phase 5 amendment A
 - [x] Enforce qualification on portfolio records, refresh it after profile/mandate saves and present qualified exact figures

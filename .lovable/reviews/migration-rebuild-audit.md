@@ -2,6 +2,8 @@
 
 Status: audit complete for the three specified files; history repair and scratch-rebuild proof blocked. No production SQL was executed. No migration file or journal entry was changed.
 
+The subsequent app-wide source sweep is recorded in `.lovable/reviews/migration-replay-source-sweep.md`: 55 live tables, 66 functions, 118 policies and 50 direct-reference source files. It identifies 14 tables without an explicit registered baseline. It is source coverage only, not a scratch rebuild or a schema-equivalence claim.
+
 ## Repository and production evidence
 
 - Journal: 40 entries. Migration SQL files: 43. All 40 registered files exist, and their SHA256 checksums match recorded production rows.
