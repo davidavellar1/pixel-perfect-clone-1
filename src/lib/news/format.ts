@@ -40,6 +40,6 @@ export const formatDealSize = (eur: number): string =>
   eur >= 1_000_000_000 ? `€${(eur / 1_000_000_000).toFixed(1)} B` : `€${Math.round(eur / 1_000_000).toLocaleString("en-GB")} M`;
 
 export const NEWS_ITEM_COLUMNS =
-  "id, source_id, url, title, title_en, summary, why_it_matters, language, publisher, published_at, category, country_codes, deal_value_eur, related_project_ids";
+  "id, source_id, url, title, title_en, summary, why_it_matters, language, publisher, published_at, category, country_codes, deal_value_eur, related_project_ids, relevance";
 
 export const NEWS_SOURCE_COLUMNS = "id, slug, name, kind, homepage_url, country_code, language, active";

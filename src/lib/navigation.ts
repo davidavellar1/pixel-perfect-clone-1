@@ -1,4 +1,4 @@
-import { Bell, Boxes, Briefcase, Heart, HelpCircle, Landmark, LayoutGrid, MessageSquare, Newspaper, Users, type LucideIcon } from "lucide-react";
+import { Bell, Boxes, Briefcase, Heart, HelpCircle, Landmark, LayoutGrid, MessageSquare, Users, type LucideIcon } from "lucide-react";
 
 // Every member gets the same workspace: anyone can invest in projects and anyone can list one.
 
@@ -28,7 +28,6 @@ export const NAV_GROUPS: NavGroup[] = [
     { key: "overview", label: "Overview", to: "/app", icon: LayoutGrid },
     { key: "opportunities", label: "Opportunities", to: "/app/opportunities", icon: LayoutGrid },
     { key: "public-funding", label: "Public Funding", to: "/app/public-funding", icon: Landmark },
-    { key: "news", label: "Market news", to: "/app/news", icon: Newspaper },
     { key: "ecosystem", label: "Advisors & ecosystem", to: "/app/ecosystem", icon: Users },
   ] },
   { label: "My workspace", items: [
@@ -40,7 +39,7 @@ export const NAV_GROUPS: NavGroup[] = [
     { key: "notifications", label: "Notifications", to: "/app/notifications", icon: Bell, badge: "notifications" },
   ] },
   { label: "Tools", items: [
-    { key: "bundle-builder", label: "Bundle builder", to: "/app/bundle-builder", icon: Boxes },
+    { key: "bundle-builder", label: "Portfolio view", to: "/app/bundle-builder", icon: Boxes },
   ] },
   { label: "Support", items: [
     { key: "support", label: "Support", to: "/app/support", icon: HelpCircle },

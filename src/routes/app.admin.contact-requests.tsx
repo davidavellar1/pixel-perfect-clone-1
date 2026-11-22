@@ -1,0 +1,3 @@
+import {createFileRoute} from '@tanstack/react-router';
+import ContactRequests from '@/pages/platform/admin/ContactRequests';
+export const Route=createFileRoute('/app/admin/contact-requests')({head:()=>({meta:[{title:'Contact request queue - DHC Market'},{name:'description',content:'Administrator review of recorded listing contact requests.'},{property:'og:title',content:'Contact request queue - DHC Market'},{property:'og:description',content:'Administrator review of recorded listing contact requests.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:ContactRequests});

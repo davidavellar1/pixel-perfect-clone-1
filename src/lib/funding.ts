@@ -3,13 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
 
+import { applicantCriterion } from "@/lib/fundingCriteria";
+
 export type FundingProgramme = Tables<"funding_programme">;
 export type FundingCall = Tables<"funding_call">;
 export type FundingEntry = FundingProgramme & { funding_call: FundingCall[] };
 export type OwnProject = Pick<
   Tables<"project">,
   "id" | "slug" | "title" | "country_code" | "lifecycle_stage" | "technology" | "project_type"
->;
+> & { applicantType?: string | null };
 
 export const EU27 = [
   "AT",
@@ -219,11 +221,12 @@ export const formatEur = (v: number) =>
 
 export const factsOf = (p: FundingProgramme) => {
   const facts: string[] = [];
-  if (p.max_aid_pct != null) facts.push(`Up to ${Number(p.max_aid_pct)}% of eligible costs`);
-  if (p.min_amount_eur != null && p.max_amount_eur != null)
-    facts.push(`${formatEur(Number(p.min_amount_eur))}-${formatEur(Number(p.max_amount_eur))}`);
-  else if (p.max_amount_eur != null) facts.push(`Up to ${formatEur(Number(p.max_amount_eur))}`);
-  else if (p.min_amount_eur != null) facts.push(`From ${formatEur(Number(p.min_amount_eur))}`);
+  if (p.max_aid_pct != null && p.instrument_types.length===1) { const instrument=p.instrument_types[0]; facts.push(`${Number(p.max_aid_pct)}% ${instrument==='grant'?'aid intensity of eligible costs':instrument==='guarantee'?'coverage or first-loss share':instrument==='loan'?'share of cost financed':'recorded support share'}`); }
+  const amountLabel=p.amount_basis==='award'?'Award':p.amount_basis==='facility_size'?'Facility size':p.amount_basis==='project_size_floor'?'Project size floor':null;
+  if (amountLabel && p.min_amount_eur != null && p.max_amount_eur != null)
+    facts.push(`${amountLabel}: ${formatEur(Number(p.min_amount_eur))}-${formatEur(Number(p.max_amount_eur))}`);
+  else if (amountLabel && p.max_amount_eur != null) facts.push(`${amountLabel}: up to ${formatEur(Number(p.max_amount_eur))}`);
+  else if (amountLabel && p.min_amount_eur != null) facts.push(`${amountLabel}: from ${formatEur(Number(p.min_amount_eur))}`);
   if (p.budget_eur != null) facts.push(`Budget ${formatEur(Number(p.budget_eur))}`);
   else if (p.budget_note) facts.push(p.budget_note);
   return facts;
@@ -262,6 +265,7 @@ export const fitCriteria = (p: FundingProgramme, project: OwnProject): Criterion
     check("Stage", p.stages, project.lifecycle_stage, humanize),
     check("Technology", p.technologies, project.technology, humanize),
     check("Project type", p.project_types, project.project_type, humanize),
+    applicantCriterion(p.applicant_types,project.applicantType),
   ];
 };
 
@@ -298,7 +302,7 @@ export const useOwnProjects = () => {
       }
       const { data: profile } = await supabase
         .from("developer_profiles")
-        .select("id")
+        .select("id,developer_type")
         .eq("user_id", user.id)
         .maybeSingle();
       if (!profile) {
@@ -314,7 +318,7 @@ export const useOwnProjects = () => {
         .eq("developer_id", profile.id)
         .order("created_at", { ascending: false });
       if (!cancelled) {
-        setProjects((data || []) as OwnProject[]);
+        setProjects((data || []).map(row=>({...row,applicantType:profile.developer_type})));
         setLoading(false);
       }
     })();

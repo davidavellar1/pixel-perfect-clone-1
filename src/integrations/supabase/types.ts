@@ -214,6 +214,7 @@ export type Database = {
           instrument_sought: Database["public"]["Enums"]["instrument_sought"]
           interest_drivers: string[]
           jurisdiction: string | null
+          matched_instruments: string[] | null
           regulated_status: string | null
           signatory_name: string
           signatory_role: string | null
@@ -245,6 +246,7 @@ export type Database = {
           instrument_sought: Database["public"]["Enums"]["instrument_sought"]
           interest_drivers?: string[]
           jurisdiction?: string | null
+          matched_instruments?: string[] | null
           regulated_status?: string | null
           signatory_name: string
           signatory_role?: string | null
@@ -276,6 +278,7 @@ export type Database = {
           instrument_sought?: Database["public"]["Enums"]["instrument_sought"]
           interest_drivers?: string[]
           jurisdiction?: string | null
+          matched_instruments?: string[] | null
           regulated_status?: string | null
           signatory_name?: string
           signatory_role?: string | null
@@ -298,13 +301,18 @@ export type Database = {
         Row: {
           active: boolean
           category: Database["public"]["Enums"]["advisor_category"]
+          contact_route: string | null
           countries: string[]
           created_at: string
           description: string
           id: string
           initials: string
           label: string
+          languages: string[]
+          listing_consent_at: string | null
           name: string
+          referral_position: string | null
+          services: Json
           slug: string
           sort_order: number
           tags: string[]
@@ -315,13 +323,18 @@ export type Database = {
         Insert: {
           active?: boolean
           category: Database["public"]["Enums"]["advisor_category"]
+          contact_route?: string | null
           countries?: string[]
           created_at?: string
           description: string
           id?: string
           initials: string
           label: string
+          languages?: string[]
+          listing_consent_at?: string | null
           name: string
+          referral_position?: string | null
+          services?: Json
           slug: string
           sort_order?: number
           tags?: string[]
@@ -332,13 +345,18 @@ export type Database = {
         Update: {
           active?: boolean
           category?: Database["public"]["Enums"]["advisor_category"]
+          contact_route?: string | null
           countries?: string[]
           created_at?: string
           description?: string
           id?: string
           initials?: string
           label?: string
+          languages?: string[]
+          listing_consent_at?: string | null
           name?: string
+          referral_position?: string | null
+          services?: Json
           slug?: string
           sort_order?: number
           tags?: string[]
@@ -547,6 +565,62 @@ export type Database = {
             foreignKeyName: "construction_package_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: true
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_request: {
+        Row: {
+          admin_question: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          introduced_at: string | null
+          kind: string
+          message: string
+          project_id: string
+          reason: string | null
+          requester_id: string
+          state: string
+          target_id: string
+        }
+        Insert: {
+          admin_question?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          introduced_at?: string | null
+          kind: string
+          message: string
+          project_id: string
+          reason?: string | null
+          requester_id: string
+          state?: string
+          target_id: string
+        }
+        Update: {
+          admin_question?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          introduced_at?: string | null
+          kind?: string
+          message?: string
+          project_id?: string
+          reason?: string | null
+          requester_id?: string
+          state?: string
+          target_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_request_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
@@ -954,6 +1028,7 @@ export type Database = {
       funding_programme: {
         Row: {
           administering_body: string
+          amount_basis: string | null
           applicant_types: string[]
           application_mode: string | null
           budget_eur: number | null
@@ -988,6 +1063,7 @@ export type Database = {
         }
         Insert: {
           administering_body: string
+          amount_basis?: string | null
           applicant_types?: string[]
           application_mode?: string | null
           budget_eur?: number | null
@@ -1022,6 +1098,7 @@ export type Database = {
         }
         Update: {
           administering_body?: string
+          amount_basis?: string | null
           applicant_types?: string[]
           application_mode?: string | null
           budget_eur?: number | null
@@ -1067,6 +1144,8 @@ export type Database = {
           decision_process:
             | Database["public"]["Enums"]["decision_process"]
             | null
+          earliest_stage: Database["public"]["Enums"]["project_stage"] | null
+          financing_capabilities: string[]
           full_name: string
           id: string
           instrument_sought:
@@ -1077,6 +1156,7 @@ export type Database = {
             | null
           investor_type: Database["public"]["Enums"]["investor_type"] | null
           mandate_reviewed_at: string | null
+          matched_instruments: string[]
           regions_of_interest: string[] | null
           technologies_of_interest: Database["public"]["Enums"]["technology"][]
           ticket_band: Database["public"]["Enums"]["ticket_band"] | null
@@ -1093,6 +1173,8 @@ export type Database = {
           decision_process?:
             | Database["public"]["Enums"]["decision_process"]
             | null
+          earliest_stage?: Database["public"]["Enums"]["project_stage"] | null
+          financing_capabilities?: string[]
           full_name: string
           id?: string
           instrument_sought?:
@@ -1103,6 +1185,7 @@ export type Database = {
             | null
           investor_type?: Database["public"]["Enums"]["investor_type"] | null
           mandate_reviewed_at?: string | null
+          matched_instruments?: string[]
           regions_of_interest?: string[] | null
           technologies_of_interest?: Database["public"]["Enums"]["technology"][]
           ticket_band?: Database["public"]["Enums"]["ticket_band"] | null
@@ -1119,6 +1202,8 @@ export type Database = {
           decision_process?:
             | Database["public"]["Enums"]["decision_process"]
             | null
+          earliest_stage?: Database["public"]["Enums"]["project_stage"] | null
+          financing_capabilities?: string[]
           full_name?: string
           id?: string
           instrument_sought?:
@@ -1129,6 +1214,7 @@ export type Database = {
             | null
           investor_type?: Database["public"]["Enums"]["investor_type"] | null
           mandate_reviewed_at?: string | null
+          matched_instruments?: string[]
           regions_of_interest?: string[] | null
           technologies_of_interest?: Database["public"]["Enums"]["technology"][]
           ticket_band?: Database["public"]["Enums"]["ticket_band"] | null
@@ -1792,6 +1878,7 @@ export type Database = {
       project: {
         Row: {
           asked_fields: string[] | null
+          band_until_acceptance: boolean
           capacity_mw: number | null
           city: string
           country_code: string
@@ -1816,6 +1903,8 @@ export type Database = {
           submission_draft: Json | null
           submission_published: Json | null
           submission_revision: number
+          subscriber_disclosure_consent_at: string | null
+          subscriber_preview_fingerprint: string | null
           summary: string | null
           technical_as_of: string | null
           technology: Database["public"]["Enums"]["technology"]
@@ -1828,6 +1917,7 @@ export type Database = {
         }
         Insert: {
           asked_fields?: string[] | null
+          band_until_acceptance?: boolean
           capacity_mw?: number | null
           city: string
           country_code: string
@@ -1852,6 +1942,8 @@ export type Database = {
           submission_draft?: Json | null
           submission_published?: Json | null
           submission_revision?: number
+          subscriber_disclosure_consent_at?: string | null
+          subscriber_preview_fingerprint?: string | null
           summary?: string | null
           technical_as_of?: string | null
           technology: Database["public"]["Enums"]["technology"]
@@ -1864,6 +1956,7 @@ export type Database = {
         }
         Update: {
           asked_fields?: string[] | null
+          band_until_acceptance?: boolean
           capacity_mw?: number | null
           city?: string
           country_code?: string
@@ -1888,6 +1981,8 @@ export type Database = {
           submission_draft?: Json | null
           submission_published?: Json | null
           submission_revision?: number
+          subscriber_disclosure_consent_at?: string | null
+          subscriber_preview_fingerprint?: string | null
           summary?: string | null
           technical_as_of?: string | null
           technology?: Database["public"]["Enums"]["technology"]
@@ -2345,6 +2440,8 @@ export type Database = {
           author_id: string
           body: string
           created_at: string
+          decline_reason: string | null
+          declined_at: string | null
           id: string
           is_public: boolean
           project_id: string
@@ -2356,6 +2453,8 @@ export type Database = {
           author_id: string
           body: string
           created_at?: string
+          decline_reason?: string | null
+          declined_at?: string | null
           id?: string
           is_public?: boolean
           project_id: string
@@ -2367,6 +2466,8 @@ export type Database = {
           author_id?: string
           body?: string
           created_at?: string
+          decline_reason?: string | null
+          declined_at?: string | null
           id?: string
           is_public?: boolean
           project_id?: string
@@ -2491,6 +2592,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      subscription: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          id: string
+          provider_customer_id: string | null
+          provider_subscription_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       sustainability_profile: {
         Row: {
@@ -2698,6 +2832,34 @@ export type Database = {
       }
     }
     Views: {
+      project_discovery: {
+        Row: {
+          capacity_band: string | null
+          capex_band: string | null
+          country_code: string | null
+          created_at: string | null
+          equity_sought_band: string | null
+          equity_sought_sort: number | null
+          feasibility_complete: boolean | null
+          id: string | null
+          instrument:
+            | Database["public"]["Enums"]["transaction_instrument"]
+            | null
+          lifecycle_stage: Database["public"]["Enums"]["lifecycle_stage"] | null
+          min_ticket_band: string | null
+          min_ticket_sort: number | null
+          new_load_contracted_pct: number | null
+          offtake_committed_load_pct: number | null
+          project_type: Database["public"]["Enums"]["project_type"] | null
+          public_funding_awarded: boolean | null
+          slug: string | null
+          target_close_quarter: string | null
+          teaser_title: string | null
+          technology: Database["public"]["Enums"]["technology"] | null
+          transaction_terms_published: boolean | null
+        }
+        Relationships: []
+      }
       project_teaser: {
         Row: {
           capacity_band: string | null
@@ -2734,6 +2896,46 @@ export type Database = {
         }
         Returns: boolean
       }
+      contact_request_inbox: {
+        Args: never
+        Returns: {
+          admin_question: string
+          created_at: string
+          id: string
+          introduced_at: string
+          kind: string
+          message: string
+          previous_requests: number
+          project_title: string
+          reason: string
+          referral_position: string
+          requester_id: string
+          requester_name: string
+          state: string
+          target_name: string
+        }[]
+      }
+      decline_question: {
+        Args: { _question_id: string; _reason: string }
+        Returns: undefined
+      }
+      investor_document: {
+        Args: { _banded?: boolean; _document: Json }
+        Returns: Json
+      }
+      investor_document_index: {
+        Args: { _project_id: string }
+        Returns: {
+          access_level: Database["public"]["Enums"]["document_access"]
+          created_at: string
+          file_type: string
+          id: string
+          label: string
+        }[]
+      }
+      investor_project: { Args: { _project_id: string }; Returns: Json }
+      is_qualified_investor: { Args: never; Returns: boolean }
+      is_subscriber: { Args: never; Returns: boolean }
       member_message_inbox: {
         Args: never
         Returns: {
@@ -2772,6 +2974,32 @@ export type Database = {
           slug: string
         }[]
       }
+      project_discovery_rows: {
+        Args: never
+        Returns: {
+          capacity_band: string
+          capex_band: string
+          country_code: string
+          created_at: string
+          equity_sought_band: string
+          equity_sought_sort: number
+          feasibility_complete: boolean
+          id: string
+          instrument: Database["public"]["Enums"]["transaction_instrument"]
+          lifecycle_stage: Database["public"]["Enums"]["lifecycle_stage"]
+          min_ticket_band: string
+          min_ticket_sort: number
+          new_load_contracted_pct: number
+          offtake_committed_load_pct: number
+          project_type: Database["public"]["Enums"]["project_type"]
+          public_funding_awarded: boolean
+          slug: string
+          target_close_quarter: string
+          teaser_title: string
+          technology: Database["public"]["Enums"]["technology"]
+          transaction_terms_published: boolean
+        }[]
+      }
       project_owner_user_id: { Args: { _project_id: string }; Returns: string }
       project_teaser_rows: {
         Args: never
@@ -2794,6 +3022,14 @@ export type Database = {
         }[]
       }
       publish_project: { Args: { payload: Json }; Returns: Json }
+      question_response_record: {
+        Args: { _project_id: string }
+        Returns: {
+          declined_count: number
+          median_hours: number
+          open_count: number
+        }[]
+      }
       record_legal_acceptance: {
         Args: {
           p_client_accepted_at?: string
@@ -2812,6 +3048,21 @@ export type Database = {
         }
         Returns: Json
       }
+      subscriber_document: {
+        Args: { _banded?: boolean; _document: Json }
+        Returns: Json
+      }
+      subscriber_document_index: {
+        Args: { _project_id: string }
+        Returns: {
+          access_level: Database["public"]["Enums"]["document_access"]
+          created_at: string
+          file_type: string
+          id: string
+          label: string
+        }[]
+      }
+      subscriber_project: { Args: { _project_id: string }; Returns: Json }
     }
     Enums: {
       absence_reason:

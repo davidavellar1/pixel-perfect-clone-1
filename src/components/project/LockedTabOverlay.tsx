@@ -6,7 +6,7 @@ interface LockedTabOverlayProps {
   tabName: string;
   children: React.ReactNode;
   /** "signin" = visitor not signed in, "interest" = signed in but no accepted request */
-  mode?: "signin" | "interest";
+  mode?: "signin" | "interest" | "qualification";
   /** A request is already with the developer, so there is nothing to send. */
   pending?: boolean;
   onExpressInterest?: () => void;
@@ -36,7 +36,7 @@ const LockedTabOverlay = ({
             <Lock className="h-5 w-5 text-accent" />
           </div>
 
-          {mode === "interest" ? (
+          {mode === "qualification" ? <><h3 className="mb-2 text-xl font-semibold">Complete your investment mandate to open this</h3><Button asChild className="mt-4"><Link to="/app/settings#investor">Complete investment mandate</Link></Button></> : mode === "interest" ? (
             <>
               <h3 className="font-display text-xl font-bold text-foreground mb-2">
                 {pending ? "Awaiting the developer's decision" : "The developer decides who sees this"}
@@ -58,7 +58,7 @@ const LockedTabOverlay = ({
                 {tabName} data is for members
               </h3>
               <p className="text-sm text-muted-foreground mb-6">
-                Create an account to request access. The developer decides whether the {tabName.toLowerCase()} details unlock.
+                Create an account and complete your investment mandate to open de-identified information. Developer acceptance opens identity and contact.
               </p>
               <div className="flex flex-col gap-3">
                 <Button asChild className="w-full"><Link to={`/sign-up?redirect=${redirect}`}>Create a free account</Link></Button>

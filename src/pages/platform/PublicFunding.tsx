@@ -1,4 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "@/lib/router-compat";
+import { supabase } from "@/integrations/supabase/client";
+import ContactRequestDialog from "@/components/platform/ContactRequestDialog";
+import { useInvestorQualification } from "@/hooks/useInvestorQualification";
 import { Building2, Check, ExternalLink, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +60,11 @@ const CallBadge = ({ entry }: { entry: FundingEntry }) => {
 
 const PublicFunding = () => {
   const { entries, loading } = useFundingCatalogue();
+  const {qualified}=useInvestorQualification();
+  const [contact,setContact]=useState<FundingEntry|null>(null);
+  const [deRisking,setDeRisking]=useState(false);
+  const [coverage,setCoverage]=useState<{scope:string;status:string}[]>([]);
+  useEffect(()=>{void supabase.from("funding_coverage").select("scope,status").then(({data})=>setCoverage(data??[]));},[]);
   const { projects } = useOwnProjects();
   const [query, setQuery] = useState("");
   const [type, setType] = useState("all");
@@ -86,6 +95,7 @@ const PublicFunding = () => {
           .join(" ")
           .toLowerCase();
         if (needle && !text.includes(needle)) return false;
+        if(deRisking&&!e.instrument_types.some(t=>["guarantee","loan","risk_cover","blended","technical_assistance"].includes(t)))return false;
         if (type !== "all" && !e.instrument_types.includes(type)) return false;
         if (country === "eu-wide" && !(e.level === "eu" || e.level === "ifi")) return false;
         if (country !== "all" && country !== "eu-wide" && !e.country_codes.includes(country))
@@ -105,7 +115,7 @@ const PublicFunding = () => {
         const [rb, vb] = sortRank(b);
         return ra - rb || va - vb || (a.name_en || a.name).localeCompare(b.name_en || b.name);
       });
-  }, [entries, query, type, country, stage, applicant, openOnly]);
+  }, [entries, query, type, country, stage, applicant, openOnly, deRisking]);
 
   const lastUpdated = entries.reduce<string | null>(
     (max, e) => (!max || e.last_verified_at > max ? e.last_verified_at : max),
@@ -154,6 +164,8 @@ const PublicFunding = () => {
       </section>
 
       <div className="space-y-3">
+        <Button variant={deRisking?"default":"outline"} aria-pressed={deRisking} onClick={()=>setDeRisking(v=>!v)}>De-risking instruments</Button>
+        {coverage.some(row=>row.status==="not_started")&&<p className="text-xs text-muted-foreground">Coverage not yet started: {coverage.filter(row=>row.status==="not_started").map(row=>COUNTRY_NAMES[row.scope]??row.scope).join(", ")}. An empty market is not evidence that no funding is available.</p>}
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(220px,1fr)_190px_170px_170px_190px]">
           <div className="relative md:col-span-2 xl:col-span-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -263,7 +275,7 @@ const PublicFunding = () => {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h3 className="font-display text-lg font-semibold text-foreground">
-                      {entry.name}
+                      <Link to={`/app/public-funding/${entry.slug}`} className="text-primary underline">{entry.name}</Link>
                     </h3>
                     {entry.name_en && entry.name_en !== entry.name && (
                       <p className="text-xs text-muted-foreground">{entry.name_en}</p>
@@ -308,8 +320,12 @@ const PublicFunding = () => {
                     ))}
                   </div>
                 )}
+                {entry.cumulation&&<p className="mt-3 text-xs text-muted-foreground">Cumulation: {entry.cumulation}</p>}
+                {entry.state_aid_basis&&<p className="mt-2 text-xs text-muted-foreground">State aid basis: {entry.state_aid_basis}</p>}
                 <div className="mt-auto flex flex-wrap items-center gap-3 pt-5">
+                  <Button variant="outline" onClick={()=>setContact(entry)}>Request contact</Button>
                   <Button
+                    disabled={!qualified}
                     onClick={() => open(entry.slug)}
                     className="bg-accent text-accent-foreground hover:bg-accent/90"
                   >
@@ -356,6 +372,7 @@ const PublicFunding = () => {
         </div>
       )}
 
+      {contact&&<ContactRequestDialog target={{id:contact.id,name:contact.name,kind:"funding"}} close={()=>setContact(null)}/>}
       <EligibilityDialog entry={activeEntry} projects={projects} onClose={close} />
     </div>
   );

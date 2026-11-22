@@ -4,9 +4,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { effectiveState, type ViewerAccess } from "@/lib/access";
 import { countryName, readable } from "@/lib/projectDisclosure";
 import { parseDocument } from "@/lib/submission/serializer";
+import { useInvestorQualification } from "@/hooks/useInvestorQualification";
 import { fundingAssumptionLines } from "@/lib/submission/disclosures";
 
 export interface ProjectListing {
+  qualified?: boolean;
+  exactFiguresAvailable?: boolean;
   id: string;
   slug: string;
   title: string;
@@ -37,10 +40,17 @@ export interface ProjectListing {
   minTicketBand?: string | null;
   minTicketSort?: number | null;
   transactionTermsPublished?: boolean;
+  equitySoughtBand?: string|null;
+  equitySoughtSort?: number|null;
+  targetCloseQuarter?: string|null;
+  feasibilityComplete?: boolean;
+  publicFundingAwarded?: boolean;
+  newLoadContractedPct?: number|null;
 }
 
 export const useProjectListings = () => {
   const { user } = useAuth();
+  const { qualified } = useInvestorQualification();
   const [projects, setProjects] = useState<ProjectListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +58,7 @@ export const useProjectListings = () => {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const { data: rows, error } = await supabase.from("project_teaser").select("*").order("created_at", { ascending: false });
+    const { data: rows, error } = await supabase.from("project_discovery").select("*").order("created_at", { ascending: false });
     if (error || !rows) {
       if (error) { console.error("Project listing query failed", error); setError(error.message); }
       setProjects([]); setLoading(false); return;
@@ -62,7 +72,9 @@ export const useProjectListings = () => {
     ]);
     const requestMap = new Map((requestsResult.data || []).map((row) => [row.project_id, row]));
     const watched = new Set((watchResult.data || []).map((row) => row.project_id));
-    const grantedIds = ids.filter((id) => { const request = requestMap.get(id); return request && ["granted", "granted_full"].includes(effectiveState(request)); });
+    const investorRows = qualified ? await Promise.all(ids.map(id => supabase.rpc("investor_project",{_project_id:id}))) : [];
+    const investorMap=new Map(investorRows.flatMap(result=>{const v=result.data;return v&&typeof v==='object'&&!Array.isArray(v)&&typeof v['id']==='string'?[[v['id'],{document:parseDocument(v['document']??null),exact:v['exact']===true}] as const]:[];}));
+    const grantedIds = (qualified ? ids : []).filter((id) => { const request = requestMap.get(id); return request && ["granted", "granted_full"].includes(effectiveState(request)); });
     const [exactProjects, financials, transactions, cases, ladders] = grantedIds.length ? await Promise.all([
       supabase.from("project").select("id,title,capacity_mw,financial_as_of,public_cofinancing_status,submission_published").in("id", grantedIds),
       supabase.from("financial_summary").select("project_id,capex").in("project_id", grantedIds),
@@ -80,25 +92,29 @@ export const useProjectListings = () => {
       const country = countryName(row.country_code);
       const access = requestMap.get(id);
       const exact = exactMap.get(id);
+      const safe=investorMap.get(id);
+      const number=(key:string)=>safe?.exact&&safe.document?.answers[key]?.trim()?Number(safe.document.answers[key]):null;
       const financial = financialMap.get(id);
       const transaction = transactionMap.get(id);
       return {
+        qualified, exactFiguresAvailable:Boolean(exact)||Boolean(safe?.exact && safe.document),
         id, slug: row.slug ?? "", title: exact?.title ?? `${row.teaser_title ?? ""}, ${country}`,
         teaserTitle: row.teaser_title ?? "", city: "", region: country, country,
         category: readable(row.project_type), technology: readable(row.technology),
         stage: readable(row.lifecycle_stage), generation: "", publicSupport: exact?.public_cofinancing_status === "Committed" || exact?.public_cofinancing_status === "In progress",
-        capacityMw: exact?.capacity_mw ?? 0, capex: financial?.capex ?? null, targetIrr: caseMap.get(id)?.equity_irr_pct ?? null, equitySought: transaction?.equity_sought ?? null, minTicket: transaction?.min_ticket ?? null,
+        capacityMw: exact?.capacity_mw ?? number("capacity") ?? 0, capex: financial?.capex ?? number("capex"), targetIrr: caseMap.get(id)?.equity_irr_pct ?? null, equitySought: transaction?.equity_sought ?? number("equitySought"), minTicket: transaction?.min_ticket ?? number("minTicket"),
         baseCaseFundingAssumptions: fundingAssumptionLines(parseDocument(exact?.submission_published ?? null)),
         capacityBand: row.capacity_band, capexBand: row.capex_band,
         minTicketBand: row.min_ticket_band, minTicketSort: row.min_ticket_sort,
         transactionTermsPublished: row.transaction_terms_published ?? false,
+        equitySoughtBand:row.equity_sought_band,equitySoughtSort:row.equity_sought_sort,targetCloseQuarter:row.target_close_quarter,feasibilityComplete:row.feasibility_complete??false,publicFundingAwarded:row.public_funding_awarded??false,newLoadContractedPct:row.new_load_contracted_pct,
         instrument: row.instrument, offtakeLoadPct: row.offtake_committed_load_pct,
         accessState: access ? effectiveState(access) : "teaser", watchlisted: watched.has(id),
-        contractedPct: ladderMap.get(id)?.contracted_load_pct ?? null, signedPct: ladderMap.get(id)?.signed_connection_load_pct ?? null, financialAsOf: exact?.financial_as_of ?? null,
+        contractedPct: ladderMap.get(id)?.contracted_load_pct ?? null, signedPct: ladderMap.get(id)?.signed_connection_load_pct ?? null, financialAsOf: exact?.financial_as_of ?? safe?.document?.answers["asOf"] ?? null,
       };
     }));
     setLoading(false);
-  }, [user]);
+  }, [user, qualified]);
 
   useEffect(() => { void load(); }, [load]);
   return { projects, loading, error, reload: load };

@@ -6,8 +6,8 @@ export function baseCaseReturn(state: ViewerAccess, cases: { name: string; equit
   return cases.find((row) => row.name === "base")?.equity_irr_pct ?? null;
 }
 
-export function bundleExactFigures(project: { accessState: ViewerAccess; capacityMw: number; capex: number | null; equitySought: number | null; minTicket: number | null }) {
-  if (!isGranted(project.accessState)) return null;
+export function bundleExactFigures(project: { accessState: ViewerAccess; qualified?: boolean; exactFiguresAvailable?: boolean; capacityMw: number; capex: number | null; equitySought: number | null; minTicket: number | null }) {
+  if (!project.qualified || !project.exactFiguresAvailable) return null;
   return { capacityMw: project.capacityMw, capex: project.capex, equitySought: project.equitySought, minTicket: project.minTicket };
 }
 

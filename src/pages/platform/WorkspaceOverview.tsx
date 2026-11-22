@@ -1,49 +1,43 @@
-import { useEffect, useState } from "react";
-import { Link } from "@/lib/router-compat";
-import { Button } from "@/components/ui/button";
-import ProjectCard from "@/components/project/ProjectCard";
-import { useProjectListings } from "@/hooks/useProjectListings";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { effectiveState, isGranted } from "@/lib/access";
-import { FEE_SENTENCE } from "@/lib/fee";
-import type { Tables } from "@/integrations/supabase/types";
-
-export default function WorkspaceOverview() {
-  const { user } = useAuth();
-  const { projects, loading, error } = useProjectListings();
-  const [requests, setRequests] = useState<Tables<"access_request">[] | null>(null);
-  const [requestError, setRequestError] = useState(false);
-  useEffect(() => {
-    if (!user) return;
-    let active = true;
-    void supabase.from("access_request").select("*").eq("investor_user_id", user.id).then(({ data, error }) => {
-      if (!active) return; setRequestError(Boolean(error)); setRequests(error ? null : data ?? []);
-    });
-    return () => { active = false; };
-  }, [user?.id]);
-  const states = requests?.map(request => effectiveState(request)) ?? [];
-  const granted = states.filter(isGranted).length;
-  const rooms = states.filter(state => state === "granted_full").length;
-  const position = rooms ? 3 : granted ? 2 : states.some(state => state === "pending") ? 1 : 0;
-  return <div className="space-y-8">
-    <h1 className="font-display text-3xl font-semibold">Overview</h1>
-    <section className="space-y-4 border-b border-border pb-6">
-      <h2 className="font-display text-lg font-semibold">Your access ladder</h2>
-      <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{["Anonymized teaser", "Interest and signed NDA", "Developer accepts access", "Separate data room approval"].map((label, index) => <li key={label} className="border-t-2 border-border pt-3">
-        <span className="text-xs text-muted-foreground">Step {index + 1}{requests && position === index ? " - Your current position" : ""}</span><p className="mt-1 text-sm font-semibold text-foreground">{label}</p>
-      </li>)}</ol>
-      {requestError ? <p role="alert">Could not load your activity.</p> : <dl className="flex flex-wrap gap-8">{[["Requests sent", requests?.length], ["Awaiting decision", requests ? states.filter(state => state === "pending").length : undefined], ["Access granted", requests ? granted : undefined], ["Data rooms open", requests ? rooms : undefined]].map(([label, count]) => <div key={label}><dt className="text-sm text-muted-foreground">{label}</dt><dd className="font-display text-xl font-semibold">{count ?? "Loading..."}</dd></div>)}</dl>}
-      {Boolean(requests?.length) && <Button variant="outline" asChild><Link to="/app/my-deals/investing">View your pipeline and analytics</Link></Button>}
-    </section>
-    <section className="space-y-3">
-      <h2 className="font-display text-lg font-semibold">When you express interest</h2>
-      <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">A short form and signed NDA go to the developer. They decide, typically within three working days. Nothing is revealed until they accept, and the NDA becomes operative only then. The data room requires a separate approval. No fee is due until a financial close.</p>
-      <p className="max-w-3xl text-sm text-muted-foreground">{FEE_SENTENCE}</p>
-    </section>
-    <section className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="font-display text-lg font-semibold">Opportunities</h2><Button variant="outline" asChild><Link to="/app/opportunities">All opportunities</Link></Button></div>
-      {error ? <p role="alert">Could not load opportunities.</p> : loading ? <p>Loading listings...</p> : <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{projects.slice(0, 6).map(project => <ProjectCard key={project.id} project={project} context="app" />)}</div>}
-    </section>
-  </div>;
+import { useEffect, useState } from 'react';
+import { Link } from '@/lib/router-compat';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { effectiveState, isGranted, slaStatus, SLA_LAPSE_WORKING_DAYS } from '@/lib/access';
+import { FEE_SENTENCE } from '@/lib/fee';
+import { useWatchlist } from '@/hooks/useWatchlist';
+import { MIN_NEWS_RELEVANCE } from '@/lib/news/policy';
+import { fieldsForDocument } from '@/lib/submission/stageSchema';
+import { parseDocument } from '@/lib/submission/serializer';
+import type { Tables } from '@/integrations/supabase/types';
+type Request=Tables<'access_request'>;
+type Listing=Tables<'project'>;
+type News=Pick<Tables<'news_item'>,'id'|'title'|'title_en'|'url'|'published_at'|'publisher'>;
+export default function WorkspaceOverview(){
+ const {user}=useAuth();const {items:watched}=useWatchlist();const [own,setOwn]=useState<Listing[]>([]);const [incoming,setIncoming]=useState<Request[]>([]);const [outgoing,setOutgoing]=useState<Request[]>([]);const [titles,setTitles]=useState<Map<string,{title:string;slug:string}>>(new Map());const [changes,setChanges]=useState<Tables<'notification'>[]>([]);const [news,setNews]=useState<News[]>([]);const [deadlines,setDeadlines]=useState<Tables<'funding_call'>[]>([]);const [loading,setLoading]=useState(true);const [error,setError]=useState(false);
+ useEffect(()=>{if(!user)return;let active=true;void(async()=>{setLoading(true);try{
+ const [profile,requests,notifications]=await Promise.all([supabase.from('developer_profiles').select('id').eq('user_id',user.id).maybeSingle(),supabase.from('access_request').select('*').eq('investor_user_id',user.id),supabase.from('notification').select('*').eq('user_id',user.id).is('read_at',null).order('created_at',{ascending:false}).limit(8)]);
+ for(const result of [profile,requests,notifications])if(result.error)throw result.error;
+ const listingResult=profile.data?await supabase.from('project').select('*').eq('developer_id',profile.data.id):{data:[],error:null};if(listingResult.error)throw listingResult.error;
+ const listings=listingResult.data??[];const ids=listings.map(p=>p.id);const incomingResult=ids.length?await supabase.from('access_request').select('*').in('project_id',ids).order('submitted_at'):{data:[],error:null};if(incomingResult.error)throw incomingResult.error;
+ const interest=requests.data??[];const followedIds=[...new Set([...watched.map(w=>w.project_id),...interest.map(r=>r.project_id)])];
+ const teasers=followedIds.length?await supabase.from('project_teaser').select('id,slug,teaser_title,country_code').in('id',followedIds):{data:[],error:null};if(teasers.error)throw teasers.error;
+ const titleMap=new Map<string,{title:string;slug:string}>();for(const p of teasers.data??[])if(p.id&&p.slug)titleMap.set(p.id,{title:p.teaser_title??'Listing',slug:p.slug});for(const p of listings)titleMap.set(p.id,{title:p.title,slug:p.slug});
+ const countries=[...new Set([...listings.map(p=>p.country_code.trim()),...(teasers.data??[]).flatMap(p=>p.country_code?[p.country_code.trim()]:[])])];
+ const newsResult=countries.length?await supabase.from('news_item').select('id,title,title_en,url,published_at,publisher').eq('hidden',false).gte('relevance',MIN_NEWS_RELEVANCE).overlaps('country_codes',countries).order('published_at',{ascending:false}).limit(3):{data:[],error:null};
+ const funding=ids.length?await supabase.from('public_funding').select('programme_id,financial_summary!inner(project_id)').in('financial_summary.project_id',ids):{data:[],error:null};
+ const programmeIds=[...new Set((funding.data??[]).flatMap(r=>r.programme_id?[r.programme_id]:[]))];const now=new Date();const end=new Date(now.getTime()+30*86400000);
+ const calls=programmeIds.length?await supabase.from('funding_call').select('*').in('programme_id',programmeIds).eq('status','open').gte('deadline_at',now.toISOString()).lte('deadline_at',end.toISOString()).order('deadline_at'):{data:[],error:null};
+ if(!active)return;setOwn(listings);setOutgoing(interest);setIncoming(incomingResult.data??[]);setChanges(notifications.data??[]);setTitles(titleMap);setNews(newsResult.data??[]);setDeadlines(calls.data??[]);setError(false);
+ }catch{if(active)setError(true);}finally{if(active)setLoading(false);}})();return()=>{active=false;};},[user?.id,watched.map(w=>w.project_id).join(',')]);
+ const pending=incoming.filter(r=>effectiveState(r)==='pending');const waiting=outgoing.filter(r=>effectiveState(r)==='pending'||isGranted(effectiveState(r)));const drafts=own.filter(p=>p.visibility==='draft');const empty=!own.length&&!outgoing.length&&!watched.length;
+ return <div className="workspace-container space-y-7"><h1 className="font-display text-3xl font-semibold">Overview</h1>{error&&<p role="alert">Your activity could not be loaded. Please refresh before making a decision.</p>}{loading?<p role="status">Loading your activity...</p>:<div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px]"><main className="min-w-0 space-y-8">
+ {pending.length>0&&<section><h2 className="mb-3 text-xl font-semibold">Awaiting your decision</h2><ul className="divide-y divide-border">{pending.map(r=>{const status=slaStatus(r);const project=titles.get(r.project_id);return <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 py-4"><div><p className="font-semibold">{project?.title??'Your listing'}</p><p className="mt-1 text-sm text-muted-foreground">{status.workingDays} working days pending. {status.paused?"Clock paused, awaiting the investor's reply.":status.workingDays>=SLA_LAPSE_WORKING_DAYS-2?'Within two working days of lapse. No decision means no access and no introduction.':'A developer decision is required.'}</p></div><Button asChild><Link to={`/app/access-requests?request=${r.id}`}>Review request</Link></Button></li>;})}</ul></section>}
+ {waiting.length>0&&<section><h2 className="mb-3 text-xl font-semibold">Waiting on someone else</h2><ul className="divide-y divide-border">{waiting.map(r=>{const project=titles.get(r.project_id);return <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 py-3"><div><p className="font-semibold">{project?.title??'Listing'}</p><p className="text-sm text-muted-foreground">{effectiveState(r)==='pending'?`${slaStatus(r).workingDays} working days pending`:'Access granted, available to review'}</p></div>{project&&<Button variant="outline" asChild><Link to={`/app/projects/${project.slug}`}>Open listing</Link></Button>}</li>;})}</ul></section>}
+ {changes.length>0&&<section><h2 className="mb-3 text-xl font-semibold">Recent changes</h2><ul className="divide-y divide-border">{changes.map(row=><li key={row.id} className="py-3"><p className="font-semibold">{row.title}</p>{row.body&&<p className="mt-1 text-sm text-muted-foreground">{row.body}</p>}{row.link&&<Button variant="link" asChild className="px-0"><Link to={row.link}>Open update</Link></Button>}</li>)}</ul></section>}
+ {drafts.length>0&&<section><h2 className="mb-3 text-xl font-semibold">Finish your listing</h2><ul className="divide-y divide-border">{drafts.map(p=>{const d=parseDocument(p.submission_draft);const next=d?fieldsForDocument(d).find(f=>f.required&&!d.answers[f.key]?.trim()):null;return <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 py-3"><div><p className="font-semibold">{d?.answers['title']||p.title||'Draft listing'}</p>{next&&<p className="text-sm text-muted-foreground">Next required answer: {next.label}</p>}</div><Button variant="outline" asChild><Link to={`/app/submit-project?project=${p.id}${next?`&section=${next.section}`:''}`}>Resume draft</Link></Button></li>;})}</ul></section>}
+ {deadlines.length>0&&<section><h2 className="mb-3 text-xl font-semibold">Funding deadlines inside 30 days</h2><ul className="space-y-3">{deadlines.map(call=><li key={call.id}><a href={call.call_url} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline">{call.title}</a><p className="text-sm text-muted-foreground">Deadline {call.deadline_at?.slice(0,10)}. Linked to public funding recorded on your listings; confirm eligibility with the awarding body.</p></li>)}</ul></section>}
+ {news.length>0&&<section><h2 className="mb-3 text-xl font-semibold">News in your markets</h2><ul className="divide-y divide-border">{news.map(item=><li key={item.id} className="py-3"><a href={item.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline">{item.title_en||item.title}</a><p className="mt-1 text-xs text-muted-foreground">{item.publisher} · {item.published_at.slice(0,10)}</p></li>)}</ul></section>}
+ {empty&&<section className="space-y-5"><h2 className="text-xl font-semibold">Your workspace</h2><div className="flex flex-wrap gap-3"><Button asChild><Link to="/app/submit-project">List your first project</Link></Button><Button variant="outline" asChild><Link to="/app/settings">Set your investor mandate</Link></Button><Button variant="outline" asChild><Link to="/app/opportunities">Browse opportunities</Link></Button></div><ol className="space-y-2 text-sm text-muted-foreground">{['Browse an anonymized teaser.','Submit interest and sign the NDA together.','The developer decides; acceptance opens identity and project data.','Request data room access separately.'].map(text=><li key={text}>{text}</li>)}</ol><p className="text-xs text-muted-foreground">{FEE_SENTENCE}</p></section>}
+ </main>{!empty&&<aside className="border-t border-border pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0"><h2 className="mb-4 text-lg font-semibold">Your position</h2><dl className="space-y-4">{[['Live listings',own.filter(p=>p.visibility==='listed').length],['Decisions waiting',pending.length],['Requests sent',outgoing.length],['Access held',outgoing.filter(r=>isGranted(effectiveState(r))).length],['Following',watched.length]].map(([label,value])=><div key={label}><dt className="text-sm text-muted-foreground">{label}</dt><dd className="text-xl font-semibold">{value}</dd></div>)}</dl></aside>}</div>}</div>;
 }

@@ -1,0 +1,7 @@
+import {it} from 'node:test';import assert from 'node:assert/strict';
+import {portfolioFigures,teaserExport} from './portfolio';
+import type {ProjectListing} from '@/hooks/useProjectListings';
+const row=(extra:Partial<ProjectListing>):ProjectListing=>({id:'a',slug:'a',title:'Private identity',teaserTitle:'Heat network',city:'Private city',region:'France',country:'France',category:'Greenfield',technology:'Geothermal',stage:'Development',generation:'',publicSupport:false,capacityMw:8,capex:12000000,targetIrr:null,equitySought:4000000,minTicket:1000000,instrument:'equity',offtakeLoadPct:null,accessState:'granted',qualified:true,exactFiguresAvailable:true,watchlisted:false,...extra});
+it('entry floor is the maximum ticket, not the minimum',()=>assert.equal(portfolioFigures([row({}),row({minTicket:3000000})]).entryFloor,3000000));
+it('locked bands never become invented capacity or euro amounts',()=>{const result=portfolioFigures([row({accessState:'teaser',qualified:false,exactFiguresAvailable:false,capacityBand:'50+ MW'})]);assert.equal(result.capacity,0);assert.equal(result.capacityCount,0);assert.equal(result.capexCount,0);});
+it('exports stay banded even for accepted viewers',()=>{const csv=teaserExport([row({capacityBand:'Under 10 MW',capexBand:'Under EUR 15M'})]);assert.equal(csv.includes('Private identity'),false);assert.equal(csv.includes('12000000'),false);assert.ok(csv.includes('Under 10 MW'));});

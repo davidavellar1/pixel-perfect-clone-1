@@ -4,14 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 type Question = Pick<
   Tables<"question">,
-  "id" | "body" | "created_at" | "author_id" | "answer_body" | "answered_at" | "is_public"
+  "id" | "body" | "created_at" | "author_id" | "answer_body" | "answered_at" | "is_public" | "declined_at" | "decline_reason"
 >;
 
 const MAX_QUESTION = 1000;
@@ -28,20 +28,19 @@ interface ProjectQAProps {
 
 /**
  * Investor questions on a listing.
- * Investors with accepted access ask; the developer answers and chooses whether the
- * answer is shared with every investor who has access (askers stay anonymous) or
- * only with the investor who asked. Both sides are notified.
+ * Accepted investors and the developer share a private thread. No other investor can read it.
  */
 const ProjectQA = ({ projectId, userId, isOwner }: ProjectQAProps) => {
   const [questions, setQuestions] = useState<Question[] | null>(null);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const [record, setRecord] = useState<{median_hours:number|null;declined_count:number;open_count:number}|null>(null);
 
   const load = useCallback(async () => {
     if (!projectId) return;
     const { data, error } = await supabase
       .from("question")
-      .select("id, body, created_at, author_id, answer_body, answered_at, is_public")
+      .select("id, body, created_at, author_id, answer_body, answered_at, is_public, declined_at, decline_reason")
       .eq("project_id", projectId)
       .order("created_at", { ascending: false });
     if (error) {
@@ -50,6 +49,7 @@ const ProjectQA = ({ projectId, userId, isOwner }: ProjectQAProps) => {
       return;
     }
     setQuestions(data ?? []);
+    const result=await supabase.rpc("question_response_record",{_project_id:projectId});setRecord(result.data?.[0]??null);
   }, [projectId]);
 
   useEffect(() => {
@@ -90,13 +90,13 @@ const ProjectQA = ({ projectId, userId, isOwner }: ProjectQAProps) => {
   };
 
   const own = (q: Question) => q.author_id === userId;
-  const published = (questions ?? []).filter((q) => q.answer_body && q.is_public && !own(q));
   const mine = (questions ?? []).filter(own);
-  const unanswered = (questions ?? []).filter((q) => !q.answer_body);
-  const answered = (questions ?? []).filter((q) => q.answer_body);
+  const unanswered = (questions ?? []).filter((q) => !q.answer_body && !q.declined_at);
+  const answered = (questions ?? []).filter((q) => q.answer_body || q.declined_at);
 
   return (
     <Section>
+      {record && <dl className="mb-6 flex flex-wrap gap-6 border-b border-border pb-4">{record.median_hours!==null&&<div><dt className="text-xs text-muted-foreground">Median response time, all project questions</dt><dd>{record.median_hours.toFixed(1)} hours</dd></div>}<div><dt className="text-xs text-muted-foreground">Declined</dt><dd>{record.declined_count}</dd></div><div><dt className="text-xs text-muted-foreground">Open now</dt><dd>{record.open_count}</dd></div></dl>}
       {questions === null ? (
         <div className="space-y-3">
           <Skeleton className="h-24 w-full rounded-xl" />
@@ -139,19 +139,6 @@ const ProjectQA = ({ projectId, userId, isOwner }: ProjectQAProps) => {
               </div>
             </>
           )}
-          <h3 className="mb-3 text-base font-semibold text-foreground">
-            Answers shared by the developer
-          </h3>
-          {published.length === 0 ? (
-            <Empty text="No answers have been shared with investors yet." />
-          ) : (
-            <div className="space-y-4">
-              {published.map((q) => (
-                <QuestionCard key={q.id} question={q} asker="An investor" />
-              ))}
-            </div>
-          )}
-
           <div className="mt-6 rounded-xl border border-border bg-card p-5">
             <Label
               htmlFor="qa-question"
@@ -170,8 +157,7 @@ const ProjectQA = ({ projectId, userId, isOwner }: ProjectQAProps) => {
             />
             <div className="mt-2 flex flex-wrap items-start justify-between gap-2">
               <p id="qa-question-help" className="max-w-[52ch] text-xs text-muted-foreground">
-                Goes to the developer only. If they share the answer with other investors who have
-                access, your name and organisation are not shown.
+                Private between you and the developer. Other investors cannot read this thread.
               </p>
               <span className="text-xs text-muted-foreground">
                 {draft.length}/{MAX_QUESTION}
@@ -229,22 +215,21 @@ const QuestionCard = ({
       <span className="text-muted-foreground">· {formatDate(q.created_at)}</span>
       {showStatus && (
         <span className="ml-auto rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
-          {!q.answer_body
-            ? "Awaiting answer"
-            : q.is_public
-              ? "Answered · shared"
-              : "Answered · only you"}
+          {q.declined_at ? "Declined" : !q.answer_body
+            ? `Open ${Math.max(0,Math.floor((Date.now()-Date.parse(q.created_at))/86400000))} days`
+            : "Answered privately"}
         </span>
       )}
       {showVisibility && q.answer_body && (
         <span className="ml-auto rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
-          {q.is_public ? "Shared with investors" : "Only the asker"}
+          Private thread
         </span>
       )}
     </div>
     <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-foreground/90">
       {q.body}
     </p>
+    {q.declined_at && <div className="mt-4 border-l-2 border-border pl-4"><p className="text-sm font-semibold">Developer declined, {formatDate(q.declined_at)}</p><p className="text-sm text-muted-foreground">{q.decline_reason}</p></div>}
     {q.answer_body && (
       <div className="ml-4 mt-4 border-l-2 border-primary/30 pl-5">
         <div className="flex flex-wrap items-baseline gap-x-2 text-sm">
@@ -269,17 +254,17 @@ const AnswerCard = ({
   onAnswered: () => void;
 }) => {
   const [answer, setAnswer] = useState("");
-  const [share, setShare] = useState(true);
+  const [declining, setDeclining] = useState(false);
   const [busy, setBusy] = useState(false);
   const fieldId = `qa-answer-${q.id}`;
 
   const send = async () => {
     if (answer.trim().length < 2) return;
     setBusy(true);
-    const { error } = await supabase.rpc("answer_question", {
+    const { error } = declining ? await supabase.rpc("decline_question",{_question_id:q.id,_reason:answer.trim()}) : await supabase.rpc("answer_question", {
       _question_id: q.id,
       _answer: answer.trim(),
-      _publish: share,
+      _publish: false,
     });
     setBusy(false);
     if (error) {
@@ -307,22 +292,13 @@ const AnswerCard = ({
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}
         maxLength={MAX_ANSWER}
-        placeholder="Write your answer…"
+        placeholder={declining ? "State the reason for declining" : "Write your answer"}
         className="mt-4 min-h-[90px] resize-y bg-background"
       />
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id={`${fieldId}-share`}
-            checked={share}
-            onCheckedChange={(v) => setShare(v === true)}
-          />
-          <Label htmlFor={`${fieldId}-share`} className="text-sm font-normal text-muted-foreground">
-            Share with all investors who have access (asker stays anonymous)
-          </Label>
-        </div>
+        <Button variant="outline" onClick={()=>setDeclining(v=>!v)}>{declining?"Write an answer instead":"Decline with a reason"}</Button>
         <Button onClick={send} disabled={busy || answer.trim().length < 2}>
-          {busy ? "Sending…" : "Send answer"}
+          {busy ? "Sending..." : declining ? "Record decline" : "Send answer"}
         </Button>
       </div>
     </div>

@@ -1,0 +1,1 @@
+export function compareMissingLast<T>(a:T,b:T,get:(row:T)=>number|string|null|undefined,descending=false){const av=get(a),bv=get(b);if(av===null||av===undefined)return bv===null||bv===undefined?0:1;if(bv===null||bv===undefined)return -1;const result=typeof av==='number'&&typeof bv==='number'?av-bv:String(av).localeCompare(String(bv));return descending?-result:result;}

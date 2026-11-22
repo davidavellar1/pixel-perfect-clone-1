@@ -1,9 +1,11 @@
 /**
  * Request-and-approval access gate.
- * Nothing about a project is revealed until the developer accepts a request.
+ * Identity is revealed only when the developer accepts a request.
  * The confidentiality agreement is signed at submission and becomes operative
  * only when the developer accepts, so nda_effective_at stays null while pending.
  */
+import { supabase } from "@/integrations/supabase/client";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Tables } from "@/integrations/supabase/types";
 
 export type AccessState = Database["public"]["Enums"]["access_state"];
@@ -11,6 +13,8 @@ export type DeclineReason = Database["public"]["Enums"]["access_decline_reason"]
 export type AccessScope = Database["public"]["Enums"]["access_scope"];
 export type EntityType = Database["public"]["Enums"]["investor_entity_type"];
 export type TicketBand = Database["public"]["Enums"]["ticket_band"];
+import { legacyMatchedInstruments, matchedInstrumentIntersection } from "@/lib/instruments";
+
 export type InstrumentSought = Database["public"]["Enums"]["instrument_sought"];
 export type ConstructionRiskAppetite = Database["public"]["Enums"]["construction_risk_appetite"];
 export type CapitalSource = Database["public"]["Enums"]["capital_source"];
@@ -150,7 +154,7 @@ export interface FitItem {
 
 /** Informational only. The fit line never blocks and never auto-decides. */
 export const computeFit = (
-  answers: Pick<AccessAnswersRow, "ticket_band" | "instrument_sought" | "construction_risk_appetite" | "conflicts_declared"> | null,
+  answers: Pick<AccessAnswersRow, "ticket_band" | "instrument_sought" | "construction_risk_appetite" | "conflicts_declared"> & { matched_instruments?: string[] | null } | null,
   criteria: AccessCriteriaRow | null,
 ): FitItem[] => {
   if (!answers) return [];
@@ -158,7 +162,7 @@ export const computeFit = (
   const minTicket = criteria?.min_ticket ? Number(criteria.min_ticket) : null;
   const accepted = criteria?.instruments_accepted || [];
   const instrumentOk =
-    !accepted.length || answers.instrument_sought === "either" || accepted.includes(answers.instrument_sought);
+    !accepted.length || matchedInstrumentIntersection(answers.matched_instruments ?? legacyMatchedInstruments(answers.instrument_sought), accepted);
   const constructionOk =
     !criteria?.require_construction_risk_appetite ||
     answers.construction_risk_appetite === "yes" ||
@@ -308,3 +312,6 @@ export const NDA_TERMS: { title: string; body: string }[] = [
     body: "This agreement takes effect when the developer accepts your request.",
   },
 ];
+
+/** One application entry point; the database verifies role, organisation, work email and mandate. */
+export async function isQualifiedInvestor(user:{id:string}|null,client:SupabaseClient<Database>=supabase):Promise<boolean>{if(!user)return false;const {data,error}=await client.rpc("is_qualified_investor");if(error)throw error;return data===true;}

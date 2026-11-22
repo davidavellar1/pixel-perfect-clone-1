@@ -14,7 +14,7 @@
 - Resolve project entitlement before fetching exact records; shared disclosure helpers whitelist teaser output for listings, detail and MCP so private data is never masked after delivery.
 - Public teasers use a security-invoker view over a fixed, parameter-free security-definer whitelist; base project RLS remains owner/accepted-only and ticket sort keys are band ordinals, so anonymous listing reads never expose raw rows.
 
-- Use saved numeric inputs for charts and granted base-case rows for bundle returns; never derive project figures or counterfactuals from display strings or illustrative models.
+- Use saved numeric inputs for charts and qualification-entitled base-case rows for portfolio returns; never derive project figures or counterfactuals from display strings or illustrative models.
 
 - Canonical auth pages own signup and recovery; legacy URLs are redirects that preserve destinations, and retired marketing topics redirect to their canonical public pages.
 - Gate evidence uses the displayed immutable agreement row; mandate uses compatible ticket bands with ambiguous legacy bands left for member confirmation.
@@ -34,3 +34,5 @@
 - Submission evidence is recorded by mounted controls with lifecycle-specific histories and explicit conditional keys, so hidden questions cannot be labelled unanswered.
 - The stage wizard shares one declarative field contract across creation, editing and promotion; its transactional owner-only save retains project identity, revisions and stage events.
 - Published working copies live in an owner-only submission workspace; accepted project readers receive the last published document, never unsaved edits.
+
+- Investor information uses the qualification RPC through isQualifiedInvestor in access.ts; identity acceptance and data-room approval remain separate because neither qualification nor payment authorizes disclosure of counterparties.

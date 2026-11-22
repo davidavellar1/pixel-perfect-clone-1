@@ -204,6 +204,76 @@
       "when": 1795345099617,
       "tag": "0028_save_optional_stage_access_criteria",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1795345532733,
+      "tag": "0029_private_questions_and_stage_follow_notices",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1795345731189,
+      "tag": "0030_separate_subscription_and_identity_disclosure",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1795345807703,
+      "tag": "0031_restrict_subscriber_enum_projection",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1795345888069,
+      "tag": "0032_enforce_paid_depth_on_base_records",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1795345908113,
+      "tag": "0033_catalogue_contact_requests_and_verified_amount_basis",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1795345980544,
+      "tag": "0034_admin_contact_queue_context",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1795346049129,
+      "tag": "0035_safe_discovery_evidence_and_banded_equity",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1795346183887,
+      "tag": "0036_equity_like_investor_preferences",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1795346356941,
+      "tag": "0037_sanitize_subscriber_metadata_and_discovery_grants",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1795346429801,
+      "tag": "0038_replace_paid_gate_with_investor_qualification",
+      "breakpoints": true
     }
   ]
 }

@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 const activePath = (pathname: string, path: string) => path === "/app" ? pathname.replace(/\/$/, "") === path : pathname === path || pathname.startsWith(`${path}/`);
 
 function WorkspaceShell() {
-  const { user, profile, loading, signOut } = useAuth();
+  const { user, profile, roles, loading, signOut } = useAuth();
   const { setOpenMobile } = useSidebar();
   const location = useLocation();
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ function WorkspaceShell() {
             <CollapsibleContent><SidebarMenuSub>{item.children.map(child => <SidebarMenuSubItem key={child.key}><SidebarMenuSubButton asChild isActive={activePath(location.pathname, child.to)}><Link to={child.to}><span>{child.label}</span>{countFor(child.badge) > 0 && <span className="ml-auto text-xs">{countFor(child.badge)}</span>}</Link></SidebarMenuSubButton></SidebarMenuSubItem>)}</SidebarMenuSub></CollapsibleContent>
           </SidebarMenuItem></Collapsible> :
           <SidebarMenuItem key={item.key}><SidebarMenuButton asChild tooltip={item.label} isActive={activePath(location.pathname, item.to)}><Link to={item.to}><item.icon /><span>{item.label}</span></Link></SidebarMenuButton>{countFor(item.badge) > 0 && <SidebarMenuBadge>{countFor(item.badge)}</SidebarMenuBadge>}</SidebarMenuItem>)}
-      </SidebarMenu></SidebarGroupContent></SidebarGroup>)}</nav></SidebarContent>
+      </SidebarMenu></SidebarGroupContent></SidebarGroup>)}{roles.includes("admin")&&<SidebarGroup><SidebarGroupLabel>Administration</SidebarGroupLabel><SidebarMenu>{[["/app/admin/contact-requests","Contact requests"],["/app/admin/funding-review","Funding verification"],["/app/admin/news-health","News source health"]].map(([path,label])=><SidebarMenuItem key={path}><SidebarMenuButton asChild><Link to={path??"/app"}><Settings/><span>{label}</span></Link></SidebarMenuButton></SidebarMenuItem>)}</SidebarMenu></SidebarGroup>}</nav></SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border"><SidebarMenu><SidebarMenuItem><DropdownMenu><DropdownMenuTrigger asChild><SidebarMenuButton size="lg" tooltip="Account menu" aria-label="Account menu"><Avatar className="h-8 w-8"><AvatarImage src={profile?.avatar_url ?? undefined} alt="Your avatar" /><AvatarFallback className="bg-accent text-accent-foreground">{displayName.slice(0, 2).toUpperCase()}</AvatarFallback></Avatar><span className="min-w-0"><span className="block truncate">{displayName}</span><span className="block truncate text-xs">{profile?.company_name || user?.email}</span></span><ChevronsUpDown className="ml-auto" /></SidebarMenuButton></DropdownMenuTrigger>
       <DropdownMenuContent side="top" align="start" className="w-60"><DropdownMenuLabel>{displayName}</DropdownMenuLabel><DropdownMenuSeparator /><DropdownMenuItem asChild><Link to="/app/settings"><Settings />Profile settings</Link></DropdownMenuItem><DropdownMenuItem asChild><Link to="/app/support"><HelpCircle />Help and support</Link></DropdownMenuItem><DropdownMenuSeparator /><DropdownMenuItem onSelect={() => void signOut().then(() => navigate("/"))}><LogOut />Sign out</DropdownMenuItem></DropdownMenuContent></DropdownMenu></SidebarMenuItem></SidebarMenu></SidebarFooter>
     </Sidebar>

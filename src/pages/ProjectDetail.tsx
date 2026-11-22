@@ -5,6 +5,10 @@ import ProjectHero from "@/components/project/ProjectHero";
 import ProjectSidebar from "@/components/project/ProjectSidebar";
 import ProjectNewsCard from "@/components/news/ProjectNewsCard";
 import ProjectTabContent from "@/components/project/ProjectTabContent";
+import { useInvestorQualification } from "@/hooks/useInvestorQualification";
+import { InvestorInformation } from "@/components/project/InvestorInformation";
+import { parseDocument } from "@/lib/submission/serializer";
+import type { SubmissionDocument } from "@/lib/submission/stageSchema";
 import { StageEvidenceSection } from "@/components/project/StageEvidenceSection";
 import LockedTabOverlay from "@/components/project/LockedTabOverlay";
 import type { DataRoomStatus } from "@/components/project/ProjectTabContent";
@@ -32,12 +36,12 @@ import MandateFit from "@/components/project/MandateFit";
 import { Textarea } from "@/components/ui/textarea";
 
 const tabs = [
-  "Overview",
+  "Summary",
   "Transaction",
   "Technical",
   "Financial",
   "Sustainability",
-  "Structure & market",
+  "Structure",
   "Documents",
   "Q&A",
 ] as const;
@@ -48,7 +52,7 @@ const GATED_TABS: string[] = [
   "Technical",
   "Financial",
   "Sustainability",
-  "Structure & market",
+  "Structure",
   "Documents",
   "Q&A",
 ];
@@ -58,7 +62,7 @@ const LOCK_COPY: Record<string, string> = {
   Technical: "Technical detail, including the construction package and the named heat-source host, reveals once the developer accepts your request.",
   Financial: "Margin, the capital stack, named counterparties, debt terms and the case set reveal once the developer accepts your request.",
   Sustainability: "Emissions, the counterfactual and EU framework status reveal once the developer accepts your request.",
-  "Structure & market": "Ownership, the regulatory regime and local-authority backing reveal once the developer accepts your request.",
+  "Structure": "Ownership, the regulatory regime and local-authority backing reveal once the developer accepts your request.",
   Documents: "Open documents reveal once the developer accepts your request. The data room is opened only when the developer accepts in full.",
   "Q&A": "Questions and the developer's answers reveal once the developer accepts your request. You can then ask your own.",
 };
@@ -69,6 +73,10 @@ const HELPER_TEXT =
 const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const {qualified}=useInvestorQualification();
+  const [investorDocument,setInvestorDocument]=useState<SubmissionDocument|null>(null);
+  const [investorExact,setInvestorExact]=useState(false);
+  const [investorError,setInvestorError]=useState(false);
   const [teaser, setTeaser] = useState<ProjectTeaser | null>(null);
   const [loadingProject, setLoadingProject] = useState(true);
   const [projectError, setProjectError] = useState<string | null>(null);
@@ -80,7 +88,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   const [submitting, setSubmitting] = useState(false);
   const [justSubmitted, setJustSubmitted] = useState(false);
   const [loadingAuth, setLoadingAuth] = useState(true);
-  const [activeTab, setActiveTab] = useState<string>("Overview");
+  const [activeTab, setActiveTab] = useState<string>("Summary");
   const [isOwner, setIsOwner] = useState(false);
   const [request, setRequest] = useState<AccessRequestRow | null>(null);
   const [criteria, setCriteria] = useState<AccessCriteriaRow | null>(null);
@@ -115,9 +123,10 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     : "none";
 
   const projectId = databaseProject?.id ?? teaser?.id ?? undefined;
-  const { grade } = useInvestorGrade(granted ? databaseProject?.id : null, accessState, isOwner);
-  const { overrides, numericCapex, breakeven } = useProjectRecord(granted ? databaseProject?.id : undefined);
-  const baseProject = granted && databaseProject ? blankProjectDetail(databaseProject) : undefined;
+  useEffect(()=>{setInvestorDocument(null);setInvestorExact(false);setInvestorError(false);if(!qualified||!projectId||granted)return;let active=true;void supabase.rpc("investor_project",{_project_id:projectId}).then(({data,error})=>{if(!active)return;setInvestorError(Boolean(error));if(data&&typeof data==='object'&&!Array.isArray(data)){setInvestorDocument(parseDocument(data['document']??null));setInvestorExact(data['exact']===true);}});return()=>{active=false;};},[qualified,projectId,granted]);
+  const { grade } = useInvestorGrade(granted && (qualified || isOwner) ? databaseProject?.id : null, accessState, isOwner);
+  const { overrides, numericCapex, breakeven } = useProjectRecord(granted && (qualified || isOwner) ? databaseProject?.id : undefined);
+  const baseProject = granted && (qualified || isOwner) && databaseProject ? blankProjectDetail(databaseProject) : undefined;
   const project: ProjectDetailData | undefined = baseProject
     ? { ...baseProject, ...overrides }
     : teaser ? teaserProjectDetail(teaser) : undefined;
@@ -194,6 +203,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   };
 
   const openInterest = () => {
+    if(user && !qualified){toast.info("Complete your investment mandate to open this.");return;}
     if (!user) {
       toast.error("Sign in required", { description: "Please sign in to send an expression of interest." });
       navigate(`/sign-in?redirect=${encodeURIComponent(context === "app" ? `/app/projects/${slug}` : `/projects/${slug}`)}`);
@@ -277,7 +287,8 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
         signatory_name: draft.signatoryName,
         signatory_role: draft.signatoryRole || null,
         ticket_band: draft.ticketBand || "under_1m",
-        instrument_sought: draft.instrumentSought || "either",
+        instrument_sought: draft.instrumentSought || "equity",
+        matched_instruments:draft.matchedInstruments,
         construction_risk_appetite: draft.constructionRisk || null,
         capital_source: draft.capitalSource || null,
         decision_process: draft.decisionProcess || null,
@@ -331,7 +342,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     return context === "public" ? <PublicShell>{notFound}</PublicShell> : notFound;
   }
 
-  const isLocked = (tab: string) => GATED_TABS.includes(tab) && !granted;
+  const isLocked = (tab: string) => tab === "Q&A" ? !granted : tab !== "Summary" && !isOwner && !qualified;
   const sla = request ? slaStatus(request) : null;
 
   const asOf = {
@@ -385,6 +396,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
       <div className="mx-auto mt-6 max-w-workspace px-5">
         {!granted && <MandateFit draft={mandatePrefill(investorProfile)} criteria={criteria} />}
+        {user && !isOwner && <p className="mb-4 text-sm text-muted-foreground">A completed investment mandate opens de-identified figures and comparisons. Developer consent remains separate. Acceptance opens identity, precise location, named counterparties, contact and private Q&A at no further charge. Data room access requires a separate developer approval.</p>}
         {granted && !isOwner && (
           <div className="flex items-start gap-2.5 rounded-xl border border-success-border bg-success-soft px-5 py-4 text-sm text-success">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-success" />
@@ -488,18 +500,16 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
             <LockedTabOverlay
               locked={isLocked(activeTab)}
               tabName={activeTab}
-              mode={user ? "interest" : "signin"}
+              mode={user ? activeTab === "Q&A" ? "interest" : "qualification" : "signin"}
               pending={accessState === "pending"}
               description={LOCK_COPY[activeTab]}
               onExpressInterest={openInterest}
             >
-              <ProjectTabContent
-                project={project} numericCapex={granted ? numericCapex : null} granted={granted} projectId={granted ? projectId : undefined}
-                activeTab={activeTab} dataRoomStatus={dataRoomStatus}
-                isOwner={isOwner} userId={user?.id ?? null}
+              {granted && (qualified || isOwner) || activeTab === "Q&A" ? <><ProjectTabContent
+                project={project} numericCapex={numericCapex} granted={granted} projectId={granted ? projectId : undefined}
+                activeTab={activeTab} dataRoomStatus={dataRoomStatus} isOwner={isOwner} userId={user?.id ?? null}
                 grade={grade} asOf={asOf} breakeven={breakeven}
-              />
-              {granted && <StageEvidenceSection document={project.submission ?? null} tab={activeTab} />}
+              />{granted && <StageEvidenceSection document={project.submission ?? null} tab={activeTab} />}</> : qualified && investorDocument ? <InvestorInformation document={investorDocument} tab={activeTab} projectId={projectId} banded={!investorExact} /> : qualified ? <p className="text-sm text-muted-foreground">{investorError ? "Investor information could not be loaded. Please refresh." : "This developer has not consented to pre-acceptance disclosure. Figures remain banded until acceptance."}</p> : <ProjectTabContent project={project} granted={false} activeTab="Summary" />}
             </LockedTabOverlay>
           </div>
           <div className="lg:col-span-1">

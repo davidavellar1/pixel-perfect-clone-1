@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { MIN_NEWS_RELEVANCE } from "@/lib/news/policy";
 import { Skeleton } from "@/components/ui/skeleton";
 import NewsCategoryBadge from "./NewsCategoryBadge";
 import { NEWS_ITEM_COLUMNS, relativeDate, type NewsCategory } from "@/lib/news/format";
@@ -16,14 +17,8 @@ const ProjectNewsCard = ({ projectId, countryCode }: { projectId: string; countr
     let active = true;
     (async () => {
       const { data: related } = await supabase.from("news_item").select(NEWS_ITEM_COLUMNS)
-        .eq("hidden", false).contains("related_project_ids", [projectId]).order("published_at", { ascending: false }).limit(3);
-      let list: Row[] = (related ?? []) as Row[];
-      if (list.length < 3 && /^[A-Z]{2}$/.test(cc)) {
-        const { data: more } = await supabase.from("news_item").select(NEWS_ITEM_COLUMNS)
-          .eq("hidden", false).contains("country_codes", [cc]).order("published_at", { ascending: false }).limit(6);
-        const ids = new Set(list.map((r) => r.id));
-        list = [...list, ...((more ?? []) as Row[]).filter((r) => !ids.has(r.id))].slice(0, 3);
-      }
+        .eq("hidden", false).gte("relevance", MIN_NEWS_RELEVANCE).contains("related_project_ids", [projectId]).order("published_at", { ascending: false }).limit(3);
+      const list: Row[] = (related ?? []) as Row[];
       if (active) setItems(list);
     })();
     return () => { active = false; };
@@ -32,7 +27,7 @@ const ProjectNewsCard = ({ projectId, countryCode }: { projectId: string; countr
   if (items && items.length === 0) return null;
 
   return (
-    <section className="rounded-xl border border-border bg-card p-6 shadow-card">
+    <section className="border-t border-border py-6">
       <h3 className="mb-4 font-display text-base font-semibold text-foreground">Market news</h3>
       <ul className="space-y-4">
         {items === null
@@ -48,7 +43,7 @@ const ProjectNewsCard = ({ projectId, countryCode }: { projectId: string; countr
           ))}
       </ul>
       {/^[A-Z]{2}$/.test(cc) && (
-        <Link to="/app/news" search={{ country: cc }} className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
+        <Link to="/app/countries/$code" params={{ code: cc }} className="mt-4 inline-block text-sm font-semibold text-primary hover:underline">
           More from {countryName(cc)} →
         </Link>
       )}

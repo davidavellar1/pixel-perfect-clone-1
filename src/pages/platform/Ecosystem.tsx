@@ -3,12 +3,15 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useDialogParam } from "@/hooks/useDialogParam";
-import AssistanceDialog from "@/components/platform/AssistanceDialog";
+import ContactRequestDialog from "@/components/platform/ContactRequestDialog";
+import { Link } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 
 type AdvisorCategory = "Financial" | "Legal" | "Technical";
 
 type Advisor = {
+  id: string;
+  slug: string;
   initials: string;
   name: string;
   category: AdvisorCategory;
@@ -29,19 +32,20 @@ type Filter = (typeof FILTERS)[number];
 const Ecosystem = () => {
   const [filter, setFilter] = useState<Filter>("All advisors");
   const [all, setAll] = useState<Advisor[] | null>(null);
-  const { value: assist, open, close } = useDialogParam("assist");
+  const [target,setTarget]=useState<Advisor|null>(null);
 
   useEffect(() => {
     let active = true;
     void (async () => {
       const { data } = await supabase
         .from("advisor")
-        .select("name, initials, category, label, description, tags")
-        .eq("active", true)
+        .select("id, slug, name, initials, category, label, description, tags")
+        .eq("active", true).not("listing_consent_at","is",null).not("contact_route","is",null).not("referral_position","is",null)
         .order("sort_order", { ascending: true });
       if (!active) return;
       setAll(
         (data ?? []).map((row) => ({
+          id: row.id, slug: row.slug,
           name: row.name,
           initials: row.initials,
           category: CATEGORY_LABEL[row.category] ?? "Technical",
@@ -62,11 +66,6 @@ const Ecosystem = () => {
     () => (filter === "All advisors" ? advisorsAll : advisorsAll.filter((advisor) => advisor.category === filter)),
     [advisorsAll, filter],
   );
-
-  const requestAssistance = (advisor?: Advisor) => open(advisor ? advisor.name : "any");
-  const preselected = assist && assist !== "any"
-    ? advisorsAll.find((advisor) => advisor.name === assist) ?? null
-    : null;
 
   return (
     <div className="max-w-workspace space-y-6">
@@ -118,7 +117,7 @@ const Ecosystem = () => {
                   {advisor.initials}
                 </div>
                 <div className="min-w-0">
-                  <h2 className="font-display text-base font-semibold text-foreground">{advisor.name}</h2>
+                  <h2 className="font-display text-base font-semibold text-foreground"><Link to={`/app/advisors/${advisor.slug}`} className="text-primary underline">{advisor.name}</Link></h2>
                   <p className="mt-0.5 text-xs text-muted-foreground">{advisor.label}</p>
                 </div>
               </div>
@@ -134,8 +133,8 @@ const Ecosystem = () => {
               </div>
 
               <div className="mt-auto border-t border-border pt-4">
-                <Button variant="outline" className="w-full bg-card" onClick={() => requestAssistance(advisor)}>
-                  Request assistance
+                <Button variant="outline" className="w-full bg-card" onClick={() => setTarget(advisor)}>
+                  Request contact
                 </Button>
               </div>
             </article>
@@ -143,30 +142,8 @@ const Ecosystem = () => {
         </div>
       )}
 
-      <section className="flex flex-col items-start justify-between gap-6 rounded-lg bg-primary px-7 py-7 text-primary-foreground lg:flex-row lg:items-center">
-        <div>
-          <h2 className="font-display text-xl font-semibold">Not sure who you need?</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-primary-foreground/75">
-            Tell us about your project and where it's stuck - financing structure, regulatory questions, technical feasibility - and we'll match you to the right partner and make the introduction.
-          </p>
-        </div>
-        <Button
-          className="h-11 shrink-0 bg-accent px-6 text-accent-foreground hover:bg-accent/90"
-          disabled={advisorsAll.length === 0}
-          onClick={() => requestAssistance()}
-        >
-          Request assistance for a project
-          <ArrowRight className="h-4 w-4" />
-        </Button>
-      </section>
-
-      <p className="max-w-5xl text-xs leading-5 text-muted-foreground">
-        Advisory partners may pay DHC Market a referral fee for qualified introductions. This does not affect the fees you pay your chosen advisor, and you are free to engage any advisor. Connecting investors and developers to each other remains separate and is never influenced by advisory relationships.
-      </p>
-
-      {assist && advisorsAll.length > 0 && (
-        <AssistanceDialog advisors={advisorsAll} preselected={preselected} onClose={close} />
-      )}
+      <p className="text-xs text-muted-foreground">Only firms with recorded listing consent, a contact route and a referral disclosure appear. No introduction is made automatically.</p>
+      {target&&<ContactRequestDialog target={{id:target.id,name:target.name,kind:'advisor'}} close={()=>setTarget(null)}/>}
     </div>
   );
 };

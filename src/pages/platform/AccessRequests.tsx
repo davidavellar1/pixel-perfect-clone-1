@@ -355,7 +355,7 @@ const AccessRequests = () => {
                 </h3>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <Info label="Ticket band" value={ticketBandLabel(answer?.ticket_band ?? null)} />
-                  <Info label="Instrument" value={optionLabel(INSTRUMENTS_SOUGHT, answer?.instrument_sought ?? null)} />
+                  <Info label="Instrument" value={answer?.matched_instruments?.length?answer.matched_instruments.join(", "):optionLabel(INSTRUMENTS_SOUGHT, answer?.instrument_sought ?? null)} />
                   <Info label="Construction-risk appetite" value={optionLabel(CONSTRUCTION_RISK, answer?.construction_risk_appetite ?? null)} />
                   <Info label="Capital source" value={optionLabel(CAPITAL_SOURCES, answer?.capital_source ?? null)} />
                   <Info label="Decision process" value={optionLabel(DECISION_PROCESSES, answer?.decision_process ?? null)} />

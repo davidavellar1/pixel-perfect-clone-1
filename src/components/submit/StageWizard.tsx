@@ -14,6 +14,8 @@ import { StageRows } from "./StageRowEditors";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useSearchParams } from "@/lib/router-compat";
+import { InvestorInformation } from "@/components/project/InvestorInformation";
+import { investorPreview } from "@/lib/investorDisclosure";
 import { cn } from "@/lib/utils";
 import { FEE_SENTENCE } from "@/lib/fee";
 import { STAGES, STAGE_LABELS, FIELDS, emptyDocument, documentSchema, fieldsForDocument, lockedBasis, nextStage, promotionFields, actualYears, type Stage, type SubmissionDocument, type FieldSpec } from "@/lib/submission/stageSchema";
@@ -26,6 +28,7 @@ export default function StageWizard(){
  const form=useForm<SubmissionDocument>({resolver:zodResolver(documentSchema),defaultValues:emptyDocument(),mode:'onSubmit'});
  const watched=useWatch({control:form.control});
  const document={...form.getValues(),...watched} as SubmissionDocument;
+ const [previewTab,setPreviewTab]=useState('Summary');
  const [section,setSection]=useState('basics');const [loading,setLoading]=useState(Boolean(requestedId));const [saving,setSaving]=useState(false);const [error,setError]=useState('');const [saveState,setSaveState]=useState('');
  const [project,setProject]=useState<Tables<'project'>|null>(null);const [fromStage,setFromStage]=useState<Stage|null>(null);const [promoting,setPromoting]=useState(false);
  const idRef=useRef<string|null>(null);const revision=useRef(0);const savingRef=useRef(false);const asked=useRef(new Map<string,Set<string>>());
@@ -48,7 +51,7 @@ export default function StageWizard(){
    }
    if(cancelled)return;idRef.current=p.id;revision.current=p.submission_revision;setProject(p);
    const original=p.lifecycle_stage as Stage;setFromStage(original);
-   if(requestedPromotion&&requestedPromotion===nextStage(original)){d={...d,stage:requestedPromotion as Stage};setPromoting(true);setSection(promotionFields(d,original)[0]?.section??'review');}else setSection(d.step||'basics');
+   if(requestedPromotion&&requestedPromotion===nextStage(original)){d={...d,stage:requestedPromotion as Stage};setPromoting(true);setSection(promotionFields(d,original)[0]?.section??'review');}else setSection(search.get('section')||d.step||'basics');
    form.reset(d);asked.current.set(d.stage,new Set(d.askedFields));
   }catch(e){if(!cancelled)setError(e instanceof Error?e.message:'Could not load this listing.');}finally{if(!cancelled)setLoading(false);}
  })();return()=>{cancelled=true;};},[requestedId,requestedPromotion,user?.id,form]);
@@ -57,14 +60,15 @@ export default function StageWizard(){
   if(currentSection==='actuals'&&actualYears(document)>0)keys.add('stage.actuals');
   asked.current.set(document.stage,keys);
  },[currentSection,document.stage,JSON.stringify(shown.map(f=>f.key)),document.answers['historyYears']]);
- const answer=(key:string,value:string)=>{form.setValue(`answers.${key}`,value,{shouldDirty:true});if(key==='historyYears'){const previous=form.getValues('rows.actuals')??[];form.setValue('rows.actuals',Array.from({length:Number(value)},(_,i)=>previous[i]??{}));}form.clearErrors(`answers.${key}`);setSaveState('Unsaved changes');setError('');};
- const rows=(key:string,value:Record<string,string>[])=>{form.setValue(`rows.${key}`,value,{shouldDirty:true});form.clearErrors(`answers.${key}`);setSaveState('Unsaved changes');setError('');};
+ const answer=(key:string,value:string)=>{if(key!=='investorPreviewConsent'&&key!=='mandate'&&key!=='electronicConsent')form.setValue('answers.investorPreviewConsent','no');form.setValue(`answers.${key}`,value,{shouldDirty:true});if(key==='historyYears'){const previous=form.getValues('rows.actuals')??[];form.setValue('rows.actuals',Array.from({length:Number(value)},(_,i)=>previous[i]??{}));}form.clearErrors(`answers.${key}`);setSaveState('Unsaved changes');setError('');};
+ const rows=(key:string,value:Record<string,string>[])=>{form.setValue('answers.investorPreviewConsent','no');form.setValue(`rows.${key}`,value,{shouldDirty:true});form.clearErrors(`answers.${key}`);setSaveState('Unsaved changes');setError('');};
  const snapshot=(step=currentSection)=>normalizeDocument({...form.getValues(),step,askedFields:[...new Set([...(asked.current.get(document.stage)??[]),...document.askedFields])].sort()});
  const save=async(publish=false,nextStep=currentSection)=>{
   if(!user||!document.stage){setError('Choose a lifecycle stage before saving.');return false;}
   if(savingRef.current)return false;
   const d=snapshot(nextStep);
   if(publish){const valid=documentSchema.safeParse(d);if(!valid.success){for(const issue of valid.error.issues){const key=issue.path[1];if(typeof key==='string')form.setError(`answers.${key}`,{type:'manual',message:issue.message});}const first=valid.error.issues[0]?.path[1];const target=typeof first==='string'?FIELDS.find(f=>f.key===first)?.section:undefined;if(target)setSection(target);setError('Complete the highlighted stage fields before saving the published listing.');return false;}
+   if(d.answers['investorPreviewConsent']!=='yes'){setError('Review the qualified investor preview and consent to its disclosure.');return false;}
    if(d.answers['mandate']!=='yes'||d.answers['electronicConsent']!=='yes'){setError('Accept the listing mandate and electronic execution consent.');return false;}
   }
   savingRef.current=true;setSaving(true);setError('');
@@ -102,7 +106,7 @@ export default function StageWizard(){
    {currentSection==='funding'&&document.stage!==''&&document.stage!=='concept'&&document.answers['fundingPlan']==='pursuing'&&<PublicFundingEditor countryCode={document.answers['country']??''} showIrrAssumptions={['development','construction','operational'].includes(document.stage)} rows={(document.rows['funding']??[]).map(fundingLine)} onChange={value=>rows('funding',value.map(r=>({...r,irrAssumesAward:r.irrAssumesAward??''})))}/>}
    {currentSection==='funding'&&form.formState.errors.answers?.['funding']&&<p role="alert" className="mt-3 text-sm text-destructive">{form.formState.errors.answers['funding'].message}</p>}
    {currentSection==='actuals'&&actualYears(document)>0&&<><StageRows kind="actuals" document={document} onChange={v=>rows('actuals',v)}/><p role="alert" className="mt-2 text-sm text-destructive">{form.formState.errors.answers?.['actuals']?.message}</p></>}
-   {currentSection==='review'&&<div className="space-y-5"><dl className="divide-y divide-border">{[['Project',document.answers['title']],['Country',document.answers['country']],['Lifecycle stage',document.stage?STAGE_LABELS[document.stage]:''],['Identity','Hidden until the developer accepts an investor request']].filter(([,value])=>value).map(([label,value])=><div key={label} className="flex justify-between gap-4 py-3"><dt className="text-muted-foreground">{label}</dt><dd className="text-right font-semibold">{value}</dd></div>)}</dl><p className="text-sm text-muted-foreground">{FEE_SENTENCE}</p><Label className="flex items-start gap-3"><Checkbox checked={document.answers['mandate']==='yes'} onCheckedChange={v=>answer('mandate',v?'yes':'no')}/>I accept the listing mandate and confirm I am authorised to list this project.</Label><Label className="flex items-start gap-3"><Checkbox checked={document.answers['electronicConsent']==='yes'} onCheckedChange={v=>answer('electronicConsent',v?'yes':'no')}/>I consent to electronic execution of confidentiality agreements with investors requesting access.</Label></div>}
+   {currentSection==='review'&&<div className="space-y-5"><section className="space-y-4 border-y border-border py-5"><h3 className="text-xl font-semibold">Qualified investor preview before acceptance</h3><Label className="flex items-start gap-3"><Checkbox checked={document.answers['bandUntilAcceptance']==='yes'} onCheckedChange={v=>{answer('bandUntilAcceptance',v?'yes':'no');answer('investorPreviewConsent','no');}}/>Hold figures banded until acceptance (off by default)</Label><div className="flex flex-wrap gap-2" role="group" aria-label="Qualified investor preview tabs">{['Summary','Transaction','Technical','Financial','Sustainability','Structure','Documents'].map(tab=><Button key={tab} variant={previewTab===tab?'default':'outline'} size="sm" onClick={()=>setPreviewTab(tab)}>{tab}</Button>)}</div><InvestorInformation document={investorPreview(snapshot(),document.answers['bandUntilAcceptance']==='yes')} tab={previewTab} banded={document.answers['bandUntilAcceptance']==='yes'}/><Label className="flex items-start gap-3"><Checkbox checked={document.answers['investorPreviewConsent']==='yes'} onCheckedChange={v=>answer('investorPreviewConsent',v?'yes':'no')}/>I have reviewed this de-identified preview and consent to its disclosure to qualified investors before acceptance.</Label></section><dl className="divide-y divide-border">{[['Project',document.answers['title']],['Country',document.answers['country']],['Lifecycle stage',document.stage?STAGE_LABELS[document.stage]:''],['Identity','Hidden until the developer accepts an investor request']].filter(([,value])=>value).map(([label,value])=><div key={label} className="flex justify-between gap-4 py-3"><dt className="text-muted-foreground">{label}</dt><dd className="text-right font-semibold">{value}</dd></div>)}</dl><p className="text-sm text-muted-foreground">{FEE_SENTENCE}</p><Label className="flex items-start gap-3"><Checkbox checked={document.answers['mandate']==='yes'} onCheckedChange={v=>answer('mandate',v?'yes':'no')}/>I accept the listing mandate and confirm I am authorised to list this project.</Label><Label className="flex items-start gap-3"><Checkbox checked={document.answers['electronicConsent']==='yes'} onCheckedChange={v=>answer('electronicConsent',v?'yes':'no')}/>I consent to electronic execution of confidentiality agreements with investors requesting access.</Label></div>}
    <footer className="mt-8 flex justify-between gap-3 border-t border-border pt-5"><Button variant="outline" disabled={saving||index<=0} onClick={()=>void go(sections[index-1]?.[0]??'basics')}>Back</Button>{currentSection==='review'?<Button disabled={saving} onClick={()=>void save(true)}>{saving?'Saving...':promoting?'Save stage promotion':project?.visibility==='listed'?'Save published changes':'Publish listing'}</Button>:<Button disabled={saving} onClick={()=>void go(sections[index+1]?.[0]??'review')}>Continue<ArrowRight className="h-4 w-4"/></Button>}</footer>
   </main></div></Form>;
 }

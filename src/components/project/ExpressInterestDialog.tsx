@@ -22,6 +22,8 @@ import {
   type EntityType, type InstrumentSought, type TicketBand,
 } from "@/lib/access";
 
+import { MATCHED_INSTRUMENTS } from "@/lib/instruments";
+
 export interface InterestFormDraft {
   entityName: string;
   entityType: EntityType | "";
@@ -32,6 +34,7 @@ export interface InterestFormDraft {
   signatoryRole: string;
   ticketBand: TicketBand | "";
   instrumentSought: InstrumentSought | "";
+  matchedInstruments: (keyof typeof MATCHED_INSTRUMENTS)[];
   constructionRisk: ConstructionRiskAppetite | "";
   capitalSource: CapitalSource | "";
   decisionProcess: DecisionProcess | "";
@@ -50,7 +53,7 @@ export interface InterestFormDraft {
 
 const emptyDraft: InterestFormDraft = {
   entityName: "", entityType: "", jurisdiction: "", regulatedStatus: "", website: "",
-  signatoryName: "", signatoryRole: "", ticketBand: "", instrumentSought: "", constructionRisk: "",
+  signatoryName: "", signatoryRole: "", ticketBand: "", instrumentSought: "", matchedInstruments:[], constructionRisk: "",
   capitalSource: "", decisionProcess: "", earliestDecisionDate: "", interestDrivers: [],
   diligenceFocus: "", wouldLeadClub: false, conflictsDeclared: "", conflictsDetail: "",
   advisersReceivingInfo: "", signedName: "", authority: false, feeAcknowledged: false, electronicConsent: false,
@@ -73,7 +76,7 @@ interface Props {
 
 const SCREENS = ["Who you are", "Capacity and intent", "Confidentiality and fee"];
 
-const FIELD_NAMES: Record<string, keyof InterestFormDraft> = { "Entity name": "entityName", "Entity type": "entityType", "Jurisdiction": "jurisdiction", "Regulated status": "regulatedStatus", "Website": "website", "Signatory name": "signatoryName", "Signatory role": "signatoryRole", "Ticket band": "ticketBand", "Instrument sought": "instrumentSought", "Construction-risk appetite": "constructionRisk", "Capital source": "capitalSource", "Decision process": "decisionProcess", "Earliest decision date": "earliestDecisionDate", "What draws you to this listing": "interestDrivers", "Diligence focus": "diligenceFocus", "Conflicts": "conflictsDeclared", "Describe the conflict": "conflictsDetail", "Advisers who would receive information": "advisersReceivingInfo", "Type your full name to sign": "signedName" };
+const FIELD_NAMES: Record<string, keyof InterestFormDraft> = { "Entity name": "entityName", "Entity type": "entityType", "Jurisdiction": "jurisdiction", "Regulated status": "regulatedStatus", "Website": "website", "Signatory name": "signatoryName", "Signatory role": "signatoryRole", "Ticket band": "ticketBand", "Instrument sought": "matchedInstruments", "Construction-risk appetite": "constructionRisk", "Capital source": "capitalSource", "Decision process": "decisionProcess", "Earliest decision date": "earliestDecisionDate", "What draws you to this listing": "interestDrivers", "Diligence focus": "diligenceFocus", "Conflicts": "conflictsDeclared", "Describe the conflict": "conflictsDetail", "Advisers who would receive information": "advisersReceivingInfo", "Type your full name to sign": "signedName" };
 const Field = ({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) => {
   const form = useFormContext<InterestFormDraft>();
   const name = FIELD_NAMES[label];
@@ -129,7 +132,7 @@ const ExpressInterestDialog = ({
     form.setValue(key, value, { shouldValidate: true, shouldDirty: true });
 
   const canSubmit = !submitting && Boolean(agreement);
-  const stepFields: (keyof InterestFormDraft)[][] = [["entityName", "entityType", "signatoryName"], ["ticketBand", "instrumentSought", "constructionRisk", "capitalSource", "decisionProcess"], ["signedName", "authority", "feeAcknowledged", "electronicConsent", "conflictsDeclared", "conflictsDetail", "advisersReceivingInfo"]];
+  const stepFields: (keyof InterestFormDraft)[][] = [["entityName", "entityType", "signatoryName"], ["ticketBand", "matchedInstruments", "constructionRisk", "capitalSource", "decisionProcess"], ["signedName", "authority", "feeAcknowledged", "electronicConsent", "conflictsDeclared", "conflictsDetail", "advisersReceivingInfo"]];
   const nextStep = async () => { if (await form.trigger(stepFields[screen], { shouldFocus: true })) setScreen(screen + 1); };
   const submit = form.handleSubmit(values => onSubmit(values), errors => {
     const firstScreen = stepFields.findIndex(fields => fields.some(field => errors[field]));
@@ -248,12 +251,7 @@ const ExpressInterestDialog = ({
             <MandateFit draft={draft} criteria={criteria} />
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Instrument sought">
-                <Select value={draft.instrumentSought} onValueChange={(value) => set("instrumentSought", value as InstrumentSought)}>
-                  <SelectTrigger id="interest-instrumentSought" aria-labelledby="interest-instrumentSought-label"><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    {INSTRUMENTS_SOUGHT.map((entry) => <SelectItem key={entry.value} value={entry.value}>{entry.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-wrap gap-3" role="group" aria-label="Equity-like instruments sought">{(Object.entries(MATCHED_INSTRUMENTS) as [keyof typeof MATCHED_INSTRUMENTS,string][]).map(([value,label])=><Label key={value} className="flex items-center gap-2"><Checkbox checked={draft.matchedInstruments.includes(value)} onCheckedChange={checked=>set("matchedInstruments",checked?[...draft.matchedInstruments,value as keyof typeof MATCHED_INSTRUMENTS]:draft.matchedInstruments.filter(v=>v!==value))}/>{label}</Label>)}</div>
               </Field>
               <Field label="Construction-risk appetite" hint={criteria?.require_construction_risk_appetite ? "Required for this listing." : "Optional for this listing."}>
                 <Select value={draft.constructionRisk} onValueChange={(value) => set("constructionRisk", value as ConstructionRiskAppetite)}>

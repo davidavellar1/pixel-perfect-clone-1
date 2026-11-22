@@ -55,10 +55,16 @@ import { Route as AppWatchlistRouteImport } from './routes/app.watchlist'
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as AppAdminContactRequestsRouteImport } from './routes/app.admin.contact-requests'
+import { Route as AppAdminFundingReviewRouteImport } from './routes/app.admin.funding-review'
+import { Route as AppAdminNewsHealthRouteImport } from './routes/app.admin.news-health'
+import { Route as AppAdvisorsSlugRouteImport } from './routes/app.advisors.$slug'
+import { Route as AppCountriesCodeRouteImport } from './routes/app.countries.$code'
 import { Route as AppMyDealsIndexRouteImport } from './routes/app.my-deals.index'
 import { Route as AppMyDealsInvestingRouteImport } from './routes/app.my-deals.investing'
 import { Route as AppMyDealsListingRouteImport } from './routes/app.my-deals.listing'
 import { Route as AppProjectsSlugRouteImport } from './routes/app.projects.$slug'
+import { Route as AppPublicFundingSlugRouteImport } from './routes/app.public-funding.$slug'
 import { Route as ApiPublicHooksAccessRemindersRouteImport } from './routes/api/public/hooks/access-reminders'
 import { Route as ApiPublicHooksIngestNewsRouteImport } from './routes/api/public/hooks/ingest-news'
 
@@ -293,6 +299,31 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppAdminContactRequestsRoute = AppAdminContactRequestsRouteImport.update({
+  id: '/admin/contact-requests',
+  path: '/admin/contact-requests',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminFundingReviewRoute = AppAdminFundingReviewRouteImport.update({
+  id: '/admin/funding-review',
+  path: '/admin/funding-review',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminNewsHealthRoute = AppAdminNewsHealthRouteImport.update({
+  id: '/admin/news-health',
+  path: '/admin/news-health',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdvisorsSlugRoute = AppAdvisorsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AppAdvisorsRoute,
+} as any)
+const AppCountriesCodeRoute = AppCountriesCodeRouteImport.update({
+  id: '/countries/$code',
+  path: '/countries/$code',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppMyDealsIndexRoute = AppMyDealsIndexRouteImport.update({
   id: '/my-deals/',
   path: '/my-deals/',
@@ -312,6 +343,11 @@ const AppProjectsSlugRoute = AppProjectsSlugRouteImport.update({
   id: '/projects/$slug',
   path: '/projects/$slug',
   getParentRoute: () => AppRoute,
+} as any)
+const AppPublicFundingSlugRoute = AppPublicFundingSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AppPublicFundingRoute,
 } as any)
 const ApiPublicHooksAccessRemindersRoute =
   ApiPublicHooksAccessRemindersRouteImport.update({
@@ -351,7 +387,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/app/access-requests': typeof AppAccessRequestsRoute
-  '/app/advisors': typeof AppAdvisorsRoute
+  '/app/advisors': typeof AppAdvisorsRouteWithChildren
   '/app/bundle-builder': typeof AppBundleBuilderRoute
   '/app/data-room-requests': typeof AppDataRoomRequestsRoute
   '/app/developer': typeof AppDeveloperRoute
@@ -364,7 +400,7 @@ export interface FileRoutesByFullPath {
   '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
-  '/app/public-funding': typeof AppPublicFundingRoute
+  '/app/public-funding': typeof AppPublicFundingRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/app/submit-project': typeof AppSubmitProjectRoute
   '/app/support': typeof AppSupportRoute
@@ -373,9 +409,15 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/app/admin/contact-requests': typeof AppAdminContactRequestsRoute
+  '/app/admin/funding-review': typeof AppAdminFundingReviewRoute
+  '/app/admin/news-health': typeof AppAdminNewsHealthRoute
+  '/app/advisors/$slug': typeof AppAdvisorsSlugRoute
+  '/app/countries/$code': typeof AppCountriesCodeRoute
   '/app/my-deals/investing': typeof AppMyDealsInvestingRoute
   '/app/my-deals/listing': typeof AppMyDealsListingRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
+  '/app/public-funding/$slug': typeof AppPublicFundingSlugRoute
   '/app/my-deals/': typeof AppMyDealsIndexRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
   '/api/public/hooks/ingest-news': typeof ApiPublicHooksIngestNewsRoute
@@ -404,7 +446,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/app/access-requests': typeof AppAccessRequestsRoute
-  '/app/advisors': typeof AppAdvisorsRoute
+  '/app/advisors': typeof AppAdvisorsRouteWithChildren
   '/app/bundle-builder': typeof AppBundleBuilderRoute
   '/app/data-room-requests': typeof AppDataRoomRequestsRoute
   '/app/developer': typeof AppDeveloperRoute
@@ -417,7 +459,7 @@ export interface FileRoutesByTo {
   '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
-  '/app/public-funding': typeof AppPublicFundingRoute
+  '/app/public-funding': typeof AppPublicFundingRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/app/submit-project': typeof AppSubmitProjectRoute
   '/app/support': typeof AppSupportRoute
@@ -426,9 +468,15 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/projects': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/app/admin/contact-requests': typeof AppAdminContactRequestsRoute
+  '/app/admin/funding-review': typeof AppAdminFundingReviewRoute
+  '/app/admin/news-health': typeof AppAdminNewsHealthRoute
+  '/app/advisors/$slug': typeof AppAdvisorsSlugRoute
+  '/app/countries/$code': typeof AppCountriesCodeRoute
   '/app/my-deals/investing': typeof AppMyDealsInvestingRoute
   '/app/my-deals/listing': typeof AppMyDealsListingRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
+  '/app/public-funding/$slug': typeof AppPublicFundingSlugRoute
   '/app/my-deals': typeof AppMyDealsIndexRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
   '/api/public/hooks/ingest-news': typeof ApiPublicHooksIngestNewsRoute
@@ -459,7 +507,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/app/access-requests': typeof AppAccessRequestsRoute
-  '/app/advisors': typeof AppAdvisorsRoute
+  '/app/advisors': typeof AppAdvisorsRouteWithChildren
   '/app/bundle-builder': typeof AppBundleBuilderRoute
   '/app/data-room-requests': typeof AppDataRoomRequestsRoute
   '/app/developer': typeof AppDeveloperRoute
@@ -472,7 +520,7 @@ export interface FileRoutesById {
   '/app/notifications': typeof AppNotificationsRoute
   '/app/opportunities': typeof AppOpportunitiesRoute
   '/app/portfolio': typeof AppPortfolioRoute
-  '/app/public-funding': typeof AppPublicFundingRoute
+  '/app/public-funding': typeof AppPublicFundingRouteWithChildren
   '/app/settings': typeof AppSettingsRoute
   '/app/submit-project': typeof AppSubmitProjectRoute
   '/app/support': typeof AppSupportRoute
@@ -481,9 +529,15 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/app/admin/contact-requests': typeof AppAdminContactRequestsRoute
+  '/app/admin/funding-review': typeof AppAdminFundingReviewRoute
+  '/app/admin/news-health': typeof AppAdminNewsHealthRoute
+  '/app/advisors/$slug': typeof AppAdvisorsSlugRoute
+  '/app/countries/$code': typeof AppCountriesCodeRoute
   '/app/my-deals/investing': typeof AppMyDealsInvestingRoute
   '/app/my-deals/listing': typeof AppMyDealsListingRoute
   '/app/projects/$slug': typeof AppProjectsSlugRoute
+  '/app/public-funding/$slug': typeof AppPublicFundingSlugRoute
   '/app/my-deals/': typeof AppMyDealsIndexRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
   '/api/public/hooks/ingest-news': typeof ApiPublicHooksIngestNewsRoute
@@ -537,9 +591,15 @@ export interface FileRouteTypes {
     | '/app/'
     | '/projects/'
     | '/.lovable/oauth/consent'
+    | '/app/admin/contact-requests'
+    | '/app/admin/funding-review'
+    | '/app/admin/news-health'
+    | '/app/advisors/$slug'
+    | '/app/countries/$code'
     | '/app/my-deals/investing'
     | '/app/my-deals/listing'
     | '/app/projects/$slug'
+    | '/app/public-funding/$slug'
     | '/app/my-deals/'
     | '/api/public/hooks/access-reminders'
     | '/api/public/hooks/ingest-news'
@@ -590,9 +650,15 @@ export interface FileRouteTypes {
     | '/app'
     | '/projects'
     | '/.lovable/oauth/consent'
+    | '/app/admin/contact-requests'
+    | '/app/admin/funding-review'
+    | '/app/admin/news-health'
+    | '/app/advisors/$slug'
+    | '/app/countries/$code'
     | '/app/my-deals/investing'
     | '/app/my-deals/listing'
     | '/app/projects/$slug'
+    | '/app/public-funding/$slug'
     | '/app/my-deals'
     | '/api/public/hooks/access-reminders'
     | '/api/public/hooks/ingest-news'
@@ -644,9 +710,15 @@ export interface FileRouteTypes {
     | '/app/'
     | '/projects/'
     | '/.lovable/oauth/consent'
+    | '/app/admin/contact-requests'
+    | '/app/admin/funding-review'
+    | '/app/admin/news-health'
+    | '/app/advisors/$slug'
+    | '/app/countries/$code'
     | '/app/my-deals/investing'
     | '/app/my-deals/listing'
     | '/app/projects/$slug'
+    | '/app/public-funding/$slug'
     | '/app/my-deals/'
     | '/api/public/hooks/access-reminders'
     | '/api/public/hooks/ingest-news'
@@ -1007,6 +1079,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/admin/contact-requests': {
+      id: '/app/admin/contact-requests'
+      path: '/admin/contact-requests'
+      fullPath: '/app/admin/contact-requests'
+      preLoaderRoute: typeof AppAdminContactRequestsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/admin/funding-review': {
+      id: '/app/admin/funding-review'
+      path: '/admin/funding-review'
+      fullPath: '/app/admin/funding-review'
+      preLoaderRoute: typeof AppAdminFundingReviewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/admin/news-health': {
+      id: '/app/admin/news-health'
+      path: '/admin/news-health'
+      fullPath: '/app/admin/news-health'
+      preLoaderRoute: typeof AppAdminNewsHealthRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/advisors/$slug': {
+      id: '/app/advisors/$slug'
+      path: '/$slug'
+      fullPath: '/app/advisors/$slug'
+      preLoaderRoute: typeof AppAdvisorsSlugRouteImport
+      parentRoute: typeof AppAdvisorsRoute
+    }
+    '/app/countries/$code': {
+      id: '/app/countries/$code'
+      path: '/countries/$code'
+      fullPath: '/app/countries/$code'
+      preLoaderRoute: typeof AppCountriesCodeRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/my-deals/': {
       id: '/app/my-deals/'
       path: '/my-deals'
@@ -1035,6 +1142,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProjectsSlugRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/public-funding/$slug': {
+      id: '/app/public-funding/$slug'
+      path: '/$slug'
+      fullPath: '/app/public-funding/$slug'
+      preLoaderRoute: typeof AppPublicFundingSlugRouteImport
+      parentRoute: typeof AppPublicFundingRoute
+    }
     '/api/public/hooks/access-reminders': {
       id: '/api/public/hooks/access-reminders'
       path: '/api/public/hooks/access-reminders'
@@ -1052,9 +1166,32 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppAdvisorsRouteChildren {
+  AppAdvisorsSlugRoute: typeof AppAdvisorsSlugRoute
+}
+
+const AppAdvisorsRouteChildren: AppAdvisorsRouteChildren = {
+  AppAdvisorsSlugRoute: AppAdvisorsSlugRoute,
+}
+
+const AppAdvisorsRouteWithChildren = AppAdvisorsRoute._addFileChildren(
+  AppAdvisorsRouteChildren,
+)
+
+interface AppPublicFundingRouteChildren {
+  AppPublicFundingSlugRoute: typeof AppPublicFundingSlugRoute
+}
+
+const AppPublicFundingRouteChildren: AppPublicFundingRouteChildren = {
+  AppPublicFundingSlugRoute: AppPublicFundingSlugRoute,
+}
+
+const AppPublicFundingRouteWithChildren =
+  AppPublicFundingRoute._addFileChildren(AppPublicFundingRouteChildren)
+
 interface AppRouteChildren {
   AppAccessRequestsRoute: typeof AppAccessRequestsRoute
-  AppAdvisorsRoute: typeof AppAdvisorsRoute
+  AppAdvisorsRoute: typeof AppAdvisorsRouteWithChildren
   AppBundleBuilderRoute: typeof AppBundleBuilderRoute
   AppDataRoomRequestsRoute: typeof AppDataRoomRequestsRoute
   AppDeveloperRoute: typeof AppDeveloperRoute
@@ -1067,12 +1204,16 @@ interface AppRouteChildren {
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppOpportunitiesRoute: typeof AppOpportunitiesRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
-  AppPublicFundingRoute: typeof AppPublicFundingRoute
+  AppPublicFundingRoute: typeof AppPublicFundingRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRoute
   AppSubmitProjectRoute: typeof AppSubmitProjectRoute
   AppSupportRoute: typeof AppSupportRoute
   AppWatchlistRoute: typeof AppWatchlistRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppAdminContactRequestsRoute: typeof AppAdminContactRequestsRoute
+  AppAdminFundingReviewRoute: typeof AppAdminFundingReviewRoute
+  AppAdminNewsHealthRoute: typeof AppAdminNewsHealthRoute
+  AppCountriesCodeRoute: typeof AppCountriesCodeRoute
   AppMyDealsInvestingRoute: typeof AppMyDealsInvestingRoute
   AppMyDealsListingRoute: typeof AppMyDealsListingRoute
   AppProjectsSlugRoute: typeof AppProjectsSlugRoute
@@ -1081,7 +1222,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAccessRequestsRoute: AppAccessRequestsRoute,
-  AppAdvisorsRoute: AppAdvisorsRoute,
+  AppAdvisorsRoute: AppAdvisorsRouteWithChildren,
   AppBundleBuilderRoute: AppBundleBuilderRoute,
   AppDataRoomRequestsRoute: AppDataRoomRequestsRoute,
   AppDeveloperRoute: AppDeveloperRoute,
@@ -1094,12 +1235,16 @@ const AppRouteChildren: AppRouteChildren = {
   AppNotificationsRoute: AppNotificationsRoute,
   AppOpportunitiesRoute: AppOpportunitiesRoute,
   AppPortfolioRoute: AppPortfolioRoute,
-  AppPublicFundingRoute: AppPublicFundingRoute,
+  AppPublicFundingRoute: AppPublicFundingRouteWithChildren,
   AppSettingsRoute: AppSettingsRoute,
   AppSubmitProjectRoute: AppSubmitProjectRoute,
   AppSupportRoute: AppSupportRoute,
   AppWatchlistRoute: AppWatchlistRoute,
   AppIndexRoute: AppIndexRoute,
+  AppAdminContactRequestsRoute: AppAdminContactRequestsRoute,
+  AppAdminFundingReviewRoute: AppAdminFundingReviewRoute,
+  AppAdminNewsHealthRoute: AppAdminNewsHealthRoute,
+  AppCountriesCodeRoute: AppCountriesCodeRoute,
   AppMyDealsInvestingRoute: AppMyDealsInvestingRoute,
   AppMyDealsListingRoute: AppMyDealsListingRoute,
   AppProjectsSlugRoute: AppProjectsSlugRoute,

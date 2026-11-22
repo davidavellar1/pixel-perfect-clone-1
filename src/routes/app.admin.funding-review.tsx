@@ -1,0 +1,3 @@
+import {createFileRoute} from '@tanstack/react-router';
+import FundingReview from '@/pages/platform/admin/FundingReview';
+export const Route=createFileRoute('/app/admin/funding-review')({head:()=>({meta:[{title:'Funding verification queue - DHC Market'},{name:'description',content:'Official-source catalogue re-verification and amount classification.'},{property:'og:title',content:'Funding verification queue - DHC Market'},{property:'og:description',content:'Official-source catalogue re-verification and amount classification.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:FundingReview});

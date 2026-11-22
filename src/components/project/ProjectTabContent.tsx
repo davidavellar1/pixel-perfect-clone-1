@@ -49,8 +49,8 @@ const ProjectTabContent = ({
   isOwner = false,
   userId = null,
 }: ProjectTabContentProps) => {
-  if (!granted && !isOwner && activeTab !== "Overview") return <p className="text-sm text-muted-foreground">Opens when the developer accepts your request.</p>;
-  if (activeTab === "Overview") return <OverviewTab project={project} grade={grade} numericCapex={numericCapex} granted={granted} asOf={asOf.financial} />;
+  if (!granted && !isOwner && activeTab !== "Summary") return <p className="text-sm text-muted-foreground">Opens when the developer accepts your request.</p>;
+  if (activeTab === "Summary") return <OverviewTab project={project} grade={grade} numericCapex={numericCapex} granted={granted} asOf={asOf.financial} />;
   if (activeTab === "Transaction") return <TransactionTab grade={grade} project={project} asOf={asOf.financial} />;
   if (activeTab === "Technical") return <TechnicalTab project={project} grade={grade} asOf={asOf.technical} />;
   if (activeTab === "Financial") {
@@ -66,7 +66,7 @@ const ProjectTabContent = ({
     );
   }
   if (activeTab === "Sustainability") return <SustainabilityTab project={project} asOf={asOf.technical} />;
-  if (activeTab === "Structure & market") return <StructureMarketTab project={project} grade={grade} asOf={asOf.regulatory} />;
+  if (activeTab === "Structure") return <StructureMarketTab project={project} grade={grade} asOf={asOf.regulatory} />;
   if (activeTab === "Documents") {
     return projectId ? (
       <ProjectDocuments projectId={projectId} dataRoomStatus={dataRoomStatus} />

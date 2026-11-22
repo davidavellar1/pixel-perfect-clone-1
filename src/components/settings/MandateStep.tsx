@@ -2,14 +2,17 @@ import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { EnumSelect, Chips } from "@/components/settings/SettingsFields";
-import { CONSTRUCTION_RISK, INSTRUMENTS_SOUGHT } from "@/lib/access";
-import { INVESTOR_TYPES, REGIONS, TICKETS } from "@/lib/profileSettings";
+import { CONSTRUCTION_RISK, CAPITAL_SOURCES, DECISION_PROCESSES } from "@/lib/access";
+import { INVESTOR_TYPES, REGIONS, TICKETS, STAGES } from "@/lib/profileSettings";
 import type { Tables } from "@/integrations/supabase/types";
 
-type Mandate = Pick<Tables<"investor_profiles">, "investor_type" | "ticket_band" | "instrument_sought" | "regions_of_interest" | "construction_risk_appetite">;
-const blank: Mandate = { investor_type: null, ticket_band: null, instrument_sought: null, regions_of_interest: [], construction_risk_appetite: null };
+import { MATCHED_INSTRUMENTS } from "@/lib/instruments";
+type Mandate = Pick<Tables<"investor_profiles">, "investor_type" | "ticket_band" | "matched_instruments" | "regions_of_interest" | "construction_risk_appetite" | "company_name" | "capital_source" | "decision_process" | "earliest_stage">;
+const blank: Mandate = { company_name:"",capital_source:null,decision_process:null,earliest_stage:null, investor_type: null, ticket_band: null, matched_instruments: [], regions_of_interest: [], construction_risk_appetite: null };
 const options = <T extends string>(rows: { value: T; label: string }[]) => Object.fromEntries(rows.map(row => [row.value, row.label])) as Record<T, string>;
 
 export default function MandateStep({ children }: { children: ReactNode }) {
@@ -26,7 +29,7 @@ export default function MandateStep({ children }: { children: ReactNode }) {
     const { data, error } = await supabase.from("investor_profiles").select("*").eq("user_id", user.id).maybeSingle();
     if (error) { setFailed(true); return; }
     setExisting(data);
-    setMandate(data ? { investor_type: data.investor_type, ticket_band: data.ticket_band, instrument_sought: data.instrument_sought,
+    setMandate(data ? {company_name:data.company_name,capital_source:data.capital_source,decision_process:data.decision_process,earliest_stage:data.earliest_stage, investor_type: data.investor_type, ticket_band: data.ticket_band, matched_instruments: data.matched_instruments,
       regions_of_interest: data.regions_of_interest ?? [], construction_risk_appetite: data.construction_risk_appetite } : blank);
     setNeeded(!data?.mandate_reviewed_at); setReadyFor(user.id);
   };
@@ -44,13 +47,13 @@ export default function MandateStep({ children }: { children: ReactNode }) {
   if (failed) return <div role="alert" className="space-y-3"><p>Could not load investing preferences.</p><Button onClick={() => void load()}>Try again</Button></div>;
   if (!user || readyFor !== user.id) return <p className="text-muted-foreground">Loading workspace...</p>;
   if (!needed) return <>{children}</>;
-  const complete = Boolean(mandate.investor_type && mandate.ticket_band && mandate.instrument_sought && mandate.regions_of_interest?.length && mandate.construction_risk_appetite);
+  const complete = Boolean(mandate.investor_type && mandate.ticket_band && mandate.matched_instruments.length && mandate.regions_of_interest?.length && mandate.construction_risk_appetite&&mandate.company_name?.trim()&&mandate.capital_source&&mandate.decision_process&&mandate.earliest_stage);
   return <section className="mx-auto max-w-2xl space-y-6">
     <div><h1 className="font-display text-2xl font-semibold">Your investment mandate</h1><p className="mt-2 text-sm text-muted-foreground">Your stated preferences. Confirm or change them for each project.</p></div>
-    <div className="grid gap-5 sm:grid-cols-2">
+    <p className="text-sm text-muted-foreground">Use a confirmed work email rather than a personal mailbox. Organisation and a complete mandate are required for de-identified information.</p><Label>Organisation name<Input value={mandate.company_name??""} maxLength={200} onChange={e=>setMandate(m=>({...m,company_name:e.target.value}))}/></Label><div className="grid gap-5 sm:grid-cols-2"><EnumSelect id="mandate-capital" label="Capital source" value={mandate.capital_source} options={options(CAPITAL_SOURCES)} onChange={v=>setMandate(m=>({...m,capital_source:v}))}/><EnumSelect id="mandate-decision" label="Decision process" value={mandate.decision_process} options={options(DECISION_PROCESSES)} onChange={v=>setMandate(m=>({...m,decision_process:v}))}/><EnumSelect id="mandate-stage" label="Earliest stage" value={mandate.earliest_stage} options={STAGES} onChange={v=>setMandate(m=>({...m,earliest_stage:v}))}/>
       <EnumSelect id="mandate-type" label="Investor type" value={mandate.investor_type} options={INVESTOR_TYPES} onChange={v => setMandate(m => ({ ...m, investor_type: v }))} />
       <EnumSelect id="mandate-ticket" label="Ticket band" value={mandate.ticket_band} options={TICKETS} onChange={v => setMandate(m => ({ ...m, ticket_band: v }))} />
-      <EnumSelect id="mandate-instrument" label="Instrument sought" value={mandate.instrument_sought} options={options(INSTRUMENTS_SOUGHT)} onChange={v => setMandate(m => ({ ...m, instrument_sought: v }))} />
+      <Chips id="mandate-instrument" label="Equity-like instruments sought" value={mandate.matched_instruments} options={MATCHED_INSTRUMENTS} onChange={v=>setMandate(m=>({...m,matched_instruments:v}))}/>
       <EnumSelect id="mandate-risk" label="Construction-risk appetite" value={mandate.construction_risk_appetite} options={options(CONSTRUCTION_RISK)} onChange={v => setMandate(m => ({ ...m, construction_risk_appetite: v }))} />
     </div>
     <Chips id="mandate-regions" label="Geography" value={mandate.regions_of_interest ?? []} options={Object.fromEntries([...new Set([...REGIONS, ...(mandate.regions_of_interest ?? [])])].map(v => [v, v]))} onChange={v => setMandate(m => ({ ...m, regions_of_interest: v }))} />

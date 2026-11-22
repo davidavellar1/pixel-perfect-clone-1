@@ -1,0 +1,18 @@
+ALTER TABLE public.funding_programme ADD COLUMN IF NOT EXISTS amount_basis text CHECK(amount_basis IN ('award','facility_size','project_size_floor'));
+UPDATE public.funding_programme SET amount_basis='award' WHERE instrument_types=ARRAY['grant'] AND amount_basis IS NULL;
+GRANT UPDATE ON public.funding_programme,public.funding_call TO authenticated;
+CREATE POLICY programme_admin_update ON public.funding_programme FOR UPDATE TO authenticated USING(private.has_role(auth.uid(),'admin')) WITH CHECK(private.has_role(auth.uid(),'admin'));
+CREATE POLICY call_admin_update ON public.funding_call FOR UPDATE TO authenticated USING(private.has_role(auth.uid(),'admin')) WITH CHECK(private.has_role(auth.uid(),'admin'));
+ALTER TABLE public.advisor ADD COLUMN IF NOT EXISTS listing_consent_at timestamptz,ADD COLUMN IF NOT EXISTS contact_route text,ADD COLUMN IF NOT EXISTS referral_position text,ADD COLUMN IF NOT EXISTS services jsonb NOT NULL DEFAULT '[]',ADD COLUMN IF NOT EXISTS languages text[] NOT NULL DEFAULT '{}';
+CREATE TABLE public.contact_request(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),requester_id uuid NOT NULL,project_id uuid NOT NULL REFERENCES public.project(id),kind text NOT NULL CHECK(kind IN ('advisor','funding')),target_id uuid NOT NULL,message text NOT NULL CHECK(length(btrim(message)) BETWEEN 5 AND 3000),state text NOT NULL DEFAULT 'pending' CHECK(state IN ('pending','approved','declined')),decided_by uuid,decided_at timestamptz,reason text,admin_question text,introduced_at timestamptz,created_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT,INSERT,UPDATE ON public.contact_request TO authenticated; GRANT ALL ON public.contact_request TO service_role;
+ALTER TABLE public.contact_request ENABLE ROW LEVEL SECURITY;
+CREATE POLICY contact_own_read ON public.contact_request FOR SELECT TO authenticated USING(requester_id=auth.uid() OR private.has_role(auth.uid(),'admin'));
+CREATE POLICY contact_insert ON public.contact_request FOR INSERT TO authenticated WITH CHECK(requester_id=auth.uid() AND private.owns_project(auth.uid(),project_id) AND state='pending' AND decided_by IS NULL AND decided_at IS NULL AND reason IS NULL AND admin_question IS NULL AND introduced_at IS NULL AND ((kind='funding' AND EXISTS(SELECT 1 FROM public.funding_programme f WHERE f.id=target_id AND f.status<>'discontinued')) OR (kind='advisor' AND EXISTS(SELECT 1 FROM public.advisor a WHERE a.id=target_id AND a.active AND a.listing_consent_at IS NOT NULL AND nullif(btrim(a.contact_route),'') IS NOT NULL))));
+CREATE POLICY contact_admin_update ON public.contact_request FOR UPDATE TO authenticated USING(private.has_role(auth.uid(),'admin')) WITH CHECK(private.has_role(auth.uid(),'admin'));
+CREATE OR REPLACE FUNCTION public.contact_decision_guard() RETURNS trigger LANGUAGE plpgsql SET search_path='' AS $$ BEGIN
+IF NEW.requester_id<>OLD.requester_id OR NEW.project_id<>OLD.project_id OR NEW.kind<>OLD.kind OR NEW.target_id<>OLD.target_id OR NEW.message<>OLD.message THEN RAISE EXCEPTION 'Request evidence is immutable'; END IF;
+IF NEW.state='declined' AND nullif(btrim(NEW.reason),'') IS NULL THEN RAISE EXCEPTION 'A decline reason is required'; END IF;
+IF NEW.state IS DISTINCT FROM OLD.state THEN NEW.decided_by:=auth.uid();NEW.decided_at:=now(); END IF;
+RETURN NEW;END $$;
+CREATE TRIGGER contact_decision_evidence BEFORE UPDATE ON public.contact_request FOR EACH ROW EXECUTE FUNCTION public.contact_decision_guard();

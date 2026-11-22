@@ -215,13 +215,6 @@ const EligibilityDialog = ({
                     </span>
                   </div>
                 ))}
-                <div className="flex items-start gap-2.5 py-1.5 text-[13px] text-foreground/80">
-                  <Minus className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span>
-                    <span className="font-semibold">Applicant:</span> check on the official page
-                    {applicants.length ? ` (accepted: ${applicants.join(", ")})` : ""}
-                  </span>
-                </div>
               </div>
               <p
                 className={cn(

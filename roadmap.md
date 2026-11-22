@@ -1,41 +1,28 @@
-# Phases 0 to 11
-- [x] Replacement brief Phase 2 foundation: stage-specific wizard, owner drafts/autosave, core editing and stage-promotion entry
-- [ ] Replacement brief Phase 2: verify all stage gates, conditional funding/DNSH/actuals, draft reload and edit/promotion preservation
+# Phases 0 to 11: current checkpoint
 
-Active scope: Phase 2 from lovable-prompts_1.md supersedes the previous prompt for this build. Prior Phase 1 checkpoints remain historical, not a blocker to starting the requested Phase 2. Later phases are out of scope. Country permitting lists must use sourced catalogue data, never invented consent lists.
+Latest direction: no subscription charge, pricing page or billing. Qualification replaces paid access. Identity and data-room approval remain separate developer decisions.
 
-Phase 2 stop point: draft persistence/reload, concept publication, published title editing/readback and promotion-only questions were verified in the signed-in browser. Thirty-six targeted tests and source hygiene pass. Migrations 0025 to 0028 provide revisioned working copies, atomic save and validation. Full promotion completion/history readback, every later-stage publication and preservation of all legacy structured rows still need verification. Country consent options remain unavailable without sourced catalogue data. Fictional verification projects were removed. Phase 2 is not complete; no later phase started.
-- [x] Remove retired inputs/panels; add atomic timeline, capital, revenue, risk, technical and structured public-funding writes
-- [x] Add recorded asked_fields/form_version, stage specification, central resolver and core absence tests
-- [ ] Complete absence coverage, conditional-field stamps, completeness counter and mechanical tab provenance enforcement
-- [x] Conditional stamps: separate lifecycle histories, ticket fields, club limits, enabled cases, margin/construction controls and funding decision/clawback questions
-- [ ] Complete publish/readback verification and rollback-only failure tests
-- [x] Verify atomic structured-row writes and failed-child rollback in rollback-only transactions; confirm no test listings remain
-- [ ] Integrate simple payback: pure formula tested; operational actuals and projected revenue/opex sources are not yet present
-- [ ] Emissions, lifetime/cars and committed-capital calculations: blocked by absent sourced country factors and unspecified lifetime/car/commitment definitions
-- [x] Phase 0: close direct project reads, secure the teaser projection and audit consumers
-- [x] Phase 0B: deactivate unapproved advisors and disable unrecorded assistance submissions
-- [ ] Phase 1: typed absence, field provenance and publish payload coverage
-- [ ] Phase 2: stage-aware wizard, drafts, editing and promotion
-- [ ] Phase 3: low-completion listing pages, following and private Q&A
-- [ ] Phase 4: evidence filters and null-safe financial-close sorts
-- [ ] Phase 5: independent subscription gate, sourced country/benchmark libraries and PDFs
-- [ ] Phase 6: bilateral overview work queue
-- [ ] Phase 7: funding coverage, verification, programme detail and contact requests
-- [ ] Phase 8: consented advisor directory and recorded contact pathway
-- [ ] Phase 9: scoped news placement and source health
-- [ ] Phase 10: portfolio view with factual aggregates and sequential interests
-- [ ] Phase 11: investing and listing pipeline/closed dashboards
+- [x] Qualification gate: investor role, organisation, confirmed non-personal email domain, completed mandate; database enforcement and one application check in access.ts
+- [x] Replace new paid-access wording and portfolio exact-figure entitlement; link locked views to Investing settings
+- [x] Developer preview consent and default-off band-until-acceptance switch
+- [x] De-identified projection and document index omit names and original file labels; arbitrary preview metadata removed
+- [x] Equity-like preference sets; debt-only legacy preferences retained as separate financing capabilities
+- [x] Source hygiene and 104 focused tests; signed-in owner detail, portfolio qualification lock, mandate destination and mobile checks
+- [ ] Qualification positive-flow verification: no qualified non-owner test session has been exercised
+- [ ] Phase 1: remaining scalar absence/provenance and calculation-source coverage
+- [ ] Phase 2: complete all lifecycle publication/promotion and legacy-row preservation verification
+- [ ] Phase 3: finish identity-only view independent of qualification and verify private Q&A end to end
+- [ ] Phase 4: complete qualified-only filters and exports
+- [ ] Phase 5: generated PDFs, sourced country/benchmark catalogues, full calculated information layer
+- [ ] Phase 6: work queue implemented; full real-data journey verification outstanding
+- [ ] Phase 7: funding detail/contact/review implemented; full request approval verification outstanding
+- [ ] Phase 8: consented advisor profiles/contact pathway implemented; actual advisor consent data required
+- [ ] Phase 9: scoped news and source-health page implemented; full feed verification outstanding
+- [ ] Phase 10: portfolio aggregates/chart cleanup implemented; sequential interest flow outstanding
+- [ ] Phase 11: four dashboard views remain unfinished; InvestorDashboard still requires teaser-first read cleanup
+- [ ] Align external agent tools with qualified de-identified information
 
-Stop at the first unsafe or externally blocked prerequisite and report it explicitly. The uploaded brief contains conflicting subscription/access wording; resolve that before phase 3 changes the gate. Phase 5 also needs the annual price and currency. No invented country sources, advisor agreements or closed-position figures.
-
-Current checkpoint: phases 0 and 0B applied and verified. Anonymous exact-project queries return zero rows while all nine teasers remain available; ticket sort returns only band ordinals. Opportunities, Overview, Bundle builder and the empty advisor directory opened under the requesting member's session.
-
-Phase 0 audit: owner-scoped readers are DeveloperDashboard, AccessRequests, DataRoomRequests and funding.useOwnProjects. Accepted-only readers are loadDisclosedProject, useProjectListings, BundleBuilder and MCP get_project. MarketNews and MCP add_to_watchlist were switched to teasers. InvestorDashboard still asks for exact rows for pending/watchlisted IDs: database RLS now filters them, but its pending-row presentation needs to use teasers during the later dashboard rebuild. News ingestion is privileged server-side matching, not a member read.
-
-Phase 1 partial checkpoint: migrations 0023 and 0024 add recorded questions and atomic row writes including structured public funding. Retired governance/capitalisation/process panels, NPV and SFDR/SDG displays are removed. Break-even values, transaction ticket/equity and renewable share are wired. Conditional evidence now follows actual displayed controls with separate lifecycle histories, including funding date/clawback questions, case inputs and club limits. Purchase floor/cap-only answers now create a margin row. Publishing clears its busy state on both rejected and interrupted requests; interrupted responses do not falsely promise that nothing saved. Missing construction, margin, case and transaction sections use the central absence resolver, while ungranted tabs retain the acceptance message. Atomic child writes and failure rollback were verified in rollback-only transactions; no test projects remain. A signed-in browser submission verified the payload and rejection/retry state without sending the publication to the database. Full UI publication/readback, remaining scalar absence coverage, completeness and mechanical provenance enforcement remain unfinished. Generation tags are omitted rather than invented until a sourced classification rule is available. Phases 2 to 11 have not started.
-
-Resume verification: 29 targeted question-evidence, absence, calculation and disclosure tests passed, along with source hygiene and the preview compilation. Stop point remains within phase 1, before full scalar absence/provenance coverage. This checkpoint does not complete phase 1 or begin phase 2.
+Stop point: Phase 5 qualification foundation, with parallel partial implementations through Phase 10. This does not complete the uploaded document. No billing or prices were built. The unused subscription table introduced earlier is now inaccessible and explicitly deprecated, not used for entitlement; destructive removal is prohibited by the platform's additive schema rules. Earlier migration-history reconciliation remains unresolved below.
 
 # Profile settings
 - [x] Account menu and first-name/avatar display

@@ -20,7 +20,9 @@ import type { User } from "@supabase/supabase-js";
 import { CAPITAL_SOURCES, CONSTRUCTION_RISK, DECISION_PROCESSES, INSTRUMENTS_SOUGHT } from "@/lib/access";
 
 const emptyPersonal = { first_name: "", last_name: "", job_title: "", phone: "", linkedin_url: "", bio: "" };
-const emptyInvestor = { company_name: "", investor_type: null, ticket_band: null, instrument_sought: null, construction_risk_appetite: null, capital_source: null, decision_process: null, regions_of_interest: [], technologies_of_interest: [] } as import("zod").z.infer<typeof investorSchema>;
+import { MATCHED_INSTRUMENTS, FINANCING_CAPABILITIES } from "@/lib/instruments";
+
+const emptyInvestor = { matched_instruments:[],financing_capabilities:[],earliest_stage:null, company_name: "", investor_type: null, ticket_band: null, instrument_sought: null, construction_risk_appetite: null, capital_source: null, decision_process: null, regions_of_interest: [], technologies_of_interest: [] } as import("zod").z.infer<typeof investorSchema>;
 const emptyDeveloper = { company_name: "", position: "", developer_type: null, project_stages: [], countries_of_operation: [] } as import("zod").z.infer<typeof developerSchema>;
 const message = (err: unknown) => err instanceof Error ? err.message : (err as { message?: string })?.message ?? "Your changes weren't saved. Please try again.";
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -70,7 +72,7 @@ export default function ProfileSettings() {
     if (!data) return;
     const fallbackName = String(user?.user_metadata?.full_name ?? "").trim().split(/\s+/);
     const p = data.personal ? Object.fromEntries(Object.keys(emptyPersonal).map(key => [key, data.personal?.[key as keyof typeof emptyPersonal] ?? ""])) as typeof emptyPersonal : { ...emptyPersonal, first_name: fallbackName[0] ?? "", last_name: fallbackName.slice(1).join(" ") };
-    const i = data.investor ? { company_name: data.investor.company_name ?? "", investor_type: data.investor.investor_type, ticket_band: data.investor.ticket_band, instrument_sought: data.investor.instrument_sought, construction_risk_appetite: data.investor.construction_risk_appetite, capital_source: data.investor.capital_source, decision_process: data.investor.decision_process, regions_of_interest: data.investor.regions_of_interest ?? [], technologies_of_interest: data.investor.technologies_of_interest } : emptyInvestor;
+    const i = data.investor ? {matched_instruments:data.investor.matched_instruments as (keyof typeof MATCHED_INSTRUMENTS)[],financing_capabilities:data.investor.financing_capabilities as (keyof typeof FINANCING_CAPABILITIES)[],earliest_stage:data.investor.earliest_stage, company_name: data.investor.company_name ?? "", investor_type: data.investor.investor_type, ticket_band: data.investor.ticket_band, instrument_sought: data.investor.instrument_sought, construction_risk_appetite: data.investor.construction_risk_appetite, capital_source: data.investor.capital_source, decision_process: data.investor.decision_process, regions_of_interest: data.investor.regions_of_interest ?? [], technologies_of_interest: data.investor.technologies_of_interest } : emptyInvestor;
     const d = data.developer ? { company_name: data.developer.company_name ?? "", position: data.developer.position ?? "", developer_type: data.developer.developer_type, project_stages: (data.developer.project_stages ?? []).filter((s): s is keyof typeof STAGES => Object.hasOwn(STAGES, s)), countries_of_operation: data.developer.countries_of_operation ?? [] } : emptyDeveloper;
     setPersonal(p); setInvestor(i); setDeveloper(d); setBaseline({ personal: p, investor: i, developer: d });
   }, [loading]);
@@ -130,7 +132,7 @@ export default function ProfileSettings() {
     if (!validate(parsed) || !parsed.success || !user) return;
     setSaving("investor");
     try {
-      const result = await supabase.from("investor_profiles").upsert({ user_id: user.id, full_name: fullName, ...parsed.data }, { onConflict: "user_id" }).select().single();
+      const result = await supabase.from("investor_profiles").upsert({ user_id: user.id, full_name: fullName, ...parsed.data, mandate_reviewed_at:new Date().toISOString() }, { onConflict: "user_id" }).select().single();
       if (result.error) throw result.error;
       setData(d => d ? { ...d, investor: result.data } : d); setInvestor(parsed.data); setBaseline(b => ({ ...b, investor: parsed.data })); toast.success("Investor profile updated");
     } catch (err) { toast.error(message(err)); } finally { setSaving(null); }
@@ -181,11 +183,13 @@ export default function ProfileSettings() {
           <div className="grid gap-5 sm:grid-cols-2"><EnumSelect id="investor-type" label="Investor type" error={errors.investor_type ? "Choose an investor type or leave it blank." : undefined} value={investor.investor_type} options={INVESTOR_TYPES} onChange={v => setInvestor(i => ({ ...i, investor_type: v }))} /><EnumSelect id="ticket" label="Typical ticket" error={errors.ticket_band ? "Choose a typical ticket or leave it blank." : undefined} value={investor.ticket_band} options={TICKETS} onChange={v => setInvestor(i => ({ ...i, ticket_band: v }))} /></div>
           <Chips id="regions" label="Regions of interest" options={listOptions([...new Set([...REGIONS, ...investor.regions_of_interest])])} value={investor.regions_of_interest} onChange={v => setInvestor(i => ({ ...i, regions_of_interest: v }))} />
           <div className="grid gap-5 sm:grid-cols-2">
-            <EnumSelect id="instrument-sought" label="Instrument sought" value={investor.instrument_sought} options={enumOptions(INSTRUMENTS_SOUGHT)} onChange={v => setInvestor(i => ({ ...i, instrument_sought: v }))} />
+            <Chips id="matched-instruments" label="Equity-like instruments sought" value={investor.matched_instruments} options={MATCHED_INSTRUMENTS} onChange={v => setInvestor(i => ({ ...i, matched_instruments:v as (keyof typeof MATCHED_INSTRUMENTS)[] }))} />
             <EnumSelect id="construction-risk" label="Construction-risk appetite" value={investor.construction_risk_appetite} options={enumOptions(CONSTRUCTION_RISK)} onChange={v => setInvestor(i => ({ ...i, construction_risk_appetite: v }))} />
             <EnumSelect id="capital-source" label="Capital source" value={investor.capital_source} options={enumOptions(CAPITAL_SOURCES)} onChange={v => setInvestor(i => ({ ...i, capital_source: v }))} />
             <EnumSelect id="decision-process" label="Decision process" value={investor.decision_process} options={enumOptions(DECISION_PROCESSES)} onChange={v => setInvestor(i => ({ ...i, decision_process: v }))} />
           </div>
+          <Chips id="financing-capabilities" label="Other financing capabilities, not matched and no platform fee" value={investor.financing_capabilities} options={FINANCING_CAPABILITIES} onChange={v=>setInvestor(i=>({...i,financing_capabilities:v as (keyof typeof FINANCING_CAPABILITIES)[]}))}/>
+          <EnumSelect id="earliest-stage" label="Earliest stage you will look at" value={investor.earliest_stage} options={STAGES} onChange={v=>setInvestor(i=>({...i,earliest_stage:v}))}/>
           <Chips id="technologies" label="Technologies of interest" options={TECHNOLOGIES} value={investor.technologies_of_interest} onChange={v => setInvestor(i => ({ ...i, technologies_of_interest: v }))} />
           {saveButton('investor', investorDirty)}
         </form></Section>

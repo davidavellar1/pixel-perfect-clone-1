@@ -13,12 +13,14 @@ import NewsCategoryBadge from "@/components/news/NewsCategoryBadge";
 import { ALL_COUNTRY_CODES, NEWS_REGIONS, countryName, isKnownCountry, summariseSelection } from "@/lib/news/regions";
 import { CATEGORY_CHIPS, NEWS_ITEM_COLUMNS, NEWS_SOURCE_COLUMNS, formatDealSize, relativeDate, type NewsCategory } from "@/lib/news/format";
 
+import { MIN_NEWS_RELEVANCE, newsPriority, canLeadNews } from "@/lib/news/policy";
+
 const PAGE = 20;
 
 interface NewsRow {
   id: string; source_id: string | null; url: string; title: string; title_en: string | null; summary: string | null;
   why_it_matters: string | null; language: string | null; publisher: string | null; published_at: string;
-  category: NewsCategory; country_codes: string[]; deal_value_eur: number | null; related_project_ids: string[];
+  category: NewsCategory; country_codes: string[]; deal_value_eur: number | null; related_project_ids: string[]; relevance: number;
 }
 interface SourceRow { id: string; name: string; country_code: string | null }
 
@@ -60,6 +62,8 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [sources, setSources] = useState<SourceRow[]>([]);
+  const [followed, setFollowed] = useState<Set<string>>(new Set());
+  useEffect(() => { if (user) void supabase.from("watchlist_item").select("project_id").eq("user_id", user.id).then(({data}) => setFollowed(new Set((data ?? []).map(row => row.project_id)))); }, [user?.id]);
   const [projects, setProjects] = useState<Map<string, { slug: string; title: string }>>(new Map());
 
   // Preferences
@@ -75,7 +79,7 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
         const codes = await defaultCountries(user.id);
         if (!active) return;
         setPrefs({ countryCodes: codes, includeEu: true, categories: [] });
-        setPrefsOpen(true);
+        if (!initialCountry) setPrefsOpen(true);
       }
     })();
     return () => { active = false; };
@@ -97,7 +101,7 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
     if (!prefs) return;
     setLoading(true);
     setError(null);
-    let q = supabase.from("news_item").select(NEWS_ITEM_COLUMNS).eq("hidden", false);
+    let q = supabase.from("news_item").select(NEWS_ITEM_COLUMNS).eq("hidden", false).gte("relevance", MIN_NEWS_RELEVANCE);
     const list = countryFilter.join(",");
     if (includeEu) q = list ? q.or(`country_codes.ov.{${list}},country_codes.eq.{}`) : q.filter("country_codes", "eq", "{}");
     else q = q.overlaps("country_codes", countryFilter.length ? countryFilter : ["--"]);
@@ -120,9 +124,8 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    if (!needle) return items;
-    return items.filter((i) => [i.title_en, i.title, i.summary].some((v) => v?.toLowerCase().includes(needle)));
-  }, [items, query]);
+    return items.filter((i) => !needle || [i.title_en, i.title, i.summary].some((v) => v?.toLowerCase().includes(needle))).sort((a,b) => newsPriority(a,b,followed));
+  }, [items, query, followed]);
 
   const sourceName = useMemo(() => new Map(sources.map((s) => [s.id, s.name])), [sources]);
   const sourcesByCountry = useMemo(() => {
@@ -145,7 +148,7 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
   return (
     <div className="max-w-workspace space-y-6 overflow-x-hidden">
       <header>
-        <h1 className="font-display text-3xl font-semibold text-foreground">Market news</h1>
+        <h1 className="font-display text-3xl font-semibold text-foreground">{initialCountry ? countryName(initialCountry) : "Market news"}</h1>
         <p className="mt-1 text-[15px] text-muted-foreground">
           District heating and cooling news from the markets you follow - deals, policy, funding calls and project milestones, summarised in English.
         </p>
@@ -209,12 +212,12 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
       ) : (
         <>
           <div className="grid gap-4 lg:grid-cols-2">
-            {visible.map((item) => {
+            {visible.map((item, index) => {
               const publisher = item.publisher ?? (item.source_id ? sourceName.get(item.source_id) : null) ?? "Source";
               const headline = item.title_en || item.title;
               const related = item.related_project_ids.map((id) => projects.get(id)).filter((p): p is { slug: string; title: string } => !!p);
               return (
-                <article key={item.id} className="flex min-w-0 flex-col rounded-lg border border-border bg-card p-5 transition-shadow hover:shadow-md">
+                <article key={item.id} className={`flex min-w-0 flex-col rounded-lg border border-border bg-card p-5 ${!initialCountry && index === 0 && canLeadNews(item.published_at) ? "lg:col-span-2 border-t-4 border-t-primary" : ""}`}>
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <NewsCategoryBadge category={item.category} />
                     {(item.country_codes.length ? item.country_codes : ["EU"]).map((c) => (
@@ -235,6 +238,7 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
                     <p className="mt-2 text-sm text-foreground"><span className="mr-1.5 text-xs font-semibold uppercase tracking-wide text-accent">Why it matters</span>{item.why_it_matters}</p>
                   )}
                   {item.deal_value_eur != null && <p className="mt-2 text-sm font-semibold text-foreground">Deal size ≈ {formatDealSize(item.deal_value_eur)}</p>}
+                  {item.related_project_ids.some(id => followed.has(id)) && <p className="mt-2 text-xs font-semibold text-primary">Affects {item.related_project_ids.filter(id => followed.has(id)).length} of your followed projects</p>}
                   {related.length > 0 && (
                     <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                       <span className="text-muted-foreground">Related:</span>
