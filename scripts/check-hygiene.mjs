@@ -33,5 +33,18 @@ for (const [, token] of css.matchAll(/var\((--[\w-]+)/g)) {
   if (!defined.has(token) && !token.startsWith("--radix-")) failures.push(`src/styles.css: undefined token ${token}`);
 }
 walk("src");
+// Migrations: one file per number, and every file registered in the journal.
+const migrationDir = "drizzle/migrations";
+const journal = JSON.parse(readFileSync(join(migrationDir, "meta/_journal.json"), "utf8"));
+const journalTags = new Set(journal.entries.map((entry) => entry.tag));
+const prefixes = new Map();
+for (const file of readdirSync(migrationDir).filter((name) => name.endsWith(".sql"))) {
+  const prefix = file.match(/^(\d+)_/)?.[1];
+  if (!prefix) { failures.push(`${migrationDir}/${file}: no numeric prefix`); continue; }
+  if (prefixes.has(prefix)) failures.push(`${migrationDir}/${file}: number ${prefix} also used by ${prefixes.get(prefix)}`);
+  else prefixes.set(prefix, file);
+  if (!journalTags.has(file.replace(/\.sql$/, ""))) failures.push(`${migrationDir}/${file}: missing from meta/_journal.json`);
+}
+for (const tag of journalTags) if (!readdirSync(migrationDir).includes(`${tag}.sql`)) failures.push(`${migrationDir}/meta/_journal.json: ${tag} has no .sql file`);
 if (failures.length) { console.error([...new Set(failures)].join("\n")); process.exit(1); }
 console.log("Source punctuation and semantic token checks passed.");

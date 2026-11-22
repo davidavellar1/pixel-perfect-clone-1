@@ -337,6 +337,27 @@
       "when": 1795381727384,
       "tag": "0047_benchmark_library",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1791154917936,
+      "tag": "0048_market_news",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1791156337972,
+      "tag": "0049_news_fetch_via_db",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1791158267860,
+      "tag": "0050_support_feedback",
+      "breakpoints": true
     }
   ]
 }

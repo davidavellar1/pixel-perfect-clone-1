@@ -1,11 +1,13 @@
 -- 0023_disclosure_gate_and_signature_evidence
 --
 -- Applied out of band on 13 Nov 2026 and recorded here so a rebuild from
--- migrations does not lose it. Three things:
+-- migrations does not lose it. Four things:
 --   1. Investor-grade data requires a granted access request.
 --   2. The data room is a genuine second gate, keyed on state, not status.
 --   3. The confidentiality agreement is reproducible, and what the signatory
 --      assented to is recorded rather than implied.
+--   4. Auto-accept is gone: listing_access_criteria.auto_accept_qualified
+--      (added in 0004) is dropped. Silence or a rule never accepts a request.
 
 drop policy if exists project_transaction_read on public.project_transaction;
 create policy project_transaction_read on public.project_transaction for select to public
@@ -293,3 +295,6 @@ begin
   end if;
   return new;
 end $function$;
+
+-- 4. No auto-accept column (absent on the live database as of 22 Nov 2026).
+alter table public.listing_access_criteria drop column if exists auto_accept_qualified;
