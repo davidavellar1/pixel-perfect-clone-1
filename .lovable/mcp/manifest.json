@@ -116,7 +116,7 @@
       {
         "name": "get_project",
         "title": "Get project profile",
-        "description": "Return an anonymized teaser, or investor detail after the calling user has granted access. Figures are developer-stated and unverified.",
+        "description": "Return de-identified information for qualified investors; identity only after developer acceptance. Figures are developer-stated and unverified.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
