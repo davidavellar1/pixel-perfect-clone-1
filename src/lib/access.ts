@@ -13,7 +13,7 @@ export type DeclineReason = Database["public"]["Enums"]["access_decline_reason"]
 export type AccessScope = Database["public"]["Enums"]["access_scope"];
 export type EntityType = Database["public"]["Enums"]["investor_entity_type"];
 export type TicketBand = Database["public"]["Enums"]["ticket_band"];
-import { legacyMatchedInstruments, matchedInstrumentIntersection } from "@/lib/instruments";
+import { matchedInstrumentIntersection } from "@/lib/instruments";
 
 export type InstrumentSought = Database["public"]["Enums"]["instrument_sought"];
 export type ConstructionRiskAppetite = Database["public"]["Enums"]["construction_risk_appetite"];
@@ -77,10 +77,9 @@ export const TICKET_BANDS: { value: TicketBand; label: string; floor: number }[]
 export const ticketBandLabel = (band: TicketBand | null) =>
   TICKET_BANDS.find((entry) => entry.value === band)?.label || "";
 
+/** Legacy single-choice value kept only to label old signed answers; it is no longer written. */
 export const INSTRUMENTS_SOUGHT: { value: InstrumentSought; label: string }[] = [
   { value: "equity", label: "Equity" },
-  { value: "debt", label: "Debt" },
-  { value: "either", label: "Either" },
 ];
 
 export const CONSTRUCTION_RISK: { value: ConstructionRiskAppetite; label: string }[] = [
@@ -154,7 +153,7 @@ export interface FitItem {
 
 /** Informational only. The fit line never blocks and never auto-decides. */
 export const computeFit = (
-  answers: Pick<AccessAnswersRow, "ticket_band" | "instrument_sought" | "construction_risk_appetite" | "conflicts_declared"> & { matched_instruments?: string[] | null } | null,
+  answers: Pick<AccessAnswersRow, "ticket_band" | "construction_risk_appetite" | "conflicts_declared"> & { matched_instruments?: string[] | null } | null,
   criteria: AccessCriteriaRow | null,
 ): FitItem[] => {
   if (!answers) return [];
@@ -162,7 +161,7 @@ export const computeFit = (
   const minTicket = criteria?.min_ticket ? Number(criteria.min_ticket) : null;
   const accepted = criteria?.instruments_accepted || [];
   const instrumentOk =
-    !accepted.length || matchedInstrumentIntersection(answers.matched_instruments ?? legacyMatchedInstruments(answers.instrument_sought), accepted);
+    !accepted.length || matchedInstrumentIntersection(answers.matched_instruments ?? [], accepted);
   const constructionOk =
     !criteria?.require_construction_risk_appetite ||
     answers.construction_risk_appetite === "yes" ||
@@ -257,7 +256,7 @@ export const slaStatus = (request: AccessRequestRow, now = new Date()): SlaStatu
       ? "Escalated, past 5 working days"
       : reminderDue
       ? "Reminder sent, past 48 hours"
-      : "Within the 3 working day target",
+      : `Awaiting decision, ${workingDays} working day${workingDays === 1 ? "" : "s"}`,
   };
 };
 

@@ -16,10 +16,10 @@ import { AUTHORITY_TEXT, qualificationReady, signatureReady, type Agreement } fr
 import MandateFit from "@/components/project/MandateFit";
 import MandateStep from "@/components/settings/MandateStep";
 import {
-  CAPITAL_SOURCES, CONSTRUCTION_RISK, DECISION_PROCESSES, ENTITY_TYPES, INSTRUMENTS_SOUGHT,
+  CAPITAL_SOURCES, CONSTRUCTION_RISK, DECISION_PROCESSES, ENTITY_TYPES,
   INTEREST_DRIVERS, TICKET_BANDS,
   type AccessCriteriaRow, type CapitalSource, type ConstructionRiskAppetite, type DecisionProcess,
-  type EntityType, type InstrumentSought, type TicketBand,
+  type EntityType, type TicketBand,
 } from "@/lib/access";
 
 import { MATCHED_INSTRUMENTS } from "@/lib/instruments";
@@ -33,7 +33,6 @@ export interface InterestFormDraft {
   signatoryName: string;
   signatoryRole: string;
   ticketBand: TicketBand | "";
-  instrumentSought: InstrumentSought | "";
   matchedInstruments: (keyof typeof MATCHED_INSTRUMENTS)[];
   constructionRisk: ConstructionRiskAppetite | "";
   capitalSource: CapitalSource | "";
@@ -53,7 +52,7 @@ export interface InterestFormDraft {
 
 const emptyDraft: InterestFormDraft = {
   entityName: "", entityType: "", jurisdiction: "", regulatedStatus: "", website: "",
-  signatoryName: "", signatoryRole: "", ticketBand: "", instrumentSought: "", matchedInstruments:[], constructionRisk: "",
+  signatoryName: "", signatoryRole: "", ticketBand: "", matchedInstruments:[], constructionRisk: "",
   capitalSource: "", decisionProcess: "", earliestDecisionDate: "", interestDrivers: [],
   diligenceFocus: "", wouldLeadClub: false, conflictsDeclared: "", conflictsDetail: "",
   advisersReceivingInfo: "", signedName: "", authority: false, feeAcknowledged: false, electronicConsent: false,
@@ -160,7 +159,7 @@ const ExpressInterestDialog = ({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 rounded-xl border border-border bg-muted/40 p-5 text-sm text-muted-foreground">
-            <p>The listing stays anonymized until the developer accepts. Requests are typically answered in 3 working days.</p>
+            <p>The listing stays anonymized until the developer accepts.</p>
             <p>The agreement you signed takes effect only on acceptance. No introduction is logged and no fee clock starts before then.</p>
             <p>The request appears in your pipeline at stage "Interest submitted". You can withdraw it at any time before a decision.</p>
           </div>

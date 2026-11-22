@@ -327,18 +327,8 @@ function FinancialTab({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {project.risks.map((risk) => (
               <div key={risk.title} className="bg-muted/50 border border-border rounded-xl p-5">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-bold text-foreground">{risk.title}</h4>
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    risk.severity === "Low"
-                      ? "bg-success-soft text-success"
-                      : risk.severity === "Medium"
-                      ? "bg-warning-soft text-warning-foreground"
-                      : "bg-destructive-soft text-destructive"
-                  }`}>
-                    {risk.severity}
-                  </span>
-                </div>
+                {/* R5: no severity verdict or traffic-light colour; the developer's description stands alone. */}
+                <h4 className="mb-2 text-sm font-bold text-foreground">{risk.title}</h4>
                 <p className="text-sm text-muted-foreground leading-relaxed">{risk.description}</p>
               </div>
             ))}
@@ -412,9 +402,7 @@ function SustainabilityTab({ project, asOf }: { project: ProjectDetail; asOf?: s
                 tCO₂e avoided<br />per year
               </p>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {project.co2Detail.equivalentCars && <>Developer-stated equivalent: {project.co2Detail.equivalentCars} cars annually. </>}{project.co2Detail.lifetimeReduction && <>Developer-stated lifetime reduction: {project.co2Detail.lifetimeReduction} of CO₂ equivalent.</>}
-            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">Developer-stated annual figure.</p>
           </div>
         </div>
       )}

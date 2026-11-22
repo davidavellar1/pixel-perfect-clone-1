@@ -211,7 +211,7 @@ export type Database = {
             | Database["public"]["Enums"]["investor_entity_type"]
             | null
           id: string
-          instrument_sought: Database["public"]["Enums"]["instrument_sought"]
+          instrument_sought: Database["public"]["Enums"]["instrument_sought"] | null
           interest_drivers: string[]
           jurisdiction: string | null
           matched_instruments: string[] | null
@@ -243,7 +243,7 @@ export type Database = {
             | Database["public"]["Enums"]["investor_entity_type"]
             | null
           id?: string
-          instrument_sought: Database["public"]["Enums"]["instrument_sought"]
+          instrument_sought?: Database["public"]["Enums"]["instrument_sought"] | null
           interest_drivers?: string[]
           jurisdiction?: string | null
           matched_instruments?: string[] | null
@@ -275,7 +275,7 @@ export type Database = {
             | Database["public"]["Enums"]["investor_entity_type"]
             | null
           id?: string
-          instrument_sought?: Database["public"]["Enums"]["instrument_sought"]
+          instrument_sought?: Database["public"]["Enums"]["instrument_sought"] | null
           interest_drivers?: string[]
           jurisdiction?: string | null
           matched_instruments?: string[] | null
@@ -829,17 +829,10 @@ export type Database = {
           debt_margin_bps: number | null
           dscr_1x_connections: number | null
           dsra_months: number | null
-          equity_required: number | null
-          first_revenue_year: number | null
-          funding_progress_pct: number | null
-          funding_remaining: number | null
           gearing_pct: number | null
           id: string
           irr_zero_connections: number | null
           lockup_dscr: number | null
-          min_ticket: number | null
-          npv: number | null
-          payback_years: number | null
           project_id: string
           target_irr_pct: number | null
           unleveraged_irr_pct: number | null
@@ -853,17 +846,10 @@ export type Database = {
           debt_margin_bps?: number | null
           dscr_1x_connections?: number | null
           dsra_months?: number | null
-          equity_required?: number | null
-          first_revenue_year?: number | null
-          funding_progress_pct?: number | null
-          funding_remaining?: number | null
           gearing_pct?: number | null
           id?: string
           irr_zero_connections?: number | null
           lockup_dscr?: number | null
-          min_ticket?: number | null
-          npv?: number | null
-          payback_years?: number | null
           project_id: string
           target_irr_pct?: number | null
           unleveraged_irr_pct?: number | null
@@ -877,17 +863,10 @@ export type Database = {
           debt_margin_bps?: number | null
           dscr_1x_connections?: number | null
           dsra_months?: number | null
-          equity_required?: number | null
-          first_revenue_year?: number | null
-          funding_progress_pct?: number | null
-          funding_remaining?: number | null
           gearing_pct?: number | null
           id?: string
           irr_zero_connections?: number | null
           lockup_dscr?: number | null
-          min_ticket?: number | null
-          npv?: number | null
-          payback_years?: number | null
           project_id?: string
           target_irr_pct?: number | null
           unleveraged_irr_pct?: number | null
@@ -1885,6 +1864,8 @@ export type Database = {
           created_at: string
           description: string | null
           developer_id: string
+          disclosure_preview_consent_at: string | null
+          disclosure_preview_fingerprint: string | null
           financial_as_of: string | null
           form_version: string | null
           headline_co2_tonnes: number | null
@@ -1904,8 +1885,6 @@ export type Database = {
           submission_draft: Json | null
           submission_published: Json | null
           submission_revision: number
-          subscriber_disclosure_consent_at: string | null
-          subscriber_preview_fingerprint: string | null
           summary: string | null
           technical_as_of: string | null
           technology: Database["public"]["Enums"]["technology"]
@@ -1925,6 +1904,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           developer_id: string
+          disclosure_preview_consent_at?: string | null
+          disclosure_preview_fingerprint?: string | null
           financial_as_of?: string | null
           form_version?: string | null
           headline_co2_tonnes?: number | null
@@ -1944,8 +1925,6 @@ export type Database = {
           submission_draft?: Json | null
           submission_published?: Json | null
           submission_revision?: number
-          subscriber_disclosure_consent_at?: string | null
-          subscriber_preview_fingerprint?: string | null
           summary?: string | null
           technical_as_of?: string | null
           technology: Database["public"]["Enums"]["technology"]
@@ -1965,6 +1944,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           developer_id?: string
+          disclosure_preview_consent_at?: string | null
+          disclosure_preview_fingerprint?: string | null
           financial_as_of?: string | null
           form_version?: string | null
           headline_co2_tonnes?: number | null
@@ -1984,8 +1965,6 @@ export type Database = {
           submission_draft?: Json | null
           submission_published?: Json | null
           submission_revision?: number
-          subscriber_disclosure_consent_at?: string | null
-          subscriber_preview_fingerprint?: string | null
           summary?: string | null
           technical_as_of?: string | null
           technology?: Database["public"]["Enums"]["technology"]
@@ -2561,44 +2540,10 @@ export type Database = {
           },
         ]
       }
-      subscription: {
-        Row: {
-          created_at: string
-          current_period_end: string | null
-          id: string
-          provider_customer_id: string | null
-          provider_subscription_id: string | null
-          status: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          current_period_end?: string | null
-          id?: string
-          provider_customer_id?: string | null
-          provider_subscription_id?: string | null
-          status?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          current_period_end?: string | null
-          id?: string
-          provider_customer_id?: string | null
-          provider_subscription_id?: string | null
-          status?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       sustainability_profile: {
         Row: {
           co2_tonnes_per_year: number | null
           created_at: string
-          equivalent_cars: number | null
           eu_taxonomy_aligned: boolean | null
           eu_taxonomy_objective: string | null
           id: string
@@ -2611,7 +2556,6 @@ export type Database = {
         Insert: {
           co2_tonnes_per_year?: number | null
           created_at?: string
-          equivalent_cars?: number | null
           eu_taxonomy_aligned?: boolean | null
           eu_taxonomy_objective?: string | null
           id?: string
@@ -2624,7 +2568,6 @@ export type Database = {
         Update: {
           co2_tonnes_per_year?: number | null
           created_at?: string
-          equivalent_cars?: number | null
           eu_taxonomy_aligned?: boolean | null
           eu_taxonomy_objective?: string | null
           id?: string
@@ -2903,7 +2846,6 @@ export type Database = {
       }
       investor_project: { Args: { _project_id: string }; Returns: Json }
       is_qualified_investor: { Args: never; Returns: boolean }
-      is_subscriber: { Args: never; Returns: boolean }
       member_message_inbox: {
         Args: never
         Returns: {
@@ -3022,21 +2964,6 @@ export type Database = {
         }
         Returns: Json
       }
-      subscriber_document: {
-        Args: { _banded?: boolean; _document: Json }
-        Returns: Json
-      }
-      subscriber_document_index: {
-        Args: { _project_id: string }
-        Returns: {
-          access_level: Database["public"]["Enums"]["document_access"]
-          created_at: string
-          file_type: string
-          id: string
-          label: string
-        }[]
-      }
-      subscriber_project: { Args: { _project_id: string }; Returns: Json }
     }
     Enums: {
       absence_reason:
@@ -3089,7 +3016,7 @@ export type Database = {
         | "esco"
         | "other"
       document_access: "public" | "gated"
-      instrument_sought: "equity" | "debt" | "either"
+      instrument_sought: "equity"
       investment_range:
         | "under_1m"
         | "1m_5m"
@@ -3361,7 +3288,7 @@ export const Constants = {
         "other",
       ],
       document_access: ["public", "gated"],
-      instrument_sought: ["equity", "debt", "either"],
+      instrument_sought: ["equity"],
       investment_range: [
         "under_1m",
         "1m_5m",

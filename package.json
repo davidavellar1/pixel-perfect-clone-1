@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "check:hygiene": "node scripts/check-hygiene.mjs && eslint --config eslint.hygiene.config.mjs src/components src/pages"
+    "check:hygiene": "node scripts/check-hygiene.mjs && eslint --config eslint.hygiene.config.mjs src/components src/pages",
+    "test": "bun test src"
   },
   "overrides": {
     "rolldown": "1.2.1"

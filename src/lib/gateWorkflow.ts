@@ -11,14 +11,14 @@ export function mandatePrefill(profile: Tables<"investor_profiles"> | null): Par
   return {
     entityName: profile.company_name ?? "", signatoryName: profile.full_name,
     entityType: profile.investor_type ? entityTypes[profile.investor_type] : "",
-    ticketBand: profile.ticket_band ?? "", instrumentSought: profile.instrument_sought ?? "", matchedInstruments:profile.matched_instruments.filter((v):v is keyof typeof MATCHED_INSTRUMENTS=>Object.hasOwn(MATCHED_INSTRUMENTS,v)),
+    ticketBand: profile.ticket_band ?? "", matchedInstruments:profile.matched_instruments.filter((v):v is keyof typeof MATCHED_INSTRUMENTS=>Object.hasOwn(MATCHED_INSTRUMENTS,v)),
     constructionRisk: profile.construction_risk_appetite ?? "", capitalSource: profile.capital_source ?? "",
     decisionProcess: profile.decision_process ?? "",
   };
 }
 export function requestFit(draft: Partial<InterestFormDraft>, criteria: AccessCriteriaRow | null) {
   if (!draft.ticketBand || !draft.matchedInstruments?.length) return [];
-  return computeFit({ ticket_band: draft.ticketBand, instrument_sought: draft.instrumentSought || "equity", matched_instruments:draft.matchedInstruments,
+  return computeFit({ ticket_band: draft.ticketBand, matched_instruments:draft.matchedInstruments,
     construction_risk_appetite: draft.constructionRisk || null, conflicts_declared: draft.conflictsDeclared === "declared" }, criteria);
 }
 export function qualificationReady(draft: InterestFormDraft, criteria: AccessCriteriaRow | null) {

@@ -141,13 +141,18 @@ const InvestorDashboard = () => {
   const indicatedInterests = useMemo(() => interests.filter((interest) => !isCommitted(interest)), [interests, isCommitted]);
 
   const committedProjects = committedInterests.map((interest) => projectById.get(interest.project_id)).filter((project): project is Project => Boolean(project));
-  const committedCapacity = committedProjects.reduce((sum, project) => sum + Number(project.capacity_mw), 0);
+  // R7: only stated capacities are summed; an unknown capacity is never counted as 0 MW.
+  const committedCapacity = committedProjects.reduce((sum, project) => project.capacity_mw != null ? sum + Number(project.capacity_mw) : sum, 0);
   const committedCapital = committedInterests.reduce((sum, interest) => sum + Number(interest.indicated_commitment || 0), 0);
   const indicatedCapital = indicatedInterests.reduce((sum, interest) => sum + Number(interest.indicated_commitment || 0), 0);
 
   const engagedProjects = interests.map((interest) => projectById.get(interest.project_id)).filter((project): project is Project => Boolean(project));
-  const totalCapacity = engagedProjects.reduce((sum, project) => sum + Number(project.capacity_mw), 0);
-  const totalCapex = engagedProjects.reduce((sum, project) => sum + Number(financeByProject.get(project.id)?.capex || project.headline_investment || 0), 0);
+  const capacityKnown = engagedProjects.filter((project) => project.capacity_mw != null);
+  const totalCapacity = capacityKnown.reduce((sum, project) => sum + Number(project.capacity_mw), 0);
+  const capexOf = (project: Project) => financeByProject.get(project.id)?.capex ?? project.headline_investment ?? null;
+  const capexKnown = engagedProjects.filter((project) => capexOf(project) != null);
+  const totalCapex = capexKnown.reduce((sum, project) => sum + Number(capexOf(project)), 0);
+  const knownOf = (known: number) => `${known} of ${engagedProjects.length} project${engagedProjects.length === 1 ? "" : "s"} stated`;
 
   const approvedRooms = requests.filter((request) => request.state === "granted_full").length;
   const activeDeals = interests.filter((interest) => ["data_room", "ioi", "loi", "closed"].includes(normaliseStage(interest.stage))).length;
@@ -170,9 +175,10 @@ const InvestorDashboard = () => {
     return { coveredAmount, totalCapex, pct };
   }, [committedProjects, financeByProject, stackItems]);
 
+  // Tiles without any stated figure are omitted rather than shown as zero.
   const kpis = [
-    ["Capacity engaged", `${totalCapacity.toLocaleString()} MW`, `${interests.length} project${interests.length === 1 ? "" : "s"}`],
-    ["Capex engaged", totalCapex ? `\u20ac${(totalCapex / 1_000_000).toFixed(1)}M` : "\u20ac0", "developer-stated"],
+    ...(capacityKnown.length ? [["Capacity engaged", `${totalCapacity.toLocaleString()} MW`, knownOf(capacityKnown.length)]] : []),
+    ...(capexKnown.length ? [["Capex engaged", `\u20ac${(totalCapex / 1_000_000).toFixed(1)}M`, `${knownOf(capexKnown.length)}, developer-stated`]] : []),
     ["Active deals", String(activeDeals), "due diligence or later"],
     ["Interests expressed", String(interests.length), `${watchlist.length} watchlisted`],
     ["Data rooms open", String(approvedRooms), `${requests.filter((request) => request.status === "requested").length} pending`],
@@ -234,7 +240,7 @@ const InvestorDashboard = () => {
                     <td className="px-3.5 py-3.5 font-semibold text-foreground">{project.title}</td>
                     <td className="px-3.5 py-3.5 text-muted-foreground">{project.technology}</td>
                     <td className="px-3.5 py-3.5 text-muted-foreground">{project.capacity_mw != null ? `${project.capacity_mw} MW` : project.capacityBand ?? ""}</td>
-                    <td className="px-3.5 py-3.5 text-muted-foreground">{[project.city, project.country_code].filter(Boolean).join(", ") || "-"}</td>
+                    <td className="px-3.5 py-3.5 text-muted-foreground">{[project.city, project.country_code].filter(Boolean).join(", ")}</td>
                     <td className="px-3.5 py-3.5 text-muted-foreground">{stageLabel(normaliseStage(interest.stage))}{state === "pending" && request ? ` · ${slaStatus(request).workingDays} working days` : ""}</td>
                     <td className="px-3.5 py-3.5 text-right"><Button size="sm" variant="outline" onClick={() => navigate(`/app/projects/${project.public_ref}`)}>Open</Button></td>
                   </tr>;
@@ -255,7 +261,7 @@ const InvestorDashboard = () => {
         <section className="rounded-lg border border-border bg-card p-5">
           <h2 className="mb-1 font-display text-sm font-semibold">Concentration by project (committed capital)</h2>
           <p className="mb-4 text-[11px] text-muted-foreground">Computed on committed positions only (term sheet or financial close). Committed capital: €{(committedCapital / 1_000_000).toFixed(2)}M.</p>
-          {!committedProjects.length ? <p className="rounded-md bg-muted p-5 text-sm text-muted-foreground">No committed positions yet. Committed positions appear here once a deal reaches term sheet or financial close.</p> : <div className="space-y-3">{committedProjects.map((project) => { const pct = committedCapacity ? Number(project.capacity_mw) / committedCapacity * 100 : 0; return <div key={project.id}><div className="mb-1.5 flex justify-between gap-3 text-xs"><span className="truncate">{project.title}</span><strong>{pct.toFixed(0)}%</strong></div><div className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} /></div></div>; })}</div>}
+          {!committedProjects.length ? <p className="rounded-md bg-muted p-5 text-sm text-muted-foreground">No committed positions yet. Committed positions appear here once a deal reaches term sheet or financial close.</p> : <div className="space-y-3">{committedProjects.filter((project) => project.capacity_mw != null).map((project) => { const pct = committedCapacity ? Number(project.capacity_mw) / committedCapacity * 100 : 0; return <div key={project.id}><div className="mb-1.5 flex justify-between gap-3 text-xs"><span className="truncate">{project.title}</span><strong>{pct.toFixed(0)}%</strong></div><div className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} /></div></div>; })}</div>}
           <div className="mt-4 rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground">
             Indicated interest (not committed): €{(indicatedCapital / 1_000_000).toFixed(2)}M across {indicatedInterests.length} project{indicatedInterests.length === 1 ? "" : "s"}. Indicated figures are not committed capital.
           </div>
@@ -322,14 +328,14 @@ const InvestorDashboard = () => {
             return (
               <article key={interest.id} className="rounded-lg border border-border bg-card p-5">
                 <div className="flex flex-wrap justify-between gap-3">
-                  <div><h3 className="font-display font-semibold">{project.title}</h3><p className="mt-1 text-xs capitalize text-muted-foreground">{project.city}, {project.country_code} | {stageLabel(interest.stage)}</p></div>
+                  <div><h3 className="font-display font-semibold">{project.title}</h3><p className="mt-1 text-xs capitalize text-muted-foreground">{[[project.city, project.country_code].filter(Boolean).join(", "), stageLabel(interest.stage)].filter(Boolean).join(" | ")}</p></div>
                   <Button variant="outline" size="sm" onClick={() => navigate(`/app/projects/${project.public_ref}`)}>Open project</Button>
                 </div>
                 <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5"><TrendingUp className="h-4 w-4 text-accent" /> {dealRequest?.introduction_logged_at ? `Introduction logged ${fmtDate(introducedAt)}` : "No introduction logged yet"}</span>
                   <span>Days in stage: <strong className="text-foreground">{daysInStage}</strong></span>
-                  <span>Fee-tail expiry: <strong className="text-foreground">{dealRequest?.introduction_logged_at ? fmtDate(feeTailExpiry) : "Not started"}</strong></span>
-                  <span>Exclusivity expiry: <strong className="text-foreground">{exclusivityExpiry ? fmtDate(exclusivityExpiry) : "Not available"}</strong></span>
+                  {dealRequest?.introduction_logged_at && <span>Fee-tail expiry: <strong className="text-foreground">{fmtDate(feeTailExpiry)}</strong></span>}
+                  {exclusivityExpiry && <span>Exclusivity expiry: <strong className="text-foreground">{fmtDate(exclusivityExpiry)}</strong></span>}
                 </div>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <label className="text-xs text-muted-foreground">Owner<Input className="mt-1" value={owner} onChange={(event) => setOwner(interest.id, event.target.value)} /></label>
@@ -337,7 +343,7 @@ const InvestorDashboard = () => {
                 </div>
                 {projectCases.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {projectCases.map((row) => <span key={row.id} className="rounded-full bg-muted px-3 py-1 text-[11px] text-muted-foreground">{row.name} case: {row.equity_irr_pct != null ? `${Number(row.equity_irr_pct).toFixed(1)}% IRR` : "IRR n/a"}{row.min_dscr != null ? `, DSCR ${Number(row.min_dscr).toFixed(2)}x` : ""}</span>)}
+                    {projectCases.filter((row) => row.equity_irr_pct != null || row.min_dscr != null).map((row) => <span key={row.id} className="rounded-full bg-muted px-3 py-1 text-[11px] text-muted-foreground">{[`${row.name} case at underwriting`, row.equity_irr_pct != null ? `target IRR ${Number(row.equity_irr_pct).toFixed(1)}%` : null, row.min_dscr != null ? `DSCR ${Number(row.min_dscr).toFixed(2)}x` : null].filter(Boolean).join(", ")}</span>)}
                   </div>
                 )}
               </article>
@@ -347,7 +353,7 @@ const InvestorDashboard = () => {
       ) : (
         <div className="overflow-hidden rounded-lg border border-border bg-card">
           {!rows.length && <div className="flex flex-col items-center p-10 text-center"><FolderOpen className="mb-3 h-8 w-8 text-muted-foreground" /><p className="font-semibold">{tab === "watch" ? "Your watchlist is empty" : "No interests expressed yet"}</p><p className="mt-1 text-sm text-muted-foreground">Browse opportunities to start building your pipeline.</p><Button className="mt-4" onClick={() => navigate("/app")}>Browse projects</Button></div>}
-          {rows.map((row) => { const project = projectById.get(row.project_id); if (!project) return null; const request = requests.find((item) => item.project_id === project.id); return <div key={row.id} className="flex flex-wrap items-center justify-between gap-4 border-b border-border px-6 py-4 last:border-0"><div><p className="font-semibold">{project.title}</p><p className="mt-1 text-xs capitalize text-muted-foreground">{project.technology.replace(/_/g, " ")} | {project.capacity_mw} MW | {project.city}, {project.country_code}</p></div><div className="flex items-center gap-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">{tab === "watch" ? <Heart className="h-3.5 w-3.5" /> : request && effectiveState(request) === "granted_full" ? <FolderOpen className="h-3.5 w-3.5 text-success" /> : <Building2 className="h-3.5 w-3.5" />}{tab === "watch" ? "Saved" : request ? ACCESS_STATE_LABEL[effectiveState(request)] : "Watchlisted"}</span>{tab !== "watch" && request && effectiveState(request) === "pending" && <span className="text-xs text-muted-foreground">{slaStatus(request).workingDays} working days pending</span>}<Button size="sm" variant="outline" onClick={() => navigate(`/app/projects/${project.public_ref}`)}>Open</Button></div></div>; })}
+          {rows.map((row) => { const project = projectById.get(row.project_id); if (!project) return null; const request = requests.find((item) => item.project_id === project.id); return <div key={row.id} className="flex flex-wrap items-center justify-between gap-4 border-b border-border px-6 py-4 last:border-0"><div><p className="font-semibold">{project.title}</p><p className="mt-1 text-xs capitalize text-muted-foreground">{[project.technology.replace(/_/g, " "), project.capacity_mw != null ? `${project.capacity_mw} MW` : project.capacityBand, [project.city, project.country_code].filter(Boolean).join(", ")].filter(Boolean).join(" | ")}</p></div><div className="flex items-center gap-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">{tab === "watch" ? <Heart className="h-3.5 w-3.5" /> : request && effectiveState(request) === "granted_full" ? <FolderOpen className="h-3.5 w-3.5 text-success" /> : <Building2 className="h-3.5 w-3.5" />}{tab === "watch" ? "Saved" : request ? ACCESS_STATE_LABEL[effectiveState(request)] : "Watchlisted"}</span>{tab !== "watch" && request && effectiveState(request) === "pending" && <span className="text-xs text-muted-foreground">{slaStatus(request).workingDays} working days pending</span>}<Button size="sm" variant="outline" onClick={() => navigate(`/app/projects/${project.public_ref}`)}>Open</Button></div></div>; })}
         </div>
       )}
     </div>

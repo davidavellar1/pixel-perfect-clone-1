@@ -5,7 +5,6 @@ export const interestSchema = (criteria: AccessCriteriaRow | null) => z.object({
   entityName: z.string().trim().min(2, "Enter the investing entity."), entityType: z.enum(["", "infra_fund", "pension", "insurer", "family_office", "regional_fund", "municipal_utility", "esco", "corporate", "bank_or_debt_fund", "other"]).refine(v => Boolean(v), "Choose an entity type."),
   jurisdiction: z.string(), regulatedStatus: z.string(), website: z.string(), signatoryName: z.string().trim().min(2, "Enter the signatory name."), signatoryRole: z.string(),
   ticketBand: z.enum(["", "under_1m", "1m_3m", "3m_5m", "5m_10m", "10m_plus"]).refine(v => Boolean(v), "Choose a ticket band."),
-  instrumentSought: z.enum(["", "equity", "debt", "either"]),
   matchedInstruments:z.array(z.enum(["equity","equity_and_shareholder_loan","preferred_equity","mezzanine","convertible"])).min(1,"Choose at least one equity-like instrument.").max(5),
   constructionRisk: z.enum(["", "yes", "no", "only_fixed_price_date_certain"]).refine(v => !criteria?.require_construction_risk_appetite || Boolean(v), "Choose construction-risk appetite for this listing."),
   capitalSource: z.enum(["", "fund_with_dry_powder", "balance_sheet", "club_to_be_assembled", "advising_a_client"]).refine(v => Boolean(v), "Choose a capital source."),

@@ -46,8 +46,8 @@ export interface ProjectDetail {
   technologyCards: { title: string; description: string }[];
   capitalStack?: { label: string; percentage: number; amount: string; description: string; color: string }[];
   revenueStreams?: { stream: string; structure: string; percentRevenue: string; counterparty: string }[];
-  risks?: { title: string; severity: "Low" | "Medium" | "High"; description: string }[];
-  co2Detail?: { tonnes: number; equivalentCars: string; lifetimeReduction: string };
+  risks?: { title: string; description: string }[];
+  co2Detail?: { tonnes: number };
   euTaxonomy?: { objective: string; description: string };
   energyMix?: { source: string; percentage: number }[];
   operatingParameters?: { parameter: string; value: string; benchmark: string }[];

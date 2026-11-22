@@ -5,3 +5,14 @@ it('unaccepted summary contains no developer or municipality',()=>{const text=JS
 it('summary identity requires an explicitly accepted identity projection',()=>assert.ok(JSON.stringify(pdfRows(input,'summary')).includes('Private Host')));
 
 it('footer link uses the opaque reference, never the slug or city',()=>{const url=pdfProjectUrl(input,'https://example.test');assert.equal(url,'https://example.test/app/projects/3f1c2a9e-8b7d-4c6e-9a5f-1d2e3f4a5b6c');assert.equal(url.includes('private'),false);});
+it('blanks use the R2 vocabulary and banded figures print their band',()=>{
+ const banded=pdfRows({...input,identity:null,information:{exact:false,document:{version:'v',stage:'development',answers:{},rows:{},askedFields:[],step:'basics'}}},'summary');
+ const text=JSON.stringify(banded);
+ assert.equal(text.includes('at this stage'),false);assert.equal(text.includes('Held until'),false);assert.equal(text.includes('Not collected'),false);
+ assert.ok(banded.some(([label,value])=>label==='Capex EUR'&&value==='Under EUR 15M'));
+ assert.equal(banded.some(([label])=>label==='Equity sought EUR'),false);
+ const open=JSON.stringify(pdfRows({...input,identity:null,information:{exact:true,document:{version:'v',stage:'development',answers:{capacity:'8'},rows:{},askedFields:['stage.capex'],step:'basics'}}},'summary'));
+ assert.ok(open.includes('Not provided'));assert.ok(open.includes('Not asked at development stage'));
+ const teaser=JSON.stringify(pdfRows({...input,teaser:{lifecycle_stage:'feasibility'}},'teaser'));
+ assert.ok(teaser.includes('Not asked at feasibility stage'));assert.equal(teaser.includes('Not collected'),false);
+});

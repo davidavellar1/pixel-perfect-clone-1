@@ -302,6 +302,27 @@
       "when": 1795380264070,
       "tag": "0042_drop_sdg_alignment",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1795380478614,
+      "tag": "0043_retire_paid_gate_furniture",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1795380845873,
+      "tag": "0044_computed_figures_and_phase5_cuts",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1795380958890,
+      "tag": "0045_migrate_legacy_instrument_preferences",
+      "breakpoints": true
     }
   ]
 }

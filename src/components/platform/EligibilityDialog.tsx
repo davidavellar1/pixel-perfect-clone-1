@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, ExternalLink, Landmark, Minus, X } from "lucide-react";
+import { ExternalLink, Landmark, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -23,7 +23,7 @@ import {
   type FundingEntry,
   type OwnProject,
 } from "@/lib/funding";
-import { FlowCallout, FlowHeading, FlowSteps } from "./FlowSteps";
+import { FlowHeading, FlowSteps } from "./FlowSteps";
 
 const LABELS = ["Check fit", "Done"];
 
@@ -57,13 +57,11 @@ const EligibilityDialog = ({
 
   if (!entry) return null;
 
-  const fails = criteria.filter((c) => c.state === "fails").length;
-  const headline =
-    fails === 0
-      ? "Indicative fit"
-      : fails === 1
-        ? "Partial fit"
-        : "Not a fit on published criteria";
+  // R5: plain counts, no fit verdict.
+  const matched = criteria.filter((c) => c.state === "meets").length;
+  const unmatched = criteria.filter((c) => c.state === "fails").length;
+  const unrestricted = criteria.length - matched - unmatched;
+  const headline = `${matched} of ${criteria.length} published criteria match this project${unmatched ? `; ${unmatched} do not` : ""}${unrestricted ? `; ${unrestricted} not restricted or not checked` : ""}.`;
   const call = callState(entry);
   const types = entry.instrument_types.map((t) => INSTRUMENT_LABEL[t] || humanize(t)).join(", ");
   const applicants = entry.applicant_types.map((a) => APPLICANT_LABEL[a] || humanize(a));
@@ -191,25 +189,20 @@ const EligibilityDialog = ({
           ) : (
             <>
               <FlowHeading title="Indicative result" />
-              <FlowCallout tone={fails === 0 ? "ok" : "maybe"} title={headline}>
-                This is an indicative check against published criteria; the funding body decides
-                eligibility.
-              </FlowCallout>
+              <div className="rounded-xl border border-border bg-muted/40 p-4">
+                <p className="font-display text-sm font-semibold text-foreground">{headline}</p>
+                <p className="mt-1 text-[13px] text-muted-foreground">
+                  This is an indicative check against published criteria; the funding body decides
+                  eligibility.
+                </p>
+              </div>
               <div className="mt-4 space-y-1">
                 {criteria.map((c) => (
                   <div
                     key={c.label}
                     className="flex items-start gap-2.5 py-1.5 text-[13px] text-foreground/80"
                   >
-                    {c.state === "meets" && (
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-                    )}
-                    {c.state === "fails" && (
-                      <X className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-                    )}
-                    {c.state === "open" && (
-                      <Minus className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                    )}
+                    <Minus className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                     <span>
                       <span className="font-semibold">{c.label}:</span> {c.detail}
                     </span>

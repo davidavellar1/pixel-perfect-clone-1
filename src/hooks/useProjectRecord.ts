@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { ProjectDetail } from "@/lib/blankProject";
+import { firstRevenueYear, fundingProgress, paybackFromDocument } from "@/lib/projectComputes";
+import { parseDocument } from "@/lib/submission/serializer";
 
 /**
  * Loads the live database detail for a project (financial, technical, sustainability
@@ -31,9 +33,6 @@ function pct(value: number | null | undefined): string | undefined {
   return `${Number(value).toFixed(1)}%`;
 }
 
-function severityLabel(value: string): "Low" | "Medium" | "High" {
-  return (value.charAt(0).toUpperCase() + value.slice(1)) as "Low" | "Medium" | "High";
-}
 
 function clean<T extends object>(input: T): Partial<T> {
   const out: Record<string, unknown> = {};
@@ -68,6 +67,7 @@ export function useProjectRecord(projectId: string | undefined) {
         techCardsRes,
         energyMixRes,
         operatingRes,
+        submissionRes,
       ] = await Promise.all([
         supabase.from("financial_summary").select("*").eq("project_id", projectId).maybeSingle(),
         supabase.from("sustainability_profile").select("*").eq("project_id", projectId).maybeSingle(),
@@ -92,6 +92,7 @@ export function useProjectRecord(projectId: string | undefined) {
           .select("parameter, value, benchmark")
           .eq("project_id", projectId)
           .order("sort_order"),
+        supabase.from("project").select("submission_published").eq("id", projectId).maybeSingle(),
       ]);
 
       const financial = financialRes.data;
@@ -112,18 +113,23 @@ export function useProjectRecord(projectId: string | undefined) {
 
       if (cancelled) return;
 
+      // Payback, first revenue and funding progress are computed from recorded inputs
+      // (projectComputes.ts); stored copies of these figures are not read.
+      const document = parseDocument(submissionRes.data?.submission_published ?? null);
+      const payback = paybackFromDocument(financial?.capex, document);
+      const firstRevenue = firstRevenueYear(document);
+      // Capital-stack lines carry no commitment status yet, so progress stays unknown rather than zero.
+      const progress = fundingProgress(financial?.capex, (stackRes.data ?? []).map((item) => ({ amount: item.amount, committed: null })));
       const next: Partial<ProjectDetail> = {
         ...clean({
           capex: money(financial?.capex),
           equityRequired: money(transactionRes.data?.equity_sought),
           minTicket: money(transactionRes.data?.min_ticket),
-          fundingRemaining: money(financial?.funding_remaining),
+          paybackPeriod: payback.kind === "value" ? `${payback.value.years.toFixed(1)} years` : undefined,
+          fundingRemaining: progress.kind === "value" ? money(progress.value.remaining) : undefined,
           concessionTerm: financial?.concession_term_years ? `${financial.concession_term_years} years` : undefined,
-          firstRevenue: financial?.first_revenue_year ? String(financial.first_revenue_year) : undefined,
-          fundingProgress:
-            financial?.funding_progress_pct !== null && financial?.funding_progress_pct !== undefined
-              ? Number(financial.funding_progress_pct)
-              : undefined,
+          firstRevenue: firstRevenue.kind === "value" ? `${firstRevenue.value.year} (${firstRevenue.value.source})` : undefined,
+          fundingProgress: progress.kind === "value" ? Math.round(progress.value.pct) : undefined,
         }),
       };
 
@@ -154,7 +160,6 @@ export function useProjectRecord(projectId: string | undefined) {
 
       const risks = (risksRes.data ?? []).map((row) => ({
         title: row.category,
-        severity: severityLabel(row.severity),
         description: [row.description, row.mitigation].filter(Boolean).join(" ") || "",
       }));
       if (risks.length) next.risks = risks;
@@ -174,11 +179,8 @@ export function useProjectRecord(projectId: string | undefined) {
         if (sustainability.renewable_share_pct != null) next.sustainabilityMetrics = [{ label: "Renewable / waste-heat share", value: `${sustainability.renewable_share_pct}%`, context: "Developer-stated" }];
         if (sustainability.co2_tonnes_per_year) {
           next.co2Reduction = `${Number(sustainability.co2_tonnes_per_year).toLocaleString()} tonnes/yr`;
-          next.co2Detail = {
-            tonnes: Number(sustainability.co2_tonnes_per_year),
-            equivalentCars: "",
-            lifetimeReduction: "",
-          };
+          // No equivalent-cars conversion and no lifetime reduction: no operating life is recorded.
+          next.co2Detail = { tonnes: Number(sustainability.co2_tonnes_per_year) };
         }
         next.euTaxonomy = { objective: "District heating and cooling distribution", description: "EU Taxonomy activity 4.15" };
       }

@@ -34,7 +34,7 @@ const steps = [
   ],
   [
     "Express interest",
-    "Send a short request and a signed confidentiality agreement. The developer decides. They can also decline, and nothing is revealed if they do. A decision is typically sought within 3 working days.",
+    "Send a short request and a signed confidentiality agreement. The developer decides. They can also decline, and nothing is revealed if they do.",
   ],
   [
     "Diligence",
@@ -111,9 +111,8 @@ const ForInvestors = () => (
           </h2>
           <p className="mt-4 leading-7 text-muted-foreground">
             No two developers present a project the same way. We do. Each opportunity arrives in one
-            structure: technical, financial, sustainability, structure and market, with the
-            regulatory regime typed into one of six archetypes so you can compare a Danish
-            non-profit network against a French concession at a glance.
+            structure: technical, financial, sustainability, structure and market, so you can
+            compare projects across countries on the same terms.
           </p>
         </div>
 
@@ -128,15 +127,15 @@ const ForInvestors = () => (
               Headline tool
             </span>
             <h2 className="mt-4 font-display text-3xl font-semibold md:text-4xl">
-              Build a diversified position with the bundle builder
+              See a set of listings together in the portfolio view
             </h2>
             <p className="mt-4 leading-7 text-inverse-subtle">
-              Select multiple projects and see your aggregate capacity, capital, and base-case IRR from disclosed developer-stated inputs. Locked listings retain published bands until the developer grants access.
+              Select multiple projects and see their combined capacity and capital from developer-stated inputs you are entitled to. Listings keep their published bands until your investment mandate is complete.
             </p>
             <ul className="mt-5 space-y-3 text-sm text-primary-foreground/80">
               {[
-                "Developer-stated capacity, capital, and blended IRR (base case) for granted listings",
-                "Diversification by country, regime, technology, and stage",
+                "Developer-stated capacity and capital, with the entry floor and equity sought",
+                "Spread by country, technology, and stage",
                 "Compare listings against your own criteria",
               ].map((item) => (
                 <li key={item} className="flex gap-3">

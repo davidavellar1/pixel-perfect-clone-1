@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { matchedInstrumentLabels } from "@/lib/instruments";
 import { Link, useSearchParams } from "@/lib/router-compat";
 import {
   Building2, Check, CheckCheck, Clock, ExternalLink, Globe2, MessageSquare, ShieldAlert,
@@ -18,7 +19,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { FEE_SENTENCE } from "@/lib/fee";
 import {
   ACCESS_STATE_LABEL, CAPITAL_SOURCES, CONSTRUCTION_RISK, DECISION_PROCESSES, DECLINE_REASONS,
-  ENTITY_TYPES, INSTRUMENTS_SOUGHT, addDays, addMonths, computeFit, declineReasonLabel, effectiveState,
+  ENTITY_TYPES, addDays, addMonths, computeFit, declineReasonLabel, effectiveState,
   formatDate, optionLabel, slaStatus, ticketBandLabel, FEE_TAIL_MONTHS,
   REOPEN_BLOCK_DAYS, type AccessAnswersRow, type AccessCriteriaRow, type AccessRequestRow,
   type AccessState, type DeclineReason,
@@ -355,7 +356,7 @@ const AccessRequests = () => {
                 </h3>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <Info label="Ticket band" value={ticketBandLabel(answer?.ticket_band ?? null)} />
-                  <Info label="Instrument" value={answer?.matched_instruments?.length?answer.matched_instruments.join(", "):optionLabel(INSTRUMENTS_SOUGHT, answer?.instrument_sought ?? null)} />
+                  <Info label="Instruments" value={matchedInstrumentLabels(answer?.matched_instruments)} />
                   <Info label="Construction-risk appetite" value={optionLabel(CONSTRUCTION_RISK, answer?.construction_risk_appetite ?? null)} />
                   <Info label="Capital source" value={optionLabel(CAPITAL_SOURCES, answer?.capital_source ?? null)} />
                   <Info label="Decision process" value={optionLabel(DECISION_PROCESSES, answer?.decision_process ?? null)} />

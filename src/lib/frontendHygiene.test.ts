@@ -6,7 +6,7 @@ import type { AccessCriteriaRow } from "./access";
 
 const valid = {
   entityName: "Example Fund", entityType: "infra_fund", jurisdiction: "Ireland", regulatedStatus: "", website: "",
-  signatoryName: "Example Signatory", signatoryRole: "Director", ticketBand: "1m_3m", instrumentSought: "equity", matchedInstruments:["equity"],
+  signatoryName: "Example Signatory", signatoryRole: "Director", ticketBand: "1m_3m", matchedInstruments:["equity"],
   constructionRisk: "", capitalSource: "fund_with_dry_powder", decisionProcess: "ic_approval", earliestDecisionDate: "",
   interestDrivers: [], diligenceFocus: "", wouldLeadClub: false, conflictsDeclared: "none", conflictsDetail: "",
   advisersReceivingInfo: "", signedName: "Example Signatory", authority: true, feeAcknowledged: true, electronicConsent: true,

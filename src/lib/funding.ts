@@ -242,25 +242,25 @@ export const fitCriteria = (p: FundingProgramme, project: OwnProject): Criterion
     show: (v: string) => string,
   ): CriterionResult =>
     !allowed.length
-      ? { label, state: "open", detail: "Not restricted" }
+      ? { label, state: "open", detail: "The programme publishes no restriction." }
       : allowed.includes(value)
-        ? { label, state: "meets", detail: show(value) }
+        ? { label, state: "meets", detail: `${show(value)} is in the published list.` }
         : {
             label,
             state: "fails",
-            detail: `${show(value)} - accepted: ${allowed.map(show).join(", ")}`,
+            detail: `${show(value)} is not in the published list (${allowed.map(show).join(", ")}).`,
           };
   return [
     p.country_codes.includes(project.country_code)
       ? {
           label: "Country",
           state: "meets",
-          detail: COUNTRY_NAMES[project.country_code] || project.country_code,
+          detail: `${COUNTRY_NAMES[project.country_code] || project.country_code} is covered.`,
         }
       : {
           label: "Country",
           state: "fails",
-          detail: `${COUNTRY_NAMES[project.country_code] || project.country_code} is not covered`,
+          detail: `${COUNTRY_NAMES[project.country_code] || project.country_code} is not covered.`,
         },
     check("Stage", p.stages, project.lifecycle_stage, humanize),
     check("Technology", p.technologies, project.technology, humanize),

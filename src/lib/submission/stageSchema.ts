@@ -58,7 +58,7 @@ export const FIELDS: FieldSpec[] = [
  {key:"instruments",label:"Instruments sought",section:"transaction",stages:late,required:true,type:"multi",options:options(INSTRUMENTS)},
  {key:"targetClose",label:"Target financial close quarter",section:"transaction",stages:["development","construction"],required:true},
  {key:"debtStatus",label:"Debt status",section:"financial",stages:["development","construction"],required:true,type:"select",options:options(["Not approached","Sounded","Term sheet held","Credit approved"])},
- {key:"baseIrr",label:"Base equity IRR percent (base case)",section:"financial",stages:late,required:true,type:"number"},
+ {key:"baseIrr",label:"Target equity IRR at underwriting, percent (base case)",section:"financial",stages:late,required:true,type:"number"},
  {key:"cashYield",label:"Target cash yield percent (base case)",section:"financial",stages:late,required:true,type:"number"},
  {key:"returnBasis",label:"Returns basis (base case)",section:"financial",stages:late,required:true,type:"select",options:options(["measured","modelled","estimated"])},
  {key:"debtAmount",label:"Debt amount EUR",section:"financial",stages:["construction"],required:true,type:"number"},

@@ -61,11 +61,11 @@ const TransactionTab = ({ grade, project, asOf }: { grade: InvestorGradeBundle; 
               <p className="mt-1 text-lg font-semibold"><ProjectFieldValue fieldKey="project_transaction.min_ticket" stage={project.stage} askedFields={project.askedFields} value={eur(t?.min_ticket)} /></p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-widest text-primary-foreground/70">Target equity IRR (base case)</p>
+              <p className="text-xs uppercase tracking-widest text-primary-foreground/70">Target equity IRR at underwriting (base case)</p>
               <p className="mt-1 text-lg font-semibold"><ProjectFieldValue fieldKey={baseCase?.equity_irr_pct != null ? "project_case.base.equity_irr_pct" : "project_transaction.target_equity_irr_pct"} stage={project.stage} askedFields={project.askedFields} value={pct(baseCase?.equity_irr_pct ?? t.target_equity_irr_pct)} /></p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-widest text-primary-foreground/70">Equity IRR (downside case)</p>
+              <p className="text-xs uppercase tracking-widest text-primary-foreground/70">Equity IRR at underwriting (downside case)</p>
               <p className="mt-1 text-lg font-semibold"><ProjectFieldValue fieldKey={downCase?.equity_irr_pct != null ? "project_case.downside.equity_irr_pct" : "project_transaction.downside_equity_irr_pct"} stage={project.stage} askedFields={project.askedFields} value={pct(downCase?.equity_irr_pct ?? t.downside_equity_irr_pct)} /></p>
             </div>
           </div>

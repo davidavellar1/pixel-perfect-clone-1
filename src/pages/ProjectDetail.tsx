@@ -59,18 +59,21 @@ const GATED_TABS: string[] = [
   "Q&A",
 ];
 
+/**
+ * Gates (R4): the six information tabs open on qualification (a completed investment mandate)
+ * and show de-identified information; identity, named counterparties and the data room open
+ * only when the developer accepts. Q&A opens on acceptance.
+ */
 const LOCK_COPY: Record<string, string> = {
-  Transaction: "The offer, capitalisation, governance terms and the process timetable reveal once the developer accepts your request.",
-  Technical: "Technical detail, including the construction package and the named heat-source host, reveals once the developer accepts your request.",
-  Financial: "Margin, the capital stack, named counterparties, debt terms and the case set reveal once the developer accepts your request.",
-  Sustainability: "Emissions, the counterfactual and EU framework status reveal once the developer accepts your request.",
-  "Structure": "Ownership, the regulatory regime and local-authority backing reveal once the developer accepts your request.",
-  Documents: "Open documents reveal once the developer accepts your request. The data room is opened only when the developer accepts in full.",
-  "Q&A": "Questions and the developer's answers reveal once the developer accepts your request. You can then ask your own.",
+  Transaction: "The offer, capitalisation, governance terms and the process timetable open, de-identified, when your investment mandate is complete. Identity and named counterparties open when the developer accepts your request.",
+  Technical: "Technical detail, including the construction package, opens, de-identified, when your investment mandate is complete. The named heat-source host opens when the developer accepts your request.",
+  Financial: "Margin, the capital stack, debt terms and the case set open, de-identified, when your investment mandate is complete. Named counterparties open when the developer accepts your request.",
+  Sustainability: "Emissions, the counterfactual and EU framework status open, de-identified, when your investment mandate is complete. Identity opens when the developer accepts your request.",
+  "Structure": "Ownership, the regulatory regime and local-authority backing open, de-identified, when your investment mandate is complete. Named parties open when the developer accepts your request.",
+  Documents: "The document index opens, de-identified, when your investment mandate is complete. The data room opens only when the developer approves it separately, after accepting your request.",
+  "Q&A": "Questions and the developer's answers open once the developer accepts your request. You can then ask your own.",
 };
 
-const HELPER_TEXT =
-  "Sends a short request and a confidentiality agreement to the developer. Typically answered in 3 working days. Nothing is revealed until they accept.";
 
 const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) => {
   const { ref } = useParams<{ ref: string }>();
@@ -299,7 +302,6 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
         signatory_name: draft.signatoryName,
         signatory_role: draft.signatoryRole || null,
         ticket_band: draft.ticketBand || "under_1m",
-        instrument_sought: draft.instrumentSought || "equity",
         matched_instruments:draft.matchedInstruments,
         construction_risk_appetite: draft.constructionRisk || null,
         capital_source: draft.capitalSource || null,

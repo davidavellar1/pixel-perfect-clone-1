@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { matchedInstrumentLabels } from "@/lib/instruments";
 import { Link, useSearchParams } from "@/lib/router-compat";
 import {
   Building2, Check, CheckCheck, Clock, ExternalLink, FileText, Lock, ShieldAlert, ShieldCheck, X,
@@ -16,7 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { FEE_SENTENCE } from "@/lib/fee";
 import {
-  CAPITAL_SOURCES, DECISION_PROCESSES, ENTITY_TYPES, INSTRUMENTS_SOUGHT, effectiveState, formatDate,
+  CAPITAL_SOURCES, DECISION_PROCESSES, ENTITY_TYPES, effectiveState, formatDate,
   optionLabel, ticketBandLabel, type AccessAnswersRow, type AccessRequestRow,
 } from "@/lib/access";
 
@@ -313,7 +314,7 @@ const DataRoomRequests = () => {
                   <Info label="Jurisdiction" value={answer?.jurisdiction || null} />
                   <Info label="Signatory" value={answer?.signatory_name || null} />
                   <Info label="Ticket band" value={ticketBandLabel(answer?.ticket_band ?? null)} />
-                  <Info label="Instrument" value={optionLabel(INSTRUMENTS_SOUGHT, answer?.instrument_sought ?? null)} />
+                  <Info label="Instruments" value={matchedInstrumentLabels(answer?.matched_instruments)} />
                   <Info label="Capital source" value={optionLabel(CAPITAL_SOURCES, answer?.capital_source ?? null)} />
                   <Info label="Decision process" value={optionLabel(DECISION_PROCESSES, answer?.decision_process ?? null)} />
                   <Info label="Advisers receiving information" value={answer?.advisers_receiving_info} />

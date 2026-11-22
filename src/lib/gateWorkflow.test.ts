@@ -6,7 +6,7 @@ import type { Agreement } from "./gateWorkflow";
 import type { InterestFormDraft } from "@/components/project/ExpressInterestDialog";
 
 const draft: InterestFormDraft = { entityName: "Test Fund", entityType: "infra_fund", jurisdiction: "Ireland", regulatedStatus: "", website: "",
-  signatoryName: "Test Signatory", signatoryRole: "Director", ticketBand: "1m_3m", instrumentSought: "equity", matchedInstruments:["equity"], constructionRisk: "",
+  signatoryName: "Test Signatory", signatoryRole: "Director", ticketBand: "1m_3m", matchedInstruments:["equity"], constructionRisk: "",
   capitalSource: "fund_with_dry_powder", decisionProcess: "ic_approval", earliestDecisionDate: "", interestDrivers: [], diligenceFocus: "",
   wouldLeadClub: false, conflictsDeclared: "none", conflictsDetail: "", advisersReceivingInfo: "", signedName: "Test Signatory",
   authority: true, feeAcknowledged: true, electronicConsent: true };
