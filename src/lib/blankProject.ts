@@ -49,7 +49,6 @@ export interface ProjectDetail {
   risks?: { title: string; severity: "Low" | "Medium" | "High"; description: string }[];
   co2Detail?: { tonnes: number; equivalentCars: string; lifetimeReduction: string };
   euTaxonomy?: { objective: string; description: string };
-  sdgs?: { number: number; title: string; description: string; color: string }[];
   energyMix?: { source: string; percentage: number }[];
   operatingParameters?: { parameter: string; value: string; benchmark: string }[];
   sustainabilityMetrics?: { label: string; value: string; context: string }[];

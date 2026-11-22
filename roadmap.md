@@ -1,5 +1,13 @@
 # Phases 0 to 11: current checkpoint
 
+## Active request: remove unused SDG data
+- [x] Confirm the live table contains 21 rows and two policies
+- [x] Check Sustainability and the project sidebar: neither renders an SDG section; no app fetch or write path remains
+- [x] Remove the unused SDG property from the project detail type
+- [ ] Drop sdg_alignment and its policies, then regenerate the database types: blocked by Execute backward incompatible database migrations set to Never allow
+
+The explicit DROP TABLE request was rejected before application. The table, its rows and policies remain live, so the direct-read leak is not resolved. Change Settings > Agent permissions > Execute backward incompatible database migrations to Ask each time or Always allow before retrying. Generated database types remain accurate to the existing table and cannot be removed manually.
+
 ## Active request: MCP disclosure parity
 - [x] Resolve all five tools' callers against verified user records
 - [x] Use shared qualification and acceptance checks with teaser-first projections
@@ -12,7 +20,7 @@ All five handlers passed caller-state tests, including anonymous and unresolvabl
 - [x] Read project disclosure consumers across screens, jobs, exports and database functions
 - [x] Fix sibling app-code disclosure violations without changing settled records or permissions
 - [x] Run focused regressions and report read-only versus executed verification
-- [ ] Close unused SDG direct-read policy gap: awaiting permission decision
+- [ ] Close unused SDG direct-read policy gap by deleting the table: user requested deletion; blocked by backward-incompatible migration permission
 - [ ] Protect historical news associations through the direct API: requires permission/API changes or authorized data remediation
 
 Sweep results: `.lovable/reviews/disclosure-flow-sweep.md`. 77 focused tests and hygiene passed; signed-in empty Investing dashboard requested no raw project rows and had no runtime errors. Populated dashboard, qualified non-owner PDF download and real three-state OAuth calls remain unverified. No historical records or permissions changed.
