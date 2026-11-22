@@ -1,5 +1,13 @@
 # Phases 0 to 11: current checkpoint
 
+## Active priority: migration replay reconciliation
+- [x] Confirm all three unlisted files have live objects and exact production checksum matches
+- [x] Confirm all 40 registered migration checksums match production and identify the three duplicate prefixes
+- [ ] Reconcile journal and unique numbering: blocked because main-history inspection reports invalid bookkeeping and offers no supported repair plan
+- [ ] Rebuild an empty isolated database and obtain an empty table/policy diff: blocked by history repair and unavailable supported Cloud scratch target
+
+Further phase work is paused. Detailed audit: `.lovable/reviews/migration-rebuild-audit.md`. No migration files, journal entries or production objects were changed during this audit.
+
 ## Active request: Phase 5 amendment A
 - [x] Enforce qualification on portfolio records, refresh it after profile/mandate saves and present qualified exact figures
 - [x] Use the database projection for submission preview and independent accepted identity reads; rollback checks confirm hidden identity and optional figure banding
