@@ -1,5 +1,8 @@
 import type { Tables } from "@/integrations/supabase/types";
+import { parseDocument } from "@/lib/submission/serializer";
+import type { SubmissionDocument } from "@/lib/submission/stageSchema";
 export interface ProjectDetail {
+  submission?: SubmissionDocument | null;
   askedFields?: string[] | null;
   slug: string;
   badge: string;
@@ -64,6 +67,7 @@ export function blankProjectDetail(row: Tables<"project">): ProjectDetail {
   const years = [row.timeline_start?.slice(0, 4), row.timeline_end?.slice(0, 4)].filter(Boolean);
 
   return {
+    submission: parseDocument(row.submission_published),
     askedFields: row.asked_fields,
     slug: row.slug,
     title: row.title,

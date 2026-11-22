@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "@/lib/router-compat";
-import { AlertCircle, Clock, FileText, Gauge, ListChecks, Lock, Mail, Plus, RefreshCw, Users } from "lucide-react";
+import { AlertCircle, Clock, FileText, Gauge, ListChecks, Lock, Mail, Plus, RefreshCw, Users, Pencil, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +14,8 @@ import DealsSwitch from "@/components/platform/DealsSwitch";
 import ManageDocumentsDialog from "@/components/project/ManageDocumentsDialog";
 import ManageAdvisorsDialog from "@/components/project/ManageAdvisorsDialog";
 import ManageTechnicalDialog from "@/components/project/ManageTechnicalDialog";
+import { nextStage, STAGE_LABELS, type Stage } from "@/lib/submission/stageSchema";
+import { parseDocument } from "@/lib/submission/serializer";
 
 type Interest = Tables<"project_interest">;
 type Request = Tables<"access_request">;
@@ -175,18 +177,20 @@ const DeveloperDashboard = () => {
                   const projectInterests = interests.filter((interest) => interest.project_id === project.id).length;
                   const projectPending = pending.filter((request) => request.project_id === project.id).length;
                   const status = VISIBILITY[project.visibility];
+                  const draft = project.visibility === "draft" ? parseDocument(project.submission_draft) : null;
+                  const followingStage = nextStage(project.lifecycle_stage as Stage);
                   return (
                     <tr key={project.id} className="border-t border-border">
                       <td className="px-3.5 py-3.5"><span className={cn("inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span></td>
-                      <td className="px-3.5 py-3.5 font-semibold text-foreground">{project.title}</td>
-                      <td className="px-3.5 py-3.5 text-muted-foreground">{TECHNOLOGIES[project.technology] || project.technology}</td>
+                      <td className="px-3.5 py-3.5 font-semibold text-foreground">{draft ? draft.answers["title"] || "Untitled draft" : project.title}</td>
+                      <td className="px-3.5 py-3.5 text-muted-foreground">{draft ? draft.answers["technology"] ? draft.answers["technology"].replaceAll("_", " ") : null : TECHNOLOGIES[project.technology] || project.technology}</td>
                       <td className="px-3.5 py-3.5 text-muted-foreground">{project.capacity_mw != null ? `${project.capacity_mw} MW` : "-"}</td>
-                      <td className="px-3.5 py-3.5 text-muted-foreground">{[project.city, project.country_code].filter(Boolean).join(", ") || "-"}</td>
+                      <td className="px-3.5 py-3.5 text-muted-foreground">{draft ? draft.answers["country"] : project.country_code}</td>
                       <td className="px-3.5 py-3.5">{projectInterests}</td>
                       <td className="px-3.5 py-3.5">{projectPending ? <span className="inline-block whitespace-nowrap rounded-full bg-warning-soft px-2.5 py-0.5 text-[11px] font-semibold text-warning-foreground">{projectPending} pending</span> : <span className="text-muted-foreground">-</span>}</td>
                       <td className="px-3.5 py-3.5">
                         <div className="flex items-center justify-end gap-1">
-                          <Button size="sm" variant="outline" asChild><Link to={`/app/projects/${project.slug}`}>Open</Link></Button>
+                          {project.visibility === "draft" ? <Button size="sm" variant="outline" asChild><Link to={`/app/submit-project?project=${project.id}`}>Resume draft</Link></Button> : <><Button size="sm" variant="outline" asChild><Link to={`/app/projects/${project.slug}`}>Open</Link></Button><Button size="icon" variant="ghost" asChild title="Edit listing"><Link to={`/app/submit-project?project=${project.id}`} aria-label={`Edit ${project.title}`}><Pencil className="h-4 w-4" /></Link></Button>{followingStage && <Button size="icon" variant="ghost" asChild title={`Advance to ${STAGE_LABELS[followingStage]}`}><Link to={`/app/submit-project?project=${project.id}&promote=${followingStage}`} aria-label={`Advance ${project.title} to ${STAGE_LABELS[followingStage]}`}><ArrowRight className="h-4 w-4" /></Link></Button>}</>}
                           <ManageDocumentsDialog projectId={project.id} projectTitle={project.title} trigger={<Button size="icon" variant="ghost" className="h-8 w-8" aria-label={`Documents for ${project.title}`} title="Documents"><FileText className="h-4 w-4" /></Button>} />
                           <ManageAdvisorsDialog projectId={project.id} projectTitle={project.title} trigger={<Button size="icon" variant="ghost" className="h-8 w-8" aria-label={`Advisors for ${project.title}`} title="Advisors"><Users className="h-4 w-4" /></Button>} />
                           <ManageTechnicalDialog projectId={project.id} projectTitle={project.title} trigger={<Button size="icon" variant="ghost" className="h-8 w-8" aria-label={`Technical details for ${project.title}`} title="Technical details"><Gauge className="h-4 w-4" /></Button>} />

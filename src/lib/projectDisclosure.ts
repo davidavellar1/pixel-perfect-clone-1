@@ -36,6 +36,7 @@ export const teaserProjectDetail = (row: ProjectTeaser) => {
       summary: null, description: null, timeline_start: null, timeline_end: null,
       financial_as_of: null, technical_as_of: null, regulatory_as_of: null,
       asked_fields: null, form_version: null, public_cofinancing_status: null,
+      submission_draft: null, submission_published: null, submission_revision: 0,
       created_at: row.created_at ?? "", updated_at: row.created_at ?? "",
     }),
     title: `${row.teaser_title ?? readable(row.technology)}, ${country}`,

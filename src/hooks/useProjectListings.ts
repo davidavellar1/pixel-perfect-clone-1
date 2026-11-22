@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { effectiveState, type ViewerAccess } from "@/lib/access";
 import { countryName, readable } from "@/lib/projectDisclosure";
+import { parseDocument } from "@/lib/submission/serializer";
+import { fundingAssumptionLines } from "@/lib/submission/disclosures";
 
 export interface ProjectListing {
   id: string;
@@ -20,6 +22,7 @@ export interface ProjectListing {
   capacityMw: number;
   capex: number | null;
   targetIrr: number | null;
+  baseCaseFundingAssumptions?: string[];
   equitySought: number | null;
   minTicket: number | null;
   instrument: string | null;
@@ -61,7 +64,7 @@ export const useProjectListings = () => {
     const watched = new Set((watchResult.data || []).map((row) => row.project_id));
     const grantedIds = ids.filter((id) => { const request = requestMap.get(id); return request && ["granted", "granted_full"].includes(effectiveState(request)); });
     const [exactProjects, financials, transactions, cases, ladders] = grantedIds.length ? await Promise.all([
-      supabase.from("project").select("id,title,capacity_mw,financial_as_of,public_cofinancing_status").in("id", grantedIds),
+      supabase.from("project").select("id,title,capacity_mw,financial_as_of,public_cofinancing_status,submission_published").in("id", grantedIds),
       supabase.from("financial_summary").select("project_id,capex").in("project_id", grantedIds),
       supabase.from("project_transaction").select("project_id,equity_sought,min_ticket").in("project_id", grantedIds),
       supabase.from("project_case").select("project_id,equity_irr_pct").eq("name", "base").in("project_id", grantedIds),
@@ -85,6 +88,7 @@ export const useProjectListings = () => {
         category: readable(row.project_type), technology: readable(row.technology),
         stage: readable(row.lifecycle_stage), generation: "", publicSupport: exact?.public_cofinancing_status === "Committed" || exact?.public_cofinancing_status === "In progress",
         capacityMw: exact?.capacity_mw ?? 0, capex: financial?.capex ?? null, targetIrr: caseMap.get(id)?.equity_irr_pct ?? null, equitySought: transaction?.equity_sought ?? null, minTicket: transaction?.min_ticket ?? null,
+        baseCaseFundingAssumptions: fundingAssumptionLines(parseDocument(exact?.submission_published ?? null)),
         capacityBand: row.capacity_band, capexBand: row.capex_band,
         minTicketBand: row.min_ticket_band, minTicketSort: row.min_ticket_sort,
         transactionTermsPublished: row.transaction_terms_published ?? false,

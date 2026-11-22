@@ -1813,6 +1813,9 @@ export type Database = {
           public_cofinancing_status: string | null
           regulatory_as_of: string | null
           slug: string
+          submission_draft: Json | null
+          submission_published: Json | null
+          submission_revision: number
           summary: string | null
           technical_as_of: string | null
           technology: Database["public"]["Enums"]["technology"]
@@ -1846,6 +1849,9 @@ export type Database = {
           public_cofinancing_status?: string | null
           regulatory_as_of?: string | null
           slug: string
+          submission_draft?: Json | null
+          submission_published?: Json | null
+          submission_revision?: number
           summary?: string | null
           technical_as_of?: string | null
           technology: Database["public"]["Enums"]["technology"]
@@ -1879,6 +1885,9 @@ export type Database = {
           public_cofinancing_status?: string | null
           regulatory_as_of?: string | null
           slug?: string
+          submission_draft?: Json | null
+          submission_published?: Json | null
+          submission_revision?: number
           summary?: string | null
           technical_as_of?: string | null
           technology?: Database["public"]["Enums"]["technology"]
@@ -2088,6 +2097,73 @@ export type Database = {
           },
         ]
       }
+      project_stage_event: {
+        Row: {
+          actor_user_id: string
+          from_stage: Database["public"]["Enums"]["lifecycle_stage"]
+          id: string
+          project_id: string
+          recorded_at: string
+          submission_version: string
+          to_stage: Database["public"]["Enums"]["lifecycle_stage"]
+        }
+        Insert: {
+          actor_user_id: string
+          from_stage: Database["public"]["Enums"]["lifecycle_stage"]
+          id?: string
+          project_id: string
+          recorded_at?: string
+          submission_version: string
+          to_stage: Database["public"]["Enums"]["lifecycle_stage"]
+        }
+        Update: {
+          actor_user_id?: string
+          from_stage?: Database["public"]["Enums"]["lifecycle_stage"]
+          id?: string
+          project_id?: string
+          recorded_at?: string
+          submission_version?: string
+          to_stage?: Database["public"]["Enums"]["lifecycle_stage"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_stage_event_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_submission_work: {
+        Row: {
+          document: Json
+          owner_user_id: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          document: Json
+          owner_user_id: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          document?: Json
+          owner_user_id?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_submission_work_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_transaction: {
         Row: {
           as_of: string | null
@@ -2193,6 +2269,7 @@ export type Database = {
         Row: {
           administering_body: string | null
           amount: number | null
+          base_case_assumes_award: boolean | null
           clawback_treatment: string | null
           created_at: string
           expected_decision_date: string | null
@@ -2210,6 +2287,7 @@ export type Database = {
         Insert: {
           administering_body?: string | null
           amount?: number | null
+          base_case_assumes_award?: boolean | null
           clawback_treatment?: string | null
           created_at?: string
           expected_decision_date?: string | null
@@ -2227,6 +2305,7 @@ export type Database = {
         Update: {
           administering_body?: string | null
           amount?: number | null
+          base_case_assumes_award?: boolean | null
           clawback_treatment?: string | null
           created_at?: string
           expected_decision_date?: string | null
@@ -2722,6 +2801,16 @@ export type Database = {
           p_source?: string
         }
         Returns: number
+      }
+      save_stage_listing: {
+        Args: {
+          _document: Json
+          _payload: Json
+          _project_id?: string
+          _publish?: boolean
+          _revision?: number
+        }
+        Returns: Json
       }
     }
     Enums: {

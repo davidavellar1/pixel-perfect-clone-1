@@ -5,6 +5,7 @@ import ProjectHero from "@/components/project/ProjectHero";
 import ProjectSidebar from "@/components/project/ProjectSidebar";
 import ProjectNewsCard from "@/components/news/ProjectNewsCard";
 import ProjectTabContent from "@/components/project/ProjectTabContent";
+import { StageEvidenceSection } from "@/components/project/StageEvidenceSection";
 import LockedTabOverlay from "@/components/project/LockedTabOverlay";
 import type { DataRoomStatus } from "@/components/project/ProjectTabContent";
 import AccessStateBar from "@/components/project/AccessStateBar";
@@ -498,6 +499,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
                 isOwner={isOwner} userId={user?.id ?? null}
                 grade={grade} asOf={asOf} breakeven={breakeven}
               />
+              {granted && <StageEvidenceSection document={project.submission ?? null} tab={activeTab} />}
             </LockedTabOverlay>
           </div>
           <div className="lg:col-span-1">

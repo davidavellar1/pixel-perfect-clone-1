@@ -2,6 +2,7 @@ import { Handshake } from "lucide-react";
 import { FEE_SENTENCE } from "@/lib/fee";
 import type { ProjectDetail } from "@/lib/blankProject";
 import { ProjectFieldValue } from "./ProjectFieldValue";
+import { fundingAssumptionLines } from "@/lib/submission/disclosures";
 import {
   DEVELOPER_STATED,
   INSTRUMENT_LABEL,
@@ -72,6 +73,7 @@ const TransactionTab = ({ grade, project, asOf }: { grade: InvestorGradeBundle; 
             All returns are developer-stated and carry their case label. The platform does not restate or verify them.
           </p>
         </div>
+        {fundingAssumptionLines(project.submission ?? null).map(line => <p key={line} className="mt-3 text-sm text-muted-foreground">{line}</p>)}
 
         {t.club_max_participants != null && <div className="mt-4 rounded-xl border border-border bg-muted/50 p-5 text-sm text-muted-foreground"><p className="mb-2 font-semibold text-foreground">Sizing</p><p>Developer-stated club size: up to {t.club_max_participants} participants.</p></div>}
 

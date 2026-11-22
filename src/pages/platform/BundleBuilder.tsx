@@ -131,6 +131,7 @@ type Row = {
   capexBand: Band | null;
   weight: number;
   irr: number | null;
+  baseCaseFundingAssumptions: string[];
   contr: number;
   signed: number;
   completeness: number;
@@ -161,6 +162,7 @@ const toRow = (p: ProjectListing): Row => {
     capexBand: cBand,
     weight: granted ? p.capex || 1 : cBand ? mid(cBand) : 1,
     irr: null,
+    baseCaseFundingAssumptions: p.baseCaseFundingAssumptions ?? [],
     contr: p.contractedPct ?? p.offtakeLoadPct ?? 0,
     signed: p.signedPct ?? 0,
     completeness,
@@ -505,6 +507,7 @@ const BundleBuilder = () => {
                       {p.granted ? (p.capex != null ? money(p.capex) : "-") : p.capexBand?.label ?? "-"}
                     </span>
                     {p.irr != null && <span className="mt-0.5 block font-display text-xs font-semibold text-accent">{p.irr.toFixed(1)}% IRR (base case), developer-stated{p.financialAsOf ? `, as of ${fmtDate(p.financialAsOf)}` : ", as-of date not provided"}</span>}
+                    {p.irr != null && p.baseCaseFundingAssumptions.map(line => <span key={line} className="mt-1 block text-xs text-muted-foreground">{line}</span>)}
                     {mode === "strategy" && (
                       <>
                         <span className="mt-2 ml-auto block h-[5px] w-[72px] overflow-hidden rounded bg-muted sm:w-[120px]">

@@ -7,13 +7,13 @@ import { WizardSelect, WizardOption } from "./wizardFields";
 import { AskedQuestions } from "./QuestionEvidence";
 import { fundingQuestionKeys } from "@/lib/submissionFields";
 export const FUNDING_STATUSES = ["intending", "applied", "decision_pending", "awarded", "declined"] as const;
-export type FundingLine = { programme_id: string; programme: string; administering_body: string; instrument_type: string; amount: string; funding_status: string; expected_decision_date: string; clawback_treatment: string };
+export type FundingLine = { programme_id: string; programme: string; administering_body: string; instrument_type: string; amount: string; funding_status: string; expected_decision_date: string; clawback_treatment: string; irrAssumesAward?: string };
 const blank = (): FundingLine => ({ programme_id: "", programme: "", administering_body: "", instrument_type: "", amount: "", funding_status: "intending", expected_decision_date: "", clawback_treatment: "" });
 const instruments = ["blended", "equity", "grant", "guarantee", "loan", "risk_cover", "tax_incentive", "technical_assistance"];
-export function PublicFundingEditor({ rows, onChange }: { rows: FundingLine[]; onChange: (rows: FundingLine[]) => void }) {
-  const [programmes, setProgrammes] = useState<{ id: string; name: string; administering_body: string; instrument_types: string[] }[]>([]);
+export function PublicFundingEditor({ rows, onChange, countryCode, showIrrAssumptions = false }: { rows: FundingLine[]; onChange: (rows: FundingLine[]) => void; countryCode?: string; showIrrAssumptions?: boolean }) {
+  const [programmes, setProgrammes] = useState<{ id: string; name: string; administering_body: string; instrument_types: string[]; country_codes: string[] }[]>([]);
   const [error, setError] = useState(false);
-  useEffect(() => { void supabase.from("funding_programme").select("id,name,administering_body,instrument_types").order("name").then(({ data, error }) => { setProgrammes(data ?? []); setError(Boolean(error)); }); }, []);
+  useEffect(() => { let active = true; void supabase.from("funding_programme").select("id,name,administering_body,instrument_types,country_codes").order("name").then(({ data, error }) => { if (active) { setProgrammes((data ?? []).filter(p => !countryCode || !p.country_codes.length || p.country_codes.includes(countryCode))); setError(Boolean(error)); } }); return () => { active = false; }; }, [countryCode]);
   const update = (index: number, values: Partial<FundingLine>) => onChange(rows.map((row, i) => i === index ? { ...row, ...values } : row));
   return <div className="space-y-4">
     {error && <p role="alert" className="text-sm text-destructive">Funding catalogue unavailable. Custom programmes remain available.</p>}
@@ -29,6 +29,7 @@ export function PublicFundingEditor({ rows, onChange }: { rows: FundingLine[]; o
         <Label>Status<WizardSelect value={row.funding_status} onChange={e => update(i, { funding_status: e.target.value })}>{FUNDING_STATUSES.map(value => <WizardOption key={value} value={value}>{value.replaceAll("_", " ")}</WizardOption>)}</WizardSelect></Label>
         {["applied", "decision_pending"].includes(row.funding_status) && <Label>Expected decision date<Input type="date" value={row.expected_decision_date} onChange={e => update(i, { expected_decision_date: e.target.value })} /></Label>}
         {row.funding_status === "awarded" && row.instrument_type === "grant" && <Label>Grant treatment<WizardSelect value={row.clawback_treatment} onChange={e => update(i, { clawback_treatment: e.target.value })}><WizardOption>Non-repayable</WizardOption><WizardOption>Clawback-conditional</WizardOption><WizardOption>Milestone-conditional</WizardOption></WizardSelect></Label>}
+        {showIrrAssumptions && ["intending", "applied", "decision_pending"].includes(row.funding_status) && <Label>Does your base-case equity IRR assume this public funding is awarded?<WizardSelect value={row.irrAssumesAward ?? ""} onChange={e => update(i, { irrAssumesAward: e.target.value })}><WizardOption value="yes">Yes</WizardOption><WizardOption value="no">No</WizardOption></WizardSelect></Label>}
         <Button variant="outline" onClick={() => onChange(rows.filter((_, index) => index !== i))}>Remove</Button>
       </fieldset>;
     })}

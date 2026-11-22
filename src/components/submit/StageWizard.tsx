@@ -1,0 +1,113 @@
+import { useEffect, useRef, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Save, ArrowRight, Check, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { WizardSelect, WizardOption } from "./wizardFields";
+import { PublicFundingEditor, type FundingLine } from "./PublicFundingEditor";
+import { StageRows } from "./StageRowEditors";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate, useSearchParams } from "@/lib/router-compat";
+import { cn } from "@/lib/utils";
+import { FEE_SENTENCE } from "@/lib/fee";
+import { STAGES, STAGE_LABELS, FIELDS, emptyDocument, documentSchema, fieldsForDocument, lockedBasis, nextStage, promotionFields, actualYears, type Stage, type SubmissionDocument, type FieldSpec } from "@/lib/submission/stageSchema";
+import { normalizeDocument, serializeDocument, parseDocument, legacyDocument } from "@/lib/submission/serializer";
+import type { Json, Tables } from "@/integrations/supabase/types";
+const SECTIONS=[['basics','Project basics'],['risks','Risks and assumptions'],['technical','Technical'],['financial','Financial'],['funding','Public funding'],['construction','Construction'],['actuals','Operating actuals'],['sustainability','Sustainability'],['transaction','Transaction'],['access','Access criteria'],['review','Review and save']] as const;
+const fundingLine=(r:Record<string,string>):FundingLine=>({programme_id:r['programme_id']??'',programme:r['programme']??'',administering_body:r['administering_body']??'',instrument_type:r['instrument_type']??'',amount:r['amount']??'',funding_status:r['funding_status']??'intending',expected_decision_date:r['expected_decision_date']??'',clawback_treatment:r['clawback_treatment']??'',irrAssumesAward:r['irrAssumesAward']??''});
+export default function StageWizard(){
+ const {user}=useAuth(); const navigate=useNavigate(); const [search,setSearch]=useSearchParams(); const requestedId=search.get('project'); const requestedPromotion=search.get('promote');
+ const form=useForm<SubmissionDocument>({resolver:zodResolver(documentSchema),defaultValues:emptyDocument(),mode:'onSubmit'});
+ const watched=useWatch({control:form.control});
+ const document={...form.getValues(),...watched} as SubmissionDocument;
+ const [section,setSection]=useState('basics');const [loading,setLoading]=useState(Boolean(requestedId));const [saving,setSaving]=useState(false);const [error,setError]=useState('');const [saveState,setSaveState]=useState('');
+ const [project,setProject]=useState<Tables<'project'>|null>(null);const [fromStage,setFromStage]=useState<Stage|null>(null);const [promoting,setPromoting]=useState(false);
+ const idRef=useRef<string|null>(null);const revision=useRef(0);const savingRef=useRef(false);const asked=useRef(new Map<string,Set<string>>());
+ const visible=fieldsForDocument(document);const delta=fromStage?promotionFields(document,fromStage):visible;const shown=promoting?delta:visible;
+ const sections=SECTIONS.filter(([key])=>key==='review'||shown.some(f=>f.section===key)||(!promoting&&key==='technical')||(key==='funding'&&!promoting)||(key==='financial'&&promoting&&document.stage==='development'));
+ const currentSection=sections.some(([key])=>key===section)?section:sections[0]?.[0]??'basics';
+ useEffect(()=>{if(!requestedId||requestedId===idRef.current)return;let cancelled=false;setLoading(true);void(async()=>{
+  try{
+   const {data:p,error:e}=await supabase.from('project').select('*').eq('id',requestedId).maybeSingle();if(e)throw e;if(!p)throw new Error('Listing unavailable.');
+   const {data:owner,error:oe}=await supabase.from('developer_profiles').select('user_id').eq('id',p.developer_id).maybeSingle();if(oe)throw oe;if(owner?.user_id!==user?.id)throw new Error('Only the listing owner can edit this project.');
+   const {data:work,error:we}=await supabase.from('project_submission_work').select('document').eq('project_id',p.id).maybeSingle();if(we)throw we;
+   let d=parseDocument(work?.document??p.submission_draft)??parseDocument(p.submission_published)??legacyDocument(p);
+   if(!p.submission_published&&!p.submission_draft&&!work){
+    const [fin,offer,ladder,mix,milestones,capital,funding,parameters]=await Promise.all([
+     supabase.from('financial_summary').select('*').eq('project_id',p.id).maybeSingle(),supabase.from('project_transaction').select('*').eq('project_id',p.id).maybeSingle(),supabase.from('offtake_ladder').select('*').eq('project_id',p.id).maybeSingle(),supabase.from('energy_mix_item').select('source,share_pct').eq('project_id',p.id),supabase.from('milestone').select('*').eq('project_id',p.id).order('sort_order'),supabase.from('capital_stack_item').select('*,financial_summary!inner(project_id)').eq('financial_summary.project_id',p.id),supabase.from('public_funding').select('*,financial_summary!inner(project_id)').eq('financial_summary.project_id',p.id),supabase.from('operating_parameter').select('*').eq('project_id',p.id)]);
+    for(const response of [fin,offer,ladder,mix,milestones,capital,funding,parameters])if(response.error)throw response.error;
+    const s=(v:unknown)=>v===null||v===undefined?'':String(v);
+    d.answers={...d.answers,capex:s(fin.data?.capex??p.headline_investment),equitySought:s(offer.data?.equity_sought),minTicket:s(offer.data?.min_ticket),instruments:s(offer.data?.instrument),baseIrr:s(offer.data?.target_equity_irr_pct),stake:s(offer.data?.stake_offered_pct),contractedLoad:s(ladder.data?.contracted_load_pct),signedLoad:s(ladder.data?.signed_connection_load_pct),negotiationLoad:s(ladder.data?.in_negotiation_load_pct),buildings:s(ladder.data?.total_buildings),fundingPlan:funding.data?.length?'pursuing':p.public_cofinancing_status==='None'?'none':''};
+    d.rows={designMix:(mix.data??[]).map(r=>({source:r.source,share:s(r.share_pct)})),timeline:(milestones.data??[]).map(r=>({label:r.label,date:r.target_date??''})),capital:(capital.data??[]).map(r=>({label:r.label,amount:s(r.amount),provider:r.provider??'',status:''})),funding:(funding.data??[]).map(r=>({programme_id:r.programme_id??'',programme:r.programme??'',administering_body:r.administering_body??r.source,instrument_type:r.instrument_type??'',amount:s(r.amount),funding_status:r.funding_status??'',expected_decision_date:r.expected_decision_date??'',clawback_treatment:r.clawback_treatment??'',irrAssumesAward:r.base_case_assumes_award===null?'':r.base_case_assumes_award?'yes':'no'}))};
+   }
+   if(cancelled)return;idRef.current=p.id;revision.current=p.submission_revision;setProject(p);
+   const original=p.lifecycle_stage as Stage;setFromStage(original);
+   if(requestedPromotion&&requestedPromotion===nextStage(original)){d={...d,stage:requestedPromotion as Stage};setPromoting(true);setSection(promotionFields(d,original)[0]?.section??'review');}else setSection(d.step||'basics');
+   form.reset(d);asked.current.set(d.stage,new Set(d.askedFields));
+  }catch(e){if(!cancelled)setError(e instanceof Error?e.message:'Could not load this listing.');}finally{if(!cancelled)setLoading(false);}
+ })();return()=>{cancelled=true;};},[requestedId,requestedPromotion,user?.id,form]);
+ useEffect(()=>{if(!document.stage)return;const keys=asked.current.get(document.stage)??new Set<string>();for(const f of shown.filter(f=>f.section===currentSection))keys.add(`stage.${f.key}`);
+  if(currentSection==='technical'&&document.stage!=='concept'&&document.stage!=='operational')for(const key of ['designMix','contractedLoad','signedLoad','negotiationLoad','buildings'])keys.add(`stage.${key}`);
+  if(currentSection==='actuals'&&actualYears(document)>0)keys.add('stage.actuals');
+  asked.current.set(document.stage,keys);
+ },[currentSection,document.stage,JSON.stringify(shown.map(f=>f.key)),document.answers['historyYears']]);
+ const answer=(key:string,value:string)=>{form.setValue(`answers.${key}`,value,{shouldDirty:true});if(key==='historyYears'){const previous=form.getValues('rows.actuals')??[];form.setValue('rows.actuals',Array.from({length:Number(value)},(_,i)=>previous[i]??{}));}form.clearErrors(`answers.${key}`);setSaveState('Unsaved changes');setError('');};
+ const rows=(key:string,value:Record<string,string>[])=>{form.setValue(`rows.${key}`,value,{shouldDirty:true});form.clearErrors(`answers.${key}`);setSaveState('Unsaved changes');setError('');};
+ const snapshot=(step=currentSection)=>normalizeDocument({...form.getValues(),step,askedFields:[...new Set([...(asked.current.get(document.stage)??[]),...document.askedFields])].sort()});
+ const save=async(publish=false,nextStep=currentSection)=>{
+  if(!user||!document.stage){setError('Choose a lifecycle stage before saving.');return false;}
+  if(savingRef.current)return false;
+  const d=snapshot(nextStep);
+  if(publish){const valid=documentSchema.safeParse(d);if(!valid.success){for(const issue of valid.error.issues){const key=issue.path[1];if(typeof key==='string')form.setError(`answers.${key}`,{type:'manual',message:issue.message});}const first=valid.error.issues[0]?.path[1];const target=typeof first==='string'?FIELDS.find(f=>f.key===first)?.section:undefined;if(target)setSection(target);setError('Complete the highlighted stage fields before saving the published listing.');return false;}
+   if(d.answers['mandate']!=='yes'||d.answers['electronicConsent']!=='yes'){setError('Accept the listing mandate and electronic execution consent.');return false;}
+  }
+  savingRef.current=true;setSaving(true);setError('');
+  try{
+   const payload={...serializeDocument(d),developer_full_name:user.user_metadata?.['full_name']??user.email??'Developer'};
+   const {data,error:e}=await supabase.rpc('save_stage_listing',{_document:d as unknown as Json,_payload:payload as unknown as Json,_project_id:idRef.current??undefined,_publish:publish,_revision:revision.current});if(e)throw e;
+   if(!data||typeof data!=='object'||Array.isArray(data)||typeof data['id']!=='string'||typeof data['revision']!=='number')throw new Error('The save result could not be confirmed.');
+   idRef.current=data['id'];revision.current=data['revision'];setSaveState(publish?'Published changes saved':'Draft saved');
+   if(!requestedId&&!publish)setSearch({project:data['id']},{replace:true});
+   if(publish)navigate('/app/my-deals/listing');
+   return true;
+  }catch(e){setError(e instanceof Error?e.message:typeof e==='object'&&e!==null&&'message' in e?String(e.message):'Save could not be confirmed. Check your listing before retrying.');return false;}finally{savingRef.current=false;setSaving(false);}
+ };
+ const go=async(key:string)=>{if(!document.stage){setError('Choose a lifecycle stage first.');return;}if(await save(false,key)){setSection(key);window.scrollTo({top:0,behavior:'smooth'});}};
+ const renderField=(f:FieldSpec)=>{
+  const options=f.key==='stopper'?[document.answers['risk1'],document.answers['risk2'],document.answers['risk3']].filter((s):s is string=>Boolean(s)).map(s=>[s,s] as const):f.options;
+  return <FormField key={f.key} control={form.control} name={`answers.${f.key}`} render={({field})=><FormItem className="mb-5"><FormLabel>{f.key==='technology'&&document.stage==='concept'?'Technologies under consideration':f.label}{f.required?' *':' (optional)'}</FormLabel>{f.type==='select'?<FormControl><WizardSelect value={field.value??''} onChange={e=>answer(f.key,e.target.value)}>{options?.map(([value,label])=><WizardOption key={value} value={value}>{label}</WizardOption>)}</WizardSelect></FormControl>:f.type==='multi'?<div className="flex flex-wrap gap-2" role="group" aria-label={f.label}>{options?.map(([value,label])=>{const selected=(field.value??'').split(',').filter(Boolean);return <Label key={value} className="flex items-center gap-2 rounded-md border border-border px-3 py-2"><Checkbox checked={selected.includes(value)} onCheckedChange={checked=>answer(f.key,(checked?[...selected,value]:selected.filter(v=>v!==value)).join(','))} />{label.replaceAll('_',' ')}</Label>;})}</div>:f.type==='textarea'?<FormControl><Textarea {...field} value={field.value??''} maxLength={f.limit} onChange={e=>answer(f.key,e.target.value)} /></FormControl>:<FormControl><Input {...field} value={field.value??''} type={f.type==='number'?'number':f.type==='date'?'date':'text'} min={f.type==='number'?0:undefined} max={f.max} maxLength={f.limit} onChange={e=>answer(f.key,e.target.value)} /></FormControl>}<FormMessage /></FormItem>} />;
+ };
+ if(loading)return <p role="status" className="p-6 text-muted-foreground">Loading your listing...</p>;
+ const index=sections.findIndex(([key])=>key===currentSection);
+ const hasDesign=document.stage!=='concept'&&document.stage!=='operational';
+ const technicalRows=!promoting||fromStage==='concept';
+ return <Form {...form}><div className="mx-auto grid max-w-workspace gap-8 lg:grid-cols-[230px_minmax(0,680px)]">
+  <aside className="border-b border-border pb-5 lg:border-b-0 lg:border-r lg:pr-6"><p className="text-sm font-semibold text-muted-foreground">{promoting?'Advance lifecycle stage':project?.visibility==='listed'?'Edit listing':'New listing'}</p><h1 className="mb-5 mt-1 text-2xl font-semibold">{document.stage?`${STAGE_LABELS[document.stage]} project`:'Project basics'}</h1><nav aria-label="Listing steps" className="grid grid-cols-2 gap-1 lg:block lg:space-y-1">{sections.map(([key,label],i)=><Button key={key} type="button" variant="ghost" className={cn('h-auto w-full justify-start whitespace-normal py-3 text-left',key===currentSection&&'bg-muted')} onClick={()=>void go(key)} disabled={saving}><span className="mr-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border text-xs">{i<index?<Check className="h-3 w-3"/>:i+1}</span>{label}</Button>)}</nav><Button className="mt-3 w-full" variant="outline" disabled={saving||!document.stage} onClick={()=>void save()}><Save className="h-4 w-4"/>{saving?'Saving...':'Save as draft'}</Button><p role="status" className="mt-2 text-xs text-muted-foreground">{saveState}</p></aside>
+  <main className="min-w-0 pb-8"><h2 className="mb-6 text-2xl font-semibold">{sections[index]?.[1]}</h2>{error&&<p role="alert" className="mb-5 rounded-md border border-destructive/30 bg-destructive-soft p-4 text-sm text-destructive">{error}</p>}
+   {currentSection==='basics'&&!promoting&&<fieldset className="mb-6"><legend className="mb-3 text-sm font-semibold">Lifecycle stage *</legend><div className="grid gap-2 sm:grid-cols-2">{STAGES.filter(s=>!project||project.visibility==='draft'||s===fromStage).map(s=><Button key={s} type="button" variant={document.stage===s?'default':'outline'} aria-pressed={document.stage===s} onClick={()=>{form.setValue('stage',s,{shouldDirty:true});setError('');}}>{STAGE_LABELS[s]}</Button>)}</div>{project?.visibility==='listed'&&fromStage&&nextStage(fromStage)&&<Button className="mt-3" variant="outline" onClick={()=>{const target=nextStage(fromStage);if(target){form.setValue('stage',target);setPromoting(true);setSection(promotionFields({...document,stage:target},fromStage)[0]?.section??'review');}}}><ArrowRight className="h-4 w-4"/>Advance to {STAGE_LABELS[nextStage(fromStage)??fromStage]}</Button>}</fieldset>}
+   {document.stage&&shown.filter(f=>f.section===currentSection).map(renderField)}
+   {currentSection==='basics'&&document.stage&&<div className="mb-5 grid gap-4 sm:grid-cols-2">{['capacityBasis','capexBasis'].map(key=><div key={key}><Label>{key==='capacityBasis'?'Capacity basis':'Capex basis'}</Label>{lockedBasis(document.stage)?<p className="mt-2 text-sm font-semibold">{lockedBasis(document.stage)}</p>:<WizardSelect value={document.answers[key]??''} onChange={e=>answer(key,e.target.value)}>{['measured','modelled','estimated'].map(value=><WizardOption key={value}>{value}</WizardOption>)}</WizardSelect>}</div>)}</div>}
+   {currentSection==='technical'&&document.stage&&technicalRows&&<div className="space-y-6">
+    {document.stage==='concept'&&document.answers['projectType']==='modernisation'&&<section><h3 className="mb-3 font-semibold">Current fuel mix - measured</h3><StageRows kind="existingMix" document={document} onChange={v=>rows('existingMix',v)}/></section>}
+    {hasDesign&&<><section><h3 className="mb-3 font-semibold">Design energy source mix</h3><StageRows kind="designMix" document={document} onChange={v=>rows('designMix',v)}/>{form.formState.errors.answers?.['designMix']&&<p role="alert" className="mt-2 text-sm text-destructive">{form.formState.errors.answers['designMix'].message}</p>}</section><fieldset><legend className="mb-3 font-semibold">New load committed - percent of design load</legend>{[['contractedLoad','Contracted'],['signedLoad','Signed connection agreements'],['negotiationLoad','In negotiation']].map(([key,label])=>key&&<Label key={key} className="mb-3 block">{label}<Input type="number" min={0} max={100} aria-label={`${label} percent of design load`} value={document.answers[key]??''} onChange={e=>answer(key,e.target.value)}/></Label>)}<p role="alert" className="text-sm text-destructive">{form.formState.errors.answers?.['ladder']?.message}</p></fieldset><Label className="block">Total buildings (optional)<Input type="number" min={0} value={document.answers['buildings']??''} onChange={e=>answer('buildings',e.target.value)}/></Label><p className="text-sm text-muted-foreground">Country consent list unavailable.</p></>}
+   </div>}
+   {currentSection==='financial'&&['development','construction'].includes(document.stage)&&<div className="space-y-6"><section><h3 className="mb-3 font-semibold">Development timeline</h3><StageRows kind="timeline" document={document} onChange={v=>rows('timeline',v)}/><p role="alert" className="text-sm text-destructive">{form.formState.errors.answers?.['timeline']?.message}</p></section><section><h3 className="mb-3 font-semibold">{document.stage==='construction'?'Committed capital stack':'Indicative capital stack'}</h3><StageRows kind="capital" document={document} onChange={v=>rows('capital',v)}/><p role="alert" className="text-sm text-destructive">{form.formState.errors.answers?.['capital']?.message}</p></section></div>}
+   {currentSection==='funding'&&document.stage==='concept'&&<ProgrammeIntent country={document.answers['country']??''} selected={document.answers['fundingIntent']??''} onChange={v=>answer('fundingIntent',v)}/>}
+   {currentSection==='funding'&&document.stage!==''&&document.stage!=='concept'&&document.answers['fundingPlan']==='pursuing'&&<PublicFundingEditor countryCode={document.answers['country']??''} showIrrAssumptions={['development','construction','operational'].includes(document.stage)} rows={(document.rows['funding']??[]).map(fundingLine)} onChange={value=>rows('funding',value.map(r=>({...r,irrAssumesAward:r.irrAssumesAward??''})))}/>}
+   {currentSection==='funding'&&form.formState.errors.answers?.['funding']&&<p role="alert" className="mt-3 text-sm text-destructive">{form.formState.errors.answers['funding'].message}</p>}
+   {currentSection==='actuals'&&actualYears(document)>0&&<><StageRows kind="actuals" document={document} onChange={v=>rows('actuals',v)}/><p role="alert" className="mt-2 text-sm text-destructive">{form.formState.errors.answers?.['actuals']?.message}</p></>}
+   {currentSection==='review'&&<div className="space-y-5"><dl className="divide-y divide-border">{[['Project',document.answers['title']],['Country',document.answers['country']],['Lifecycle stage',document.stage?STAGE_LABELS[document.stage]:''],['Identity','Hidden until the developer accepts an investor request']].filter(([,value])=>value).map(([label,value])=><div key={label} className="flex justify-between gap-4 py-3"><dt className="text-muted-foreground">{label}</dt><dd className="text-right font-semibold">{value}</dd></div>)}</dl><p className="text-sm text-muted-foreground">{FEE_SENTENCE}</p><Label className="flex items-start gap-3"><Checkbox checked={document.answers['mandate']==='yes'} onCheckedChange={v=>answer('mandate',v?'yes':'no')}/>I accept the listing mandate and confirm I am authorised to list this project.</Label><Label className="flex items-start gap-3"><Checkbox checked={document.answers['electronicConsent']==='yes'} onCheckedChange={v=>answer('electronicConsent',v?'yes':'no')}/>I consent to electronic execution of confidentiality agreements with investors requesting access.</Label></div>}
+   <footer className="mt-8 flex justify-between gap-3 border-t border-border pt-5"><Button variant="outline" disabled={saving||index<=0} onClick={()=>void go(sections[index-1]?.[0]??'basics')}>Back</Button>{currentSection==='review'?<Button disabled={saving} onClick={()=>void save(true)}>{saving?'Saving...':promoting?'Save stage promotion':project?.visibility==='listed'?'Save published changes':'Publish listing'}</Button>:<Button disabled={saving} onClick={()=>void go(sections[index+1]?.[0]??'review')}>Continue<ArrowRight className="h-4 w-4"/></Button>}</footer>
+  </main></div></Form>;
+}
+function ProgrammeIntent({country,selected,onChange}:{country:string;selected:string;onChange:(value:string)=>void}){
+ const [programmes,setProgrammes]=useState<{id:string;name:string;country_codes:string[]}[]>([]);const [error,setError]=useState(false);
+ useEffect(()=>{let active=true;void supabase.from('funding_programme').select('id,name,country_codes').order('name').then(({data,error})=>{if(active){setProgrammes((data??[]).filter(p=>!p.country_codes.length||p.country_codes.includes(country)));setError(Boolean(error));}});return()=>{active=false;};},[country]);
+ return <fieldset><legend className="mb-3 font-semibold">Public co-financing intent (optional)</legend>{error&&<p role="alert" className="mb-3 text-sm text-destructive">Funding catalogue unavailable.</p>}<WizardSelect value={selected} onChange={e=>onChange(e.target.value)}><WizardOption value="none">None intended</WizardOption>{programmes.map(p=><WizardOption key={p.id} value={p.id}>{p.name}</WizardOption>)}</WizardSelect></fieldset>;
+}

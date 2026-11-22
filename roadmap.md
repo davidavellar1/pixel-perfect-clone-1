@@ -1,4 +1,10 @@
 # Phases 0 to 11
+- [x] Replacement brief Phase 2 foundation: stage-specific wizard, owner drafts/autosave, core editing and stage-promotion entry
+- [ ] Replacement brief Phase 2: verify all stage gates, conditional funding/DNSH/actuals, draft reload and edit/promotion preservation
+
+Active scope: Phase 2 from lovable-prompts_1.md supersedes the previous prompt for this build. Prior Phase 1 checkpoints remain historical, not a blocker to starting the requested Phase 2. Later phases are out of scope. Country permitting lists must use sourced catalogue data, never invented consent lists.
+
+Phase 2 stop point: draft persistence/reload, concept publication, published title editing/readback and promotion-only questions were verified in the signed-in browser. Thirty-six targeted tests and source hygiene pass. Migrations 0025 to 0028 provide revisioned working copies, atomic save and validation. Full promotion completion/history readback, every later-stage publication and preservation of all legacy structured rows still need verification. Country consent options remain unavailable without sourced catalogue data. Fictional verification projects were removed. Phase 2 is not complete; no later phase started.
 - [x] Remove retired inputs/panels; add atomic timeline, capital, revenue, risk, technical and structured public-funding writes
 - [x] Add recorded asked_fields/form_version, stage specification, central resolver and core absence tests
 - [ ] Complete absence coverage, conditional-field stamps, completeness counter and mechanical tab provenance enforcement

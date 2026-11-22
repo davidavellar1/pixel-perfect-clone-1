@@ -1,0 +1,1 @@
+DO $patch$ DECLARE definition text; BEGIN SELECT pg_get_functiondef('public.save_stage_listing(jsonb,jsonb,uuid,boolean,integer)'::regprocedure) INTO definition; definition:=replace(definition,'a->>''constructionAppetite''=''yes''','coalesce(a->>''constructionAppetite''=''yes'',false)'); EXECUTE definition; END $patch$;

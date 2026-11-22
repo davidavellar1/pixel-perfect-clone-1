@@ -32,3 +32,5 @@
 - Resolve missing project values centrally using recorded question evidence; legacy records without evidence resolve safely without attributing nonresponse.
 - Pure named financial computes return their numeric inputs with the result so readers can inspect arithmetic without platform modelling.
 - Submission evidence is recorded by mounted controls with lifecycle-specific histories and explicit conditional keys, so hidden questions cannot be labelled unanswered.
+- The stage wizard shares one declarative field contract across creation, editing and promotion; its transactional owner-only save retains project identity, revisions and stage events.
+- Published working copies live in an owner-only submission workspace; accepted project readers receive the last published document, never unsaved edits.

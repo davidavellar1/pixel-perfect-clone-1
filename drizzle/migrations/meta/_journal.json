@@ -176,6 +176,34 @@
       "when": 1795173303932,
       "tag": "0024_structured_public_funding_submission",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1795344468456,
+      "tag": "0025_stage_wizard_drafts_editing_and_history",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1795344515613,
+      "tag": "0026_private_stage_edit_working_copies",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1795344964782,
+      "tag": "0027_validate_stage_submission_and_preserve_evidence",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1795345099617,
+      "tag": "0028_save_optional_stage_access_criteria",
+      "breakpoints": true
     }
   ]
 }
