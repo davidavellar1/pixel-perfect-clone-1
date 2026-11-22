@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "@/lib/router-compat";
 import { NAV_GROUPS } from "@/lib/navigation";
-import { ChevronDown, ChevronsUpDown, HelpCircle, LogOut, Plus, Settings } from "lucide-react";
+import { ChevronsUpDown, HelpCircle, LogOut, Plus, Settings } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Sidebar, SidebarProvider, SidebarHeader, SidebarFooter, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuBadge, SidebarMenuSkeleton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { Sidebar, SidebarProvider, SidebarHeader, SidebarFooter, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuBadge, SidebarMenuSkeleton, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { Button } from "@/components/ui/button";
@@ -21,25 +20,35 @@ function WorkspaceShell() {
   const { count: watchCount } = useWatchlist();
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingOnMine, setPendingOnMine] = useState(0);
-  const [dealsOpen, setDealsOpen] = useState(true);
-  useEffect(() => { setOpenMobile(false); if (location.pathname.startsWith("/app/my-deals")) setDealsOpen(true); }, [location.pathname, setOpenMobile]);
+  const [investingCount, setInvestingCount] = useState(0);
+  useEffect(() => { setOpenMobile(false); }, [location.pathname, setOpenMobile]);
   useEffect(() => {
     if (!user) return;
-    void supabase.from("notification").select("id", { count: "exact", head: true }).eq("user_id", user.id).is("read_at", null).then(({ count }) => setUnreadCount(count ?? 0));
-    void supabase.from("access_request").select("id", { count: "exact", head: true }).eq("state", "pending").neq("investor_user_id", user.id).then(({ count }) => setPendingOnMine(count ?? 0));
+    let active = true;
+    void supabase.from("notification").select("id", { count: "exact", head: true }).eq("user_id", user.id).is("read_at", null).then(({ count }) => { if (active) setUnreadCount(count ?? 0); });
+    // Investing: my requests awaiting the developer, plus accepted requests whose acceptance notice I have not opened.
+    void Promise.all([
+      supabase.from("access_request").select("id", { count: "exact", head: true }).eq("investor_user_id", user.id).eq("state", "pending"),
+      supabase.from("notification").select("id", { count: "exact", head: true }).eq("user_id", user.id).is("read_at", null).in("kind", ["access_request_granted", "access_request_granted_full"]),
+    ]).then(([waiting, accepted]) => { if (active) setInvestingCount((waiting.count ?? 0) + (accepted.count ?? 0)); });
+    // Listing: pending requests on projects this user owns, filtered explicitly rather than left to RLS.
+    void (async () => {
+      const developer = await supabase.from("developer_profiles").select("id").eq("user_id", user.id).maybeSingle();
+      const owned = developer.data ? await supabase.from("project").select("id").eq("developer_id", developer.data.id) : { data: [] };
+      const ids = (owned.data ?? []).map((project) => project.id);
+      const pending = ids.length ? await supabase.from("access_request").select("id", { count: "exact", head: true }).eq("state", "pending").in("project_id", ids).neq("investor_user_id", user.id) : { count: 0 };
+      if (active) setPendingOnMine(pending.count ?? 0);
+    })();
+    return () => { active = false; };
   }, [user?.id, location.pathname]);
-  const countFor = (badge?: string) => badge === "watchlist" ? watchCount : badge === "notifications" ? unreadCount : badge === "listing" ? pendingOnMine : 0;
+  const countFor = (badge?: string) => badge === "watchlist" ? watchCount : badge === "notifications" ? unreadCount : badge === "listing" ? pendingOnMine : badge === "investing" ? investingCount : 0;
   const displayName = profile?.display_name || user?.email?.split("@")[0] || "Member";
-  const section = NAV_GROUPS.flatMap(g => g.items).flatMap(i => i.children ?? [i]).find(i => activePath(location.pathname, i.to))?.label || (location.pathname.includes("settings") ? "Profile settings" : "Workspace");
+  const section = NAV_GROUPS.flatMap(g => g.items).find(i => activePath(location.pathname, i.to))?.label || (location.pathname.includes("settings") ? "Profile settings" : "Workspace");
   return <>
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border p-3"><SidebarMenu><SidebarMenuItem><SidebarMenuButton asChild tooltip="DHC Market" className="text-sidebar-accent-foreground"><Link to="/app"><span className="font-display font-bold">D</span><span className="font-display text-lg font-bold">DHC<span className="text-accent">Market</span></span></Link></SidebarMenuButton></SidebarMenuItem></SidebarMenu></SidebarHeader>
       <SidebarContent><nav aria-label="Workspace">{NAV_GROUPS.map(group => <SidebarGroup key={group.label}><SidebarGroupLabel>{group.label}</SidebarGroupLabel><SidebarGroupContent><SidebarMenu>
-        {loading ? Array.from({ length: 3 }).map((_, i) => <SidebarMenuItem key={i}><SidebarMenuSkeleton showIcon /></SidebarMenuItem>) : group.items.map(item => item.children ?
-          <Collapsible key={item.key} open={dealsOpen} onOpenChange={setDealsOpen} asChild><SidebarMenuItem>
-            <CollapsibleTrigger asChild><SidebarMenuButton tooltip={item.label} isActive={location.pathname.startsWith("/app/my-deals")}><item.icon /><span>{item.label}</span><ChevronDown className="ml-auto" /></SidebarMenuButton></CollapsibleTrigger>
-            <CollapsibleContent><SidebarMenuSub>{item.children.map(child => <SidebarMenuSubItem key={child.key}><SidebarMenuSubButton asChild isActive={activePath(location.pathname, child.to)}><Link to={child.to}><span>{child.label}</span>{countFor(child.badge) > 0 && <span className="ml-auto text-xs">{countFor(child.badge)}</span>}</Link></SidebarMenuSubButton></SidebarMenuSubItem>)}</SidebarMenuSub></CollapsibleContent>
-          </SidebarMenuItem></Collapsible> :
+        {loading ? Array.from({ length: 3 }).map((_, i) => <SidebarMenuItem key={i}><SidebarMenuSkeleton showIcon /></SidebarMenuItem>) : group.items.map(item =>
           <SidebarMenuItem key={item.key}><SidebarMenuButton asChild tooltip={item.label} isActive={activePath(location.pathname, item.to)}><Link to={item.to}><item.icon /><span>{item.label}</span></Link></SidebarMenuButton>{countFor(item.badge) > 0 && <SidebarMenuBadge>{countFor(item.badge)}</SidebarMenuBadge>}</SidebarMenuItem>)}
       </SidebarMenu></SidebarGroupContent></SidebarGroup>)}{roles.includes("admin")&&<SidebarGroup><SidebarGroupLabel>Administration</SidebarGroupLabel><SidebarMenu>{[["/app/admin/contact-requests","Contact requests"],["/app/admin/funding-review","Funding verification"],["/app/admin/news-health","News source health"]].map(([path,label])=><SidebarMenuItem key={path}><SidebarMenuButton asChild><Link to={path??"/app"}><Settings/><span>{label}</span></Link></SidebarMenuButton></SidebarMenuItem>)}</SidebarMenu></SidebarGroup>}</nav></SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border"><SidebarMenu><SidebarMenuItem><DropdownMenu><DropdownMenuTrigger asChild><SidebarMenuButton size="lg" tooltip="Account menu" aria-label="Account menu"><Avatar className="h-8 w-8"><AvatarImage src={profile?.avatar_url ?? undefined} alt="Your avatar" /><AvatarFallback className="bg-accent text-accent-foreground">{displayName.slice(0, 2).toUpperCase()}</AvatarFallback></Avatar><span className="min-w-0"><span className="block truncate">{displayName}</span><span className="block truncate text-xs">{profile?.company_name || user?.email}</span></span><ChevronsUpDown className="ml-auto" /></SidebarMenuButton></DropdownMenuTrigger>

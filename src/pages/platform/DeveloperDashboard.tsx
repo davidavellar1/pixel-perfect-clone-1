@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-import { effectiveState, slaStatus, stageIndex } from "@/lib/access";
+import { effectiveState, normaliseStage, slaStatus, stageIndex } from "@/lib/access";
 import { TECHNOLOGIES } from "@/lib/profileSettings";
 import { cn } from "@/lib/utils";
 import StatTile from "@/components/platform/StatTile";
@@ -34,6 +34,7 @@ const DeveloperDashboard = () => {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
+  const [view, setView] = useState<"listings" | "closed">("listings");
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -82,6 +83,9 @@ const DeveloperDashboard = () => {
   const roomReviews = requests.filter((request) => request.state === "granted");
 
   const stat = (value: number) => (loading ? "…" : String(value));
+  // Closed: a listing with at least one deal confirmed at financial close.
+  const closedIds = new Set(interests.filter((interest) => normaliseStage(interest.stage) === "closed").map((interest) => interest.project_id));
+  const shown = projects.filter((project) => closedIds.has(project.id) === (view === "closed"));
 
   return (
     <div className="max-w-workspace space-y-5">
@@ -144,13 +148,18 @@ const DeveloperDashboard = () => {
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="font-display text-base font-semibold">Your projects</h2>
-            <p className="mt-1 text-[13px] text-muted-foreground">Drafts and published listings, with investor interest on each.</p>
+            <p className="mt-1 text-[13px] text-muted-foreground">{view === "closed" ? "Listings with a deal confirmed at financial close." : "Drafts and published listings, with investor interest on each."}</p>
+            <div className="mt-3 flex gap-1.5 border-b border-border" role="tablist" aria-label="Listings">
+              {([["listings", "Listings"], ["closed", "Closed"]] as const).map(([id, label]) => <Button key={id} role="tab" aria-selected={view === id} variant="ghost" onClick={() => setView(id)} className={cn("rounded-none border-b-2", view === id ? "border-accent text-accent" : "border-transparent text-muted-foreground")}>{label}</Button>)}
+            </div>
           </div>
           <Button asChild size="sm" variant="outline" className="border-primary text-primary hover:bg-primary/5"><Link to="/app/submit-project"><Plus className="h-4 w-4" />New listing</Link></Button>
         </div>
 
         {loading ? (
           <div className="space-y-2" aria-hidden="true"><Skeleton className="h-11 w-full" /><Skeleton className="h-14 w-full" /><Skeleton className="h-14 w-full" /></div>
+        ) : view === "closed" && !shown.length && !failed ? (
+          <p className="rounded-lg border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">No listing has a deal confirmed at financial close yet.</p>
         ) : !projects.length && !failed ? (
           <div className="rounded-lg border border-dashed border-border px-6 py-10 text-center">
             <p className="font-display text-lg font-semibold">List your first project</p>
@@ -173,7 +182,7 @@ const DeveloperDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {projects.map((project) => {
+                {shown.map((project) => {
                   const projectInterests = interests.filter((interest) => interest.project_id === project.id).length;
                   const projectPending = pending.filter((request) => request.project_id === project.id).length;
                   const status = VISIBILITY[project.visibility];
@@ -184,10 +193,10 @@ const DeveloperDashboard = () => {
                       <td className="px-3.5 py-3.5"><span className={cn("inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold", status.className)}>{status.label}</span></td>
                       <td className="px-3.5 py-3.5 font-semibold text-foreground">{draft ? draft.answers["title"] || "Untitled draft" : project.title}</td>
                       <td className="px-3.5 py-3.5 text-muted-foreground">{draft ? draft.answers["technology"] ? draft.answers["technology"].replaceAll("_", " ") : null : TECHNOLOGIES[project.technology] || project.technology}</td>
-                      <td className="px-3.5 py-3.5 text-muted-foreground">{project.capacity_mw != null ? `${project.capacity_mw} MW` : "-"}</td>
+                      <td className="px-3.5 py-3.5 text-muted-foreground">{project.capacity_mw != null ? `${project.capacity_mw} MW` : ""}</td>
                       <td className="px-3.5 py-3.5 text-muted-foreground">{draft ? draft.answers["country"] : project.country_code}</td>
                       <td className="px-3.5 py-3.5">{projectInterests}</td>
-                      <td className="px-3.5 py-3.5">{projectPending ? <span className="inline-block whitespace-nowrap rounded-full bg-warning-soft px-2.5 py-0.5 text-[11px] font-semibold text-warning-foreground">{projectPending} pending</span> : <span className="text-muted-foreground">-</span>}</td>
+                      <td className="px-3.5 py-3.5">{projectPending ? <span className="inline-block whitespace-nowrap rounded-full bg-warning-soft px-2.5 py-0.5 text-[11px] font-semibold text-warning-foreground">{projectPending} pending</span> : <span className="sr-only">None pending</span>}</td>
                       <td className="px-3.5 py-3.5">
                         <div className="flex items-center justify-end gap-1">
                           {project.visibility === "draft" ? <Button size="sm" variant="outline" asChild><Link to={`/app/submit-project?project=${project.id}`}>Resume draft</Link></Button> : <><Button size="sm" variant="outline" asChild><Link to={`/app/projects/${project.public_ref}`}>Open</Link></Button><Button size="icon" variant="ghost" asChild title="Edit listing"><Link to={`/app/submit-project?project=${project.id}`} aria-label={`Edit ${project.title}`}><Pencil className="h-4 w-4" /></Link></Button>{followingStage && <Button size="icon" variant="ghost" asChild title={`Advance to ${STAGE_LABELS[followingStage]}`}><Link to={`/app/submit-project?project=${project.id}&promote=${followingStage}`} aria-label={`Advance ${project.title} to ${STAGE_LABELS[followingStage]}`}><ArrowRight className="h-4 w-4" /></Link></Button>}</>}

@@ -83,7 +83,7 @@ export default function StageWizard(){
    if(!data||typeof data!=='object'||Array.isArray(data)||typeof data['id']!=='string'||typeof data['revision']!=='number')throw new Error('The save result could not be confirmed.');
    idRef.current=data['id'];revision.current=data['revision'];setSaveState(publish?'Published changes saved':'Draft saved');
    if(!requestedId&&!publish)setSearch({project:data['id']},{replace:true});
-   if(publish)navigate('/app/my-deals/listing');
+   if(publish)navigate('/app/listing');
    return true;
   }catch(e){setError(e instanceof Error?e.message:typeof e==='object'&&e!==null&&'message' in e?String(e.message):'Save could not be confirmed. Check your listing before retrying.');return false;}finally{savingRef.current=false;setSaving(false);}
  };

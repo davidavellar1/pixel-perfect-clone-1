@@ -89,7 +89,7 @@ export function useProjectRecord(projectId: string | undefined) {
           .order("sort_order"),
         supabase
           .from("operating_parameter")
-          .select("parameter, value, benchmark")
+          .select("parameter, value")
           .eq("project_id", projectId)
           .order("sort_order"),
         supabase.from("project").select("submission_published").eq("id", projectId).maybeSingle(),
@@ -208,7 +208,6 @@ export function useProjectRecord(projectId: string | undefined) {
       const operatingParameters = (operatingRes.data ?? []).map((row) => ({
         parameter: row.parameter,
         value: row.value ?? "",
-        benchmark: row.benchmark ?? "",
       }));
       if (operatingParameters.length) next.operatingParameters = operatingParameters;
 

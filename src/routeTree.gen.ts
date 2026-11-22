@@ -40,7 +40,9 @@ import { Route as AppDataRoomRequestsRouteImport } from './routes/app.data-room-
 import { Route as AppDeveloperRouteImport } from './routes/app.developer'
 import { Route as AppEcosystemRouteImport } from './routes/app.ecosystem'
 import { Route as AppFeedbackRouteImport } from './routes/app.feedback'
+import { Route as AppInvestingRouteImport } from './routes/app.investing'
 import { Route as AppInvestorRouteImport } from './routes/app.investor'
+import { Route as AppListingRouteImport } from './routes/app.listing'
 import { Route as AppMyListingsRouteImport } from './routes/app.my-listings'
 import { Route as AppMyPortfolioRouteImport } from './routes/app.my-portfolio'
 import { Route as AppNewsRouteImport } from './routes/app.news'
@@ -224,9 +226,19 @@ const AppFeedbackRoute = AppFeedbackRouteImport.update({
   path: '/feedback',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInvestingRoute = AppInvestingRouteImport.update({
+  id: '/investing',
+  path: '/investing',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppInvestorRoute = AppInvestorRouteImport.update({
   id: '/investor',
   path: '/investor',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppListingRoute = AppListingRouteImport.update({
+  id: '/listing',
+  path: '/listing',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMyListingsRoute = AppMyListingsRouteImport.update({
@@ -393,7 +405,9 @@ export interface FileRoutesByFullPath {
   '/app/developer': typeof AppDeveloperRoute
   '/app/ecosystem': typeof AppEcosystemRoute
   '/app/feedback': typeof AppFeedbackRoute
+  '/app/investing': typeof AppInvestingRoute
   '/app/investor': typeof AppInvestorRoute
+  '/app/listing': typeof AppListingRoute
   '/app/my-listings': typeof AppMyListingsRoute
   '/app/my-portfolio': typeof AppMyPortfolioRoute
   '/app/news': typeof AppNewsRoute
@@ -452,7 +466,9 @@ export interface FileRoutesByTo {
   '/app/developer': typeof AppDeveloperRoute
   '/app/ecosystem': typeof AppEcosystemRoute
   '/app/feedback': typeof AppFeedbackRoute
+  '/app/investing': typeof AppInvestingRoute
   '/app/investor': typeof AppInvestorRoute
+  '/app/listing': typeof AppListingRoute
   '/app/my-listings': typeof AppMyListingsRoute
   '/app/my-portfolio': typeof AppMyPortfolioRoute
   '/app/news': typeof AppNewsRoute
@@ -513,7 +529,9 @@ export interface FileRoutesById {
   '/app/developer': typeof AppDeveloperRoute
   '/app/ecosystem': typeof AppEcosystemRoute
   '/app/feedback': typeof AppFeedbackRoute
+  '/app/investing': typeof AppInvestingRoute
   '/app/investor': typeof AppInvestorRoute
+  '/app/listing': typeof AppListingRoute
   '/app/my-listings': typeof AppMyListingsRoute
   '/app/my-portfolio': typeof AppMyPortfolioRoute
   '/app/news': typeof AppNewsRoute
@@ -575,7 +593,9 @@ export interface FileRouteTypes {
     | '/app/developer'
     | '/app/ecosystem'
     | '/app/feedback'
+    | '/app/investing'
     | '/app/investor'
+    | '/app/listing'
     | '/app/my-listings'
     | '/app/my-portfolio'
     | '/app/news'
@@ -634,7 +654,9 @@ export interface FileRouteTypes {
     | '/app/developer'
     | '/app/ecosystem'
     | '/app/feedback'
+    | '/app/investing'
     | '/app/investor'
+    | '/app/listing'
     | '/app/my-listings'
     | '/app/my-portfolio'
     | '/app/news'
@@ -694,7 +716,9 @@ export interface FileRouteTypes {
     | '/app/developer'
     | '/app/ecosystem'
     | '/app/feedback'
+    | '/app/investing'
     | '/app/investor'
+    | '/app/listing'
     | '/app/my-listings'
     | '/app/my-portfolio'
     | '/app/news'
@@ -974,11 +998,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFeedbackRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/investing': {
+      id: '/app/investing'
+      path: '/investing'
+      fullPath: '/app/investing'
+      preLoaderRoute: typeof AppInvestingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/investor': {
       id: '/app/investor'
       path: '/investor'
       fullPath: '/app/investor'
       preLoaderRoute: typeof AppInvestorRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/listing': {
+      id: '/app/listing'
+      path: '/listing'
+      fullPath: '/app/listing'
+      preLoaderRoute: typeof AppListingRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/my-listings': {
@@ -1197,7 +1235,9 @@ interface AppRouteChildren {
   AppDeveloperRoute: typeof AppDeveloperRoute
   AppEcosystemRoute: typeof AppEcosystemRoute
   AppFeedbackRoute: typeof AppFeedbackRoute
+  AppInvestingRoute: typeof AppInvestingRoute
   AppInvestorRoute: typeof AppInvestorRoute
+  AppListingRoute: typeof AppListingRoute
   AppMyListingsRoute: typeof AppMyListingsRoute
   AppMyPortfolioRoute: typeof AppMyPortfolioRoute
   AppNewsRoute: typeof AppNewsRoute
@@ -1228,7 +1268,9 @@ const AppRouteChildren: AppRouteChildren = {
   AppDeveloperRoute: AppDeveloperRoute,
   AppEcosystemRoute: AppEcosystemRoute,
   AppFeedbackRoute: AppFeedbackRoute,
+  AppInvestingRoute: AppInvestingRoute,
   AppInvestorRoute: AppInvestorRoute,
+  AppListingRoute: AppListingRoute,
   AppMyListingsRoute: AppMyListingsRoute,
   AppMyPortfolioRoute: AppMyPortfolioRoute,
   AppNewsRoute: AppNewsRoute,

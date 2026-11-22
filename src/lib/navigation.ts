@@ -1,4 +1,4 @@
-import { Bell, Boxes, Briefcase, Heart, HelpCircle, Landmark, LayoutGrid, MessageSquare, Users, type LucideIcon } from "lucide-react";
+import { Bell, Boxes, Briefcase, Building2, Heart, HelpCircle, Landmark, LayoutGrid, MessageSquare, Users, type LucideIcon } from "lucide-react";
 
 // Every member gets the same workspace: anyone can invest in projects and anyone can list one.
 
@@ -11,8 +11,6 @@ export interface NavLeaf {
 
 export interface NavItem extends NavLeaf {
   icon: LucideIcon;
-  /** A collapsible parent: `to` is where the parent itself points (its first child). */
-  children?: NavLeaf[];
 }
 
 export interface NavGroup {
@@ -20,8 +18,8 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-export const INVESTING_PATH = "/app/my-deals/investing";
-export const LISTING_PATH = "/app/my-deals/listing";
+export const INVESTING_PATH = "/app/investing";
+export const LISTING_PATH = "/app/listing";
 
 export const NAV_GROUPS: NavGroup[] = [
   { label: "Discover", items: [
@@ -31,10 +29,8 @@ export const NAV_GROUPS: NavGroup[] = [
     { key: "ecosystem", label: "Advisors & ecosystem", to: "/app/ecosystem", icon: Users },
   ] },
   { label: "My workspace", items: [
-    { key: "my-deals", label: "My Deals", to: INVESTING_PATH, icon: Briefcase, children: [
-      { key: "investing", label: "Investing", to: INVESTING_PATH, badge: "investing" },
-      { key: "listing", label: "Listing", to: LISTING_PATH, badge: "listing" },
-    ] },
+    { key: "investing", label: "Investing", to: INVESTING_PATH, icon: Briefcase, badge: "investing" },
+    { key: "listing", label: "Listing", to: LISTING_PATH, icon: Building2, badge: "listing" },
     { key: "watchlist", label: "Watchlist", to: "/app/watchlist", icon: Heart, badge: "watchlist" },
     { key: "notifications", label: "Notifications", to: "/app/notifications", icon: Bell, badge: "notifications" },
   ] },

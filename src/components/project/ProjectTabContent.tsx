@@ -11,6 +11,10 @@ import { CasesSection, MarginSection } from "@/components/project/FinancialGrade
 import ProjectDocuments from "@/components/project/ProjectDocuments";
 import ProjectQA from "@/components/project/ProjectQA";
 import { ProjectFieldValue } from "./ProjectFieldValue";
+import StructureBoxes from "./StructureBoxes";
+import CarbonCharts from "./CarbonCharts";
+import BenchmarkPanel from "./BenchmarkPanel";
+import CountryProfilePanel from "@/components/country/CountryProfilePanel";
 
 export type DataRoomStatus = "none" | "pending" | "approved";
 
@@ -162,7 +166,9 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
         )}
       </div>
 
-      {/* Operating Parameters */}
+      <BenchmarkPanel document={project.submission} />
+
+      {/* Operating Parameters: developer-stated values; benchmarks come only from the sourced library above. */}
       {project.operatingParameters && project.operatingParameters.length > 0 && (
         <div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Operating parameters</h2>
@@ -173,7 +179,6 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
                 <tr className="border-b border-border bg-muted">
                   <th className="text-left p-4 text-xs font-semibold tracking-[0.1em] text-muted-foreground uppercase">Parameter</th>
                   <th className="text-left p-4 text-xs font-semibold tracking-[0.1em] text-muted-foreground uppercase">Value</th>
-                  <th className="text-left p-4 text-xs font-semibold tracking-[0.1em] text-muted-foreground uppercase">Benchmark / Context</th>
                 </tr>
               </thead>
               <tbody>
@@ -181,7 +186,6 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
                   <tr key={i} className="border-b border-border last:border-b-0">
                     <td className="p-4 font-bold text-foreground">{param.parameter}</td>
                     <td className="p-4 text-muted-foreground">{param.value}</td>
-                    <td className="p-4 text-muted-foreground">{param.benchmark}</td>
                   </tr>
                 ))}
               </tbody>
@@ -344,6 +348,7 @@ function StructureMarketTab({ project, grade, asOf }: { project: ProjectDetail; 
   const owners = ownershipRows(grade.transaction?.post_money_ownership);
   const date = grade.transaction?.as_of ?? asOf;
   return <div className="space-y-10">
+    <StructureBoxes document={project.submission} stage={project.submission?.stage || project.stage} />
     {owners.length > 0 && <section>
       <h2 className="mb-3 font-display text-2xl font-semibold">Ownership structure - {project.title}</h2>
       <p className="mb-5 text-xs text-muted-foreground">Developer-stated.{date ? ` ${asOfLine("Ownership", date)}.` : ""}</p>
@@ -352,6 +357,7 @@ function StructureMarketTab({ project, grade, asOf }: { project: ProjectDetail; 
       </div>
       <div className="grid gap-3 sm:grid-cols-2">{owners.map((owner) => <div key={owner.name} className="rounded-md border border-border bg-card p-4"><p className="font-semibold">{owner.name}</p><p className="text-sm text-muted-foreground">{owner.share}%</p></div>)}</div>
     </section>}
+    {/^[A-Za-z]{2}$/.test(project.country.trim()) && <CountryProfilePanel code={project.country} linkToCountry />}
   </div>;
 }
 
@@ -406,6 +412,7 @@ function SustainabilityTab({ project, asOf }: { project: ProjectDetail; asOf?: s
           </div>
         </div>
       )}
+      <CarbonCharts document={project.submission} country={project.country} />
       {project.euTaxonomy && <section><h2 className="mb-3 font-display text-2xl font-semibold">EU Taxonomy activity 4.15 - district heating and cooling distribution</h2></section>}
 
       {/* Energy Mix */}

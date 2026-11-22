@@ -398,6 +398,51 @@ export type Database = {
           },
         ]
       }
+      benchmark: {
+        Row: {
+          central: number | null
+          confidence: string
+          data_year: number
+          generation_class: string
+          high: number | null
+          id: string
+          low: number | null
+          metric: string
+          source: string
+          source_title: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          central?: number | null
+          confidence: string
+          data_year: number
+          generation_class: string
+          high?: number | null
+          id?: string
+          low?: number | null
+          metric: string
+          source: string
+          source_title: string
+          unit: string
+          updated_at?: string
+        }
+        Update: {
+          central?: number | null
+          confidence?: string
+          data_year?: number
+          generation_class?: string
+          high?: number | null
+          id?: string
+          low?: number | null
+          metric?: string
+          source?: string
+          source_title?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bundle: {
         Row: {
           created_at: string
@@ -625,6 +670,144 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      country_profile: {
+        Row: {
+          carbon_price_regime: string | null
+          carbon_price_regime_confidence: string | null
+          carbon_price_regime_data_year: number | null
+          carbon_price_regime_source: string | null
+          carbon_price_regime_source_title: string | null
+          connection_obligation: string | null
+          connection_obligation_confidence: string | null
+          connection_obligation_data_year: number | null
+          connection_obligation_source: string | null
+          connection_obligation_source_title: string | null
+          counterfactual_emission_factor_kg_mwh: number | null
+          counterfactual_emission_factor_kg_mwh_confidence: string | null
+          counterfactual_emission_factor_kg_mwh_data_year: number | null
+          counterfactual_emission_factor_kg_mwh_source: string | null
+          counterfactual_emission_factor_kg_mwh_source_title: string | null
+          country_code: string
+          dh_share_of_heat_pct: number | null
+          dh_share_of_heat_pct_confidence: string | null
+          dh_share_of_heat_pct_data_year: number | null
+          dh_share_of_heat_pct_source: string | null
+          dh_share_of_heat_pct_source_title: string | null
+          grid_emission_factor_kg_mwh: number | null
+          grid_emission_factor_kg_mwh_confidence: string | null
+          grid_emission_factor_kg_mwh_data_year: number | null
+          grid_emission_factor_kg_mwh_source: string | null
+          grid_emission_factor_kg_mwh_source_title: string | null
+          heat_price_regulation: string | null
+          heat_price_regulation_confidence: string | null
+          heat_price_regulation_data_year: number | null
+          heat_price_regulation_source: string | null
+          heat_price_regulation_source_title: string | null
+          regulator: string | null
+          regulator_confidence: string | null
+          regulator_data_year: number | null
+          regulator_source: string | null
+          regulator_source_title: string | null
+          regulatory_regime: string | null
+          regulatory_regime_confidence: string | null
+          regulatory_regime_data_year: number | null
+          regulatory_regime_source: string | null
+          regulatory_regime_source_title: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          carbon_price_regime?: string | null
+          carbon_price_regime_confidence?: string | null
+          carbon_price_regime_data_year?: number | null
+          carbon_price_regime_source?: string | null
+          carbon_price_regime_source_title?: string | null
+          connection_obligation?: string | null
+          connection_obligation_confidence?: string | null
+          connection_obligation_data_year?: number | null
+          connection_obligation_source?: string | null
+          connection_obligation_source_title?: string | null
+          counterfactual_emission_factor_kg_mwh?: number | null
+          counterfactual_emission_factor_kg_mwh_confidence?: string | null
+          counterfactual_emission_factor_kg_mwh_data_year?: number | null
+          counterfactual_emission_factor_kg_mwh_source?: string | null
+          counterfactual_emission_factor_kg_mwh_source_title?: string | null
+          country_code: string
+          dh_share_of_heat_pct?: number | null
+          dh_share_of_heat_pct_confidence?: string | null
+          dh_share_of_heat_pct_data_year?: number | null
+          dh_share_of_heat_pct_source?: string | null
+          dh_share_of_heat_pct_source_title?: string | null
+          grid_emission_factor_kg_mwh?: number | null
+          grid_emission_factor_kg_mwh_confidence?: string | null
+          grid_emission_factor_kg_mwh_data_year?: number | null
+          grid_emission_factor_kg_mwh_source?: string | null
+          grid_emission_factor_kg_mwh_source_title?: string | null
+          heat_price_regulation?: string | null
+          heat_price_regulation_confidence?: string | null
+          heat_price_regulation_data_year?: number | null
+          heat_price_regulation_source?: string | null
+          heat_price_regulation_source_title?: string | null
+          regulator?: string | null
+          regulator_confidence?: string | null
+          regulator_data_year?: number | null
+          regulator_source?: string | null
+          regulator_source_title?: string | null
+          regulatory_regime?: string | null
+          regulatory_regime_confidence?: string | null
+          regulatory_regime_data_year?: number | null
+          regulatory_regime_source?: string | null
+          regulatory_regime_source_title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          carbon_price_regime?: string | null
+          carbon_price_regime_confidence?: string | null
+          carbon_price_regime_data_year?: number | null
+          carbon_price_regime_source?: string | null
+          carbon_price_regime_source_title?: string | null
+          connection_obligation?: string | null
+          connection_obligation_confidence?: string | null
+          connection_obligation_data_year?: number | null
+          connection_obligation_source?: string | null
+          connection_obligation_source_title?: string | null
+          counterfactual_emission_factor_kg_mwh?: number | null
+          counterfactual_emission_factor_kg_mwh_confidence?: string | null
+          counterfactual_emission_factor_kg_mwh_data_year?: number | null
+          counterfactual_emission_factor_kg_mwh_source?: string | null
+          counterfactual_emission_factor_kg_mwh_source_title?: string | null
+          country_code?: string
+          dh_share_of_heat_pct?: number | null
+          dh_share_of_heat_pct_confidence?: string | null
+          dh_share_of_heat_pct_data_year?: number | null
+          dh_share_of_heat_pct_source?: string | null
+          dh_share_of_heat_pct_source_title?: string | null
+          grid_emission_factor_kg_mwh?: number | null
+          grid_emission_factor_kg_mwh_confidence?: string | null
+          grid_emission_factor_kg_mwh_data_year?: number | null
+          grid_emission_factor_kg_mwh_source?: string | null
+          grid_emission_factor_kg_mwh_source_title?: string | null
+          heat_price_regulation?: string | null
+          heat_price_regulation_confidence?: string | null
+          heat_price_regulation_data_year?: number | null
+          heat_price_regulation_source?: string | null
+          heat_price_regulation_source_title?: string | null
+          regulator?: string | null
+          regulator_confidence?: string | null
+          regulator_data_year?: number | null
+          regulator_source?: string | null
+          regulator_source_title?: string | null
+          regulatory_regime?: string | null
+          regulatory_regime_confidence?: string | null
+          regulatory_regime_data_year?: number | null
+          regulatory_regime_source?: string | null
+          regulatory_regime_source_title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       cron_token: {
         Row: {

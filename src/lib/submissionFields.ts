@@ -19,7 +19,7 @@ export const SUBMISSION_FIELDS: Record<string, FieldSpec> = {
   "Network length": { keys: ["project.network_length_km"] },
   "Households served": { keys: ["project.households_served"] },
   "Technology detail": { keys: ["technology_card.title", "technology_card.description"] },
-  "Operating parameters": { keys: ["operating_parameter.parameter", "operating_parameter.value", "operating_parameter.benchmark"] },
+  "Operating parameters": { keys: ["operating_parameter.parameter", "operating_parameter.value"] },
   "Development timeline": { keys: ["milestone.label", "milestone.target_date", "milestone.status", "milestone.description"] },
   "Total project financing": { keys: ["financial_summary.capex"], stages: late, required: true },
   "Capital stack": { keys: ["capital_stack_item.label", "capital_stack_item.amount", "capital_stack_item.provider"], stages: late },

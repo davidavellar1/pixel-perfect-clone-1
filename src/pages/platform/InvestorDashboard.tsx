@@ -4,6 +4,8 @@ import { Building2, FolderOpen, Heart, Info, LockOpen, Send, TrendingUp } from "
 import { Skeleton } from "@/components/ui/skeleton";
 import StatTile from "@/components/platform/StatTile";
 import DealsSwitch from "@/components/platform/DealsSwitch";
+import { BeforeClosePanel, ContingentCapexPanel, RunningConditionsPanel } from "@/components/platform/PublicFundingViews";
+import { usePublicFundingRows } from "@/hooks/usePublicFundingRows";
 import { TICKETS } from "@/lib/profileSettings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,7 +54,7 @@ const fmtDate = (d: Date) => d.toLocaleDateString("en-GB");
 const InvestorDashboard = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"interests" | "deals" | "watch">("interests");
+  const [tab, setTab] = useState<"pipeline" | "realised" | "watch">("pipeline");
   const [interests, setInterests] = useState<Interest[]>([]);
   const { projects: listings } = useProjectListings();
   const { qualified } = useInvestorQualification();
@@ -118,6 +120,10 @@ const InvestorDashboard = () => {
   }, [user]);
 
   const projectById = useMemo(() => new Map(projects.map((project) => [project.id, project])), [projects]);
+  // Public-funding views read only records RLS opens to this investor (accepted and qualified).
+  const fundingLabels = useMemo(() => new Map(projects.map((project) => [project.id, project.title])), [projects]);
+  const funding = usePublicFundingRows(interests.map((interest) => interest.project_id), fundingLabels);
+  const realisedIds = new Set(interests.filter((interest) => normaliseStage(interest.stage) === "closed").map((interest) => interest.project_id));
 
   // A project saved elsewhere since this page loaded: fetch its details once.
   const fetchedFor = useRef(new Set<string>());
@@ -184,7 +190,8 @@ const InvestorDashboard = () => {
     ["Data rooms open", String(approvedRooms), `${requests.filter((request) => request.status === "requested").length} pending`],
   ];
 
-  const rows = tab === "watch" ? watchlist : interests;
+  const rows = watchlist;
+  const dealList = interests.filter((interest) => (normaliseStage(interest.stage) === "closed") === (tab === "realised"));
 
   const setOwner = (id: string, value: string) => setOwners((prev) => ({ ...prev, [id]: value }));
   const setNextAction = (id: string, value: string) => setNextActions((prev) => ({ ...prev, [id]: value }));
@@ -303,16 +310,21 @@ const InvestorDashboard = () => {
           )}
         </section>
       </div>
+      <div className="mb-7"><ContingentCapexPanel rows={funding.rows} capexByProject={funding.capexByProject} scope={`Projects you are engaged with whose records are open to you (${funding.visibleProjects} of ${new Set(interests.map((interest) => interest.project_id)).size})`} /></div>
 
       </>}
       <div className="mb-5 flex gap-1.5 overflow-x-auto border-b border-border">
-        {([['interests', 'My interests'], ['deals', 'Deals'], ['watch', 'Watchlist']] as const).map(([id, label]) => <Button key={id} variant="ghost" onClick={() => setTab(id)} className={cn("rounded-none border-b-2", tab === id ? "border-accent text-accent" : "border-transparent text-muted-foreground")}>{label}</Button>)}
+        {([['pipeline', 'Pipeline'], ['realised', 'Realised'], ['watch', 'Watchlist']] as const).map(([id, label]) => <Button key={id} variant="ghost" onClick={() => setTab(id)} className={cn("rounded-none border-b-2", tab === id ? "border-accent text-accent" : "border-transparent text-muted-foreground")}>{label}</Button>)}
       </div>
 
-      {tab === "deals" ? (
+      {tab !== "watch" ? (
         <div className="space-y-3">
-          {!interests.length && <p className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">No active deals yet.</p>}
-          {interests.map((interest) => {
+          {tab === "pipeline" ? <BeforeClosePanel rows={funding.rows.filter((row) => !realisedIds.has(row.projectId))} /> : <>
+            <p className="rounded-lg border border-border bg-muted/40 p-4 text-xs text-muted-foreground">Realised positions show what was stated at underwriting. DHC Market does not record realised returns, valuations or cash received.</p>
+            <RunningConditionsPanel rows={funding.rows.filter((row) => realisedIds.has(row.projectId))} />
+          </>}
+          {!dealList.length && <p className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">{tab === "realised" ? "No realised positions yet. A position moves here once financial close is confirmed." : "No deals in your pipeline yet."}</p>}
+          {dealList.map((interest) => {
             const project = projectById.get(interest.project_id);
             if (!project) return null;
             const process = processByProject.get(project.id);

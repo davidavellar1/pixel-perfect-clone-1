@@ -53,7 +53,8 @@ const TransactionTab = ({ grade, project, asOf }: { grade: InvestorGradeBundle; 
             <div>
               <p className="text-xs uppercase tracking-widest text-primary-foreground/70">Equity sought</p>
               <p className="mt-1 text-lg font-semibold">
-                {eur(t?.equity_sought)}{t?.stake_offered_pct ? ` for ${pct(t.stake_offered_pct, 0)}` : ""}
+                {/* No zero tile: a missing or zero equity figure renders the typed absence. */}
+                <ProjectFieldValue fieldKey="project_transaction.equity_sought" stage={project.stage} askedFields={project.askedFields} value={t?.equity_sought ? `${eur(t.equity_sought)}${t.stake_offered_pct ? ` for ${pct(t.stake_offered_pct, 0)}` : ""}` : null} />
               </p>
             </div>
             <div>

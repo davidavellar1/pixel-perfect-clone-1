@@ -17,7 +17,7 @@ import type { DataRoomStatus } from "@/components/project/ProjectTabContent";
 import AccessStateBar from "@/components/project/AccessStateBar";
 import ExpressInterestDialog, { type InterestFormDraft } from "@/components/project/ExpressInterestDialog";
 import { Button } from "@/components/ui/button";
-import { Heart, Lock, CheckCircle2, Clock, ShieldX, Send } from "lucide-react";
+import { Heart, Lock, CheckCircle2, Clock, ShieldX, Send, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { toast as sonnerToast } from "sonner";
@@ -103,6 +103,11 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   const [agreementError, setAgreementError] = useState<string | null>(null);
   const [reply, setReply] = useState("");
   const [replyBusy, setReplyBusy] = useState(false);
+  // Retractable project sidebar: 64px when collapsed, remembered per user in this browser.
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const sidebarKey = `dhc-project-sidebar-collapsed-${user?.id ?? "guest"}`;
+  useEffect(() => { try { setSidebarCollapsed(localStorage.getItem(sidebarKey) === "true"); } catch { setSidebarCollapsed(false); } }, [sidebarKey]);
+  const toggleSidebar = () => setSidebarCollapsed((value) => { try { localStorage.setItem(sidebarKey, String(!value)); } catch { /* Storage may be unavailable. */ } return !value; });
   useEffect(() => {
     void supabase.from("nda_document_version").select("*").is("retired_at", null).lte("effective_from", new Date().toISOString()).order("effective_from", { ascending: false }).limit(1).maybeSingle()
       .then(({ data, error }) => { setAgreement(data); setAgreementError(error?.message || (!data ? "The agreement is unavailable. Please try again later." : null)); });
@@ -372,7 +377,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
         <div className="flex items-center gap-2">
           {isOwner ? (
             <Button size="sm" variant="outline" asChild>
-              <Link to="/app/my-deals/listing">Manage listing</Link>
+              <Link to="/app/listing">Manage listing</Link>
             </Button>
           ) : (
             <>
@@ -509,8 +514,8 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
       {/* Main content */}
       <div className="mx-auto max-w-workspace px-5 py-10">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
+        <div className={sidebarCollapsed ? "grid grid-cols-[minmax(0,1fr)_64px] gap-8" : "grid grid-cols-1 gap-8 lg:grid-cols-3"}>
+          <div className={sidebarCollapsed ? "min-w-0" : "lg:col-span-2"}>
             <LockedTabOverlay
               locked={isLocked(activeTab)}
               tabName={activeTab}
@@ -526,12 +531,19 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
               />{granted && <StageEvidenceSection document={project.submission ?? null} tab={activeTab} />}</> : qualified && investorDocument ? <InvestorInformation document={investorDocument} tab={activeTab} projectId={projectId} banded={!investorExact} /> : qualified ? <><p className="text-sm text-muted-foreground">{investorError ? "Investor information could not be loaded. Please refresh." : "This developer has not consented to pre-acceptance disclosure. Figures remain banded until acceptance."}</p>{activeTab==="Documents"&&projectId&&<GeneratedProjectDocuments projectId={projectId}/>}</> : <ProjectTabContent project={project} granted={false} activeTab="Summary" />}
             </LockedTabOverlay>
           </div>
-          <div className="lg:col-span-1">
-            <ProjectSidebar project={project} onRequestAccess={openInterest} loadingAuth={loadingAuth} isOwner={isOwner} granted={granted} context={context} />
-            {context === "app" && databaseProject && (
-              <div className="mt-6"><ProjectNewsCard projectId={databaseProject.id} countryCode={databaseProject.country_code} /></div>
-            )}
-          </div>
+          <aside className={sidebarCollapsed ? "w-16" : "lg:col-span-1"} aria-label="Project summary">
+            <div className={sidebarCollapsed ? "flex justify-center" : "mb-3 flex justify-end"}>
+              <Button variant="outline" size="icon" className="h-11 w-11" onClick={toggleSidebar} aria-expanded={!sidebarCollapsed} aria-controls="project-sidebar" aria-label={sidebarCollapsed ? "Show project summary" : "Hide project summary"} title={sidebarCollapsed ? "Show project summary" : "Hide project summary"}>
+                {sidebarCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              </Button>
+            </div>
+            <div id="project-sidebar" hidden={sidebarCollapsed}>
+              <ProjectSidebar project={project} onRequestAccess={openInterest} loadingAuth={loadingAuth} isOwner={isOwner} granted={granted} context={context} />
+              {context === "app" && databaseProject && (
+                <div className="mt-6"><ProjectNewsCard projectId={databaseProject.id} countryCode={databaseProject.country_code} /></div>
+              )}
+            </div>
+          </aside>
         </div>
       </div>
 

@@ -10,7 +10,7 @@ export function pendingAccessNotices(input: { id: string; project_id: string; in
     user_id, kind, project_id, access_request_id: id,
     title: lapsed ? "Access request lapsed without a decision" : "Access request needs a decision",
     body: lapsed ? `The request on ${user_id === investor_user_id ? teaserTitle : title} reached ${SLA_LAPSE_WORKING_DAYS} working days without a decision. No access was granted and no introduction was logged.` : `The request on ${title} has been waiting ${workingDays} working days. Please review it before it lapses.`,
-    link: user_id === ownerId ? `/app/access-requests?request=${id}` : "/app/my-deals/investing",
+    link: user_id === ownerId ? `/app/access-requests?request=${id}` : "/app/investing",
     dedupe_key: `${kind}:${id}:${user_id}`,
   }));
 }

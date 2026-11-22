@@ -91,14 +91,20 @@ export const asOfLine = (label: string, date: string | null | undefined) =>
     : `${label} as-of date not given by the developer`;
 
 /** Total committed load share across the two committed tiers of the ladder. */
+/** Sum of the stated parts only; null when neither part is stated, never a zero by default. */
+const statedSum = (values: (number | string | null | undefined)[]) => {
+  const known = values.filter((value): value is number | string => value !== null && value !== undefined && value !== "").map(Number).filter(Number.isFinite);
+  return known.length ? known.reduce((sum, value) => sum + value, 0) : null;
+};
+
 export const committedLoadPct = (ladder: LadderRecord | null) =>
-  ladder ? Number(ladder.contracted_load_pct || 0) + Number(ladder.signed_connection_load_pct || 0) : null;
+  ladder ? statedSum([ladder.contracted_load_pct, ladder.signed_connection_load_pct]) : null;
 
 export const committedBuildingCount = (ladder: LadderRecord | null) =>
-  ladder ? (ladder.contracted_count || 0) + (ladder.signed_connection_count || 0) : null;
+  ladder ? statedSum([ladder.contracted_count, ladder.signed_connection_count]) : null;
 
 export const committedBuildingPct = (ladder: LadderRecord | null) => {
   if (!ladder?.total_buildings) return null;
-  const count = committedBuildingCount(ladder) || 0;
-  return (count / ladder.total_buildings) * 100;
+  const count = committedBuildingCount(ladder);
+  return count === null ? null : (count / ladder.total_buildings) * 100;
 };

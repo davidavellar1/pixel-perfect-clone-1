@@ -16,7 +16,7 @@ import { Loader2, Plus, Trash2 } from "lucide-react";
 
 type Card = { title: string; description: string };
 type MixItem = { source: string; share: string };
-type Param = { parameter: string; value: string; benchmark: string };
+type Param = { parameter: string; value: string };
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   <h3 className="font-display text-sm font-semibold text-foreground">{children}</h3>
@@ -46,7 +46,7 @@ const ManageTechnicalDialog = ({
       supabase.from("energy_mix_item").select("source, share_pct").eq("project_id", projectId).order("sort_order"),
       supabase
         .from("operating_parameter")
-        .select("parameter, value, benchmark")
+        .select("parameter, value")
         .eq("project_id", projectId)
         .order("sort_order"),
     ]);
@@ -61,7 +61,6 @@ const ManageTechnicalDialog = ({
       (paramsRes.data ?? []).map((row) => ({
         parameter: row.parameter,
         value: row.value ?? "",
-        benchmark: row.benchmark ?? "",
       })),
     );
     setLoading(false);
@@ -122,7 +121,6 @@ const ManageTechnicalDialog = ({
             project_id: projectId,
             parameter: row.parameter.trim(),
             value: row.value.trim() || null,
-            benchmark: row.benchmark.trim() || null,
             sort_order: index,
           })),
         ),
@@ -261,21 +259,12 @@ const ManageTechnicalDialog = ({
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                  <Input
-                    value={param.benchmark}
-                    placeholder="Benchmark or context (optional)"
-                    onChange={(event) =>
-                      setParams((prev) =>
-                        prev.map((row, i) => (i === index ? { ...row, benchmark: event.target.value } : row)),
-                      )
-                    }
-                  />
                 </div>
               ))}
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setParams((prev) => [...prev, { parameter: "", value: "", benchmark: "" }])}
+                onClick={() => setParams((prev) => [...prev, { parameter: "", value: "" }])}
               >
                 <Plus className="h-3.5 w-3.5" /> Add parameter
               </Button>

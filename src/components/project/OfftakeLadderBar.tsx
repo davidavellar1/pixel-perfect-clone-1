@@ -24,11 +24,14 @@ const OfftakeLadderBar = ({ ladder }: Props) => {
   }
 
   const tiers = [
-    { ...LADDER_TIERS[0], count: ladder.contracted_count, load: Number(ladder.contracted_load_pct || 0) },
-    { ...LADDER_TIERS[1], count: ladder.signed_connection_count, load: Number(ladder.signed_connection_load_pct || 0) },
-    { ...LADDER_TIERS[2], count: ladder.in_negotiation_count, load: Number(ladder.in_negotiation_load_pct || 0) },
+    { ...LADDER_TIERS[0], count: ladder.contracted_count, load: ladder.contracted_load_pct == null ? null : Number(ladder.contracted_load_pct) },
+    { ...LADDER_TIERS[1], count: ladder.signed_connection_count, load: ladder.signed_connection_load_pct == null ? null : Number(ladder.signed_connection_load_pct) },
+    { ...LADDER_TIERS[2], count: ladder.in_negotiation_count, load: ladder.in_negotiation_load_pct == null ? null : Number(ladder.in_negotiation_load_pct) },
   ];
-  const { shares, remainder } = designLoadSegments(tiers.map((tier) => tier.load));
+  // Unstated tiers take no width in the bar and are never labelled as zero.
+  const { shares, remainder } = designLoadSegments(tiers.map((tier) => tier.load ?? 0));
+  const committedCount = committedBuildingCount(ladder);
+  const committedLoad = committedLoadPct(ladder);
   const buildingPct = committedBuildingPct(ladder);
 
   return (
@@ -46,9 +49,9 @@ const OfftakeLadderBar = ({ ladder }: Props) => {
               key={tier.key}
               className={`flex items-center justify-center shrink-0 text-xs font-semibold ${index === 2 ? "bg-ladder-negotiation text-foreground" : index === 1 ? "bg-accent text-accent-foreground" : "bg-success text-primary-foreground"}`}
               style={{ width: `${shares[index]}%` }}
-              aria-label={`${tier.label}: ${tier.load}% of design load`}
-              title={`${tier.label}: ${tier.load}% of design load`}
-            >{tier.load >= 6 ? `${tier.load}%` : null}</div>
+              aria-label={tier.load === null ? `${tier.label}: not provided` : `${tier.label}: ${tier.load}% of design load`}
+              title={tier.load === null ? `${tier.label}: not provided` : `${tier.label}: ${tier.load}% of design load`}
+            >{tier.load !== null && tier.load >= 6 ? `${tier.load}%` : null}</div>
           ))}
           {remainder > 0 && <div className="bg-border shrink-0" style={{ width: `${remainder}%` }} aria-label={`Uncommitted: ${remainder}% of design load`} title={`Uncommitted: ${remainder}% of design load`} />}
         </div>
@@ -61,16 +64,14 @@ const OfftakeLadderBar = ({ ladder }: Props) => {
                 <p className="text-sm font-semibold text-foreground">{tier.label}</p>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                {tier.count ?? 0} buildings, {tier.load}% of design load
+                {[tier.count != null ? `${tier.count} buildings` : null, tier.load !== null ? `${tier.load}% of design load` : null].filter(Boolean).join(", ") || "Not provided"}
               </p>
             </div>
           ))}
         </div>
         <p className="mt-4 text-sm text-foreground">
           <span className="font-semibold">Offtake committed:</span>{" "}
-          {committedBuildingCount(ladder)} of {ladder.total_buildings ?? "an unstated number of"} buildings
-          {buildingPct !== null ? ` (${buildingPct.toFixed(0)}% of buildings)` : ""},{" "}
-          {committedLoadPct(ladder)}% of design load. Committed means contracted plus signed connection agreements.
+          {[committedCount !== null ? `${committedCount}${ladder.total_buildings ? ` of ${ladder.total_buildings}` : ""} buildings${buildingPct !== null ? ` (${buildingPct.toFixed(0)}% of buildings)` : ""}` : null, committedLoad !== null ? `${committedLoad}% of design load` : null].filter(Boolean).join(", ") || "Not provided"}. Committed means contracted plus signed connection agreements.
         </p>
       </div>
     </div>

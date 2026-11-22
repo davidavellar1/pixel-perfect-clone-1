@@ -50,7 +50,7 @@ export interface ProjectDetail {
   co2Detail?: { tonnes: number };
   euTaxonomy?: { objective: string; description: string };
   energyMix?: { source: string; percentage: number }[];
-  operatingParameters?: { parameter: string; value: string; benchmark: string }[];
+  operatingParameters?: { parameter: string; value: string }[];
   sustainabilityMetrics?: { label: string; value: string; context: string }[];
 }
 

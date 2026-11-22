@@ -1,9 +1,9 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-// Old address from before investing and listing moved under My Deals.
+// Old address; Investing and Listing are top-level workspace pages.
 export const Route = createFileRoute("/app/my-listings")({
   beforeLoad: () => {
-    throw redirect({ href: "/app/my-deals/listing", replace: true });
+    throw redirect({ href: "/app/listing", replace: true });
   },
   component: () => null,
 });

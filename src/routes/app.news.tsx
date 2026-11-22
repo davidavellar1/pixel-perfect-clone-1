@@ -1,21 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-import MarketNews from "@/pages/platform/MarketNews";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// The standalone news page is cut. News appears in the overview work queue, on country pages
+// and on project pages; old links land on the overview.
 export const Route = createFileRoute("/app/news")({
-  validateSearch: (search: Record<string, unknown>): { country?: string } =>
-    typeof search.country === "string" ? { country: search.country } : {},
-  head: () => ({
-    meta: [
-      { title: "Market news - DHC Market" },
-      { name: "description", content: "District heating and cooling news from the markets you follow, summarised in English." },
-      { property: "og:title", content: "Market news - DHC Market" },
-      { property: "og:description", content: "District heating and cooling news from the markets you follow, summarised in English." },
-    ],
-  }),
-  component: NewsRoute,
+  beforeLoad: () => {
+    throw redirect({ href: "/app", replace: true });
+  },
+  component: () => null,
 });
-
-function NewsRoute() {
-  const { country } = Route.useSearch();
-  return <MarketNews initialCountry={country} />;
-}

@@ -1,14 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
-import DeveloperDashboard from "@/pages/platform/DeveloperDashboard";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// Investing and Listing were under My Deals; old links keep working, with their query and hash.
 export const Route = createFileRoute("/app/my-deals/listing")({
-  head: () => ({
-    meta: [
-      { title: "Listing - My Deals - DHC Market" },
-      { name: "description", content: "Projects you have listed and the investors interested in them." },
-      { property: "og:title", content: "Listing - My Deals - DHC Market" },
-      { property: "og:description", content: "Projects you have listed and the investors interested in them." },
-    ],
-  }),
-  component: () => <DeveloperDashboard />,
+  beforeLoad: ({ location }) => {
+    throw redirect({ href: location.href.replace("/app/my-deals/listing", "/app/listing"), replace: true });
+  },
+  component: () => null,
 });
