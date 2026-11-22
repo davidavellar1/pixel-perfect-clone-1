@@ -1,5 +1,14 @@
 # Phases 0 to 11: current checkpoint
 
+## Active request: retired paid-gate cleanup
+- [x] Verify subscription and sdg_alignment both still exist, and both disclosure consent fields still use their old names
+- [x] Search src for requested terms; identify generated retired-schema references, disclosure fields, auth listener handles, decorative stripe names and legitimate energy/financing terminology
+- [ ] Drop subscription and sdg_alignment: blocked by backward-incompatible migration permission
+- [ ] Rename disclosure consent fields and update all database/application references together: blocked by the same permission; no partial rename applied
+- [ ] Complete source cleanup and regenerate database types after schema cleanup; literal term removal is not yet complete
+
+The requested migration was rejected before application. Production, application code and migration history remain unchanged. Enable Execute backward incompatible database migrations in Settings > Agent permissions as Ask each time or Always allow before retrying the requested drops and renames. Do not substitute additive columns for the requested record-preserving renames.
+
 ## Active priority: migration replay reconciliation
 - [x] Confirm all three unlisted files have live objects and exact production checksum matches
 - [x] Confirm all 40 registered migration checksums match production and identify the three duplicate prefixes
