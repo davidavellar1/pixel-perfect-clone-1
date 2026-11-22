@@ -1,5 +1,12 @@
 # Phases 0 to 11: current checkpoint
 
+## Active request: Security batch A
+- [ ] Restrict identity-bearing child reads to owners or accepted users and remove project paid_depth
+- [ ] Delete unused SDG table and regenerate types
+- [ ] Replace public project slugs with random references across projections, screens, jobs, MCP and PDFs
+- [ ] Verify role-based database reads, routing, existing tests and hygiene
+
+
 ## Active request: remove unused SDG data
 - [x] Confirm the live table contains 21 rows and two policies
 - [x] Check Sustainability and the project sidebar: neither renders an SDG section; no app fetch or write path remains

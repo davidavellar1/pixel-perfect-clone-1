@@ -281,6 +281,20 @@
       "when": 1795346905552,
       "tag": "0039_finalize_qualified_depth_and_independent_identity",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1795378248047,
+      "tag": "0040_restrict_identity_bearing_project_reads",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1795378298554,
+      "tag": "0041_opaque_public_project_references",
+      "breakpoints": true
     }
   ]
 }

@@ -1898,6 +1898,7 @@ export type Database = {
           network_length_km: number | null
           project_type: Database["public"]["Enums"]["project_type"]
           public_cofinancing_status: string | null
+          public_ref: string
           regulatory_as_of: string | null
           slug: string
           submission_draft: Json | null
@@ -1937,6 +1938,7 @@ export type Database = {
           network_length_km?: number | null
           project_type: Database["public"]["Enums"]["project_type"]
           public_cofinancing_status?: string | null
+          public_ref?: string
           regulatory_as_of?: string | null
           slug: string
           submission_draft?: Json | null
@@ -1976,6 +1978,7 @@ export type Database = {
           network_length_km?: number | null
           project_type?: Database["public"]["Enums"]["project_type"]
           public_cofinancing_status?: string | null
+          public_ref?: string
           regulatory_as_of?: string | null
           slug?: string
           submission_draft?: Json | null
@@ -2852,7 +2855,7 @@ export type Database = {
           offtake_committed_load_pct: number | null
           project_type: Database["public"]["Enums"]["project_type"] | null
           public_funding_awarded: boolean | null
-          slug: string | null
+          public_ref: string | null
           target_close_quarter: string | null
           teaser_title: string | null
           technology: Database["public"]["Enums"]["technology"] | null
@@ -2875,7 +2878,7 @@ export type Database = {
           min_ticket_sort: number | null
           offtake_committed_load_pct: number | null
           project_type: Database["public"]["Enums"]["project_type"] | null
-          slug: string | null
+          public_ref: string | null
           teaser_title: string | null
           technology: Database["public"]["Enums"]["technology"] | null
           transaction_terms_published: boolean | null
@@ -2997,7 +3000,7 @@ export type Database = {
           offtake_committed_load_pct: number
           project_type: Database["public"]["Enums"]["project_type"]
           public_funding_awarded: boolean
-          slug: string
+          public_ref: string
           target_close_quarter: string
           teaser_title: string
           technology: Database["public"]["Enums"]["technology"]
@@ -3021,7 +3024,7 @@ export type Database = {
           min_ticket_sort: number
           offtake_committed_load_pct: number
           project_type: Database["public"]["Enums"]["project_type"]
-          slug: string
+          public_ref: string
           teaser_title: string
           technology: Database["public"]["Enums"]["technology"]
           transaction_terms_published: boolean
