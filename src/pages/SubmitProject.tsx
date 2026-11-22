@@ -963,10 +963,10 @@ export default function SubmitProject() {
 
 
               <div className="grid gap-3.5 sm:grid-cols-2">
-                <Field label={`Target equity IRR (${CASE_LABEL.base})`} optional="(%)">
+                <Field label={`Target equity IRR (${CASE_LABEL.base})`} optional="(%)" questionKeys={["project_transaction.target_equity_irr_pct"]}>
                   <Input type="number" step="0.1" value={targetEquityIrrPct} onChange={(e) => setTargetEquityIrrPct(e.target.value)} />
                 </Field>
-                <Field label={`Downside equity IRR (${CASE_LABEL.downside})`} optional="(%)">
+                <Field label={`Downside equity IRR (${CASE_LABEL.downside})`} optional="(%)" questionKeys={["project_transaction.downside_equity_irr_pct"]}>
                   <Input type="number" step="0.1" value={downsideEquityIrrPct} onChange={(e) => setDownsideEquityIrrPct(e.target.value)} />
                 </Field>
               </div>

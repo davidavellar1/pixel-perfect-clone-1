@@ -1,8 +1,10 @@
 import { HardHat } from "lucide-react";
 import { asOfLine, eur, pct, type ConstructionRecord } from "@/data/investorGrade";
+import type { ProjectDetail } from "@/lib/blankProject";
+import { ProjectFieldValue } from "./ProjectFieldValue";
 
 /** First section of the Technical tab: the construction package. */
-const ConstructionPackageSection = ({ construction, asOf }: { construction: ConstructionRecord | null; asOf?: string | null }) => {
+const ConstructionPackageSection = ({ construction, project, asOf }: { construction: ConstructionRecord | null; project: ProjectDetail; asOf?: string | null }) => {
   const c = construction;
   const cells = [
     { label: "EPC contractor", value: c?.epc_contractor ? `${c.epc_contractor}${c.epc_named_in_dataroom ? " (contract named in the data room)" : ""}` : null },
@@ -32,7 +34,7 @@ const ConstructionPackageSection = ({ construction, asOf }: { construction: Cons
 
       {!c ? (
         <p className="rounded-xl border border-border bg-muted/50 p-5 text-sm text-muted-foreground">
-          The developer has not published a construction package for this project yet. This is expected at concept and feasibility stage.
+          <ProjectFieldValue fieldKey="construction_package.epc_contractor" stage={project.stage} askedFields={project.askedFields} />
         </p>
       ) : (
         <>

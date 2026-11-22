@@ -1,8 +1,10 @@
 import { AlertTriangle, Percent, TrendingUp } from "lucide-react";
 import { CASE_LABEL, CASE_ORDER, asOfLine, pct, type CaseRecord, type MarginRecord } from "@/data/investorGrade";
+import type { ProjectDetail } from "@/lib/blankProject";
+import { ProjectFieldValue } from "./ProjectFieldValue";
 
 /** Margin cards. First section of the Financial tab. */
-export const MarginSection = ({ margin, asOf }: { margin: MarginRecord | null; asOf?: string | null }) => (
+export const MarginSection = ({ margin, project, asOf }: { margin: MarginRecord | null; project: ProjectDetail; asOf?: string | null }) => (
   <div>
     <div className="mb-3 flex items-center gap-2">
       <Percent className="h-5 w-5 text-accent" />
@@ -13,7 +15,7 @@ export const MarginSection = ({ margin, asOf }: { margin: MarginRecord | null; a
 
     {!margin ? (
       <p className="rounded-xl border border-border bg-muted/50 p-5 text-sm text-muted-foreground">
-        The developer has not published heat purchase and tariff pricing for this project yet.
+        <ProjectFieldValue fieldKey="margin_profile.heat_purchase_price" stage={project.stage} askedFields={project.askedFields} />
       </p>
     ) : (
       <>
@@ -48,11 +50,12 @@ export const MarginSection = ({ margin, asOf }: { margin: MarginRecord | null; a
 
 interface CasesProps {
   cases: CaseRecord[];
+  project: ProjectDetail;
   breakeven: { dscr1x: number | null; irrZero: number | null; contracted: number | null };
 }
 
 /** Cases and sensitivities table plus the break-even callout. */
-export const CasesSection = ({ cases, breakeven }: CasesProps) => {
+export const CasesSection = ({ cases, project, breakeven }: CasesProps) => {
   const ordered = CASE_ORDER.map((name) => cases.find((c) => c.name === name)).filter(Boolean) as CaseRecord[];
   const tone: Record<CaseRecord["name"], string> = {
     base: "bg-card",
@@ -71,7 +74,7 @@ export const CasesSection = ({ cases, breakeven }: CasesProps) => {
 
       {ordered.length === 0 ? (
         <p className="rounded-xl border border-border bg-muted/50 p-5 text-sm text-muted-foreground">
-          The developer has not published a case set for this project yet. Returns are only shown with their case label.
+          <ProjectFieldValue fieldKey="project_case.base.equity_irr_pct" stage={project.stage} askedFields={project.askedFields} />
         </p>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border">
@@ -88,11 +91,11 @@ export const CasesSection = ({ cases, breakeven }: CasesProps) => {
                 {ordered.map((row) => (
                   <tr key={row.name} className={tone[row.name]}>
                     <td className="px-4 py-3.5 font-semibold text-foreground">{CASE_LABEL[row.name]}</td>
-                    <td className="px-4 py-3.5 text-foreground">{row.connections ?? null}</td>
-                    <td className="px-4 py-3.5 text-foreground">{row.power_price ?? null}</td>
-                    <td className="px-4 py-3.5 text-foreground">{pct(row.capex_variance_pct, 0)}</td>
-                    <td className="px-4 py-3.5 text-foreground">{row.equity_irr_pct == null ? null : `${pct(row.equity_irr_pct)} (${CASE_LABEL[row.name].toLowerCase()})`}</td>
-                    <td className="px-4 py-3.5 text-foreground">{row.min_dscr == null ? null : `${row.min_dscr}x (${CASE_LABEL[row.name].toLowerCase()})`}</td>
+                    <td className="px-4 py-3.5 text-foreground"><ProjectFieldValue fieldKey={`project_case.${row.name}.connections`} stage={project.stage} askedFields={project.askedFields} value={row.connections} /></td>
+                    <td className="px-4 py-3.5 text-foreground"><ProjectFieldValue fieldKey={`project_case.${row.name}.power_price`} stage={project.stage} askedFields={project.askedFields} value={row.power_price} /></td>
+                    <td className="px-4 py-3.5 text-foreground"><ProjectFieldValue fieldKey={`project_case.${row.name}.capex_variance_pct`} stage={project.stage} askedFields={project.askedFields} value={pct(row.capex_variance_pct, 0)} /></td>
+                    <td className="px-4 py-3.5 text-foreground"><ProjectFieldValue fieldKey={`project_case.${row.name}.equity_irr_pct`} stage={project.stage} askedFields={project.askedFields} value={row.equity_irr_pct == null ? null : `${pct(row.equity_irr_pct)} (${CASE_LABEL[row.name].toLowerCase()})`} /></td>
+                    <td className="px-4 py-3.5 text-foreground"><ProjectFieldValue fieldKey={`project_case.${row.name}.min_dscr`} stage={project.stage} askedFields={project.askedFields} value={row.min_dscr == null ? null : `${row.min_dscr}x (${CASE_LABEL[row.name].toLowerCase()})`} /></td>
                   </tr>
                 ))}
               </tbody>

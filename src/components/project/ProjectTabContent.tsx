@@ -10,7 +10,7 @@ import ConstructionPackageSection from "@/components/project/ConstructionPackage
 import { CasesSection, MarginSection } from "@/components/project/FinancialGradeSections";
 import ProjectDocuments from "@/components/project/ProjectDocuments";
 import ProjectQA from "@/components/project/ProjectQA";
-import { absenceCopy, resolveProjectField } from "@/lib/projectAbsence";
+import { ProjectFieldValue } from "./ProjectFieldValue";
 
 export type DataRoomStatus = "none" | "pending" | "approved";
 
@@ -51,7 +51,7 @@ const ProjectTabContent = ({
 }: ProjectTabContentProps) => {
   if (!granted && !isOwner && activeTab !== "Overview") return <p className="text-sm text-muted-foreground">Opens when the developer accepts your request.</p>;
   if (activeTab === "Overview") return <OverviewTab project={project} grade={grade} numericCapex={numericCapex} granted={granted} asOf={asOf.financial} />;
-  if (activeTab === "Transaction") return <TransactionTab grade={grade} asOf={asOf.financial} />;
+  if (activeTab === "Transaction") return <TransactionTab grade={grade} project={project} asOf={asOf.financial} />;
   if (activeTab === "Technical") return <TechnicalTab project={project} grade={grade} asOf={asOf.technical} />;
   if (activeTab === "Financial") {
     return (
@@ -101,7 +101,7 @@ function OverviewTab({ project, grade, numericCapex, granted, asOf }: { project:
         <div className="border-t border-border mb-6" />
         {project.timeline.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground">
-            {granted ? absenceCopy(resolveProjectField("milestone.label", project.stage, null, project.askedFields) as { kind: "absence"; reason: "not_asked" | "not_provided" }, project.stage) : "Opens when the developer accepts your request."}
+            {granted ? <ProjectFieldValue fieldKey="milestone.label" stage={project.stage} askedFields={project.askedFields} /> : "Opens when the developer accepts your request."}
           </p>
         ) : (
         <div className="relative ml-4">
@@ -141,14 +141,14 @@ function OverviewTab({ project, grade, numericCapex, granted, asOf }: { project:
 function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade: InvestorGradeBundle; asOf?: string | null }) {
   return (
     <div className="space-y-10">
-      <ConstructionPackageSection construction={grade.construction} asOf={asOf} />
+      <ConstructionPackageSection construction={grade.construction} project={project} asOf={asOf} />
       {/* Technology & Heat Source */}
       <div>
         <h2 className="text-2xl font-serif font-bold text-foreground mb-3">Technology & heat source</h2>
         <div className="border-t border-border mb-4" />
         {project.technologyCards.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground">
-            {absenceCopy(resolveProjectField("technology_card.title", project.stage, null, project.askedFields) as { kind: "absence"; reason: "not_asked" | "not_provided" }, project.stage)}
+            <ProjectFieldValue fieldKey="technology_card.title" stage={project.stage} askedFields={project.askedFields} />
           </p>
         ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -195,7 +195,7 @@ function TechnicalTab({ project, grade, asOf }: { project: ProjectDetail; grade:
         <div className="border-t border-border mb-6" />
         {project.timeline.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground">
-            {absenceCopy(resolveProjectField("milestone.label", project.stage, null, project.askedFields) as { kind: "absence"; reason: "not_asked" | "not_provided" }, project.stage)}
+            <ProjectFieldValue fieldKey="milestone.label" stage={project.stage} askedFields={project.askedFields} />
           </p>
         ) : (
         <div className="relative ml-4">
@@ -246,7 +246,7 @@ function FinancialTab({
 }) {
   return (
     <div className="space-y-10">
-      <MarginSection margin={grade.margin} asOf={asOf} />
+      <MarginSection margin={grade.margin} project={project} asOf={asOf} />
       {/* Capital Stack */}
       {granted && project.capitalStack && project.capitalStack.length > 0 && (
         <div>
@@ -286,7 +286,7 @@ function FinancialTab({
         </div>
       )}
 
-      <CasesSection cases={grade.cases} breakeven={breakeven} />
+      <CasesSection cases={grade.cases} project={project} breakeven={breakeven} />
 
 
       {/* Revenue Model */}

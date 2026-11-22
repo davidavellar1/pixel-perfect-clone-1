@@ -1,5 +1,7 @@
 import { Handshake } from "lucide-react";
 import { FEE_SENTENCE } from "@/lib/fee";
+import type { ProjectDetail } from "@/lib/blankProject";
+import { ProjectFieldValue } from "./ProjectFieldValue";
 import {
   DEVELOPER_STATED,
   INSTRUMENT_LABEL,
@@ -22,7 +24,7 @@ const Section = ({ title, icon, children, note }: { title: string; icon: React.R
 );
 
 /** The offer, capitalisation, governance and process. Placed second, after Overview. */
-const TransactionTab = ({ grade, asOf }: { grade: InvestorGradeBundle; asOf?: string | null }) => {
+const TransactionTab = ({ grade, project, asOf }: { grade: InvestorGradeBundle; project: ProjectDetail; asOf?: string | null }) => {
   const t = grade.transaction;
   const baseCase = grade.cases.find((c) => c.name === "base");
   const downCase = grade.cases.find((c) => c.name === "downside");
@@ -31,7 +33,7 @@ const TransactionTab = ({ grade, asOf }: { grade: InvestorGradeBundle; asOf?: st
     <div className="space-y-10">
       {!t && (
         <p className="rounded-xl border border-border bg-muted/50 p-5 text-sm text-muted-foreground">
-          The developer has not published transaction terms for this project yet. Offer details appear here once entered.
+          <ProjectFieldValue fieldKey="project_transaction.instrument" stage={project.stage} askedFields={project.askedFields} />
         </p>
       )}
 
@@ -55,15 +57,15 @@ const TransactionTab = ({ grade, asOf }: { grade: InvestorGradeBundle; asOf?: st
             </div>
             <div>
               <p className="text-xs uppercase tracking-widest text-primary-foreground/70">Minimum ticket</p>
-              <p className="mt-1 text-lg font-semibold">{eur(t?.min_ticket)}</p>
+              <p className="mt-1 text-lg font-semibold"><ProjectFieldValue fieldKey="project_transaction.min_ticket" stage={project.stage} askedFields={project.askedFields} value={eur(t?.min_ticket)} /></p>
             </div>
             <div>
               <p className="text-xs uppercase tracking-widest text-primary-foreground/70">Target equity IRR (base case)</p>
-              <p className="mt-1 text-lg font-semibold">{pct(baseCase?.equity_irr_pct)}</p>
+              <p className="mt-1 text-lg font-semibold"><ProjectFieldValue fieldKey={baseCase?.equity_irr_pct != null ? "project_case.base.equity_irr_pct" : "project_transaction.target_equity_irr_pct"} stage={project.stage} askedFields={project.askedFields} value={pct(baseCase?.equity_irr_pct ?? t.target_equity_irr_pct)} /></p>
             </div>
             <div>
               <p className="text-xs uppercase tracking-widest text-primary-foreground/70">Equity IRR (downside case)</p>
-              <p className="mt-1 text-lg font-semibold">{pct(downCase?.equity_irr_pct)}</p>
+              <p className="mt-1 text-lg font-semibold"><ProjectFieldValue fieldKey={downCase?.equity_irr_pct != null ? "project_case.downside.equity_irr_pct" : "project_transaction.downside_equity_irr_pct"} stage={project.stage} askedFields={project.askedFields} value={pct(downCase?.equity_irr_pct ?? t.downside_equity_irr_pct)} /></p>
             </div>
           </div>
           <p className="mt-6 text-xs text-primary-foreground/70">
