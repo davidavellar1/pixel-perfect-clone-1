@@ -65,7 +65,7 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
   const [sources, setSources] = useState<SourceRow[]>([]);
   const [followed, setFollowed] = useState<Set<string>>(new Set());
   useEffect(() => { if (user) void supabase.from("watchlist_item").select("project_id").eq("user_id", user.id).then(({data}) => setFollowed(new Set((data ?? []).map(row => row.project_id)))); }, [user?.id]);
-  const [projects, setProjects] = useState<Map<string, { slug: string; title: string }>>(new Map());
+  const [projects, setProjects] = useState<Map<string, { ref: string; title: string }>>(new Map());
 
   // Preferences
   useEffect(() => {
@@ -123,8 +123,8 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
     setHasMore(rows.length === PAGE);
     const ids = [...new Set(rows.flatMap((r) => r.related_project_ids))];
     if (ids.length) {
-      const { data: ps } = await supabase.from("project_teaser").select("id, slug, teaser_title").in("id", ids);
-      setProjects((prev) => { const next = new Map(prev); (ps ?? []).forEach((p) => { if (p.id && p.slug && p.teaser_title) next.set(p.id, { slug: p.slug, title: p.teaser_title }); }); return next; });
+      const { data: ps } = await supabase.from("project_teaser").select("id, public_ref, teaser_title").in("id", ids);
+      setProjects((prev) => { const next = new Map(prev); (ps ?? []).forEach((p) => { if (p.id && p.public_ref && p.teaser_title) next.set(p.id, { ref: p.public_ref, title: p.teaser_title }); }); return next; });
     }
     setLoading(false);
   }, [prefs, countryFilter, includeEu, category, user]);
@@ -224,7 +224,7 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
             {visible.map((item, index) => {
               const publisher = item.publisher ?? (item.source_id ? sourceName.get(item.source_id) : null) ?? "Source";
               const headline = item.title_en || item.title;
-              const related = item.related_project_ids.map((id) => projects.get(id)).filter((p): p is { slug: string; title: string } => !!p);
+              const related = item.related_project_ids.map((id) => projects.get(id)).filter((p): p is { ref: string; title: string } => !!p);
               return (
                 <article key={item.id} className={`flex min-w-0 flex-col rounded-lg border border-border bg-card p-5 ${!initialCountry && index === 0 && canLeadNews(item.published_at) ? "lg:col-span-2 border-t-4 border-t-primary" : ""}`}>
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -252,7 +252,7 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
                     <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                       <span className="text-muted-foreground">Related:</span>
                       {related.map((p) => (
-                        <Link key={p.slug} to="/app/projects/$slug" params={{ slug: p.slug }} className="rounded-full border border-border bg-muted px-2.5 py-1 font-semibold text-primary hover:bg-secondary">{p.title}</Link>
+                        <Link key={p.ref} to="/app/projects/$ref" params={{ ref: p.ref }} className="rounded-full border border-border bg-muted px-2.5 py-1 font-semibold text-primary hover:bg-secondary">{p.title}</Link>
                       ))}
                     </div>
                   )}

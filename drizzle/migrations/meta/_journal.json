@@ -295,6 +295,13 @@
       "when": 1795378298554,
       "tag": "0041_opaque_public_project_references",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1795380264070,
+      "tag": "0042_drop_sdg_alignment",
+      "breakpoints": true
     }
   ]
 }

@@ -324,7 +324,7 @@ const AccessRequests = () => {
                 <div className="flex items-center gap-2">
                   <StatePill state={selected.state} />
                   <Button size="sm" variant="outline" asChild>
-                    <Link to={`/app/projects/${projectById.get(selected.request.project_id)?.slug || ""}`}>
+                    <Link to={`/app/projects/${projectById.get(selected.request.project_id)?.public_ref || ""}`}>
                       Listing <ExternalLink className="h-3.5 w-3.5" />
                     </Link>
                   </Button>

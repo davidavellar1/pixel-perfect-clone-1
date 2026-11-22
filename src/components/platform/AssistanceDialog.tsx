@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { useProjectListings } from "@/hooks/useProjectListings";
+import { useOwnProjects } from "@/lib/funding";
 import { cn } from "@/lib/utils";
 import { FlowHeading, FlowSteps } from "./FlowSteps";
 
@@ -29,26 +29,27 @@ const AssistanceDialog = ({
   preselected: AssistanceAdvisor | null;
   onClose: () => void;
 }) => {
-  const { projects } = useProjectListings();
+  /** Only the caller's own projects: an investor must never pick someone else's listing. */
+  const { projects } = useOwnProjects();
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("Financial");
-  const [slug, setSlug] = useState("general");
+  const [projectId, setProjectId] = useState("general");
   const [need, setNeed] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
     setStep(0);
     setCategory(preselected?.category ?? "Financial");
-    setSlug("general");
+    setProjectId("general");
     setNeed("");
     setSelected(preselected?.name ?? null);
   }, [preselected]);
 
   const suggestions = advisors.filter((advisor) => advisor.category === category);
   const chosen = advisors.find((advisor) => advisor.name === selected) ?? suggestions[0];
-  const projectLabel = slug === "general"
+  const projectLabel = projectId === "general"
     ? "a general request"
-    : projects.find((item) => item.slug === slug)?.title ?? "your project";
+    : projects.find((item) => item.id === projectId)?.title ?? "your project";
 
   const advance = () => {
     if (step === 0) {
@@ -109,12 +110,12 @@ const AssistanceDialog = ({
                 </div>
                 <div>
                   <Label>For which project?</Label>
-                  <Select value={slug} onValueChange={setSlug}>
+                  <Select value={projectId} onValueChange={setProjectId}>
                     <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="general">General / not project specific</SelectItem>
                       {projects.map((item) => (
-                        <SelectItem key={item.slug} value={item.slug}>{item.title}</SelectItem>
+                        <SelectItem key={item.id} value={item.id}>{item.title}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -175,9 +176,6 @@ const AssistanceDialog = ({
                 title={`Send request to ${chosen?.name ?? "the advisor"}`}
                 lede="Contact requests are not available yet. No request has been recorded."
               />
-              <div className="rounded-xl border border-border bg-muted/40 p-4 text-[12.5px] leading-6 text-muted-foreground">
-                <b className="text-foreground">Disclosure.</b> Advisory partners may pay DHC Market a referral fee for a qualified introduction. This does not affect the fees you pay your advisor, and never influences how we connect investors and developers to each other.
-              </div>
             </>
           )}
         </div>

@@ -10,7 +10,7 @@ export type FundingCall = Tables<"funding_call">;
 export type FundingEntry = FundingProgramme & { funding_call: FundingCall[] };
 export type OwnProject = Pick<
   Tables<"project">,
-  "id" | "slug" | "title" | "country_code" | "lifecycle_stage" | "technology" | "project_type"
+  "id" | "public_ref" | "title" | "country_code" | "lifecycle_stage" | "technology" | "project_type"
 > & { applicantType?: string | null };
 
 export const EU27 = [
@@ -314,7 +314,7 @@ export const useOwnProjects = () => {
       }
       const { data } = await supabase
         .from("project")
-        .select("id, slug, title, country_code, lifecycle_stage, technology, project_type")
+        .select("id, public_ref, title, country_code, lifecycle_stage, technology, project_type")
         .eq("developer_id", profile.id)
         .order("created_at", { ascending: false });
       if (!cancelled) {

@@ -2,7 +2,9 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { canReadAcceptedFigures, canReadProjectDetail, loadDisclosedProject, teaserJson } from "./projectDisclosure";
+import { canReadAcceptedFigures, canReadProjectDetail, isPublicRef, loadDisclosedProject, projectPath, teaserJson } from "./projectDisclosure";
+
+const REF = "3f1c2a9e-8b7d-4c6e-9a5f-1d2e3f4a5b6c";
 
 import { publishedBandRange } from "./bands";
 
@@ -20,12 +22,12 @@ describe("Project disclosure", () => {
     const client = { rpc: async () => ({ data: false, error: null }), from(table: string) {
       calls.push(table);
       const chain = { select: () => chain, eq: () => chain, maybeSingle: async () => ({
-        data: table === "project_teaser" ? { id: "p", slug: "listing" } : table === "access_request" ? { state: "granted" } : null,
+        data: table === "project_teaser" ? { id: "p", public_ref: REF } : table === "access_request" ? { state: "granted" } : null,
         error: null,
       }) };
       return chain;
     } } as unknown as SupabaseClient<Database>;
-    const result = await loadDisclosedProject(client, "listing", "u");
+    const result = await loadDisclosedProject(client, REF, "u");
     assert.equal(result.project, null);
     assert.equal(result.request?.state, "granted");
     assert.equal(calls.includes("project"), false);
@@ -50,7 +52,7 @@ describe("Project disclosure", () => {
           eq() { return chain; },
           async maybeSingle() {
             calls.push(`${table}:${selection}`);
-            if (table === "project_teaser") return { data: { id: "p", slug: "teaser" }, error: null };
+            if (table === "project_teaser") return { data: { id: "p", public_ref: REF }, error: null };
             if (table === "access_request") return { data: { state, status: "approved" }, error: null };
             if (table === "developer_profiles") return { data: null, error: null };
             if (table === "project") return { data: { id: "p", title: "Private identity" }, error: null };
@@ -59,16 +61,48 @@ describe("Project disclosure", () => {
         };
         return chain;
       } } as unknown as SupabaseClient<Database>;
-      const result = await loadDisclosedProject(client, "teaser", "u");
+      const result = await loadDisclosedProject(client, REF, "u");
       const granted = state === "granted" || state === "granted_full";
       assert.equal(calls.includes("project:*"), granted);
       assert.equal(result.project !== null, granted);
     });
   }
   it("teaser output never includes exact figures or identity even if input contains them", () => {
-    const output = teaserJson({ id: "p", slug: "teaser", teaser_title: "Heat network", country_code: "FR", technology: "geothermal", project_type: "greenfield", lifecycle_stage: "concept", capacity_band: "Under 10 MW", capex_band: "Under EUR 15M", min_ticket_band: null, min_ticket_sort: null, instrument: null, offtake_committed_load_pct: null, transaction_terms_published: false, created_at: null, title: "Private identity", capacity_mw: 8, headline_irr_pct: 14 } as Parameters<typeof teaserJson>[0]);
+    const output = teaserJson({ id: "p", public_ref: REF, slug: "lyon-waste-heat", teaser_title: "Heat network", country_code: "FR", technology: "geothermal", project_type: "greenfield", lifecycle_stage: "concept", capacity_band: "Under 10 MW", capex_band: "Under EUR 15M", min_ticket_band: null, min_ticket_sort: null, instrument: null, offtake_committed_load_pct: null, transaction_terms_published: false, created_at: null, title: "Private identity", capacity_mw: 8, headline_irr_pct: 14 } as Parameters<typeof teaserJson>[0]);
     assert.equal(output.capacityBand, "Under 10 MW");
     assert.equal(output.capexBand, "Under EUR 15M");
-    for (const key of ["title", "city", "capacityMw", "headlineInvestment", "headlineIrrPct"]) assert.equal(key in output, false);
+    for (const key of ["title", "city", "slug", "capacityMw", "headlineInvestment", "headlineIrrPct"]) assert.equal(key in output, false);
+    assert.equal(output.publicRef, REF);
+    assert.equal(JSON.stringify(output).includes("lyon"), false);
+  });
+  it("project links use the opaque reference only", () => {
+    assert.equal(isPublicRef(REF), true);
+    assert.equal(isPublicRef("lyon-waste-heat-recovery"), false);
+    assert.equal(projectPath(REF), `/app/projects/${REF}`);
+  });
+  it("a legacy slug resolves only through RLS-protected project rows, with no teaser probe", async () => {
+    const calls: string[] = [];
+    const client = (projectRow: unknown) => ({ rpc: async () => ({ data: true, error: null }), from(table: string) {
+      const chain = { select: () => chain, eq: (key: string) => { calls.push(`${table}:${key}`); return chain; }, maybeSingle: async () => {
+        if (table === "project") return { data: projectRow, error: null };
+        if (table === "project_teaser") return { data: { id: "p", public_ref: REF }, error: null };
+        if (table === "developer_profiles") return { data: { id: "d" }, error: null };
+        return { data: null, error: null };
+      } };
+      return chain;
+    } }) as unknown as SupabaseClient<Database>;
+    const anonymous = await loadDisclosedProject(client({ public_ref: REF }), "lyon-waste-heat-recovery", null);
+    assert.equal(anonymous.teaser, null);
+    assert.equal(anonymous.project, null);
+    assert.equal(calls.length, 0);
+    // RLS returns no row for a viewer who is neither owner nor accepted: "not found", no redirect.
+    const stranger = await loadDisclosedProject(client(null), "lyon-waste-heat-recovery", "u");
+    assert.equal(stranger.teaser, null);
+    assert.equal(stranger.publicRef, null);
+    assert.equal(calls.some(call => call.startsWith("project_teaser")), false);
+    // The owner (row visible through RLS) is resolved to the opaque reference.
+    const owner = await loadDisclosedProject(client({ public_ref: REF, id: "p" }), "lyon-waste-heat-recovery", "u");
+    assert.equal(owner.publicRef, REF);
+    assert.equal(owner.owner, true);
   });
 });

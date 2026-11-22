@@ -16,7 +16,8 @@ let resolved = true;
 let banded = false;
 const calls: string[] = [];
 const filters: string[] = [];
-const teaser = { id: "p", slug: "listing-p", teaser_title: "Heat network",
+const PUBLIC_REF = "3f1c2a9e-8b7d-4c6e-9a5f-1d2e3f4a5b6c";
+const teaser = { id: "p", public_ref: PUBLIC_REF, teaser_title: "Heat network",
   country_code: "FR", technology: "geothermal", project_type: "greenfield",
   lifecycle_stage: "development", capacity_band: "Under 10 MW", capex_band: "EUR 10M-15M",
   instrument: "equity", min_ticket_band: "EUR 1M-3M", min_ticket_sort: 1,
@@ -78,7 +79,7 @@ const tools = await Promise.all([
 const context = (authenticated = true) => ({ isAuthenticated: () => authenticated,
   getToken: () => authenticated ? "test-token" : undefined, getUserId: () => "real-user" }) as unknown as ToolContext;
 const inputs = [ { query: null, countryCode: null, technology: null, lifecycleStage: null, minCapacityMw: null, limit: 10 },
-  { slug: "listing-p" }, {}, { slug: "listing-p" }, {} ];
+  { publicRef: PUBLIC_REF }, {}, { publicRef: PUBLIC_REF }, {} ];
 
 describe("Actual MCP handler disclosure", () => {
   for (const [index, module] of tools.entries()) {
@@ -94,7 +95,7 @@ describe("Actual MCP handler disclosure", () => {
         assert.ok(Array.isArray(entries)); assert.equal(entries.length, 1);
         for (const entry of entries) {
           assert.equal(typeof entry, "object");
-          assert.deepEqual(Object.keys(entry.project).sort(), ["id", "slug", "teaserTitle", "countryCode", "technology",
+          assert.deepEqual(Object.keys(entry.project).sort(), ["id", "publicRef", "teaserTitle", "countryCode", "technology",
             "projectType", "lifecycleStage", "capacityBand", "capexBand", "instrument", "minTicketBand", "minTicketSort",
             "offtakeCommittedLoadPct", "transactionTermsPublished", "createdAt"].sort());
           assert.equal(Object.hasOwn(entry, "information"), qualified);
@@ -110,6 +111,8 @@ describe("Actual MCP handler disclosure", () => {
             developer: { name: "Private developer", contactName: "Private contact", position: "Director" } });
         }
         if (!accepted) assert.equal(JSON.stringify(response).includes("Private"), false);
+        assert.equal(JSON.stringify(response).includes("slug"), false);
+        if (index === 1 || index === 3) assert.ok(filters.includes(`project_teaser:public_ref:${PUBLIC_REF}`));
         assert.equal(calls.includes("getUser"), true);
         assert.equal(calls.includes("is_qualified_investor"), true);
         assert.equal(calls.includes("investor_project"), qualified);
@@ -134,7 +137,7 @@ describe("Actual MCP handler disclosure", () => {
   }
   it("qualification alone respects the listing's band-until-acceptance flag", async () => {
     qualified = true; accepted = false; resolved = true; banded = true;
-    const response = await tools[1]?.default.handler({ slug: "listing-p" }, context());
+    const response = await tools[1]?.default.handler({ publicRef: PUBLIC_REF }, context());
     assert.ok(response);
     const json = JSON.stringify(response);
     assert.equal(json.includes('"exact":false'), true);
@@ -144,7 +147,7 @@ describe("Actual MCP handler disclosure", () => {
   });
   it("acceptance without qualification reveals identity, not investor information", async () => {
     qualified = false; accepted = true; resolved = true; banded = false;
-    const response = await tools[1]?.default.handler({ slug: "listing-p" }, context());
+    const response = await tools[1]?.default.handler({ publicRef: PUBLIC_REF }, context());
     const json = JSON.stringify(response);
     assert.equal(json.includes('"identity"'), true);
     assert.equal(json.includes('"information"'), false);

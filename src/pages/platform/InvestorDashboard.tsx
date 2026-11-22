@@ -20,7 +20,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { ACCESS_STATE_LABEL, PIPELINE_STAGES, effectiveState, isGranted, normaliseStage, slaStatus, stageLabel, workingDaysSince } from "@/lib/access";
 
 type Interest = Tables<"project_interest">;
-type Project = Pick<Tables<"project">, "id" | "slug" | "title" | "city" | "country_code" | "capacity_mw" | "headline_investment"> & { technology: string; capacityBand: string | null };
+type Project = Pick<Tables<"project">, "id" | "public_ref" | "title" | "city" | "country_code" | "capacity_mw" | "headline_investment"> & { technology: string; capacityBand: string | null };
 type Request = Tables<"access_request">;
 type Finance = Tables<"financial_summary">;
 type Process = Tables<"project_process">;
@@ -56,7 +56,7 @@ const InvestorDashboard = () => {
   const [interests, setInterests] = useState<Interest[]>([]);
   const { projects: listings } = useProjectListings();
   const { qualified } = useInvestorQualification();
-  const projects: Project[] = listings.map(row => ({ id: row.id, slug: row.slug, title: row.title,
+  const projects: Project[] = listings.map(row => ({ id: row.id, public_ref: row.publicRef, title: row.title,
     city: row.city, country_code: row.country, technology: row.technology,
     capacity_mw: qualified && row.exactFiguresAvailable ? row.capacityMw : null,
     headline_investment: qualified && row.exactFiguresAvailable ? row.capex : null, capacityBand: row.capacityBand ?? null }));
@@ -236,7 +236,7 @@ const InvestorDashboard = () => {
                     <td className="px-3.5 py-3.5 text-muted-foreground">{project.capacity_mw != null ? `${project.capacity_mw} MW` : project.capacityBand ?? ""}</td>
                     <td className="px-3.5 py-3.5 text-muted-foreground">{[project.city, project.country_code].filter(Boolean).join(", ") || "-"}</td>
                     <td className="px-3.5 py-3.5 text-muted-foreground">{stageLabel(normaliseStage(interest.stage))}{state === "pending" && request ? ` · ${slaStatus(request).workingDays} working days` : ""}</td>
-                    <td className="px-3.5 py-3.5 text-right"><Button size="sm" variant="outline" onClick={() => navigate(`/app/projects/${project.slug}`)}>Open</Button></td>
+                    <td className="px-3.5 py-3.5 text-right"><Button size="sm" variant="outline" onClick={() => navigate(`/app/projects/${project.public_ref}`)}>Open</Button></td>
                   </tr>;
                 })}
               </tbody>
@@ -323,7 +323,7 @@ const InvestorDashboard = () => {
               <article key={interest.id} className="rounded-lg border border-border bg-card p-5">
                 <div className="flex flex-wrap justify-between gap-3">
                   <div><h3 className="font-display font-semibold">{project.title}</h3><p className="mt-1 text-xs capitalize text-muted-foreground">{project.city}, {project.country_code} | {stageLabel(interest.stage)}</p></div>
-                  <Button variant="outline" size="sm" onClick={() => navigate(`/app/projects/${project.slug}`)}>Open project</Button>
+                  <Button variant="outline" size="sm" onClick={() => navigate(`/app/projects/${project.public_ref}`)}>Open project</Button>
                 </div>
                 <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5"><TrendingUp className="h-4 w-4 text-accent" /> {dealRequest?.introduction_logged_at ? `Introduction logged ${fmtDate(introducedAt)}` : "No introduction logged yet"}</span>
@@ -347,7 +347,7 @@ const InvestorDashboard = () => {
       ) : (
         <div className="overflow-hidden rounded-lg border border-border bg-card">
           {!rows.length && <div className="flex flex-col items-center p-10 text-center"><FolderOpen className="mb-3 h-8 w-8 text-muted-foreground" /><p className="font-semibold">{tab === "watch" ? "Your watchlist is empty" : "No interests expressed yet"}</p><p className="mt-1 text-sm text-muted-foreground">Browse opportunities to start building your pipeline.</p><Button className="mt-4" onClick={() => navigate("/app")}>Browse projects</Button></div>}
-          {rows.map((row) => { const project = projectById.get(row.project_id); if (!project) return null; const request = requests.find((item) => item.project_id === project.id); return <div key={row.id} className="flex flex-wrap items-center justify-between gap-4 border-b border-border px-6 py-4 last:border-0"><div><p className="font-semibold">{project.title}</p><p className="mt-1 text-xs capitalize text-muted-foreground">{project.technology.replace(/_/g, " ")} | {project.capacity_mw} MW | {project.city}, {project.country_code}</p></div><div className="flex items-center gap-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">{tab === "watch" ? <Heart className="h-3.5 w-3.5" /> : request && effectiveState(request) === "granted_full" ? <FolderOpen className="h-3.5 w-3.5 text-success" /> : <Building2 className="h-3.5 w-3.5" />}{tab === "watch" ? "Saved" : request ? ACCESS_STATE_LABEL[effectiveState(request)] : "Watchlisted"}</span>{tab !== "watch" && request && effectiveState(request) === "pending" && <span className="text-xs text-muted-foreground">{slaStatus(request).workingDays} working days pending</span>}<Button size="sm" variant="outline" onClick={() => navigate(`/app/projects/${project.slug}`)}>Open</Button></div></div>; })}
+          {rows.map((row) => { const project = projectById.get(row.project_id); if (!project) return null; const request = requests.find((item) => item.project_id === project.id); return <div key={row.id} className="flex flex-wrap items-center justify-between gap-4 border-b border-border px-6 py-4 last:border-0"><div><p className="font-semibold">{project.title}</p><p className="mt-1 text-xs capitalize text-muted-foreground">{project.technology.replace(/_/g, " ")} | {project.capacity_mw} MW | {project.city}, {project.country_code}</p></div><div className="flex items-center gap-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">{tab === "watch" ? <Heart className="h-3.5 w-3.5" /> : request && effectiveState(request) === "granted_full" ? <FolderOpen className="h-3.5 w-3.5 text-success" /> : <Building2 className="h-3.5 w-3.5" />}{tab === "watch" ? "Saved" : request ? ACCESS_STATE_LABEL[effectiveState(request)] : "Watchlisted"}</span>{tab !== "watch" && request && effectiveState(request) === "pending" && <span className="text-xs text-muted-foreground">{slaStatus(request).workingDays} working days pending</span>}<Button size="sm" variant="outline" onClick={() => navigate(`/app/projects/${project.public_ref}`)}>Open</Button></div></div>; })}
         </div>
       )}
     </div>

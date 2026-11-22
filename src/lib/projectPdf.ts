@@ -23,10 +23,12 @@ export function pdfRows(inputs:PdfInputs,kind:PdfKind):[string,string][]{
  for(const [group,records] of Object.entries(d?.rows??{}))for(const record of records)rows.push([group,Object.entries(record).map(([k,v])=>`${k}: ${v}`).join(', ')]);
  return rows;
 }
+/** Footer link: the opaque public reference only, never a slug, title or city. */
+export const pdfProjectUrl=(inputs:PdfInputs,liveOrigin:string)=>{const ref=text(inputs.teaser['public_ref']);return ref?`${liveOrigin}/app/projects/${encodeURIComponent(ref)}`:`${liveOrigin}/app/opportunities`;};
 export async function generateProjectPdf(inputs:PdfInputs,kind:PdfKind,fontBytes:Uint8Array,liveOrigin:string):Promise<Uint8Array>{
  const pdf=await PDFDocument.create();pdf.registerFontkit(fontkit);const font=await pdf.embedFont(fontBytes,{subset:false});
  pdf.setTitle(kind==='teaser'?'DHC Market anonymized teaser':'DHC Market project summary');pdf.setAuthor('DHC Market');pdf.setSubject('Developer-stated project information');pdf.setCreator('DHC Market');
- const generated=inputs.generatedAt.slice(0,10);const url=`${liveOrigin}/app/projects/${encodeURIComponent(text(inputs.teaser['slug']))}`;
+ const generated=inputs.generatedAt.slice(0,10);const url=pdfProjectUrl(inputs,liveOrigin);
  const rows=pdfRows(inputs,kind);const pageSize:[number,number]=kind==='teaser'?[960,540]:[595.28,841.89];
  const muted=rgb(0.36,0.40,0.46),ink=rgb(0.06,0.11,0.18),primary=rgb(0.09,0.40,0.84);
  const wrap=(value:string,size:number,width:number)=>{const result:string[]=[];let line='';for(const char of value){if(char==='\n'||font.widthOfTextAtSize(line+char,size)>width){result.push(line);line=char==='\n'?'':char;}else line+=char;}if(line)result.push(line);return result;};

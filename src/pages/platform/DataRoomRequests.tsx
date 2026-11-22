@@ -297,7 +297,7 @@ const DataRoomRequests = () => {
                     <Link to={`/app/access-requests?request=${selected.request.id}`}>Full request</Link>
                   </Button>
                   <Button size="sm" variant="outline" asChild>
-                    <Link to={`/app/projects/${projectById.get(selected.request.project_id)?.slug || ""}`}>
+                    <Link to={`/app/projects/${projectById.get(selected.request.project_id)?.public_ref || ""}`}>
                       Listing <ExternalLink className="h-3.5 w-3.5" />
                     </Link>
                   </Button>

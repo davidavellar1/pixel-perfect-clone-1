@@ -62,8 +62,9 @@ export async function disclosedProject(caller: Caller, teaser: ProjectTeaser) {
   return { project, ...(information ? { information } : {}), ...(identity ? { identity } : {}) };
 }
 
-export async function findTeaser(caller: Caller, slug: string) {
-  const result = await caller.client.from("project_teaser").select("*").eq("slug", slug).maybeSingle();
+/** Projects are addressed only by their opaque public reference, never by a readable slug. */
+export async function findTeaser(caller: Caller, publicRef: string) {
+  const result = await caller.client.from("project_teaser").select("*").eq("public_ref", publicRef).maybeSingle();
   if (result.error) throw new ToolError("Unable to load listing.");
   if (!result.data?.id) throw new ToolError("No listed project found.");
   return { ...result.data, id: result.data.id };

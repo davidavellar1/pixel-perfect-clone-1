@@ -45,7 +45,7 @@ export const Route = createFileRoute('/api/public/hooks/access-reminders')({
         const { data: requests, error } = await supabaseAdmin
           .from('access_request')
           .select(
-            'id, project_id, investor_user_id, state, submitted_at, developer_question_at, investor_reply_at, fee_tail_expires_at, project:project_id(slug, title, developer:developer_id(user_id))',
+            'id, project_id, investor_user_id, state, submitted_at, developer_question_at, investor_reply_at, fee_tail_expires_at, project:project_id(public_ref, title, developer:developer_id(user_id))',
           )
           .in('state', ['pending', 'granted', 'granted_full'])
 
@@ -65,12 +65,12 @@ export const Route = createFileRoute('/api/public/hooks/access-reminders')({
 
         for (const row of requests ?? []) {
           const project = row.project as unknown as
-            | { slug: string; title: string; developer: { user_id: string } | null }
+            | { public_ref: string; title: string; developer: { user_id: string } | null }
             | null
           const ownerId = project?.developer?.user_id
           const title = project?.title ?? 'your listing'
           const teaserTitle = teaserTitles.get(row.project_id) || 'a listing'
-          const slug = project?.slug ?? ''
+          const publicRef = project?.public_ref ?? ''
           const clockStart = row.investor_reply_at || row.submitted_at
           const paused = Boolean(row.developer_question_at && !row.investor_reply_at)
           const workingDays = workingDaysSince(clockStart, new Date(now))
@@ -109,7 +109,7 @@ export const Route = createFileRoute('/api/public/hooks/access-reminders')({
                 kind: 'fee_tail_expiring',
                 title: 'Introduction fee tail expiring',
                 body: `The fee tail for an introduction on ${title} expires in ${daysLeft} days.`,
-                link: slug ? `/app/projects/${slug}` : '/app/my-deals/listing',
+                link: publicRef ? `/app/projects/${publicRef}` : '/app/my-deals/listing',
                 project_id: row.project_id,
                 access_request_id: row.id,
                 dedupe_key: `fee_tail_expiring:${row.id}`,

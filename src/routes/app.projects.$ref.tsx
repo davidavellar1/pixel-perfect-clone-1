@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import ProjectDetail from "@/pages/ProjectDetail";
 
-export const Route = createFileRoute("/app/projects/$slug")({
+export const Route = createFileRoute("/app/projects/$ref")({
   head: () => ({
     meta: [
       { title: 'Project - DHC Market' },

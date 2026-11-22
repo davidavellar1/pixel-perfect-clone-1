@@ -27,7 +27,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useInvestorGrade } from "@/hooks/useInvestorGrade";
 import { useProjectRecord } from "@/hooks/useProjectRecord";
 import { blankProjectDetail } from "@/lib/blankProject";
-import { loadDisclosedProject, teaserProjectDetail, type ProjectTeaser } from "@/lib/projectDisclosure";
+import { loadDisclosedProject, projectPath, teaserProjectDetail, type ProjectTeaser } from "@/lib/projectDisclosure";
 
 import {
   addDays, addMonths, declineReasonLabel, effectiveState, formatDate, isDataRoomOpen, isGranted,
@@ -73,7 +73,7 @@ const HELPER_TEXT =
   "Sends a short request and a confidentiality agreement to the developer. Typically answered in 3 working days. Nothing is revealed until they accept.";
 
 const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) => {
-  const { slug } = useParams<{ slug: string }>();
+  const { ref } = useParams<{ ref: string }>();
   const navigate = useNavigate();
   const {qualified}=useInvestorQualification();
   const [identity,setIdentity]=useState<ProjectIdentity|null>(null);
@@ -158,10 +158,14 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     setIsOwner(false);
     setProjectError(null);
     setLoadingProject(true);
-    if (!slug || loadingAuth) return;
+    if (!ref || loadingAuth) return;
     let cancelled = false;
-    loadDisclosedProject(supabase, slug, user?.id ?? null).then((result) => {
+    loadDisclosedProject(supabase, ref, user?.id ?? null).then((result) => {
       if (cancelled) return;
+      // A legacy slug only resolves for the owner or an accepted investor; move them to the opaque URL.
+      if (result.publicRef && result.publicRef !== ref && context === "app") {
+        navigate(`${projectPath(result.publicRef)}${window.location.search}`, { replace: true });
+      }
       setTeaser(result.teaser);
       setDatabaseProject(result.project);
       setRequest(result.request);
@@ -173,7 +177,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
       setLoadingProject(false);
     });
     return () => { cancelled = true; };
-  }, [slug, user?.id, loadingAuth, qualified]);
+  }, [ref, user?.id, loadingAuth, qualified]);
 
   /** Notification links open a tab directly, e.g. ?tab=qa. */
   useEffect(() => {
@@ -181,7 +185,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     if (!wanted) return;
     const match = tabs.find((t) => t.toLowerCase().replace(/[^a-z]/g, "") === wanted.replace(/[^a-z]/g, ""));
     if (match) setActiveTab(match);
-  }, [slug]);
+  }, [ref]);
 
   useEffect(() => {
     setCriteria(null);
@@ -198,7 +202,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   const toggleWatchlist = async () => {
     if (!projectId) return;
     if (!user) {
-      navigate(`/sign-in?redirect=${encodeURIComponent(context === "app" ? `/app/projects/${slug}` : `/projects/${slug}`)}`);
+      navigate(`/sign-in?redirect=${encodeURIComponent(context === "app" ? `/app/projects/${ref}` : `/projects/${ref}`)}`);
       return;
     }
     setWatchlistBusy(true);
@@ -214,7 +218,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     if(user && !qualified){navigate("/app/settings#investor");return;}
     if (!user) {
       toast.error("Sign in required", { description: "Please sign in to send an expression of interest." });
-      navigate(`/sign-in?redirect=${encodeURIComponent(context === "app" ? `/app/projects/${slug}` : `/projects/${slug}`)}`);
+      navigate(`/sign-in?redirect=${encodeURIComponent(context === "app" ? `/app/projects/${ref}` : `/projects/${ref}`)}`);
       return;
     }
     if (granted) {
@@ -532,7 +536,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
       <ExpressInterestDialog
         open={showInterest}
         onOpenChange={setShowInterest}
-        projectId={projectId || slug || "listing"}
+        projectId={projectId || "listing"}
         projectTitle={project.title}
         criteria={criteria}
         submitting={submitting}

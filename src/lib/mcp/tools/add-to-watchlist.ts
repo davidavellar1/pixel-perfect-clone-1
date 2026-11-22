@@ -6,11 +6,11 @@ export default defineTool({
   name: "add_to_watchlist",
   title: "Add project to my watchlist",
   description: "Save a listed project for the resolved user. Does not express interest or request data-room access.",
-  inputSchema: { slug: z.string().trim().min(1).describe("Project slug to save.") },
+  inputSchema: { publicRef: z.string().trim().uuid().describe("Opaque project reference (publicRef) to save, as returned by search_opportunities.") },
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  handler: async ({ slug }, ctx) => {
+  handler: async ({ publicRef }, ctx) => {
     const caller = await resolveCaller(ctx);
-    const teaser = await findTeaser(caller, slug);
+    const teaser = await findTeaser(caller, publicRef);
     const result = await disclosedProject(caller, teaser);
     if (!caller.user) return { content: [{ type: "text", text: "Sign in to save this listing." }],
       structuredContent: { saved: false, ...result } };

@@ -12,7 +12,7 @@ export interface ProjectListing {
   qualified?: boolean;
   exactFiguresAvailable?: boolean;
   id: string;
-  slug: string;
+  publicRef: string;
   title: string;
   teaserTitle: string;
   city: string;
@@ -64,7 +64,7 @@ export const useProjectListings = () => {
       if (error) { console.error("Project listing query failed", error); setError(error.message); }
       setProjects([]); setLoading(false); return;
     }
-    const validRows = rows.filter((row) => row.id && row.slug);
+    const validRows = rows.filter((row) => row.id && row.public_ref);
     const ids = validRows.flatMap((row) => row.id ? [row.id] : []);
     if (!ids.length) { setProjects([]); setLoading(false); return; }
     const [requestsResult, watchResult] = await Promise.all([
@@ -102,7 +102,7 @@ export const useProjectListings = () => {
       const transaction = transactionMap.get(id);
       return {
         qualified, exactFiguresAvailable:Boolean(exact)||Boolean(safe?.exact && safe.document),
-        id, slug: row.slug ?? "", title: identityMap.get(id)?.title ?? exact?.title ?? `${row.teaser_title ?? ""}, ${country}`,
+        id, publicRef: row.public_ref ?? "", title: identityMap.get(id)?.title ?? exact?.title ?? `${row.teaser_title ?? ""}, ${country}`,
         teaserTitle: row.teaser_title ?? "", city: "", region: country, country,
         category: readable(row.project_type), technology: readable(row.technology),
         stage: readable(row.lifecycle_stage), generation: "", publicSupport: exact?.public_cofinancing_status === "Committed" || exact?.public_cofinancing_status === "In progress",

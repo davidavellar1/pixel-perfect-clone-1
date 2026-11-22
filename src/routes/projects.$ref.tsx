@@ -1,8 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/projects/$slug")({
+export const Route = createFileRoute("/projects/$ref")({
   beforeLoad: ({ params }) => {
-    throw redirect({ href: `/sign-in?redirect=/app/projects/${encodeURIComponent(params.slug)}`, replace: true });
+    throw redirect({ href: `/sign-in?redirect=/app/projects/${encodeURIComponent(params.ref)}`, replace: true });
   },
   head: () => ({
     meta: [

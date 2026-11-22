@@ -53,7 +53,7 @@ import { Route as AppSubmitProjectRouteImport } from './routes/app.submit-projec
 import { Route as AppSupportRouteImport } from './routes/app.support'
 import { Route as AppWatchlistRouteImport } from './routes/app.watchlist'
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
-import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
+import { Route as ProjectsRefRouteImport } from './routes/projects.$ref'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AppAdminContactRequestsRouteImport } from './routes/app.admin.contact-requests'
 import { Route as AppAdminFundingReviewRouteImport } from './routes/app.admin.funding-review'
@@ -63,7 +63,7 @@ import { Route as AppCountriesCodeRouteImport } from './routes/app.countries.$co
 import { Route as AppMyDealsIndexRouteImport } from './routes/app.my-deals.index'
 import { Route as AppMyDealsInvestingRouteImport } from './routes/app.my-deals.investing'
 import { Route as AppMyDealsListingRouteImport } from './routes/app.my-deals.listing'
-import { Route as AppProjectsSlugRouteImport } from './routes/app.projects.$slug'
+import { Route as AppProjectsRefRouteImport } from './routes/app.projects.$ref'
 import { Route as AppPublicFundingSlugRouteImport } from './routes/app.public-funding.$slug'
 import { Route as ApiPublicHooksAccessRemindersRouteImport } from './routes/api/public/hooks/access-reminders'
 import { Route as ApiPublicHooksIngestNewsRouteImport } from './routes/api/public/hooks/ingest-news'
@@ -289,9 +289,9 @@ const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   path: '/projects/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
-  id: '/projects/$slug',
-  path: '/projects/$slug',
+const ProjectsRefRoute = ProjectsRefRouteImport.update({
+  id: '/projects/$ref',
+  path: '/projects/$ref',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
@@ -339,9 +339,9 @@ const AppMyDealsListingRoute = AppMyDealsListingRouteImport.update({
   path: '/my-deals/listing',
   getParentRoute: () => AppRoute,
 } as any)
-const AppProjectsSlugRoute = AppProjectsSlugRouteImport.update({
-  id: '/projects/$slug',
-  path: '/projects/$slug',
+const AppProjectsRefRoute = AppProjectsRefRouteImport.update({
+  id: '/projects/$ref',
+  path: '/projects/$ref',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPublicFundingSlugRoute = AppPublicFundingSlugRouteImport.update({
@@ -405,7 +405,7 @@ export interface FileRoutesByFullPath {
   '/app/submit-project': typeof AppSubmitProjectRoute
   '/app/support': typeof AppSupportRoute
   '/app/watchlist': typeof AppWatchlistRoute
-  '/projects/$slug': typeof ProjectsSlugRoute
+  '/projects/$ref': typeof ProjectsRefRoute
   '/app/': typeof AppIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -416,7 +416,7 @@ export interface FileRoutesByFullPath {
   '/app/countries/$code': typeof AppCountriesCodeRoute
   '/app/my-deals/investing': typeof AppMyDealsInvestingRoute
   '/app/my-deals/listing': typeof AppMyDealsListingRoute
-  '/app/projects/$slug': typeof AppProjectsSlugRoute
+  '/app/projects/$ref': typeof AppProjectsRefRoute
   '/app/public-funding/$slug': typeof AppPublicFundingSlugRoute
   '/app/my-deals/': typeof AppMyDealsIndexRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
@@ -464,7 +464,7 @@ export interface FileRoutesByTo {
   '/app/submit-project': typeof AppSubmitProjectRoute
   '/app/support': typeof AppSupportRoute
   '/app/watchlist': typeof AppWatchlistRoute
-  '/projects/$slug': typeof ProjectsSlugRoute
+  '/projects/$ref': typeof ProjectsRefRoute
   '/app': typeof AppIndexRoute
   '/projects': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -475,7 +475,7 @@ export interface FileRoutesByTo {
   '/app/countries/$code': typeof AppCountriesCodeRoute
   '/app/my-deals/investing': typeof AppMyDealsInvestingRoute
   '/app/my-deals/listing': typeof AppMyDealsListingRoute
-  '/app/projects/$slug': typeof AppProjectsSlugRoute
+  '/app/projects/$ref': typeof AppProjectsRefRoute
   '/app/public-funding/$slug': typeof AppPublicFundingSlugRoute
   '/app/my-deals': typeof AppMyDealsIndexRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
@@ -525,7 +525,7 @@ export interface FileRoutesById {
   '/app/submit-project': typeof AppSubmitProjectRoute
   '/app/support': typeof AppSupportRoute
   '/app/watchlist': typeof AppWatchlistRoute
-  '/projects/$slug': typeof ProjectsSlugRoute
+  '/projects/$ref': typeof ProjectsRefRoute
   '/app/': typeof AppIndexRoute
   '/projects/': typeof ProjectsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -536,7 +536,7 @@ export interface FileRoutesById {
   '/app/countries/$code': typeof AppCountriesCodeRoute
   '/app/my-deals/investing': typeof AppMyDealsInvestingRoute
   '/app/my-deals/listing': typeof AppMyDealsListingRoute
-  '/app/projects/$slug': typeof AppProjectsSlugRoute
+  '/app/projects/$ref': typeof AppProjectsRefRoute
   '/app/public-funding/$slug': typeof AppPublicFundingSlugRoute
   '/app/my-deals/': typeof AppMyDealsIndexRoute
   '/api/public/hooks/access-reminders': typeof ApiPublicHooksAccessRemindersRoute
@@ -587,7 +587,7 @@ export interface FileRouteTypes {
     | '/app/submit-project'
     | '/app/support'
     | '/app/watchlist'
-    | '/projects/$slug'
+    | '/projects/$ref'
     | '/app/'
     | '/projects/'
     | '/.lovable/oauth/consent'
@@ -598,7 +598,7 @@ export interface FileRouteTypes {
     | '/app/countries/$code'
     | '/app/my-deals/investing'
     | '/app/my-deals/listing'
-    | '/app/projects/$slug'
+    | '/app/projects/$ref'
     | '/app/public-funding/$slug'
     | '/app/my-deals/'
     | '/api/public/hooks/access-reminders'
@@ -646,7 +646,7 @@ export interface FileRouteTypes {
     | '/app/submit-project'
     | '/app/support'
     | '/app/watchlist'
-    | '/projects/$slug'
+    | '/projects/$ref'
     | '/app'
     | '/projects'
     | '/.lovable/oauth/consent'
@@ -657,7 +657,7 @@ export interface FileRouteTypes {
     | '/app/countries/$code'
     | '/app/my-deals/investing'
     | '/app/my-deals/listing'
-    | '/app/projects/$slug'
+    | '/app/projects/$ref'
     | '/app/public-funding/$slug'
     | '/app/my-deals'
     | '/api/public/hooks/access-reminders'
@@ -706,7 +706,7 @@ export interface FileRouteTypes {
     | '/app/submit-project'
     | '/app/support'
     | '/app/watchlist'
-    | '/projects/$slug'
+    | '/projects/$ref'
     | '/app/'
     | '/projects/'
     | '/.lovable/oauth/consent'
@@ -717,7 +717,7 @@ export interface FileRouteTypes {
     | '/app/countries/$code'
     | '/app/my-deals/investing'
     | '/app/my-deals/listing'
-    | '/app/projects/$slug'
+    | '/app/projects/$ref'
     | '/app/public-funding/$slug'
     | '/app/my-deals/'
     | '/api/public/hooks/access-reminders'
@@ -748,7 +748,7 @@ export interface RootRouteChildren {
   SubmitProjectRoute: typeof SubmitProjectRoute
   TermsRoute: typeof TermsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
-  ProjectsSlugRoute: typeof ProjectsSlugRoute
+  ProjectsRefRoute: typeof ProjectsRefRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicHooksAccessRemindersRoute: typeof ApiPublicHooksAccessRemindersRoute
@@ -1065,11 +1065,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/projects/$slug': {
-      id: '/projects/$slug'
-      path: '/projects/$slug'
-      fullPath: '/projects/$slug'
-      preLoaderRoute: typeof ProjectsSlugRouteImport
+    '/projects/$ref': {
+      id: '/projects/$ref'
+      path: '/projects/$ref'
+      fullPath: '/projects/$ref'
+      preLoaderRoute: typeof ProjectsRefRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.lovable/oauth/consent': {
@@ -1135,11 +1135,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMyDealsListingRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/projects/$slug': {
-      id: '/app/projects/$slug'
-      path: '/projects/$slug'
-      fullPath: '/app/projects/$slug'
-      preLoaderRoute: typeof AppProjectsSlugRouteImport
+    '/app/projects/$ref': {
+      id: '/app/projects/$ref'
+      path: '/projects/$ref'
+      fullPath: '/app/projects/$ref'
+      preLoaderRoute: typeof AppProjectsRefRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/public-funding/$slug': {
@@ -1216,7 +1216,7 @@ interface AppRouteChildren {
   AppCountriesCodeRoute: typeof AppCountriesCodeRoute
   AppMyDealsInvestingRoute: typeof AppMyDealsInvestingRoute
   AppMyDealsListingRoute: typeof AppMyDealsListingRoute
-  AppProjectsSlugRoute: typeof AppProjectsSlugRoute
+  AppProjectsRefRoute: typeof AppProjectsRefRoute
   AppMyDealsIndexRoute: typeof AppMyDealsIndexRoute
 }
 
@@ -1247,7 +1247,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCountriesCodeRoute: AppCountriesCodeRoute,
   AppMyDealsInvestingRoute: AppMyDealsInvestingRoute,
   AppMyDealsListingRoute: AppMyDealsListingRoute,
-  AppProjectsSlugRoute: AppProjectsSlugRoute,
+  AppProjectsRefRoute: AppProjectsRefRoute,
   AppMyDealsIndexRoute: AppMyDealsIndexRoute,
 }
 
@@ -1278,7 +1278,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
-  ProjectsSlugRoute: ProjectsSlugRoute,
+  ProjectsRefRoute: ProjectsRefRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicHooksAccessRemindersRoute: ApiPublicHooksAccessRemindersRoute,

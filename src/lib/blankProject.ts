@@ -4,7 +4,7 @@ import type { SubmissionDocument } from "@/lib/submission/stageSchema";
 export interface ProjectDetail {
   submission?: SubmissionDocument | null;
   askedFields?: string[] | null;
-  slug: string;
+  publicRef: string;
   badge: string;
   title: string;
   location: string;
@@ -68,7 +68,7 @@ export function blankProjectDetail(row: Tables<"project">): ProjectDetail {
   return {
     submission: parseDocument(row.submission_published),
     askedFields: row.asked_fields,
-    slug: row.slug,
+    publicRef: row.public_ref,
     title: row.title,
     badge: readable(row.project_type),
     location: `${row.city}, ${row.country_code}`,

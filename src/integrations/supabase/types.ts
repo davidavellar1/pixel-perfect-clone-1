@@ -2561,41 +2561,6 @@ export type Database = {
           },
         ]
       }
-      sdg_alignment: {
-        Row: {
-          created_at: string
-          id: string
-          note: string | null
-          sdg_number: number
-          sustainability_profile_id: string
-          title: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          note?: string | null
-          sdg_number: number
-          sustainability_profile_id: string
-          title?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          note?: string | null
-          sdg_number?: number
-          sustainability_profile_id?: string
-          title?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sdg_alignment_sustainability_profile_id_fkey"
-            columns: ["sustainability_profile_id"]
-            isOneToOne: false
-            referencedRelation: "sustainability_profile"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       subscription: {
         Row: {
           created_at: string
