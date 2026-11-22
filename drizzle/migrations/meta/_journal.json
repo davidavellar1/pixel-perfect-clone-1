@@ -274,6 +274,13 @@
       "when": 1795346429801,
       "tag": "0038_replace_paid_gate_with_investor_qualification",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1795346905552,
+      "tag": "0039_finalize_qualified_depth_and_independent_identity",
+      "breakpoints": true
     }
   ]
 }

@@ -1,3 +1,5 @@
+import {parseProjectIdentity,type ProjectIdentity} from "@/lib/projectIdentity";
+import {GeneratedProjectDocuments} from "@/components/project/GeneratedProjectDocuments";
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "@/lib/router-compat";
 import PublicShell from "@/components/public/PublicShell";
@@ -74,6 +76,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const {qualified}=useInvestorQualification();
+  const [identity,setIdentity]=useState<ProjectIdentity|null>(null);
   const [investorDocument,setInvestorDocument]=useState<SubmissionDocument|null>(null);
   const [investorExact,setInvestorExact]=useState(false);
   const [investorError,setInvestorError]=useState(false);
@@ -126,10 +129,15 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   useEffect(()=>{setInvestorDocument(null);setInvestorExact(false);setInvestorError(false);if(!qualified||!projectId||granted)return;let active=true;void supabase.rpc("investor_project",{_project_id:projectId}).then(({data,error})=>{if(!active)return;setInvestorError(Boolean(error));if(data&&typeof data==='object'&&!Array.isArray(data)){setInvestorDocument(parseDocument(data['document']??null));setInvestorExact(data['exact']===true);}});return()=>{active=false;};},[qualified,projectId,granted]);
   const { grade } = useInvestorGrade(granted && (qualified || isOwner) ? databaseProject?.id : null, accessState, isOwner);
   const { overrides, numericCapex, breakeven } = useProjectRecord(granted && (qualified || isOwner) ? databaseProject?.id : undefined);
+  useEffect(()=>{setIdentity(null);if(!granted||!projectId)return;let active=true;void supabase.rpc("project_identity",{_project_id:projectId}).then(({data})=>{if(active)setIdentity(parseProjectIdentity(data));});return()=>{active=false;};},[granted,projectId]);
   const baseProject = granted && (qualified || isOwner) && databaseProject ? blankProjectDetail(databaseProject) : undefined;
-  const project: ProjectDetailData | undefined = baseProject
-    ? { ...baseProject, ...overrides }
-    : teaser ? teaserProjectDetail(teaser) : undefined;
+  const currentProject: ProjectDetailData | undefined = baseProject ? { ...baseProject, ...overrides } : teaser ? teaserProjectDetail(teaser) : undefined;
+  const number=(key:string)=>investorExact&&investorDocument?.answers[key]?Number(investorDocument.answers[key]):null;
+  const capacity=number("capacity"),capex=number("capex"),equity=number("equitySought"),ticket=number("minTicket");
+  const project: ProjectDetailData | undefined=currentProject?{...currentProject,
+    ...(identity?{title:identity.title,location:[identity.city,identity.country].filter(Boolean).join(", "),developer:{...currentProject.developer,name:identity.developer.name??identity.developer.contactName??currentProject.developer.name}}:{}),
+    ...(!granted&&investorDocument?{capacity:capacity===null?currentProject.capacity:`${capacity} MW`,capex:capex===null?currentProject.capex:`EUR ${capex.toLocaleString("en-GB")}`,equityRequired:equity===null?null:`EUR ${equity.toLocaleString("en-GB")}`,minTicket:ticket===null?currentProject.minTicket:`EUR ${ticket.toLocaleString("en-GB")}`}:{})}:undefined;
+
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -203,7 +211,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
   };
 
   const openInterest = () => {
-    if(user && !qualified){toast.info("Complete your investment mandate to open this.");return;}
+    if(user && !qualified){navigate("/app/settings#investor");return;}
     if (!user) {
       toast.error("Sign in required", { description: "Please sign in to send an expression of interest." });
       navigate(`/sign-in?redirect=${encodeURIComponent(context === "app" ? `/app/projects/${slug}` : `/projects/${slug}`)}`);
@@ -386,7 +394,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
         loadingAuth={loadingAuth}
         grade={grade}
         granted={granted}
-        asOf={asOf}
+        asOf={{...asOf,financial:asOf.financial??investorDocument?.answers["asOf"]??null}}
         ctaLabel={granted ? "Access granted" : accessState === "pending" ? "Request pending" : undefined}
         projectId={projectId}
         watchlisted={projectId ? watchlist.has(projectId) : false}
@@ -396,7 +404,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
 
       <div className="mx-auto mt-6 max-w-workspace px-5">
         {!granted && <MandateFit draft={mandatePrefill(investorProfile)} criteria={criteria} />}
-        {user && !isOwner && <p className="mb-4 text-sm text-muted-foreground">A completed investment mandate opens de-identified figures and comparisons. Developer consent remains separate. Acceptance opens identity, precise location, named counterparties, contact and private Q&A at no further charge. Data room access requires a separate developer approval.</p>}
+        {user && !isOwner && <p className="mb-4 text-sm text-muted-foreground">Completing your investment mandate opens the figures and the comparisons. Identity, exact region and direct contact open only when the developer accepts an expression of interest. There is no charge for access at any stage. Data room access requires a separate developer approval.</p>}
         {granted && !isOwner && (
           <div className="flex items-start gap-2.5 rounded-xl border border-success-border bg-success-soft px-5 py-4 text-sm text-success">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-success" />
@@ -509,7 +517,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
                 project={project} numericCapex={numericCapex} granted={granted} projectId={granted ? projectId : undefined}
                 activeTab={activeTab} dataRoomStatus={dataRoomStatus} isOwner={isOwner} userId={user?.id ?? null}
                 grade={grade} asOf={asOf} breakeven={breakeven}
-              />{granted && <StageEvidenceSection document={project.submission ?? null} tab={activeTab} />}</> : qualified && investorDocument ? <InvestorInformation document={investorDocument} tab={activeTab} projectId={projectId} banded={!investorExact} /> : qualified ? <p className="text-sm text-muted-foreground">{investorError ? "Investor information could not be loaded. Please refresh." : "This developer has not consented to pre-acceptance disclosure. Figures remain banded until acceptance."}</p> : <ProjectTabContent project={project} granted={false} activeTab="Summary" />}
+              />{granted && <StageEvidenceSection document={project.submission ?? null} tab={activeTab} />}</> : qualified && investorDocument ? <InvestorInformation document={investorDocument} tab={activeTab} projectId={projectId} banded={!investorExact} /> : qualified ? <><p className="text-sm text-muted-foreground">{investorError ? "Investor information could not be loaded. Please refresh." : "This developer has not consented to pre-acceptance disclosure. Figures remain banded until acceptance."}</p>{activeTab==="Documents"&&projectId&&<GeneratedProjectDocuments projectId={projectId}/>}</> : <ProjectTabContent project={project} granted={false} activeTab="Summary" />}
             </LockedTabOverlay>
           </div>
           <div className="lg:col-span-1">

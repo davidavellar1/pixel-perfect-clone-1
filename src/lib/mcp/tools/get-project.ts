@@ -2,7 +2,7 @@ import { defineTool, ToolError } from "@lovable.dev/mcp-js";
 import { z } from "zod";
 import { supabaseForUser } from "../supabase";
 
-import { effectiveState, isGranted } from "@/lib/access";
+import { effectiveState, isGranted, isQualifiedInvestor } from "@/lib/access";
 import { teaserJson, type ProjectTeaser } from "@/lib/projectDisclosure";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -10,7 +10,7 @@ export default defineTool({
   name: "get_project",
   title: "Get project profile",
   description:
-    "Return an anonymized teaser, or investor detail after the calling user has granted access. Figures are developer-stated and unverified.",
+    "Return de-identified information for qualified investors; identity only after developer acceptance. Figures are developer-stated and unverified.",
   inputSchema: { slug: z.string().trim().min(1).describe("Project slug, as returned by search_opportunities.") },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ slug }, ctx) => {
@@ -24,9 +24,15 @@ export default defineTool({
     const { data: request, error: requestError } = await supabase.from("access_request").select("*")
       .eq("project_id", teaser.id).eq("investor_user_id", ctx.getUserId()).maybeSingle();
     if (requestError) throw new ToolError(requestError.message);
-    if (!request || !isGranted(effectiveState(request as Tables<"access_request">))) {
-      const project = teaserJson(teaser as ProjectTeaser);
-      return { content: [{ type: "text", text: `${project.teaserTitle}, ${project.countryCode} - ${project.capacityBand ?? ""}` }], structuredContent: { project } };
+    const accepted=Boolean(request && isGranted(effectiveState(request as Tables<"access_request">)));
+    const userId=ctx.getUserId();
+    if(!userId)throw new ToolError("Not authenticated");
+    const qualified=await isQualifiedInvestor({id:userId},supabase);
+    if(!qualified || !accepted){
+      const project=teaserJson(teaser as ProjectTeaser);
+      const [information,identity]=await Promise.all([qualified?supabase.rpc("investor_project",{_project_id:teaser.id}):Promise.resolve({data:null,error:null}),accepted?supabase.rpc("project_identity",{_project_id:teaser.id}):Promise.resolve({data:null,error:null})]);
+      for(const result of [information,identity])if(result.error)throw new ToolError(result.error.message);
+      return {content:[{type:"text",text:`${project.teaserTitle}, ${project.countryCode}`}],structuredContent:{project,information:information.data,identity:identity.data}};
     }
     const [detail, financial, cases] = await Promise.all([
       supabase.from("project").select("id,slug,title,city,country_code,technology,lifecycle_stage,project_type,capacity_mw,network_length_km,households_served,headline_investment,headline_co2_tonnes,summary,description,verified,timeline_start,timeline_end,financial_as_of").eq("id", teaser.id).single(),

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useInvestorQualification } from "@/hooks/useInvestorQualification";
 import { useBlocker } from "@tanstack/react-router";
 import { Camera, LogOut, Upload, X } from "lucide-react";
 import { toast } from "sonner";
@@ -37,6 +39,8 @@ export default function ProfileSettings() {
   const { user, profile, refreshProfile, signOut } = useAuth();
   const { data, setData, loading, error, retry } = useProfileSettings();
   const navigate = useNavigate();
+  const queryClient=useQueryClient();
+  const {qualified}=useInvestorQualification();
   const [personal, setPersonal] = useState(emptyPersonal);
   const [investor, setInvestor] = useState(emptyInvestor);
   const [developer, setDeveloper] = useState(emptyDeveloper);
@@ -134,7 +138,7 @@ export default function ProfileSettings() {
     try {
       const result = await supabase.from("investor_profiles").upsert({ user_id: user.id, full_name: fullName, ...parsed.data, mandate_reviewed_at:new Date().toISOString() }, { onConflict: "user_id" }).select().single();
       if (result.error) throw result.error;
-      setData(d => d ? { ...d, investor: result.data } : d); setInvestor(parsed.data); setBaseline(b => ({ ...b, investor: parsed.data })); toast.success("Investor profile updated");
+      setData(d => d ? { ...d, investor: result.data } : d); setInvestor(parsed.data); setBaseline(b => ({ ...b, investor: parsed.data })); await queryClient.invalidateQueries({queryKey:["investor-qualification",user.id]}); toast.success("Investor profile updated");
     } catch (err) { toast.error(message(err)); } finally { setSaving(null); }
   };
   const saveDeveloper = async () => {
@@ -155,6 +159,7 @@ export default function ProfileSettings() {
     catch (err) { toast.error(message(err)); } finally { setSaving(null); }
   };
   const saveButton = (section: string, changed: boolean) => <Button type="submit" disabled={!changed || !!saving} className="mt-6 bg-accent text-accent-foreground hover:bg-accent/90">{saving === section ? "Saving…" : "Save changes"}</Button>;
+  useEffect(()=>{if(!loading && window.location.hash==="#investor"){setActive("investor");document.getElementById("investor")?.scrollIntoView({block:"start"});}},[loading]);
   const jump = (id: string) => { setActive(id); document.getElementById(id)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" }); };
   if (loading) return <div className="workspace-container space-y-6" aria-label="Loading profile settings"><Skeleton className="h-10 w-52" />{[0, 1, 2].map(n => <Skeleton key={n} className="h-64 w-full" />)}</div>;
   if (error || !data) return <div role="alert" className="workspace-container space-y-4"><h1 className="font-display text-2xl font-semibold">Profile settings</h1><p className="break-words text-destructive">{error ?? "Couldn't load your profile."}</p><Button variant="outline" onClick={() => void retry()}>Retry</Button></div>;
@@ -178,7 +183,8 @@ export default function ProfileSettings() {
           {saveButton('profile', personalDirty)}
         </form></Section>
         <Section id="investor" title="Investing preferences"><form noValidate onSubmit={e => { e.preventDefault(); void saveInvestor(); }} className="space-y-5">
-          <p className="text-sm text-muted-foreground">Optional. Used to match you with relevant opportunities and funding{!data.investor ? "; nothing is saved here yet" : ""}.</p>
+          <p className="text-sm text-muted-foreground">Complete these preferences to open de-identified figures and comparisons{!data.investor ? "; nothing is saved here yet" : ""}.</p>
+          <p role="status" className="text-sm text-muted-foreground">{qualified?"Investment mandate qualified.":"Qualification requires an investor account, organisation, confirmed work email and all mandate selections. Personal mailbox accounts remain limited to banded listings."}</p>
           <Field id="investor-company" label="Organisation name" error={errors.company_name}><Input id="investor-company" maxLength={200} value={investor.company_name} onChange={e => setInvestor(i => ({ ...i, company_name: e.target.value }))} className="h-11" aria-invalid={!!errors.company_name} aria-describedby={errors.company_name ? 'investor-company-error' : undefined} /></Field>
           <div className="grid gap-5 sm:grid-cols-2"><EnumSelect id="investor-type" label="Investor type" error={errors.investor_type ? "Choose an investor type or leave it blank." : undefined} value={investor.investor_type} options={INVESTOR_TYPES} onChange={v => setInvestor(i => ({ ...i, investor_type: v }))} /><EnumSelect id="ticket" label="Typical ticket" error={errors.ticket_band ? "Choose a typical ticket or leave it blank." : undefined} value={investor.ticket_band} options={TICKETS} onChange={v => setInvestor(i => ({ ...i, ticket_band: v }))} /></div>
           <Chips id="regions" label="Regions of interest" options={listOptions([...new Set([...REGIONS, ...investor.regions_of_interest])])} value={investor.regions_of_interest} onChange={v => setInvestor(i => ({ ...i, regions_of_interest: v }))} />

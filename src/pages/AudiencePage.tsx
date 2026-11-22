@@ -57,7 +57,7 @@ const copy = {
     controlText: "DHC Market structures information and introductions. It does not underwrite projects, provide investment advice, or make investment decisions.",
     controls: [["Mandate-led discovery", "Search and matching focus attention on opportunities aligned with your stated strategy."], ["Direct engagement", "Once interest is expressed, engage the project developer without an opaque intermediary layer."], ["Clear attribution", "Forecasts and returns remain developer-stated, with named evidence and assessors where available."]],
     fee: "Success-based",
-    feeTitle: "Success-based, not subscription-based.",
+    feeTitle: "Success-based.",
     feeText: FEE_SENTENCE,
     finalTitle: "Build your European DHC pipeline",
     finalText: "Join as an investor and start screening standardized district heating and cooling opportunities.",

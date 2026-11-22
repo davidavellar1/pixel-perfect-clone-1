@@ -2974,6 +2974,10 @@ export type Database = {
           slug: string
         }[]
       }
+      preview_investor_document: {
+        Args: { _banded?: boolean; _document: Json }
+        Returns: Json
+      }
       project_discovery_rows: {
         Args: never
         Returns: {
@@ -3000,7 +3004,9 @@ export type Database = {
           transaction_terms_published: boolean
         }[]
       }
+      project_identity: { Args: { _project_id: string }; Returns: Json }
       project_owner_user_id: { Args: { _project_id: string }; Returns: string }
+      project_pdf_inputs: { Args: { _project_id: string }; Returns: Json }
       project_teaser_rows: {
         Args: never
         Returns: {

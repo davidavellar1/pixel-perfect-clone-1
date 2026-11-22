@@ -6,6 +6,7 @@ import { countryName, readable } from "@/lib/projectDisclosure";
 import { parseDocument } from "@/lib/submission/serializer";
 import { useInvestorQualification } from "@/hooks/useInvestorQualification";
 import { fundingAssumptionLines } from "@/lib/submission/disclosures";
+import {parseProjectIdentity} from '@/lib/projectIdentity';
 
 export interface ProjectListing {
   qualified?: boolean;
@@ -74,7 +75,10 @@ export const useProjectListings = () => {
     const watched = new Set((watchResult.data || []).map((row) => row.project_id));
     const investorRows = qualified ? await Promise.all(ids.map(id => supabase.rpc("investor_project",{_project_id:id}))) : [];
     const investorMap=new Map(investorRows.flatMap(result=>{const v=result.data;return v&&typeof v==='object'&&!Array.isArray(v)&&typeof v['id']==='string'?[[v['id'],{document:parseDocument(v['document']??null),exact:v['exact']===true}] as const]:[];}));
-    const grantedIds = (qualified ? ids : []).filter((id) => { const request = requestMap.get(id); return request && ["granted", "granted_full"].includes(effectiveState(request)); });
+    const acceptedIds=ids.filter(id=>{const request=requestMap.get(id);return request&&['granted','granted_full'].includes(effectiveState(request));});
+    const identities=await Promise.all(acceptedIds.map(async id=>{const result=await supabase.rpc('project_identity',{_project_id:id});return [id,parseProjectIdentity(result.data)] as const;}));
+    const identityMap=new Map(identities);
+    const grantedIds = qualified ? acceptedIds : [];
     const [exactProjects, financials, transactions, cases, ladders] = grantedIds.length ? await Promise.all([
       supabase.from("project").select("id,title,capacity_mw,financial_as_of,public_cofinancing_status,submission_published").in("id", grantedIds),
       supabase.from("financial_summary").select("project_id,capex").in("project_id", grantedIds),
@@ -98,7 +102,7 @@ export const useProjectListings = () => {
       const transaction = transactionMap.get(id);
       return {
         qualified, exactFiguresAvailable:Boolean(exact)||Boolean(safe?.exact && safe.document),
-        id, slug: row.slug ?? "", title: exact?.title ?? `${row.teaser_title ?? ""}, ${country}`,
+        id, slug: row.slug ?? "", title: identityMap.get(id)?.title ?? exact?.title ?? `${row.teaser_title ?? ""}, ${country}`,
         teaserTitle: row.teaser_title ?? "", city: "", region: country, country,
         category: readable(row.project_type), technology: readable(row.technology),
         stage: readable(row.lifecycle_stage), generation: "", publicSupport: exact?.public_cofinancing_status === "Committed" || exact?.public_cofinancing_status === "In progress",

@@ -17,6 +17,7 @@ const Metric = ({ label, value, note }: { label: string; value: string; note?: s
 const ProjectCard = ({ project, context, onWatchlistChange }: ProjectCardProps) => {
   const { user } = useAuth();
   const revealed = isGranted(project.accessState);
+  const exact = context==="app" && project.qualified && project.exactFiguresAvailable;
   const pending = project.accessState === "pending";
   const watchlist = useWatchlist();
   const watchlisted = watchlist.has(project.id);
@@ -34,11 +35,11 @@ const ProjectCard = ({ project, context, onWatchlistChange }: ProjectCardProps) 
       onWatchlistChange?.(true);
     }
   };
-  const title = `${project.teaserTitle}, ${project.region}`;
+  const title = revealed ? project.title : `${project.teaserTitle}, ${project.region}`;
   const location = project.region;
   const metrics = [
-    { label: "Capacity", value: project.capacityBand ?? capacityBand(project.capacityMw) },
-    { label: "Capex", value: project.capexBand ?? capexBand(project.capex) ?? "" },
+    { label: "Capacity", value: exact && project.capacityMw>0 ? `${project.capacityMw} MW` : project.capacityBand ?? capacityBand(project.capacityMw) },
+    { label: "Capex", value: exact && project.capex!==null ? `EUR ${project.capex.toLocaleString("en-GB")}` : project.capexBand ?? capexBand(project.capex) ?? "" },
     { label: "Lifecycle stage", value: project.stage },
   ];
   const href = context === "app" ? `/app/projects/${project.slug}` : "/sign-up";
@@ -57,13 +58,13 @@ const ProjectCard = ({ project, context, onWatchlistChange }: ProjectCardProps) 
       <p className="mt-2 flex h-6 items-center gap-1.5 text-xs text-muted-foreground"><Building2 className="h-3.5 w-3.5" />{project.technology}</p>
       <div className="mt-4 grid grid-cols-3 gap-3 border-y border-border py-4">{metrics.map((metric) => <Metric key={metric.label} {...metric} />)}</div>
       {project.offtakeLoadPct != null && <div className="py-3"><Metric label="Offtake committed" value={`${project.offtakeLoadPct.toFixed(0)}% of design load`} note="developer-stated" /></div>}
-      {project.minTicketBand && <div className="pb-3"><Metric label="Minimum ticket" value={project.minTicketBand} /></div>}
+      {project.minTicketBand && <div className="pb-3"><Metric label="Minimum ticket" value={exact && project.minTicket!==null ? `EUR ${project.minTicket.toLocaleString("en-GB")}` : project.minTicketBand} /></div>}
       <p className="mb-4 text-[11px] text-muted-foreground">{project.transactionTermsPublished ? "Transaction terms published" : "Terms not yet published, expressions of interest are indicative"}</p>
       <div className="mt-auto flex items-center gap-2 border-t border-border pt-4">
         <Button variant="outline" className="flex-1 justify-between" asChild><Link to={href}>{context === "public" ? "Create account" : "View project"}<ArrowRight className="h-4 w-4" /></Link></Button>
         {context === "app" && <Button type="button" variant="outline" size="icon" aria-label={watchlisted ? "Remove from watchlist" : "Add to watchlist"} aria-pressed={watchlisted} title={watchlisted ? "Remove from watchlist" : "Add to watchlist"} onClick={toggleWatchlist}><Heart className={cn("h-4 w-4", watchlisted && "fill-accent text-accent")} /></Button>}
       </div>
-      {!revealed && <p className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground"><Lock className="h-3 w-3" />Identity and exact figures are locked</p>}
+      {!revealed && <p className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground"><Lock className="h-3 w-3" />Identity opens only after developer acceptance</p>}
     </div>
   </article>;
 };

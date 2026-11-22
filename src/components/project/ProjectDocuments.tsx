@@ -1,3 +1,4 @@
+import {GeneratedProjectDocuments} from "@/components/project/GeneratedProjectDocuments";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -165,6 +166,7 @@ const ProjectDocuments = ({
           </div>
         )}
       </div>
+      <GeneratedProjectDocuments projectId={projectId}/>
     </div>
   );
 };

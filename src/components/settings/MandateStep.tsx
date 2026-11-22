@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +18,7 @@ const options = <T extends string>(rows: { value: T; label: string }[]) => Objec
 
 export default function MandateStep({ children }: { children: ReactNode }) {
   const { user, profile } = useAuth();
+  const queryClient=useQueryClient();
   const [readyFor, setReadyFor] = useState<string | null>(null);
   const [needed, setNeeded] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -42,6 +44,7 @@ export default function MandateStep({ children }: { children: ReactNode }) {
       ...(skip ? {} : mandate), mandate_reviewed_at: new Date().toISOString() }, { onConflict: "user_id" });
     setSaving(false);
     if (error) { toast.error("Your mandate was not saved. Please try again."); return; }
+    await queryClient.invalidateQueries({queryKey:["investor-qualification",user.id]});
     setNeeded(false);
   };
   if (failed) return <div role="alert" className="space-y-3"><p>Could not load investing preferences.</p><Button onClick={() => void load()}>Try again</Button></div>;

@@ -1,5 +1,13 @@
 # Phases 0 to 11: current checkpoint
 
+## Active request: Phase 5 amendment A
+- [x] Enforce qualification on portfolio records, refresh it after profile/mandate saves and present qualified exact figures
+- [x] Use the database projection for submission preview and independent accepted identity reads; rollback checks confirm hidden identity and optional figure banding
+- [x] Add qualification-protected generated teaser and summary preparation/download controls; fix font rendering and inspect all three PDF pages
+- [x] Remove remaining payment marketing wording; the retired billing table is inaccessible and unused
+- [ ] Exercise qualified non-owner PDF preparation and download through the UI: no authorized qualified test session has been provided
+- [ ] Full Phase 5 summary enrichment: sourced country/benchmark catalogues and calculated information remain unfinished, not invented
+
 Latest direction: no subscription charge, pricing page or billing. Qualification replaces paid access. Identity and data-room approval remain separate developer decisions.
 
 - [x] Qualification gate: investor role, organisation, confirmed non-personal email domain, completed mandate; database enforcement and one application check in access.ts
@@ -13,7 +21,7 @@ Latest direction: no subscription charge, pricing page or billing. Qualification
 - [ ] Phase 2: complete all lifecycle publication/promotion and legacy-row preservation verification
 - [ ] Phase 3: finish identity-only view independent of qualification and verify private Q&A end to end
 - [ ] Phase 4: complete qualified-only filters and exports
-- [ ] Phase 5: generated PDFs, sourced country/benchmark catalogues, full calculated information layer
+- [ ] Phase 5: qualified PDF download end-to-end check, sourced country/benchmark catalogues, full calculated information layer
 - [ ] Phase 6: work queue implemented; full real-data journey verification outstanding
 - [ ] Phase 7: funding detail/contact/review implemented; full request approval verification outstanding
 - [ ] Phase 8: consented advisor profiles/contact pathway implemented; actual advisor consent data required
@@ -22,7 +30,7 @@ Latest direction: no subscription charge, pricing page or billing. Qualification
 - [ ] Phase 11: four dashboard views remain unfinished; InvestorDashboard still requires teaser-first read cleanup
 - [ ] Align external agent tools with qualified de-identified information
 
-Stop point: Phase 5 qualification foundation, with parallel partial implementations through Phase 10. This does not complete the uploaded document. No billing or prices were built. The unused subscription table introduced earlier is now inaccessible and explicitly deprecated, not used for entitlement; destructive removal is prohibited by the platform's additive schema rules. Earlier migration-history reconciliation remains unresolved below.
+Stop point: Phase 5 amendment implementation and generated-PDF foundation, with parallel partial implementations through Phase 10. This does not complete full Phase 5 or the uploaded document. Qualified disclosure, hidden identity, banding and portfolio restrictions passed rollback checks; signed-in mandate navigation and mobile layout passed browser checks. PDF row privacy tests and all three rendered pages passed inspection after correcting blank-font rendering and duplicate summary rows. Qualified PDF download through the UI and full country/benchmark/calculation enrichment remain unfinished. No billing or prices were built. The unused subscription table introduced earlier is inaccessible and explicitly deprecated, not used for entitlement; destructive removal is prohibited by the platform's additive schema rules. Earlier migration-history reconciliation remains unresolved below.
 
 # Profile settings
 - [x] Account menu and first-name/avatar display
@@ -33,8 +41,8 @@ Stop point: Phase 5 qualification foundation, with parallel partial implementati
 - [ ] Legal document links: existing legal pages are missing; show acceptance history and support link instead
 - [ ] Account-deletion cleanup: platform policy prohibits auth.users reference or deletion trigger for user_profile
 
-# Payments
-- [ ] Enable Stripe after user confirmation; no payment integration changes yet
+# Access charges
+- [x] No billing, pricing or paid-access integration is permitted; transaction fee logic is unchanged
 
 # Gate workflow
 - [x] Oldest-first decision queue and sticky actions

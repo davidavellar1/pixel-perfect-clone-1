@@ -36,3 +36,6 @@
 - Published working copies live in an owner-only submission workspace; accepted project readers receive the last published document, never unsaved edits.
 
 - Investor information uses the qualification RPC through isQualifiedInvestor in access.ts; identity acceptance and data-room approval remain separate because neither qualification nor payment authorizes disclosure of counterparties.
+
+- Generated PDFs use fresh qualification-protected database inputs, generic metadata and a forced banded teaser; recipient watermark and as-of dates retain forwardable-copy provenance.
+- Submission previews use the database disclosure projection rather than a separate client whitelist, so consent describes precisely what qualified readers receive.
