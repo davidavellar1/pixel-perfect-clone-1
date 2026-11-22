@@ -1,59 +1,27 @@
-import { defineTool } from "@lovable.dev/mcp-js";
-import { supabaseForUser } from "../supabase";
-
-interface WatchRow {
-  added_at: string;
-  project: {
-    slug: string;
-    title: string;
-    city: string;
-    country_code: string;
-    capacity_mw: number;
-    technology: string;
-    lifecycle_stage: string;
-  } | null;
-}
+import { defineTool, ToolError } from "@lovable.dev/mcp-js";
+import { disclosedProject, resolveCaller, teasersById } from "../disclosure";
 
 export default defineTool({
   name: "list_watchlist",
   title: "List my watchlist",
-  description: "List the projects the signed-in user has saved to their watchlist.",
+  description: "List the resolved user's saved projects with qualification and acceptance disclosure gates.",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_args, ctx) => {
-    if (!ctx.isAuthenticated()) {
-      return { content: [{ type: "text", text: "Not authenticated." }], isError: true };
+    const caller = await resolveCaller(ctx);
+    const result = caller.user ? await caller.client.from("watchlist_item")
+      .select("project_id,added_at").eq("user_id", caller.user.id)
+      .order("added_at", { ascending: false }).limit(50) : { data: [], error: null };
+    if (result.error) throw new ToolError("Unable to load watchlist.");
+    const rows = result.data ?? [];
+    const teasers = await teasersById(caller, rows.map(row => row.project_id));
+    const items = [];
+    for (const row of rows) {
+      const teaser = teasers.get(row.project_id);
+      if (teaser) items.push({ addedAt: row.added_at, ...await disclosedProject(caller, teaser) });
     }
-    const supabase = supabaseForUser(ctx);
-    const { data, error } = await supabase
-      .from("watchlist_item")
-      .select("added_at, project:project_id(slug,title,city,country_code,capacity_mw,technology,lifecycle_stage)")
-      .order("added_at", { ascending: false });
-    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
-
-    const items = ((data ?? []) as unknown as WatchRow[])
-      .filter((row) => row.project !== null)
-      .map((row) => ({
-        addedAt: row.added_at,
-        slug: row.project!.slug,
-        title: row.project!.title,
-        city: row.project!.city,
-        countryCode: row.project!.country_code,
-        capacityMw: row.project!.capacity_mw,
-        technology: row.project!.technology,
-        lifecycleStage: row.project!.lifecycle_stage,
-      }));
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: items.length
-            ? items.map((i) => `${i.title} (${i.slug}) - ${i.city}, ${i.countryCode} - ${i.capacityMw} MW`).join("\n")
-            : "Your watchlist is empty.",
-        },
-      ],
-      structuredContent: { items },
-    };
+    return { content: [{ type: "text", text: items.length
+      ? items.map(item => item.project.teaserTitle ?? "Project listing").join("\n")
+      : "Your watchlist is empty." }], structuredContent: { items } };
   },
 });

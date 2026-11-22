@@ -1,5 +1,13 @@
 # Phases 0 to 11: current checkpoint
 
+## Active request: MCP disclosure parity
+- [x] Resolve all five tools' callers against verified user records
+- [x] Use shared qualification and acceptance checks with teaser-first projections
+- [x] Test each tool for unqualified, qualified/unaccepted and accepted callers
+- [x] Extract the MCP manifest and run disclosure regressions and hygiene
+
+All five handlers passed caller-state tests, including anonymous and unresolvable callers. Manifest generation is confirmed, not hosted deployment; republish is required. No database objects or access decisions changed.
+
 ## Active request: retired paid-gate cleanup
 - [x] Verify subscription and sdg_alignment both still exist, and both disclosure consent fields still use their old names
 - [x] Search src for requested terms; identify generated retired-schema references, disclosure fields, auth listener handles, decorative stripe names and legitimate energy/financing terminology
@@ -47,7 +55,7 @@ Latest direction: no subscription charge, pricing page or billing. Qualification
 - [ ] Phase 9: scoped news and source-health page implemented; full feed verification outstanding
 - [ ] Phase 10: portfolio aggregates/chart cleanup implemented; sequential interest flow outstanding
 - [ ] Phase 11: four dashboard views remain unfinished; InvestorDashboard still requires teaser-first read cleanup
-- [ ] Align external agent tools with qualified de-identified information
+- [x] Align external agent tools with qualified de-identified information
 
 Stop point: Phase 5 amendment implementation and generated-PDF foundation, with parallel partial implementations through Phase 10. This does not complete full Phase 5 or the uploaded document. Qualified disclosure, hidden identity, banding and portfolio restrictions passed rollback checks; signed-in mandate navigation and mobile layout passed browser checks. PDF row privacy tests and all three rendered pages passed inspection after correcting blank-font rendering and duplicate summary rows. Qualified PDF download through the UI and full country/benchmark/calculation enrichment remain unfinished. No billing or prices were built. The unused subscription table introduced earlier is inaccessible and explicitly deprecated, not used for entitlement; destructive removal is prohibited by the platform's additive schema rules. Earlier migration-history reconciliation remains unresolved below.
 

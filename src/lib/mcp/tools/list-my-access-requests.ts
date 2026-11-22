@@ -1,52 +1,30 @@
-import { defineTool } from "@lovable.dev/mcp-js";
-import { supabaseForUser } from "../supabase";
-
-interface RequestRow {
-  id: string;
-  status: string;
-  requested_at: string | null;
-  decided_at: string | null;
-  project: { slug: string; title: string } | null;
-}
+import { defineTool, ToolError } from "@lovable.dev/mcp-js";
+import { disclosedProject, resolveCaller, teasersById } from "../disclosure";
 
 export default defineTool({
   name: "list_my_access_requests",
   title: "List my access requests",
-  description:
-    "List the data-room access requests visible to the signed-in user, with their current status and decision dates.",
+  description: "List the resolved investor's requests and dates with teaser-first project disclosure.",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_args, ctx) => {
-    if (!ctx.isAuthenticated()) {
-      return { content: [{ type: "text", text: "Not authenticated." }], isError: true };
+    const caller = await resolveCaller(ctx);
+    const result = caller.user ? await caller.client.from("access_request")
+      .select("id,project_id,status,requested_at,decided_at")
+      .eq("investor_user_id", caller.user.id).order("requested_at", { ascending: false })
+      .limit(50) : { data: [], error: null };
+    if (result.error) throw new ToolError("Unable to load access requests.");
+    const rows = result.data ?? [];
+    const teasers = await teasersById(caller, rows.map(row => row.project_id));
+    const requests = [];
+    for (const row of rows) {
+      const teaser = teasers.get(row.project_id);
+      if (teaser) requests.push({ id: row.id, status: row.status,
+        requestedAt: row.requested_at, decidedAt: row.decided_at,
+        ...await disclosedProject(caller, teaser) });
     }
-    const supabase = supabaseForUser(ctx);
-    const { data, error } = await supabase
-      .from("access_request")
-      .select("id,status,requested_at,decided_at,project:project_id(slug,title)")
-      .order("requested_at", { ascending: false })
-      .limit(50);
-    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
-
-    const requests = ((data ?? []) as unknown as RequestRow[]).map((r) => ({
-      id: r.id,
-      status: r.status,
-      requestedAt: r.requested_at,
-      decidedAt: r.decided_at,
-      projectSlug: r.project?.slug ?? null,
-      projectTitle: r.project?.title ?? null,
-    }));
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: requests.length
-            ? requests.map((r) => `${r.projectTitle ?? "Project"} (${r.projectSlug ?? "?"}) - ${r.status}`).join("\n")
-            : "No access requests yet.",
-        },
-      ],
-      structuredContent: { requests },
-    };
+    return { content: [{ type: "text", text: requests.length
+      ? requests.map(row => `${row.project.teaserTitle} - ${row.status}`).join("\n")
+      : "No access requests yet." }], structuredContent: { requests } };
   },
 });

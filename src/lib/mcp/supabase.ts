@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 import type { ToolContext } from "@lovable.dev/mcp-js";
 
 type RuntimeGlobals = typeof globalThis & {
@@ -52,8 +53,15 @@ function supabasePublishableKey(): string {
 export function supabaseForUser(ctx: ToolContext) {
   const token = ctx.getToken();
   if (!token) throw new Error("supabaseForUser requires a verified OAuth token");
-  return createClient(supabaseProjectUrl(), supabasePublishableKey(), {
+  return createClient<Database>(supabaseProjectUrl(), supabasePublishableKey(), {
     global: { headers: { Authorization: `Bearer ${token}` } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+/** Anonymous clients are used only for the public teaser projection. */
+export function supabaseAnon() {
+  return createClient<Database>(supabaseProjectUrl(), supabasePublishableKey(), {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }

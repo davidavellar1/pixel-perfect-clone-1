@@ -5,21 +5,22 @@
   "auth": {
     "type": "oauth",
     "issuer": "https://vlefzxcumqbrsypkipmt.supabase.co/auth/v1",
+    "require_oauth_client_claim": true,
     "accepted_audiences": [
       "authenticated"
     ]
   },
   "mcp": {
     "server": {
-      "name": "pixel-perfect-clone-1",
+      "name": "dhc-market-dev-test",
       "version": "0.1.0",
-      "title": "Pixel Perfect Clone 1"
+      "title": "DHC Market dev test"
     },
     "tools": [
       {
         "name": "search_opportunities",
         "title": "Search listed opportunities",
-        "description": "Search listed district heating and cooling projects on the marketplace. Filters are optional; figures are developer-stated and unverified.",
+        "description": "Search anonymized listed projects. Qualified information and accepted identity use the same gates as the interface. Figures are developer-stated and unverified.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -84,7 +85,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Minimum capacity band floor in MW; exact capacity is not disclosed."
+              "description": "Minimum capacity band floor in MW."
             },
             "limit": {
               "anyOf": [
@@ -116,7 +117,7 @@
       {
         "name": "get_project",
         "title": "Get project profile",
-        "description": "Return de-identified information for qualified investors; identity only after developer acceptance. Figures are developer-stated and unverified.",
+        "description": "Return a teaser, qualified de-identified information and separately accepted identity. Figures are developer-stated and unverified.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -142,7 +143,7 @@
       {
         "name": "list_watchlist",
         "title": "List my watchlist",
-        "description": "List the projects the signed-in user has saved to their watchlist.",
+        "description": "List the resolved user's saved projects with qualification and acceptance disclosure gates.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -159,7 +160,7 @@
       {
         "name": "add_to_watchlist",
         "title": "Add project to my watchlist",
-        "description": "Save a listed project to the signed-in user's watchlist. Does not express interest or request data-room access.",
+        "description": "Save a listed project for the resolved user. Does not express interest or request data-room access.",
         "annotations": {
           "readOnlyHint": false,
           "destructiveHint": false,
@@ -186,7 +187,7 @@
       {
         "name": "list_my_access_requests",
         "title": "List my access requests",
-        "description": "List the data-room access requests visible to the signed-in user, with their current status and decision dates.",
+        "description": "List the resolved investor's requests and dates with teaser-first project disclosure.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,

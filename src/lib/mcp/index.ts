@@ -10,14 +10,15 @@ import listMyAccessRequestsTool from "./tools/list-my-access-requests";
 const projectRef = import.meta.env['VITE_SUPABASE_PROJECT_ID'] ?? "project-ref-unset";
 
 export default defineMcp({
-  name: "pixel-perfect-clone-1",
-  title: "Pixel Perfect Clone 1",
+  name: "dhc-market-dev-test",
+  title: "DHC Market dev test",
   version: "0.1.0",
   instructions:
     "Tools for the DHC Market deal space. Use `search_opportunities` to find listed district heating and cooling projects, `get_project` for one project's profile, `list_watchlist` and `add_to_watchlist` to manage the signed-in user's saved projects, and `list_my_access_requests` to check data-room request status. All figures are developer-stated and unverified.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
+    requireOAuthClientClaim: true,
   }),
   tools: [
     searchOpportunitiesTool,
