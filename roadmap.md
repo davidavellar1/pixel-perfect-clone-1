@@ -8,6 +8,15 @@
 
 All five handlers passed caller-state tests, including anonymous and unresolvable callers. Manifest generation is confirmed, not hosted deployment; republish is required. No database objects or access decisions changed.
 
+## Active request: app-wide disclosure sweep
+- [x] Read project disclosure consumers across screens, jobs, exports and database functions
+- [x] Fix sibling app-code disclosure violations without changing settled records or permissions
+- [x] Run focused regressions and report read-only versus executed verification
+- [ ] Close unused SDG direct-read policy gap: awaiting permission decision
+- [ ] Protect historical news associations through the direct API: requires permission/API changes or authorized data remediation
+
+Sweep results: `.lovable/reviews/disclosure-flow-sweep.md`. 77 focused tests and hygiene passed; signed-in empty Investing dashboard requested no raw project rows and had no runtime errors. Populated dashboard, qualified non-owner PDF download and real three-state OAuth calls remain unverified. No historical records or permissions changed.
+
 ## Active request: retired paid-gate cleanup
 - [x] Verify subscription and sdg_alignment both still exist, and both disclosure consent fields still use their old names
 - [x] Search src for requested terms; identify generated retired-schema references, disclosure fields, auth listener handles, decorative stripe names and legitimate energy/financing terminology

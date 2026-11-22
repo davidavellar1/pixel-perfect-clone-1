@@ -1,0 +1,37 @@
+# Project disclosure flow sweep
+
+## Rule
+Qualification opens de-identified project information and permitted exact figures. Developer acceptance alone opens identity, precise location, named counterparties, contact details and private Q&A. Data-room files require a separate approval. Anonymous or unresolved callers receive no personal records or exact project data. Owners retain access to their own listings.
+
+## Places read and outcome
+
+| Place | Code read | Outcome |
+| --- | --- | --- |
+| Five remote agent tools | `src/lib/mcp/tools/*.ts`, `src/lib/mcp/disclosure.ts`, `src/lib/access.ts` | Verified real account, shared qualification and acceptance functions, teaser-first responses. 27 handler tests cover three entitlement states, anonymous/unresolvable callers, banding and independent identity. |
+| Opportunities and cards | `src/hooks/useProjectListings.ts`, `src/components/project/ProjectCard.tsx` | Discovery first, qualified information RPC, separately accepted identity; raw records only for qualified accepted readers. |
+| Watchlist | `src/hooks/useWatchlist.tsx`, `src/pages/platform/Watchlist.tsx` | Caller-owned watch records and shared listing projection, no raw project join. |
+| Investing dashboard, deals and analytics | `src/pages/platform/InvestorDashboard.tsx` | Fixed unrestricted raw project/financial reads. Uses shared listing projection, bands without entitlement; remaining raw finance/process/case queries require qualification and acceptance. Signed-in browser opened dashboard: zero raw project requests, discovery and qualification requests present, zero runtime errors. Account had no interests or watchlist rows; populated states were not browser-exercised. |
+| Project detail, seven information tabs and hero/sidebar | `src/pages/ProjectDetail.tsx`, `src/lib/projectDisclosure.ts`, `src/hooks/useProjectRecord.ts`, `src/hooks/useInvestorGrade.ts`, `ProjectTabContent.tsx`, `ProjectHero.tsx`, `ProjectSidebar.tsx`, `InvestorInformation.tsx` | Fixed accepted-but-unqualified raw detail fetch and qualification-change reload. Exact mandate criteria now requested only for qualified readers or owners. Qualification opens sanitized information; identity uses independent RPC. |
+| Portfolio, comparisons and CSV | `BundleBuilder.tsx`, `useBundles.ts`, `portfolio.ts`, `figureDisclosure.ts` | Qualification gate; exact values require availability flag; CSV uses bands and public categories only. |
+| Generated teaser/summary PDFs | `GeneratedProjectDocuments.tsx`, `projectPdf.ts`; live `project_pdf_inputs`, `investor_project`, `project_identity` | Fresh qualified inputs; teaser is always banded, summary identity comes only from accepted identity RPC; generic file names and metadata. Existing PDF regression tests passed. Qualified non-owner download through UI remains unverified. |
+| Document index and downloads | `InvestorInformation.tsx`, `ProjectDocuments.tsx`, live `investor_document_index`, document SELECT policies and `private.can_read_project_object` | Live policy already closes the apparent historical SQL gap: original open-file metadata needs acceptance, gated metadata needs approved grant, owner paths retained. Index returns generic labels after qualification. Signed URL helper checks acceptance or separate document grant. Actual file download was not exercised. |
+| Private Q&A | `ProjectQA.tsx`, tab caller, live question SELECT policy and `notify_question_event` | Accepted tab only, private author/owner reads, notification title resolved through entitlement-aware helper. No real questions or decisions created. |
+| Developer listings, request review, data-room review | `DeveloperDashboard.tsx`, `AccessRequests.tsx`, `DataRoomRequests.tsx` | Queries begin with caller's developer profile and owned project IDs. No disclosure expansion needed. Decision/evidence behavior unchanged. |
+| Submission, edit and promotion | `StageWizard.tsx`, working-copy load, preview RPC | Owner listing path and private working copy; preview uses database sanitizer. No edits to records or publication decisions. |
+| Workspace overview and alerts | `WorkspaceOverview.tsx`, dashboard notification reader | Owned titles for owned listings; followed investor listings use teaser titles. Reads existing notifications without rewriting sent records. |
+| Market News and country pages | `MarketNews.tsx`, `ProjectNewsCard.tsx`, shared news helpers | Fixed historical city-derived relationships in the UI: project associations shown only after acceptance or to owners. Public article content remains available independently of listings. |
+| News ingestion and enrichment job | `ingest.server.ts`, `enrich.server.ts`, `api/public/hooks/ingest-news.ts` | Fixed future matching to use public country and technology only, never private city. Existing stored associations were not rewritten. |
+| Scheduled access reminders/lapse | `api/public/hooks/access-reminders.ts`, `accessNotices.ts` | Pending investor notices use teaser titles; owner notices use owned identity. No job run, schedule change or historical notice rewrite. |
+| Live qualification/disclosure functions | `is_qualified_investor`, `investor_document`, `investor_project`, `investor_document_index`, `project_identity`, `project_pdf_inputs` | Definitions inspected from live database: qualified sanitized information, default listing band switch and independent accepted identity. |
+| Live notification functions | `private.investor_notification_title`, `notify_access_request_event`, `notify_question_event`, `notify_stage_followers`, `notify_gate_followup` | Definitions inspected: entitlement-aware investor titles, generic stage-follow updates, owner-only followup, distinct data-room grant wording. |
+| Unused SDG table | Live `sdg_alignment` SELECT policy | Unresolved: `sdg_read` allows anonymous/authenticated notes for listed sustainability profiles. Permission changes held pending explicit approval. No table/data changes made. |
+
+## Remaining boundaries and verification limits
+
+- Live database policies supersede historical migration definitions for document reads. No document policy leak was confirmed in the current database.
+- Historical `news_item.related_project_ids` remain readable directly through the existing news API. The UI no longer displays unaccepted relationships and new ingestion no longer derives them from private city. Fully protecting historical API associations would require permission/API changes or authorized data remediation; neither was applied.
+- SDG raw notes remain an access-policy gap. A permission decision was requested; this sweep leaves permissions and records unchanged.
+- 77 focused tests passed; source hygiene passed. Handler tests use controlled database responses, not real OAuth accounts for each of the three entitlement states.
+- Anonymous MCP transport returned 401 without project data. Its existing OAuth requirement was retained rather than enabling anonymous remote access.
+- Manifest extraction confirms catalog generation only. Hosted MCP revision and real qualified/accepted external calls remain unverified until republishing and authorized OAuth testing.
+- Lovable Cloud and the MCP OAuth configuration already existed. No services, schedules, grants, policies or example data were enabled or changed.

@@ -14,6 +14,7 @@ import { ALL_COUNTRY_CODES, NEWS_REGIONS, countryName, isKnownCountry, summarise
 import { CATEGORY_CHIPS, NEWS_ITEM_COLUMNS, NEWS_SOURCE_COLUMNS, formatDealSize, relativeDate, type NewsCategory } from "@/lib/news/format";
 
 import { MIN_NEWS_RELEVANCE, newsPriority, canLeadNews } from "@/lib/news/policy";
+import { effectiveState, isGranted } from "@/lib/access";
 
 const PAGE = 20;
 
@@ -109,7 +110,15 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
     else if (prefs.categories.length) q = q.in("category", prefs.categories);
     const { data, error: err } = await q.order("published_at", { ascending: false }).range(offset, offset + PAGE - 1);
     if (err) { setError(err.message); setLoading(false); return; }
-    const rows = (data ?? []) as NewsRow[];
+    // Historical associations may have been derived from private city names.
+    // Show project-specific relationships only to accepted investors or owners.
+    const [requests, developer] = user ? await Promise.all([
+      supabase.from("access_request").select("*").eq("investor_user_id", user.id),
+      supabase.from("developer_profiles").select("id").eq("user_id", user.id).maybeSingle(),
+    ]) : [{ data: [] }, { data: null }];
+    const owned = developer.data ? await supabase.from("project").select("id").eq("developer_id", developer.data.id) : { data: [] };
+    const disclosedIds = new Set([...(requests.data ?? []).filter(row => isGranted(effectiveState(row))).map(row => row.project_id), ...(owned.data ?? []).map(row => row.id)]);
+    const rows = ((data ?? []) as NewsRow[]).map(row => ({ ...row, related_project_ids: row.related_project_ids.filter(id => disclosedIds.has(id)) }));
     setItems((prev) => (offset === 0 ? rows : [...prev, ...rows]));
     setHasMore(rows.length === PAGE);
     const ids = [...new Set(rows.flatMap((r) => r.related_project_ids))];
@@ -118,7 +127,7 @@ const MarketNews = ({ initialCountry }: { initialCountry?: string }) => {
       setProjects((prev) => { const next = new Map(prev); (ps ?? []).forEach((p) => { if (p.id && p.slug && p.teaser_title) next.set(p.id, { slug: p.slug, title: p.teaser_title }); }); return next; });
     }
     setLoading(false);
-  }, [prefs, countryFilter, includeEu, category]);
+  }, [prefs, countryFilter, includeEu, category, user]);
 
   useEffect(() => { void load(0); }, [load]);
 

@@ -2,11 +2,34 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { canReadProjectDetail, loadDisclosedProject, teaserJson } from "./projectDisclosure";
+import { canReadAcceptedFigures, canReadProjectDetail, loadDisclosedProject, teaserJson } from "./projectDisclosure";
 
 import { publishedBandRange } from "./bands";
 
 describe("Project disclosure", () => {
+  it("raw investor figures require both qualification and acceptance; owners retain their own records", () => {
+    assert.equal(canReadAcceptedFigures("teaser", false), false);
+    assert.equal(canReadAcceptedFigures("teaser", true), false);
+    assert.equal(canReadAcceptedFigures("granted", false), false);
+    assert.equal(canReadAcceptedFigures("granted", true), true);
+    assert.equal(canReadAcceptedFigures("granted_full", true), true);
+    assert.equal(canReadAcceptedFigures("teaser", false, true), true);
+  });
+  it("accepted unqualified detail never fetches the raw project record", async () => {
+    const calls: string[] = [];
+    const client = { rpc: async () => ({ data: false, error: null }), from(table: string) {
+      calls.push(table);
+      const chain = { select: () => chain, eq: () => chain, maybeSingle: async () => ({
+        data: table === "project_teaser" ? { id: "p", slug: "listing" } : table === "access_request" ? { state: "granted" } : null,
+        error: null,
+      }) };
+      return chain;
+    } } as unknown as SupabaseClient<Database>;
+    const result = await loadDisclosedProject(client, "listing", "u");
+    assert.equal(result.project, null);
+    assert.equal(result.request?.state, "granted");
+    assert.equal(calls.includes("project"), false);
+  });
   it("preserves published ranges for bundle consumers", () => {
     assert.deepEqual(publishedBandRange("25-50 MW"), { label: "25-50 MW", min: 25, max: 50 });
     assert.deepEqual(publishedBandRange("EUR 50M+", 1_000_000), { label: "EUR 50M+", min: 50_000_000, max: null });
@@ -20,7 +43,7 @@ describe("Project disclosure", () => {
   for (const state of ["pending", "declined", "granted", "granted_full"] as const) {
     it(`${state} queries exact detail only after accepted access`, async () => {
       const calls: string[] = [];
-      const client = { from(table: string) {
+      const client = { rpc: async () => ({ data: true, error: null }), from(table: string) {
         let selection = "";
         const chain = {
           select(value: string) { selection = value; return chain; },

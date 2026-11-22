@@ -173,7 +173,7 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
       setLoadingProject(false);
     });
     return () => { cancelled = true; };
-  }, [slug, user?.id, loadingAuth]);
+  }, [slug, user?.id, loadingAuth, qualified]);
 
   /** Notification links open a tab directly, e.g. ?tab=qa. */
   useEffect(() => {
@@ -190,10 +190,10 @@ const ProjectDetail = ({ context = "public" }: { context?: "public" | "app" }) =
     let cancelled = false;
     if (user) supabase.from("investor_profiles").select("*").eq("user_id", user.id).maybeSingle()
       .then(({ data }) => { if (!cancelled) setInvestorProfile(data); });
-    supabase.from("listing_access_criteria").select("id,project_id,min_ticket,instruments_accepted,require_construction_risk_appetite,notify_users,created_at,updated_at,electronic_execution_consent,electronic_execution_consent_at").eq("project_id", projectId).maybeSingle()
+    if (qualified || isOwner) supabase.from("listing_access_criteria").select("id,project_id,min_ticket,instruments_accepted,require_construction_risk_appetite,notify_users,created_at,updated_at,electronic_execution_consent,electronic_execution_consent_at").eq("project_id", projectId).maybeSingle()
       .then(({ data }) => { if (!cancelled) setCriteria(data as AccessCriteriaRow | null); });
     return () => { cancelled = true; };
-  }, [projectId, user?.id]);
+  }, [projectId, user?.id, qualified, isOwner]);
 
   const toggleWatchlist = async () => {
     if (!projectId) return;

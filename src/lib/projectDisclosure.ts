@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Tables } from "@/integrations/supabase/types";
-import { effectiveState, isGranted, type ViewerAccess } from "@/lib/access";
+import { effectiveState, isGranted, isQualifiedInvestor, type ViewerAccess } from "@/lib/access";
 import { blankProjectDetail } from "@/lib/blankProject";
 
 export type ProjectTeaser = Tables<"project_teaser">;
@@ -11,6 +11,7 @@ export const countryName = (code: string | null) => {
 };
 export const readable = (value: string | null) => (value ?? "").replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 export const canReadProjectDetail = (state: ViewerAccess, owner = false) => owner || isGranted(state);
+export const canReadAcceptedFigures = (state: ViewerAccess, qualified: boolean, owner = false) => owner || (qualified && isGranted(state));
 
 /** Whitelisted teaser output shared by the UI and external agent tools. */
 export const teaserJson = (row: ProjectTeaser) => ({
@@ -68,6 +69,9 @@ export async function loadDisclosedProject(client: SupabaseClient<Database>, slu
   }
   const state = request ? effectiveState(request) : "teaser";
   if (!canReadProjectDetail(state, owner)) return { teaser, project: null, request, owner };
+  if (!owner && !await isQualifiedInvestor(userId ? { id: userId } : null, client)) {
+    return { teaser, project: null, request, owner };
+  }
   const result = await client.from("project").select("*").eq("slug", slug).maybeSingle();
   if (result.error) throw result.error;
   return { teaser, project: result.data, request, owner };

@@ -40,3 +40,4 @@
 - Generated PDFs use fresh qualification-protected database inputs, generic metadata and a forced banded teaser; recipient watermark and as-of dates retain forwardable-copy provenance.
 - Submission previews use the database disclosure projection rather than a separate client whitelist, so consent describes precisely what qualified readers receive.
 - MCP tools resolve the verified token to a real account and share interface qualification, acceptance and preview helpers; personal lists are caller-scoped and no tool joins raw project rows.
+- Investor dashboards use the shared discovery projection and fetch raw financial records only after qualification and acceptance; news matching uses public country/technology categories, never private city text.

@@ -3,10 +3,12 @@ import type { Database } from "@/integrations/supabase/types";
 import { matchesDistrictEnergy } from "./keywords";
 import { canonicalUrl, normaliseTitle, parseFeed, parseGdelt, type ParsedItem } from "./parse";
 import { enrich, fallbackEnrichment, type Enrichment } from "./enrich.server";
+import { relatedProjects, type PublicProjectMatch } from "./relatedProjects";
+export { relatedProjects } from "./relatedProjects";
 
 type SourceRow = Database["public"]["Tables"]["news_source"]["Row"];
 type NewsInsert = Database["public"]["Tables"]["news_item"]["Insert"];
-type ProjectLite = { id: string; city: string; country_code: string; technology: string };
+type ProjectLite = PublicProjectMatch;
 
 const USER_AGENT = "DHCMarketNewsBot/1.0 (+https://dhc-deal-space.lovable.app)";
 const MAX_SOURCES = 5; // keeps one run well inside hosting request limits; hourly runs cover all sources
@@ -47,17 +49,6 @@ const shortError = (e: unknown): string => {
   return msg.split("\n")[0].slice(0, 200);
 };
 
-export function relatedProjects(
-  item: { title: string; title_en: string | null; summary: string | null; country_codes: string[]; technologies: string[] },
-  projects: ProjectLite[],
-): string[] {
-  const text = `${item.title} ${item.title_en ?? ""} ${item.summary ?? ""}`.toLowerCase();
-  return projects
-    .filter((p) => item.country_codes.includes(p.country_code.trim().toUpperCase()))
-    .filter((p) => (p.city && text.includes(p.city.toLowerCase())) || item.technologies.includes(p.technology))
-    .map((p) => p.id);
-}
-
 const toRow = (
   item: ParsedItem & { url: string; weak?: boolean },
   source: SourceRow,
@@ -81,7 +72,7 @@ const toRow = (
     technologies: e.technologies,
     deal_value_eur: e.deal_value_eur,
     counterparties: e.counterparties,
-    related_project_ids: relatedProjects({ title: item.title, title_en: e.title_en, summary: e.summary, country_codes, technologies: e.technologies }, projects),
+    related_project_ids: relatedProjects({ country_codes, technologies: e.technologies }, projects),
     relevance: e.relevance,
     enriched: e.enriched,
     // GDELT matches keywords anywhere in the article but only returns the headline; when the
@@ -116,10 +107,10 @@ export async function runIngest(opts: { source?: string; force?: boolean } = {})
   const due = [...rssDue, ...gdeltDue];
 
   const { data: projectRows } = await supabaseAdmin
-    .from("project")
-    .select("id, slug, title, city, country_code, technology")
-    .eq("visibility", "listed");
-  const projects: ProjectLite[] = (projectRows ?? []).map((p) => ({ id: p.id, city: p.city, country_code: p.country_code, technology: p.technology }));
+    .from("project_teaser")
+    .select("id, country_code, technology");
+  const projects: ProjectLite[] = (projectRows ?? []).flatMap(p => p.id && p.country_code && p.technology
+    ? [{ id: p.id, country_code: p.country_code, technology: p.technology }] : []);
 
   const since7 = new Date(now - 7 * 86_400_000).toISOString();
   const { data: recent } = await supabaseAdmin.from("news_item").select("title, title_en").gte("created_at", since7);
@@ -271,7 +262,7 @@ export async function runIngest(opts: { source?: string; force?: boolean } = {})
         relevance: e.relevance,
         enriched: true,
         hidden: e.relevance < 30,
-        related_project_ids: relatedProjects({ title: row.title, title_en: e.title_en, summary: e.summary, country_codes, technologies: e.technologies }, projects),
+        related_project_ids: relatedProjects({ country_codes, technologies: e.technologies }, projects),
       }).eq("id", row.id);
       if (error) console.error(`[ingest-news] back-fill update failed: ${error.message}`);
     }

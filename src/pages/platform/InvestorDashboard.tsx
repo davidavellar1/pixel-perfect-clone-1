@@ -4,7 +4,7 @@ import { Building2, FolderOpen, Heart, Info, LockOpen, Send, TrendingUp } from "
 import { Skeleton } from "@/components/ui/skeleton";
 import StatTile from "@/components/platform/StatTile";
 import DealsSwitch from "@/components/platform/DealsSwitch";
-import { TECHNOLOGIES, TICKETS } from "@/lib/profileSettings";
+import { TICKETS } from "@/lib/profileSettings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,12 +12,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWatchlist } from "@/hooks/useWatchlist";
+import { useProjectListings } from "@/hooks/useProjectListings";
+import { useInvestorQualification } from "@/hooks/useInvestorQualification";
+import { canReadAcceptedFigures } from "@/lib/projectDisclosure";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { ACCESS_STATE_LABEL, PIPELINE_STAGES, effectiveState, isGranted, normaliseStage, slaStatus, stageLabel, workingDaysSince } from "@/lib/access";
 
 type Interest = Tables<"project_interest">;
-type Project = Tables<"project">;
+type Project = Pick<Tables<"project">, "id" | "slug" | "title" | "city" | "country_code" | "capacity_mw" | "headline_investment"> & { technology: string; capacityBand: string | null };
 type Request = Tables<"access_request">;
 type Finance = Tables<"financial_summary">;
 type Process = Tables<"project_process">;
@@ -51,7 +54,12 @@ const InvestorDashboard = () => {
   const navigate = useNavigate();
   const [tab, setTab] = useState<"interests" | "deals" | "watch">("interests");
   const [interests, setInterests] = useState<Interest[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
+  const { projects: listings } = useProjectListings();
+  const { qualified } = useInvestorQualification();
+  const projects: Project[] = listings.map(row => ({ id: row.id, slug: row.slug, title: row.title,
+    city: row.city, country_code: row.country, technology: row.technology,
+    capacity_mw: qualified && row.exactFiguresAvailable ? row.capacityMw : null,
+    headline_investment: qualified && row.exactFiguresAvailable ? row.capex : null, capacityBand: row.capacityBand ?? null }));
   const [requests, setRequests] = useState<Request[]>([]);
   // Shared with the cards, project page and sidebar so the tab updates without a reload.
   const { items: watchlist } = useWatchlist();
@@ -76,14 +84,13 @@ const InvestorDashboard = () => {
       supabase.from("investor_profiles").select("*").eq("user_id", user.id).maybeSingle(),
     ]);
     const allIds = Array.from(new Set([...(interestRows || []).map((row) => row.project_id), ...(watchRows || []).map((row) => row.project_id)]));
-    if (allIds.length) {
-      const [{ data: projectRows }, { data: financeRows }, { data: processRows }, { data: caseRows }] = await Promise.all([
-        supabase.from("project").select("*").in("id", allIds),
-        supabase.from("financial_summary").select("*").in("project_id", allIds),
-        supabase.from("project_process").select("*").in("project_id", allIds),
-        supabase.from("project_case").select("*").in("project_id", allIds),
+    const entitledIds = allIds.filter(id => (requestRows ?? []).some(row => row.project_id === id && canReadAcceptedFigures(effectiveState(row), qualified)));
+    if (entitledIds.length) {
+      const [{ data: financeRows }, { data: processRows }, { data: caseRows }] = await Promise.all([
+        supabase.from("financial_summary").select("*").in("project_id", entitledIds),
+        supabase.from("project_process").select("*").in("project_id", entitledIds),
+        supabase.from("project_case").select("*").in("project_id", entitledIds),
       ]);
-      setProjects(projectRows || []);
       setFinance(financeRows || []);
       setProcesses(processRows || []);
       setCases(caseRows || []);
@@ -95,12 +102,12 @@ const InvestorDashboard = () => {
         setStackItems([]);
       }
     } else {
-      setProjects([]); setFinance([]); setProcesses([]); setCases([]); setStackItems([]);
+      setFinance([]); setProcesses([]); setCases([]); setStackItems([]);
     }
     setInterests(interestRows || []); setRequests(requestRows || []);
     setInvestorProfile(investorProfileRow || null);
     setLoading(false);
-  }, [user]);
+  }, [user, qualified]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -121,13 +128,13 @@ const InvestorDashboard = () => {
     missing.forEach((w) => fetchedFor.current.add(w.project_id));
     void load();
   }, [watchlist, projectById, loading, load]);
-  const financeByProject = useMemo(() => new Map(finance.map((row) => [row.project_id, row])), [finance]);
-  const processByProject = useMemo(() => new Map(processes.map((row) => [row.project_id, row])), [processes]);
+  const financeByProject = useMemo(() => new Map((qualified ? finance : []).map((row) => [row.project_id, row])), [finance, qualified]);
+  const processByProject = useMemo(() => new Map((qualified ? processes : []).map((row) => [row.project_id, row])), [processes, qualified]);
   const casesByProject = useMemo(() => {
     const map = new Map<string, CaseRow[]>();
-    cases.forEach((row) => { const list = map.get(row.project_id) || []; list.push(row); map.set(row.project_id, list); });
+    (qualified ? cases : []).forEach((row) => { const list = map.get(row.project_id) || []; list.push(row); map.set(row.project_id, list); });
     return map;
-  }, [cases]);
+  }, [cases, qualified]);
 
   const isCommitted = useCallback((interest: Interest) => COMMITTED_STAGES.includes(normaliseStage(interest.stage)), []);
   const committedInterests = useMemo(() => interests.filter(isCommitted), [interests, isCommitted]);
@@ -225,8 +232,8 @@ const InvestorDashboard = () => {
                   return <tr key={interest.id} className="border-t border-border">
                     <td className="px-3.5 py-3.5"><span className={cn("inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold", chip.className)}>{chip.label}</span></td>
                     <td className="px-3.5 py-3.5 font-semibold text-foreground">{project.title}</td>
-                    <td className="px-3.5 py-3.5 text-muted-foreground">{TECHNOLOGIES[project.technology] || project.technology}</td>
-                    <td className="px-3.5 py-3.5 text-muted-foreground">{project.capacity_mw != null ? `${project.capacity_mw} MW` : "-"}</td>
+                    <td className="px-3.5 py-3.5 text-muted-foreground">{project.technology}</td>
+                    <td className="px-3.5 py-3.5 text-muted-foreground">{project.capacity_mw != null ? `${project.capacity_mw} MW` : project.capacityBand ?? ""}</td>
                     <td className="px-3.5 py-3.5 text-muted-foreground">{[project.city, project.country_code].filter(Boolean).join(", ") || "-"}</td>
                     <td className="px-3.5 py-3.5 text-muted-foreground">{stageLabel(normaliseStage(interest.stage))}{state === "pending" && request ? ` · ${slaStatus(request).workingDays} working days` : ""}</td>
                     <td className="px-3.5 py-3.5 text-right"><Button size="sm" variant="outline" onClick={() => navigate(`/app/projects/${project.slug}`)}>Open</Button></td>
