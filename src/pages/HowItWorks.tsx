@@ -40,7 +40,7 @@ const supportCards = [
     points: [
       "Financial, legal, and technical advisers experienced in district energy",
       "Engineering, EIA, and feasibility support to make a project bankable",
-      "Any partner referral fee is disclosed up front, so incentives stay transparent",
+      "Any relationship with a partner is disclosed up front",
     ],
   },
 ];

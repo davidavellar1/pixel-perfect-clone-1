@@ -23,7 +23,7 @@ const pages = {
     ],
     steps: [["Describe the need", "Choose the project and the expertise required."], ["Review suggested partners", "See specialists matched to the project and request."], ["Request assistance", "Send one structured request with the relevant context."], ["Work directly", "Agree scope, terms, and delivery with the selected specialist."]],
     noteTitle: "Introductions stay transparent",
-    note: "Partners may pay DHC Market a referral fee when an engagement starts. This never changes the price shown to you, and the relationship is disclosed before you send a request.",
+    note: "Any relationship between DHC Market and a partner is disclosed before you send a request.",
     finalTitle: "Move the next project decision forward",
     finalText: "Join DHC Market to request specialist help against a real project listing.",
   },
