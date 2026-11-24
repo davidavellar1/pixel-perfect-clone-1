@@ -211,7 +211,9 @@ export type Database = {
             | Database["public"]["Enums"]["investor_entity_type"]
             | null
           id: string
-          instrument_sought: Database["public"]["Enums"]["instrument_sought"] | null
+          instrument_sought:
+            | Database["public"]["Enums"]["instrument_sought"]
+            | null
           interest_drivers: string[]
           jurisdiction: string | null
           matched_instruments: string[] | null
@@ -243,7 +245,9 @@ export type Database = {
             | Database["public"]["Enums"]["investor_entity_type"]
             | null
           id?: string
-          instrument_sought?: Database["public"]["Enums"]["instrument_sought"] | null
+          instrument_sought?:
+            | Database["public"]["Enums"]["instrument_sought"]
+            | null
           interest_drivers?: string[]
           jurisdiction?: string | null
           matched_instruments?: string[] | null
@@ -275,7 +279,9 @@ export type Database = {
             | Database["public"]["Enums"]["investor_entity_type"]
             | null
           id?: string
-          instrument_sought?: Database["public"]["Enums"]["instrument_sought"] | null
+          instrument_sought?:
+            | Database["public"]["Enums"]["instrument_sought"]
+            | null
           interest_drivers?: string[]
           jurisdiction?: string | null
           matched_instruments?: string[] | null
