@@ -126,14 +126,14 @@
         "inputSchema": {
           "type": "object",
           "properties": {
-            "slug": {
+            "publicRef": {
               "type": "string",
-              "minLength": 1,
-              "description": "Project slug, as returned by search_opportunities."
+              "format": "uuid",
+              "description": "Opaque project reference (publicRef), as returned by search_opportunities."
             }
           },
           "required": [
-            "slug"
+            "publicRef"
           ],
           "additionalProperties": false,
           "$schema": "http://json-schema.org/draft-07/schema#"
@@ -170,14 +170,14 @@
         "inputSchema": {
           "type": "object",
           "properties": {
-            "slug": {
+            "publicRef": {
               "type": "string",
-              "minLength": 1,
-              "description": "Project slug to save."
+              "format": "uuid",
+              "description": "Opaque project reference (publicRef) to save, as returned by search_opportunities."
             }
           },
           "required": [
-            "slug"
+            "publicRef"
           ],
           "additionalProperties": false,
           "$schema": "http://json-schema.org/draft-07/schema#"
